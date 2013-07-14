@@ -1,0 +1,11 @@
+laserG;80;34;#static$1;res/laser_c.png
+laserR;80;34;#static$1;res/laser_d.png
+bonusLife;60;60;#life$20;res/bonus_vie_t.png
+bonusFireRate;60;49;#weapon$20;res/bonus_arme_t.png
+explosion;220;200;#enemyExplode$21#tieExplode$36#tieSpark$17;res/expl2.png
+tie;84;60;#static$1#movingup$16#movingdown$16#hit$18#enteringlevel$15#dead$1;res/tie_t.png
+xwing;100;100;#xwingred$29#xwingblue$29#xwingyellow$29;res/xwing_t.png
+asteroid;114;125;#size$1;res/asteroid_2.png
+asteroid2;57;63;#size$1;res/asteroid_4.png
+asteroid23;57;82;#size$1;res/asteroid_23.png
+asteroid46;50;55;#size$1;res/asteroid_46.png
