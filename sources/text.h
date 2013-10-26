@@ -14,6 +14,7 @@ class Text: public Drawable
 	string content;
 
 	Text(SDL_Color aColor, TTF_Font * aFont);
+	Text(SDL_Color aColor, TTF_Font * aFont, int Xpos, int Ypos, int aWidth, int aHeight);
 	void write(string aText);
 	void update();
 	void setColor(SDL_Color aColor);

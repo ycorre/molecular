@@ -1,7 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 #include <SDL.h>
-
+#include <SDL_mixer.h>
 using namespace std;
 
 //Set up boolean values
@@ -21,8 +21,13 @@ using namespace std;
     #define printd(x)
 #endif
 
-extern Uint32 programTimer;
-extern Uint32 gameTimer;
+//Constant
+#define PI 3.14159265
+
+//Global variables (declared in game.cpp)
+extern Uint32 ProgramTimer;
+extern Uint32 GameTimer;
+extern Uint32 Score;
 
 #endif
 

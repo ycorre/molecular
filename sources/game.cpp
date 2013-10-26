@@ -14,10 +14,16 @@
 
 #include "game.h"
 
-//Timer useful when pausing the game and eventually for timing the player
+//TODO ENhance the loading config files system
+//Additionnal audio support
+
+//Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
-Uint32 programTimer;
-Uint32 gameTimer;
+Uint32 ProgramTimer;
+Uint32 GameTimer;
+
+Uint32 NextLoop, Interval, FPS = 60;
+Uint32 Score = 0;
 
 Game::Game()
 {
@@ -25,13 +31,12 @@ Game::Game()
 	initGame();
 }
 
-// Function to release/destroy our resources and restoring the old desktop
-void Quit(int returnCode)
+// Function to release/destroy the resources and restore to the desktop
+void quit(int code)
 {
-    //Close the SDL session
     SDL_Quit();
 
-    exit(returnCode);
+    exit(code);
 }
 
 
@@ -42,8 +47,17 @@ int main(int argc, char **argv)
     //set the random generator seed
     srand(time(NULL));
 
+    //Init loop timer
+    NextLoop = 0;
+
+    //Init interval in ms, i.e. the length of a loop
+    //given by dividing 1 second by the number of targeted FPS
+    Interval = 1000/FPS;
+
     //Launch the game
     game->mainLoop();
+    
+    return 1;
 }
 
 int Game::mainLoop()
@@ -51,83 +65,98 @@ int Game::mainLoop()
 	int done = FALSE;
 	SDL_Event event;
 
-    gameState = LOGO;
-   // Drawable::lev = currentLevel;
+    //Init the program timer
+    ProgramTimer = 0;
+    GameTimer = 0;
 
-    menu->introLength = 2500;
-    menu->loadIntro();
-    menu->loadMenu();
-    menu->game = this;
+    gameState = MENU;
 
     //Main loop
     while (!done)
 	{
-	    // Clear the elements to be displayed at the beginning of the loop
+	    //Clear the elements to be displayed at the beginning of the loop
     	graphicEngine.toDisplay.clear();
+
+    	//Process SDL events
 	    while (SDL_PollEvent(&event))
 		{
 		    switch(event.type)
 			{
-			case SDL_KEYDOWN:
-			    // handle key presses
-				// handleKeyPressHero(&event.key.keysym, &(game->hero));
-		    	if(gameState == MENU)
-		    	{
-		    		keyboard->handleKeyPressMenu(&event.key.keysym, menu);
-		    	}
-			    break;
+		    	case SDL_KEYDOWN:
+					//Handle key presses
+					if(gameState == MENU)
+					{
+						keyboard->handleKeyPressMenu(&event.key.keysym, menu);
+					}
+					break;
 			    
-			case SDL_KEYUP:
-			    // handle key presses
-				if(gameState == INGAME||gameState == PAUSE)
-				{
-					keyboard->handleKeyUpHero(&event.key.keysym, currentLevel->hero);
-				}
-			    break;
-			case SDL_QUIT:
-			    // handle quit requests
-			    done = TRUE;
-			    break;
-			default:
-			    break;
+		    	case SDL_KEYUP:
+					//Handle key presses
+					if(gameState == INGAME || gameState == PAUSE)
+					{
+						keyboard->handleKeyUpHero(&event.key.keysym, currentLevel->hero);
+					}
+					break;
+
+				case SDL_QUIT:
+					//Handle quit requests
+					done = TRUE;
+					break;
+
+				default:
+					break;
 			}
 		}
 
 	    keyboard->processKeyState();
 	    keyboard->processKeyPress();
 
-    	if(gameState == LOGO)
-    	{
-    		menu->playIntro();
-   		 	gameState = MENU;
-    	}
-
-    	if(gameState == MENU)
-    	{
-    		menu->displayMenu();
-    	}
-
-	    if(gameState == INGAME)
+	    switch(gameState)
 	    {
-	    	keyboard->processKeyPressHero(currentLevel->hero);
-	    	currentLevel->drawLevel();
+	    	case MENU:
+	    		menu->displayMenu();
+	    		break;
+
+	    	case INGAME:
+	    		keyboard->processeyInGame(currentLevel->hero);
+				currentLevel->drawLevel();
+				if (currentLevel->levelState == LEVEL_WON)
+				{
+					launchNextLevel();
+				}
+				if (currentLevel->levelState == LEVEL_LOST)
+				{
+					menu->currentMenu = MENU_GAMEOVER;
+					graphicEngine.fadeOut(1);
+					gameState = MENU;
+				}
+				break;
+
+	    	default:
+	    		break;
+
 	    }
 
+	    //Display the frame
 		graphicEngine.drawFrame();
 		
-		SDL_Delay(10);
+		//Control the speed of the game
+		controlFPS();
+		updateTimers();
 	}
 
-    //Clean ourselves up and exit
-    Quit(0);
+    //exit
+    quit(0);
 
     //Should never get here
-    return(0);
+    return 0;
 }
 
-
+//Initialization of the program
 int Game::initGame()
 {
+	loadConf();
+	graphicEngine.initGe();
 	graphicEngine.addFont("res/Arial.ttf");
 	graphicEngine.initColors();
 	keyboard = new Keyboard();
@@ -138,25 +167,39 @@ int Game::initGame()
 
     Level1 * l1 = new Level1();
     Level2 * l2 = new Level2();
+    Level3 * l3 = new Level3();
+
+    l1->name = "level1";
+    l2->name = "level2";
+    l3->name = "level3";
 
     levels.insert(make_pair("level1", l1));
     levels.insert(make_pair("level2", l2));
+    levels.insert(make_pair("level3", l3));
+
+    //Init the menu
+    menu->introLength = 2500;
+    menu->loadIntro();
+    menu->loadMenu();
+    menu->game = this;
 
 	return 1;
 }
 
+//Initialization of SDL
 int Game::initSDL()
 {
 	// Flags to pass to SDL_SetVideoMode
     int videoFlags;
+
     //This holds some info about our display
     const SDL_VideoInfo *videoInfo;
 	
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0)
 	{
-	    fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError());
-	    Quit(1);
+	    cerr <<  "Video initialization failed: " << SDL_GetError() << endl;
+	    quit(1);
 	}
 
     // Fetch the video info
@@ -164,54 +207,47 @@ int Game::initSDL()
 
     if (!videoInfo)
 	{
-	    fprintf(stderr, "Video query failed: %s\n", SDL_GetError());
-	    Quit(1);
+	    cerr << "Video query failed: " << SDL_GetError() << endl;
+	    quit(1);
 	}
 
     //The flags to pass to SDL_SetVideoMode
-    videoFlags = SDL_DOUBLEBUF; 	// Enable double buffering
+    videoFlags = SDL_DOUBLEBUF; 	   // Enable double buffering
     videoFlags |= SDL_HWPALETTE;       // Store the palette in hardware
-    videoFlags |= SDL_RESIZABLE;       // Enable window resizing
 
     // This checks to see if surfaces can be stored in memory
     if (videoInfo->hw_available)
-	videoFlags |= SDL_HWSURFACE;
+    	videoFlags |= SDL_HWSURFACE;
     else
-	videoFlags |= SDL_SWSURFACE;
+    	videoFlags |= SDL_SWSURFACE;
 
     // This checks if hardware blits can be done
     if (videoInfo->blit_hw)
-	videoFlags |= SDL_HWACCEL;
+    	videoFlags |= SDL_HWACCEL;
 
     // get a SDL surface from screen
-    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP,
-				videoFlags);
+    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
 
     // Verify there is a surface
     if (!graphicEngine.screen)
 	{
-	    fprintf(stderr,  "Video mode set failed: %s\n", SDL_GetError());
-	    Quit(1);
+	    cerr <<  "Video mode set failed: << " << SDL_GetError() << endl;
+	    quit(1);
 	}
     
     //Init font usage
     if (TTF_Init() != 0)
     {
     	cerr << "TTF_Init() Failed: " << TTF_GetError() << endl;
-    	SDL_Quit();
-    	exit(1);
+    	quit(1);
     }
-
-    // Load a font
-     TTF_Font *font;
-     font = TTF_OpenFont("res/Arial.ttf", 24);
-     if (font == NULL)
-     {
-        cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
-        TTF_Quit();
-        SDL_Quit();
-        exit(1);
-     }
+    
+    //Init Audio
+    if(Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 8192 ) == -1 )
+	{
+    	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
+    	quit(1);
+	}
 
     //Enable repetition of keyboard events
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
@@ -223,26 +259,130 @@ int Game::initSDL()
 
 void Game::pause()
 {
+	//If we are not in pause
 	if (gameState != PAUSE)
 	{
+		//Then save current game state
 		previousGameState = gameState;
+		//and pause
 		gameState = PAUSE;
 	}
 	else
 	{
+		//else revert to previous game state
 		gameState = previousGameState;
 	}
 }
 
+//Start a new game (beginning with level 1)
+void Game::newGame()
+{
+	currentLevel = levels.at("level1");
+	currentLevel->ge = &graphicEngine;
+	currentLevel->pe = &physicEngine;
+	currentLevel->soundEngine = &soundEngine;
+	Drawable::lev = currentLevel;
+	hero = new Hero();
+    GameTimer = 0;
+    Score = 0;
+
+	currentLevel->loadLevel(hero);
+	gameState = INGAME;
+}
+
+//Used to launch a specific level
+//Should be used only in debug
 void Game::launchLevel(string aLevel)
 {
 	currentLevel = levels.at(aLevel);
 	currentLevel->ge = &graphicEngine;
 	currentLevel->pe = &physicEngine;
+	currentLevel->soundEngine = &soundEngine;
 	Drawable::lev = currentLevel;
+	hero = new Hero();
+    GameTimer = 0;
+    Score = 0;
 
-	currentLevel->loadLevel();
+	currentLevel->loadLevel(hero);
 	gameState = INGAME;
 }
 
+//Launch the next level after a level has ended
+void Game::launchNextLevel()
+{
+	unsigned int newLevel = 0;
+	for (vector<string>::iterator aLevel = levelOrder.begin(); aLevel != levelOrder.end(); ++aLevel)
+	{
+		newLevel++;
+		if (currentLevel->name == *aLevel)
+			break;
+	}
 
+	if (newLevel >= levelOrder.size())
+	{
+		cout<<"Game won!!!!!!!!!!!\n";
+		menu->currentMenu = MENU_SUCCESS;
+		gameState = MENU;
+		return;
+	}
+
+	currentLevel = levels.at(levelOrder.at(newLevel));
+
+	currentLevel->ge = &graphicEngine;
+	currentLevel->pe = &physicEngine;
+	currentLevel->soundEngine = &soundEngine;
+	Drawable::lev = currentLevel;
+
+	currentLevel->loadLevel(hero);
+	gameState = INGAME;
+}
+
+//Update Timers
+void Game::updateTimers()
+{
+	ProgramTimer = ProgramTimer + Interval;
+
+	if (gameState == INGAME)
+		GameTimer = GameTimer + Interval;
+
+	return;
+}
+
+//Control game speed
+//If necessary, wait the required time until the next loop
+void controlFPS()
+{
+	if(NextLoop > SDL_GetTicks())
+		SDL_Delay(NextLoop - SDL_GetTicks());
+
+	NextLoop = SDL_GetTicks() + Interval ;
+
+	return;
+}
+
+//Load the game configuration file
+void Game::loadConf()
+{
+	ifstream file;
+	string line;
+	string fileName = "conf/game.conf";
+	string token;
+	string anElement;
+	vector<string> confElements;
+	string confElement;
+
+	file.open(fileName.c_str());
+	while(getline(file, line))
+	{
+		if(line.size()!=0) //Ignore empty lines
+		{
+			confElements.clear();
+			istringstream myLine(line);
+
+			while(getline(myLine, token, ';'))
+			{
+				levelOrder.push_back(token);
+			}
+		}
+	}
+}

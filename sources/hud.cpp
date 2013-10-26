@@ -4,8 +4,11 @@
 
 #include "hud.h"
 
-HUD::HUD()
+HUD::HUD(GraphicEngine * aGraphicEngine)
 {
+
+	ge = aGraphicEngine;
+	//TODO put in conf file ?
 	string path = "res/ui.png";
 	backGround.texture = ge->loadTexture(path);
 	backGround.width = SCREEN_WIDTH;
@@ -15,6 +18,21 @@ HUD::HUD()
 	backGround.state = 0;
 	backGround.animX = 0;
 	backGround.animY = 0;
+
+	//TODO put the next two elements in the conf file
+	lifeHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
+
+	lifeHUD->width = 300;
+	lifeHUD->height = 300;
+	lifeHUD->posX = 500;
+	lifeHUD->posY = 500;
+
+	scoreHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
+
+	scoreHUD->width = 300;
+	scoreHUD->height = 300;
+	scoreHUD->posX = 800;
+	scoreHUD->posY = 500;
 
 }
 
@@ -47,6 +65,7 @@ void HUD::loadHUDElements(string path)
 	}
 
 	//instantiate the corresponding drawable elements
+	//Store them in a map where the key is a unique id given in the conf file
 	for (std::map<string, vector<string> >::iterator anElement = configurationElements.begin() ; anElement != configurationElements.end(); ++anElement)
 	{
 		Drawable * tmp = new Drawable();
@@ -68,14 +87,33 @@ void HUD::displayUI()
 	ge->toDisplay.push_back(&backGround);
 }
 
+//Display the current health of the player
 void HUD::displayHealth(int life)
 {
 	int i;
 	for(i=0; i< life; i++)
 	{
 		stringstream ss;
-		ss <<"life"<<i+1;
+		ss <<"life"<< i+1;
 		ge->toDisplay.push_back(&hudElements.at(ss.str()));
 	}
+}
+
+void HUD::displayLife(int nbLife)
+{
+	stringstream ss;
+	ss <<"Life: "<< nbLife;
+	lifeHUD->write(ss.str());
+
+	ge->toDisplay.push_back(lifeHUD);
+}
+
+void HUD::displayScore(int score)
+{
+	stringstream ss;
+	ss <<"Score: "<< score;
+	scoreHUD->write(ss.str());
+
+	ge->toDisplay.push_back(scoreHUD);
 }
 

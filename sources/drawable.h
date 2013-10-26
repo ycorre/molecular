@@ -11,8 +11,9 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include "common.h"
+#include "graphicEngine.h"
 
-class Ge;
+class GraphicEngine;
 class Level;
 
 class Drawable
@@ -20,16 +21,18 @@ class Drawable
 	public:
 	  int width;
 	  int height;
-	  int posX;
-	  int posY;
+	  float posX;
+	  float posY;
 	  int state;
 	  int animX; //Position in the Sprite grid to display
 	  int animY;
 	  int display; //Boolean: should the object be display
 	  int toRemove; //Boolean: should the object be destroyed
+	  int isBlinking; //Boolean: should the object be blinking
+	  unsigned int blinkingCounter; //Keep track of the blinking frames
 
-	  //static since the graphic engine is the same for everyone
-	  static Ge * ge;
+	  //static since the graphic engine is the same for all the objects
+	  static GraphicEngine * ge;
 	  static Level * lev;
 
 	  //last timestamp where the animation was updated; useful to control the animation speed
@@ -41,6 +44,8 @@ class Drawable
 	  Drawable();
 	  ~Drawable();
 	  virtual void animate();
+	  virtual void blink();
+	  void processDisplay();
 	  int updateAnimationFrame();
 	  virtual int isEnemy() {return 0;}
 	  virtual int isHero() {return 0;}

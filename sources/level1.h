@@ -17,11 +17,9 @@ class Level1:  public Level
 {
 	public:
 	int cameraSpeed;
-	unsigned int lastTimeAsteroid;
-	int asteroidRate;
 
 	//Level1();
-	virtual void  loadLevel();
+	virtual void loadLevel(Hero * aHero);
 	virtual void loadConf();
 	virtual void loadObject();
 	virtual void loadTextures();
@@ -33,7 +31,7 @@ class Level1:  public Level
 	virtual void createExplosion(int x, int y, int type);
 	virtual void createBonus(int x, int y, int type);
 	virtual int checkEnemyCollision(Drawable * anElement);
-	int generateAsteroid();
+	virtual void finishLevel();
 };
 
 #endif

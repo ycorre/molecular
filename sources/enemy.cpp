@@ -11,6 +11,7 @@ Enemy::Enemy()
 	state = 0;
 	animX = 0;
 	animY = 0;
+	scoreValue = 0;
 	type = XRED;
 	bonusProbability = 10;
 	direction = LEFT;
@@ -31,6 +32,7 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	animY = typeXW * height;
 	direction = dir;
 	type = typeXW;
+	scoreValue = 200;
 	bonusProbability = 10;
 	canFire = FALSE;
 	fireRate = 2500;
@@ -56,8 +58,10 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 {
 	if(aDrawable->isHero())
 	{
+		lev->soundEngine->playSound("xwing_explode");
 		lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
 		dropBonus(this->posX, this->posY);
+		Score = Score + scoreValue * (type + 1);
 		this->toRemove = TRUE;
 		return;
 	}
@@ -67,7 +71,9 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 		life = life - aLaser->power;
 		if (life<=0)
 		{
+			lev->soundEngine->playSound("xwing_explode");
 			lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
+			Score = Score + scoreValue * (type + 1);
 			this->toRemove = TRUE;
 			dropBonus(this->posX, this->posY);
 		}
@@ -100,7 +106,7 @@ void Enemy::fire()
 	checkFire();
 	if (canFire)
 	{
-		lev->soundEngine->PlaySound("sound/xwing_fire.wav");
+		lev->soundEngine->playSound("xwing_fire");
 
 		lev->activeElements.push_back(new Laser(posX + 30, posY + 30, LEFT, RED_LASER));
 		canFire = 0;
@@ -111,11 +117,11 @@ void Enemy::checkFire()
 {
 	if (lev->isOnScreen(this))
 	{
-		unsigned int interval = lastTimeFired + fireRate;
-		if (interval <  SDL_GetTicks())
+		unsigned int nextFireTime = lastTimeFired + fireRate;
+		if (nextFireTime < GameTimer)
 		{
 			canFire = 1;
-			lastTimeFired = SDL_GetTicks();
+			lastTimeFired = GameTimer;
 		}
 	}
 }

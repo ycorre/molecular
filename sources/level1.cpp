@@ -4,25 +4,22 @@
 
 #include "level1.h"
 
-
-/*Level1::Level1()
+void Level1::loadLevel(Hero * aHero)
 {
-	Level();
-	asteroidRate = 1000;
-	lastTimeAsteroid = 0;
-}*/
-
-void Level1::loadLevel()
-{
+	activeElements.clear();
 	loadConf();
 	loadObject();
-	hud = new HUD();
-	hud->ge = ge;
+	createWave1();
+	hud = new HUD(ge);
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
-	asteroidRate = 1000;
-	lastTimeAsteroid = 0;
-	hero = new Hero();
+	hero =  aHero;
+	hero->texture = ge->textures.at("tie");
+	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
+	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
+	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
+	levelState = LEVEL_PLAYING;
+	ending = fading = exiting = FALSE;
 }
 
 void Level1::loadObject()
@@ -53,6 +50,12 @@ void Level1::loadBackGround()
 	bg.animX = 0;
 	bg.animY = 0;
 	activeElements.push_back(&bg);
+	
+	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
+	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
+	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
+	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
+	soundEngine->addSound("sound/tie_hit.wav", "tie_hit");
 }
 
 
@@ -60,91 +63,118 @@ void Level1::drawLevel()
 {
 	checkEvent();
 
+	//Make sure the hero stays on screen
 	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
 
+	//Set the list of elements to display
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
-		if((*anElement)->display)
-		{
-			ge->toDisplay.push_back(*anElement);
-		}
+		(*anElement)->processDisplay();
 	}
+
+	//Display the HUD
 	hud->displayUI();
-	hud->displayHealth(hero->life);
+	hud->displayHealth(hero->health);
+	hud->displayLife(hero->nbLife);
+	hud->displayScore(Score);
+
+	//Animate the hero
 	hero->animate();
+
+	//Move the background
 	bg.animX = bg.animX + cameraSpeed;
+
+	if(ending)
+	{
+		finishLevel();
+	}
 
 }
 
-
-int first = 1;
 //function that handle the events (enemies apparitions, collision checks,  etc...)
 void Level1::checkEvent()
 {
-	if (first)
-	{
-		createWave1();
-		first = 0;
-	}
 
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	{
+		if((*anElement)->toRemove)
 		{
-			if((*anElement)->toRemove)
+			activeElements.erase(anElement++);
+		}
+		else
+		{
+			if((*anElement)->isEnemy())
 			{
-				activeElements.erase(anElement++);
+				checkEnemyCollision(*anElement);
+				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				anEnemy->fire();
 			}
-			else
+			if((*anElement)->isBonus() || (*anElement)->isLaser())
 			{
-				if((*anElement)->isEnemy())
-				{
-					checkEnemyCollision(*anElement);
-					Enemy * anEnemy = static_cast<Enemy *>(*anElement);
-					anEnemy->fire();
-				}
-				if((*anElement)->isBonus() ||(*anElement)->isLaser())
-				{
-					checkCollision(*anElement);
-				}
+				checkCollision(*anElement);
 			}
 		}
+	}
 
-	//Generate Asteroid ?
-	/*if(generateAsteroid())
+	//Winning conditions
+	if(bg.animX >= 6000 - SCREEN_WIDTH && hero->state != DEAD)
 	{
-		activeElements.push_back(new Asteroid(ASTER_NORMAL));
-	}*/
-
+		//Level won
+		finishLevel();
+	}
 }
 
+//TODO Standardize the loading and the description of the patterns of enemies
 void Level1::createWave1()
 {
 	int i;
 	int xc[5] = {1040, 1140, 1140, 1240, 1240};
 	int yc[5] = {180, 290, 90, 350, 10};
-	//int xc2[5] = {1340, 1740, 1740, 1840, 1840};
-	//int yc2[5] = {170, 290, 90, 350, 10};
 	int xc3[5] = {2540, 2740, 2740, 2840, 2840};
 	int yc3[5] = {170, 290, 90, 350, 10};
 	int xc2[5] = {4040, 4140, 4140, 4240, 4240};
 
-	//int xc4[4] = {1340, 1440, 1540, 1640};
-	int xc4[5] = {1840, 1960, 2080, 2200, 2320};
-	int yc4[1] = {0};
-	int yc4bis[1] = {GAMEZONE_HEIGHT - 100};
-	int xc5[5] = {3340, 3460, 3580, 3700, 3820};
+	int xc5[5] = {5840, 5940, 5940, 6040, 6040};
+	int xc4[5] = {5640, 5740, 5740, 5840, 5840};
 
-	for (i=0; i< 5; i++)
+	int xc6[5] = {7840, 8840, 8840, 8040, 8040};
+	int xc7[5] = {9040, 8140, 8140, 9040, 9040};
+	int xc8[5] = {8240, 9240, 9240, 8440, 8440};
+
+
+	int xPatrolRed1[5] = {1840, 1960, 2080, 2200, 2320};
+	int xPatrolRed2[5] = {3340, 3460, 3580, 3700, 3820};
+
+	int yPatrolDown[1] = {0};
+	int yPatrolUp[1] = {GAMEZONE_HEIGHT - 100};
+
+	int xPatrolBlue[5] = {4700, 4820, 4940, 5060, 5180};
+	int xPatrolBlue2[5] = {7000, 7120, 7240, 7360, 7480};
+
+
+	for (i=0; i < 5; i++)
 	{
-		activeElements.push_back(new Enemy(xc[i], yc[i], 0, 1));
-		activeElements.push_back(new Enemy(xc2[i], yc[i], 2, 1));
-		activeElements.push_back(new Enemy(xc3[i], yc3[i], 1, 1));
-		//activeElements.push_back(new Patrol(xc4[i], yc4bis[0], 0, UP));
-		activeElements.push_back(new Patrol(xc4[i], yc4[0], 0, DOWN));
-		activeElements.push_back(new Patrol(xc5[i], yc4bis[0], 0, UP));
-		activeElements.push_back(new Patrol(xc5[i], yc4[0], 0, DOWN));
-		//activeElements.push_back(new Asteroid(ASTER_NORMAL));
-		//^'50;5;640;170;740;290;740;90;840;10;840;350'
+		//Regular
+		activeElements.push_back(new Enemy(xc[i], yc[i], XRED, 1));
+		activeElements.push_back(new Enemy(xc2[i], yc[i], XYELLOW, 1));
+		activeElements.push_back(new Enemy(xc3[i], yc3[i], XBLUE, 1));
+
+		activeElements.push_back(new Enemy(xc4[i], yc[i], XRED, 1));
+		activeElements.push_back(new Enemy(xc5[i], yc[i], XBLUE, 1));
+
+		activeElements.push_back(new Enemy(xc6[i], yc[i], XRED, 1));
+		activeElements.push_back(new Enemy(xc7[i], yc[i], XYELLOW, 1));
+		activeElements.push_back(new Enemy(xc8[i], yc[i], XBLUE, 1));
+
+		//Patrol
+		activeElements.push_back(new Patrol(xPatrolRed1[i], yPatrolDown[0], XRED, DOWN));
+		activeElements.push_back(new Patrol(xPatrolRed2[i], yPatrolUp[0], XRED, UP));
+		activeElements.push_back(new Patrol(xPatrolRed2[i], yPatrolDown[0], XRED, DOWN));
+		activeElements.push_back(new Patrol(xPatrolBlue[i], yPatrolDown[0], XBLUE, DOWN));
+		activeElements.push_back(new Patrol(xPatrolBlue2[i], yPatrolDown[0], XBLUE, DOWN));
+		activeElements.push_back(new Patrol(xPatrolBlue2[i], yPatrolUp[0], XBLUE, UP));
+
 	}
 }
 
@@ -152,7 +182,7 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 {
 	if(pe->collisionDetection(hero, anElement))
 	{
-		if(!hero->invincible)
+		if(!(hero->invincible || hero->state == DEAD))
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
@@ -176,6 +206,11 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 
 int Level1::checkCollision(Drawable * anElement)
 {
+	if (hero->state == DEAD)
+	{
+		return 0;
+	}
+
 	if(pe->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
@@ -220,19 +255,52 @@ void Level1::loadConf()
 			{
 				confElements.push_back(token);
 			}
-
 			configurationElements.insert(make_pair(type, confElements));
 		}
 	}
 }
 
-int Level1::generateAsteroid()
+void Level1::finishLevel()
 {
-	unsigned int thing = lastTimeAsteroid + asteroidRate;
-	if (thing <  SDL_GetTicks())
+	//First call: init
+	if(!ending)
 	{
-		lastTimeAsteroid = SDL_GetTicks();
-		return TRUE;
+		exiting = TRUE;
+		hero->setState(EXITING);
+		fading = FALSE;
 	}
-	return FALSE;
+
+	//Play Victory sound
+
+
+	//Get hero out of the screen to the right
+	if(exiting)
+	{
+		//Start fading out
+		if (hero->posX >= SCREEN_WIDTH - 300)
+		{
+			fading = TRUE;
+			exiting = FALSE;
+		}
+	}
+
+	//Fade out
+	if(fading)
+	{
+		ge->fadeOut();
+		if (ge->isFading == FALSE)
+		{
+			fading = FALSE;
+		}
+	}
+
+	ending = TRUE;
+
+	//Make sure all the events have taken place
+	if(!fading && !exiting)
+	{
+		//Aaaand we are out!
+		endLevel();
+	}
 }
+

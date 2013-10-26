@@ -16,20 +16,26 @@ class Laser;
 class Hero: public Drawable
 {
 	public:
-	  int life;
-	  int maxHealth;
+	  //Values kept from one level to the next
+	  int health;
 	  int nbLife;
-	  int heroMovingUpOrDown;
-	  list<Laser*> lasers;
-	  int canFire;
 	  int fireRate;
-	  int maxFireRate;
-	  int leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
+
+	  //Should be reset from one level to the next
+	  int heroMovingUpOrDown;
+	  int canFire;
 	  int invincible;
-	  Uint32 invincibilityTime, startInvincibility;
+	  list<Laser*> lasers;
 	  unsigned int lastTimeFired;
+	  int leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
+
+	  //Should be constant throughout the game
+	  int maxHealth;
+	  int maxFireRate;
+	  Uint32 invincibilityTime, startInvincibility;
 
 	  Hero();
+	  void setState(int aState);
 	  void fire();
 	  void moveUp();
 	  void moveDown();
@@ -37,11 +43,16 @@ class Hero: public Drawable
 	  void moveRight();
 	  void animateLasers();
 	  void checkFire();
+	  void makeInvincible();
 	  void checkInvicibility();
 	  void loseLife();
+	  void resetHero();
 	  virtual void animate();
 	  virtual int isHero() {return 1;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
+
+	private:
+	  int heroChangedState;
 };
 
 #define STATIC 0
@@ -50,6 +61,7 @@ class Hero: public Drawable
 #define HIT 3
 #define ENTER 4
 #define DEAD 5
+#define EXITING 6
 
 #endif
 

@@ -4,17 +4,31 @@
 
 #include "level2.h"
 
-void Level2::loadLevel()
+void Level2::loadLevel(Hero * aHero)
 {
 	loadConf();
 	loadObject();
-	hud = new HUD();
-	hud->ge = ge;
+	hud = new HUD(ge);
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
-	asteroidRate = 1000;
+	asteroidRate = 750;
+	asteroidTypeGenerated = ASTER_1THIRD;
 	lastTimeAsteroid = 0;
-	hero = new Hero();
+	levelState = LEVEL_PLAYING;
+	nextDiffcultyStep = 1000;
+	nextStepValues.push_back(2000);
+	nextStepValues.push_back(3000);
+	nextStepValues.push_back(3500);
+	nextStepValues.push_back(4000);
+	nextStepValues.push_back(4500);
+	nextStepValues.push_back(100000);
+	hero = aHero;
+	hero->texture = ge->textures.at("tie");
+	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
+	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
+	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
+	hero->resetHero();
+	ending = fading = exiting = FALSE;
 }
 
 void Level2::loadObject()
@@ -45,6 +59,12 @@ void Level2::loadBackGround()
 	bg.animX = 0;
 	bg.animY = 0;
 	activeElements.push_back(&bg);
+
+	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
+	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
+	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
+	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
+	soundEngine->addSound("sound/tie_hit.wav", "tie_hit");
 }
 
 
@@ -57,47 +77,85 @@ void Level2::drawLevel()
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
-		if((*anElement)->display)
-		{
-			ge->toDisplay.push_back(*anElement);
-		}
+		(*anElement)->processDisplay();
 	}
+
 	hud->displayUI();
-	hud->displayHealth(hero->life);
+	hud->displayHealth(hero->health);
+	hud->displayLife(hero->nbLife);
+	hud->displayScore(Score);
+
 	hero->animate();
 	bg.animX = bg.animX + cameraSpeed;
+
+	if(ending)
+	{
+		finishLevel();
+	}
 }
 
 //function that handle the events (enemies apparitions, collision checks,  etc...)
 void Level2::checkEvent()
 {
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	{
+		if((*anElement)->toRemove)
 		{
-			if((*anElement)->toRemove)
+			activeElements.erase(anElement++);
+		}
+		else
+		{
+			if((*anElement)->isEnemy())
 			{
-				activeElements.erase(anElement++);
+				checkEnemyCollision(*anElement);
 			}
-			else
+			if((*anElement)->isBonus() ||(*anElement)->isLaser())
 			{
-				if((*anElement)->isEnemy())
-				{
-					checkEnemyCollision(*anElement);
-					Enemy * anEnemy = static_cast<Enemy *>(*anElement);
-					anEnemy->fire();
-				}
-				if((*anElement)->isBonus() ||(*anElement)->isLaser())
-				{
-					checkCollision(*anElement);
-				}
+				checkCollision(*anElement);
 			}
 		}
+	}
 
 	//Generate Asteroid ?
 	if(generateAsteroid())
 	{
-		activeElements.push_back(new Asteroid(ASTER_NORMAL));
+		activeElements.push_back(new Asteroid(asteroidTypeGenerated));
 	}
 
+	//Gradually increase difficulty
+	if(bg.animX >= nextDiffcultyStep)
+	{
+		if (nextDiffcultyStep >= 1000)
+		{
+			asteroidRate = 550;
+		}
+		if (nextDiffcultyStep >= 2000)
+		{
+			asteroidTypeGenerated = ASTER_2THIRD;
+		}
+		if (nextDiffcultyStep >= 3000)
+		{
+			asteroidRate = 400;
+		}
+		if (nextDiffcultyStep >= 3500)
+		{
+			asteroidTypeGenerated = ASTER_NORMAL;
+		}
+		if (nextDiffcultyStep >= 4500)
+		{
+			asteroidRate = 300;
+			nextDiffcultyStep = 100000;
+		}
+		nextDiffcultyStep = nextStepValues.front();
+		nextStepValues.pop_front();
+	}
+
+	//Winning conditions
+	if(bg.animX >= 6300 - SCREEN_WIDTH && hero->state != DEAD)
+	{
+		//Level won
+		finishLevel();
+	}
 }
 
 
@@ -105,7 +163,7 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 {
 	if(pe->collisionDetection(hero, anElement))
 	{
-		if(!hero->invincible)
+		if(!(hero->invincible || hero->state == DEAD))
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
@@ -129,6 +187,12 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 
 int Level2::checkCollision(Drawable * anElement)
 {
+
+	if (hero->state == DEAD)
+	{
+		return 0;
+	}
+
 	if(pe->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
@@ -143,9 +207,10 @@ void Level2::createExplosion(int x, int y, int type)
 	activeElements.push_back(new Explosion(x, y, type));
 }
 
+//We only generate better weapons since health are useless here
 void Level2::createBonus(int x, int y, int type)
 {
-	activeElements.push_back(new Bonus(x, y, type));
+	activeElements.push_back(new Bonus(x, y, BONUS_FIRERATE));
 }
 
 //Load all the configuration elements from a text file
@@ -181,11 +246,57 @@ void Level2::loadConf()
 
 int Level2::generateAsteroid()
 {
-	unsigned int thing = lastTimeAsteroid + asteroidRate;
-	if (thing <  SDL_GetTicks())
+	unsigned int nextAsteroidTime = lastTimeAsteroid + asteroidRate;
+	if (nextAsteroidTime < GameTimer)
 	{
-		lastTimeAsteroid = SDL_GetTicks();
+		lastTimeAsteroid = GameTimer;
 		return TRUE;
 	}
 	return FALSE;
 }
+
+void Level2::finishLevel()
+{
+	//First call: init
+	if(!ending)
+	{
+		exiting = TRUE;
+		hero->setState(EXITING);
+		fading = FALSE;
+		asteroidRate = 1000000;
+	}
+
+	//Play Victory sound
+
+
+	//Get hero out of the screen to the right
+	if(exiting)
+	{
+		//Start fading out
+		if (hero->posX >= SCREEN_WIDTH - 300)
+		{
+			fading = TRUE;
+			exiting=FALSE;
+		}
+	}
+
+	//Fade out
+	if(fading)
+	{
+		ge->fadeOut();
+		if (ge->isFading == FALSE)
+		{
+			fading = FALSE;
+		}
+	}
+
+	ending = TRUE;
+
+	//Make sure all the events have taken place
+	if(!fading && !exiting)
+	{
+		//Aaaand we are out!
+		endLevel();
+	}
+}
+

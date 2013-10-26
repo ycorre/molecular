@@ -20,6 +20,7 @@ class Enemy: public Drawable
 		int life;
 		int canFire;
 		int fireRate;
+		int scoreValue;
 		unsigned int lastTimeFired;
 
 		Enemy();
@@ -28,7 +29,7 @@ class Enemy: public Drawable
 		virtual void animate();
 		virtual void processCollisionWith(Drawable* aDrawable);
 		virtual int isEnemy() {return 1;}
-		void fire();
+		virtual void fire();
 		virtual void checkFire();
 };
 
@@ -50,21 +51,44 @@ class Patrol: public Enemy
 class Asteroid: public Enemy
 {
 	public:
-		int destinationX;
-		int destinationY;
-		int maxSpeed;
-		float slide;
+		float angle;
+		int speed;
 
 		Asteroid();
 		Asteroid(int type);
-		//used to set small fragment of asteroid
-		Asteroid(int typeXW, int sX, int sY, int destX, int destY, int dir);
+		//used to set small fragments of asteroid
+		Asteroid(int typeXW, int sX, int sY, int speed, float angle);
 		void processCollisionWith(Drawable* aDrawable);
 		void createSmallerAsteroid(Asteroid * anElement);
 		virtual void animate();
-		void setTrajectory();
-		virtual void checkFire();
+		void setAngleAndSpeed();
 };
+
+class Falcon: public Enemy
+{
+	public:
+		int destinationX;
+		int destinationY;
+		int speed;
+		int initialLife;
+		int initialHealthDisplayWidth;
+		int currentPhase;
+		int fireCounter;
+		Drawable * healthDisplay;
+
+		Falcon();
+		//Falcon(int type);
+		void processCollisionWith(Drawable* aDrawable);
+		virtual void fire();
+		virtual void animate();
+		virtual void checkFire();
+		void firePattern();
+		void displayHealth();
+};
+
+#define FALCON_PHASE_1 0
+#define FALCON_PHASE_2 1
+#define FALCON_PHASE_3 2
 
 #endif
 

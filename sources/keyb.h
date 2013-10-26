@@ -10,7 +10,6 @@
 #include "graphicEngine.h"
 #include "game.h"
 #include "hero.h"
-//#include "menu.h"
 
 class Game;
 class Menu;
@@ -23,14 +22,11 @@ class Keyboard
 		int p_pressed;
 
 		Keyboard();
-		void handleKeyPress(SDL_keysym *keysym);
-		//void handleKeyPressHero(SDL_keysym *keysym, Hero * hero);
 		void handleKeyUpHero(SDL_keysym *keysym, Hero  * hero);
 		void processKeyPress();
 		void processKeyState();
-		void processKeyPressHero(Hero* hero);
+		void processeyInGame(Hero* hero);
 		void handleKeyPressMenu(SDL_keysym *keysym, Menu * menu);
-		void processKeyPressMenu(Menu* menu);
 };
 
 //Definition of the keymap
@@ -41,7 +37,7 @@ class Keyboard
 #define FIRE_KEY SDLK_SPACE
 #define PAUSE_KEY SDLK_p
 
-void Quit(int returnCode);
+void quit(int returnCode);
 
 #endif
 

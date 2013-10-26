@@ -17,12 +17,13 @@ Bonus::Bonus()
 	state = 0;
 	animX = 0;
 	animY = 0;
+	scoreValue = 200;
 }
 
 Bonus::Bonus(int x, int y, int bType)
 {
 	type = bType;
-	if (bType == BLIFE)
+	if (bType == BONUS_LIFE)
 	{
 		texture = ge->textures.at("bonusLife");
 		width = atoi(((lev->configurationElements.at("bonusLife")).at(0)).c_str());
@@ -31,7 +32,7 @@ Bonus::Bonus(int x, int y, int bType)
 		nbFrames.clear();
 		nbFrames.push_back(20);
 	}
-	if (bType == BFIRERATE)
+	if (bType == BONUS_FIRERATE)
 	{
 		texture = ge->textures.at("bonusFireRate");
 		width = atoi(((lev->configurationElements.at("bonusFireRate")).at(0)).c_str());
@@ -45,6 +46,7 @@ Bonus::Bonus(int x, int y, int bType)
 	state = 0;
 	animX = 0;
 	animY = 0;
+	scoreValue = 200;
 }
 
 void Bonus::animate()
@@ -57,6 +59,7 @@ void Bonus::processCollisionWith(Drawable* aDrawable)
 {
 	if (aDrawable->isHero())
 	{
+		Score = Score + scoreValue;
 		this->toRemove = TRUE;
 	}
 }

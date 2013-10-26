@@ -19,7 +19,9 @@
 #define GAMEZONE_HEIGHT 480
 #define SCREEN_BPP     32
 
-class Ge
+class Drawable;
+
+class GraphicEngine
 {
 	public:
 	  SDL_Surface *screen;
@@ -28,12 +30,22 @@ class Ge
 	  vector<TTF_Font *> availableFonts;
 	  map<string, SDL_Color> availableColors;
 
+	  //Black rectangle used for the fading effects
+	  Drawable * blackBox;
+	  int alphaFading;
+	  int isFading;
+
+	  GraphicEngine();
+	  void initGe();
 	  void displayFrame();
 	  int draw(Drawable * sprite);
 	  void drawFrame();
 	  void blitElement(SDL_Surface * anElement);
 	  void addFont(string path);
 	  void initColors();
+	  void fadeOut();
+	  void fadeOut(int speed);
+	  void fadeIn();
 	  SDL_Surface * loadTexture(string path);
 };
 

@@ -26,16 +26,19 @@ class Level
 {
 	public:
 	Drawable bg;
-	Ge * ge;
+	GraphicEngine * ge;
 	Pe * pe;
 	Hero * hero;
 	HUD * hud;
 	SoundEngine * soundEngine;
 	list<Drawable*> activeElements;
 	map<string, vector<string> > configurationElements;
+	string name;
+	int levelState;
 	int cameraSpeed;
+	int exiting, ending, fading;
 
-	virtual void loadLevel();
+	virtual void loadLevel(Hero * aHero);
 	virtual void loadConf();
 	virtual void loadObject();
 	virtual void loadTextures();
@@ -47,9 +50,15 @@ class Level
 	virtual void createBonus(int x, int y, int type);
 	virtual int checkCollision(Drawable * anEnemy);
 	virtual int checkEnemyCollision(Drawable * anElement);
-	//int checkBonusCollision(Drawable * anElement);
+	virtual void endLevel();
+	virtual void finishLevel();
 	int isOnScreen(Drawable * aDrawable);
 };
+
+#define LEVEL_PLAYING 0
+#define LEVEL_WON 1
+#define LEVEL_LOST 2
+#define LEVEL_FINISHING 3
 
 #endif
 
