@@ -3,36 +3,35 @@
 Asteroid::Asteroid()
 {
 	//	Enemy();
-	//slide = destinationX =	destinationY =	posX =posY = -1;
 }
 
 //Asteroids appears randomly and have random trajectory
 //So we get two random points (four values in total) which set the depart point and the destination point of the asteroid
-Asteroid::Asteroid(int typeXW)
+Asteroid::Asteroid(int asteroidType)
 {
 	Drawable();
-	if (typeXW == ASTER_NORMAL)
+	if (asteroidType == ASTER_NORMAL)
 	{
 		texture = ge->textures.at("asteroid");
 		width = atoi(((lev->configurationElements.at("asteroid")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid")).at(2));
 	}
-	if (typeXW == ASTER_DEMI)
+	if (asteroidType == ASTER_DEMI)
 	{
 		texture = ge->textures.at("asteroid2");
 		width = atoi(((lev->configurationElements.at("asteroid2")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid2")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid2")).at(2));
 	}
-	if (typeXW == ASTER_2THIRD)
+	if (asteroidType == ASTER_2THIRD)
 	{
 		texture = ge->textures.at("asteroid23");
 		width = atoi(((lev->configurationElements.at("asteroid23")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid23")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid23")).at(2));
 	}
-	if (typeXW == ASTER_1THIRD)
+	if (asteroidType == ASTER_1THIRD)
 	{
 		texture = ge->textures.at("asteroid46");
 		width = atoi(((lev->configurationElements.at("asteroid46")).at(0)).c_str());
@@ -43,45 +42,44 @@ Asteroid::Asteroid(int typeXW)
 	state = 0;
 	animX = 0;
 	animY = 0;
-	maxSpeed = 3;
+	scoreValue = 500 - (200 * asteroidType);
 	direction = UP;
-	type = typeXW;
+	type = asteroidType;
 	bonusProbability = 10;
 	canFire = FALSE;
 	fireRate = 2500;
 	lastTimeFired = 0;
 	life = 50;
-
-	setTrajectory();
+	setAngleAndSpeed();
 }
 
-//Asteroids have a predefine trajectory
-//typîcally used for smaller asteroids resulting of the explosion of smaller asteroids
-Asteroid::Asteroid(int typeXW, int sX, int sY, int destX, int destY, int dir)
+//Asteroids have a predefined trajectory
+//typically used for smaller asteroids resulting of the explosion of bigger asteroids
+Asteroid::Asteroid(int asteroidType, int sX, int sY, int aSpeed, float anAngle)
 {
 	Drawable();
-	if (typeXW == ASTER_NORMAL)
+	if (asteroidType == ASTER_NORMAL)
 	{
 		texture = ge->textures.at("asteroid");
 		width = atoi(((lev->configurationElements.at("asteroid")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid")).at(2));
 	}
-	if (typeXW == ASTER_DEMI)
+	if (asteroidType == ASTER_DEMI)
 	{
 		texture = ge->textures.at("asteroid2");
 		width = atoi(((lev->configurationElements.at("asteroid2")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid2")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid2")).at(2));
 	}
-	if (typeXW == ASTER_2THIRD)
+	if (asteroidType == ASTER_2THIRD)
 	{
 		texture = ge->textures.at("asteroid23");
 		width = atoi(((lev->configurationElements.at("asteroid23")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid23")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid23")).at(2));
 	}
-	if (typeXW == ASTER_1THIRD)
+	if (asteroidType == ASTER_1THIRD)
 	{
 		texture = ge->textures.at("asteroid46");
 		width = atoi(((lev->configurationElements.at("asteroid46")).at(0)).c_str());
@@ -92,25 +90,25 @@ Asteroid::Asteroid(int typeXW, int sX, int sY, int destX, int destY, int dir)
 	state = 0;
 	animX = 0;
 	animY = 0;
-	maxSpeed = 3;
-	direction = dir;
-	type = typeXW;
+	type = asteroidType;
 	bonusProbability = 10;
 	canFire = FALSE;
+	scoreValue = 500 - (200 * asteroidType);
 	fireRate = 2500;
 	lastTimeFired = 0;
 	life = 50;
-	destinationX = destX;
-	destinationY = destY;
+	speed = aSpeed;
+	angle = anAngle;
 	posX = sX + width / 2;
 	posY = sY + height / 2;
-	slide = (posX - posY) / (destinationX - destinationY);
 }
 
-void Asteroid::setTrajectory()
+//Randomily decide the characteristics of an asteroid (speed and angle)
+void Asteroid::setAngleAndSpeed()
 {
 	//Set which side of the screen it will appear from
 	int arrivalSide = rand() % 4;
+	int angleDegree;
 
 	//Then set the starting point
 	if(arrivalSide == LEFT)
@@ -134,37 +132,29 @@ void Asteroid::setTrajectory()
 		posX = rand() % SCREEN_WIDTH;
 	}
 
-	//Set which side of the screen it will exit to
-	//We want it different from the arrival side
-	int destSide = arrivalSide;
-	while(destSide == arrivalSide)
+	//Set the speed (between 2 and 7)
+	speed = (rand() % 5) + 2;
+
+	//Set the angle (in degrees)
+	if (arrivalSide == LEFT)
 	{
-		destSide = rand() % 4;
+		angleDegree = (rand() % 90) + 315; // values between -45 and 45
+	}
+	if (arrivalSide == RIGHT)
+	{
+		angleDegree = (rand() % 90) + 135; // 45 and 315
+	}
+	if (arrivalSide == DOWN)
+	{
+		angleDegree = (rand() % 180) + 180; // -180 and 0
+	}
+	if (arrivalSide == UP)
+	{
+		angleDegree = rand() % 180; //values between 0 and 180
 	}
 
-	//Set the coordinates of the destination point
-	if (destSide == LEFT)
-	{
-		destinationX = -width;
-		destinationY = rand() % GAMEZONE_HEIGHT;
-	}
-	if (destSide == RIGHT)
-	{
-		destinationX = SCREEN_WIDTH;
-		destinationY = rand() % GAMEZONE_HEIGHT;
-	}
-	if (destSide == UP)
-	{
-		destinationY = -height;
-		destinationX = rand() % SCREEN_WIDTH;
-	}
-	if (destSide == DOWN)
-	{
-		destinationY = GAMEZONE_HEIGHT;
-		destinationX = rand() % SCREEN_WIDTH;
-	}
-	direction = destSide;
-	slide = (posX - posY) / (destinationX - destinationY);
+	//Convert into radians
+	angle = angleDegree * (PI / 180.0);
 }
 
 
@@ -172,54 +162,13 @@ void Asteroid::animate()
 {
 	updateAnimationFrame();
 
-	//Trick to limit the speed of the asteroids
-	int step;
-	int finalStep;
-
-	//y - y1 = m(x - x1)
-	switch(direction)
-	{
-		case UP:
-			posY = posY - 2;
-			//posX = (slide * (posY - destinationY)) + destinationX;
-			step = posX - (slide * (posY - destinationY)) + destinationX;
-			finalStep = min(step, maxSpeed);
-			finalStep = max(finalStep, -maxSpeed);
-			posX = posX + finalStep;
-			break;
-		case DOWN:
-			posY = posY + 2;
-			step = posX - (slide * (posY - destinationY)) + destinationX;
-			finalStep = min(step, maxSpeed);
-			finalStep = max(finalStep, -maxSpeed);
-			posX = posX + finalStep;
-			break;
-		case LEFT:
-			posX = posX - 2;
-			//posY = (slide * (posX - destinationX)) + destinationY;
-			step = posY - (slide * (posX - destinationX)) + destinationY;
-			finalStep = min(step, maxSpeed);
-			finalStep = max(finalStep, -maxSpeed);
-			posY = posY + finalStep;
-			break;
-		case RIGHT:
-			posX = posX + 2;
-			step = posY - (slide * (posX - destinationX)) + destinationY;
-			finalStep = min(step, maxSpeed);
-			finalStep = max(finalStep, -maxSpeed);
-			posY = posY + finalStep;
-			break;
-		default:
-			break;
-	}
-
-
+	float vx, vy;
+	vx = (speed) * cos(angle);
+	vy = (speed) * sin(angle);
+	posX = posX + vx;
+	posY = posY + vy;
 }
 
-void Asteroid::checkFire()
-{
-
-}
 
 void Asteroid::processCollisionWith(Drawable* aDrawable)
 {
@@ -228,17 +177,22 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 		lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
 		dropBonus(this->posX, this->posY);
 		this->toRemove = TRUE;
+		Score = Score + scoreValue;
 		return;
 	}
+
 	if (aDrawable->isLaser())
 	{
 		Laser * aLaser =  static_cast<Laser*>(aDrawable);
 		life = life - aLaser->power;
 		if (life<=0)
 		{
-			lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
+			lev->createExplosion(this->posX - this->width/2, this->posY - this->height/2, XWING_EXPL);
+			Score = Score + scoreValue;
+			//The asteroid is not the smallest type
 			if(type != ASTER_1THIRD)
 				{createSmallerAsteroid(this);}
+
 			dropBonus(this->posX, this->posY);
 			this->toRemove = TRUE;
 		}
@@ -248,10 +202,12 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 		}
 		return;
 	}
+	return;
 }
 
+//When a big asteroid explodes create two smaller asteroids that goes in perpendicular directions
 void Asteroid::createSmallerAsteroid(Asteroid * anAsteroid)
 {
-	lev->activeElements.push_back(new Asteroid(anAsteroid->type + 1, anAsteroid->posX, anAsteroid->posY, anAsteroid->destinationX, anAsteroid->destinationY, ((anAsteroid->direction+1)%4)));
-	lev->activeElements.push_back(new Asteroid(anAsteroid->type + 1, anAsteroid->posX, anAsteroid->posY, anAsteroid->destinationY, anAsteroid->destinationX, ((anAsteroid->direction-1)%4)));
+	lev->activeElements.push_back(new Asteroid(anAsteroid->type + 1, anAsteroid->posX, anAsteroid->posY, anAsteroid->speed + 1, anAsteroid->angle + (90.0 * (PI / 180.0))));
+	lev->activeElements.push_back(new Asteroid(anAsteroid->type + 1, anAsteroid->posX, anAsteroid->posY, anAsteroid->speed + 1, anAsteroid->angle - (90.0 * (PI / 180.0))));
 }

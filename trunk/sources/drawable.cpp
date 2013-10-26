@@ -5,7 +5,7 @@
 
 #include "drawable.h"
 
-Ge * Drawable::ge;
+GraphicEngine * Drawable::ge;
 Level * Drawable::lev;
 
 Drawable::Drawable()
@@ -21,6 +21,8 @@ Drawable::Drawable()
 	height = 1;
 	display = TRUE;
 	toRemove = FALSE;
+	isBlinking = FALSE;
+	blinkingCounter = 0;
 }
 
 Drawable::~Drawable()
@@ -48,7 +50,7 @@ int Drawable::updateAnimationFrame()
 {
 	//41 ms ~= 24 FPS
 	//33 ms ~= 30 FPS
-	unsigned int updateTime = lastTimeUpdated + 41;
+	unsigned int updateTime = lastTimeUpdated + 33;
 	if (updateTime < SDL_GetTicks())
 	{
 		//shift one sprite to the right; if we are at the end then go back to the beginning
@@ -81,3 +83,25 @@ vector<int> parseAnimationState(string aConf)
 	return nbFrames;
 }
 
+void Drawable::processDisplay()
+{
+	if (isBlinking)
+	{
+		blink();
+	}
+
+	if(display)
+	{
+		ge->toDisplay.push_back(this);
+	}
+}
+
+void Drawable::blink()
+{
+	if (blinkingCounter == 0)
+	{
+		//Blinking effect showing that we are invincible
+		display = (display + 1) % 2;
+	}
+	blinkingCounter = (blinkingCounter + 1) % 3;
+}

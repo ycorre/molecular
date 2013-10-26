@@ -4,20 +4,17 @@
 
 #include "hero.h"
 
-int heroChangedState;
-
-Hero::Hero() {
-	life = 4;
+Hero::Hero()
+{
+	health = 4;
 	maxHealth = 8;
-	nbLife = 50;
-	texture = ge->textures.at("tie");
-	width = atoi(((lev->configurationElements.at("tie")).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at("tie")).at(1)).c_str());
+	nbLife = 5;
 	posX = 0;
 	posY = 170;
 	state = ENTER;
 	animX = 0;
 	invincible = FALSE;
+	invincibilityTime = 1250;
 	heroChangedState = TRUE;
 	canFire = 1;
 	maxFireRate = 200;
@@ -25,16 +22,34 @@ Hero::Hero() {
 	lastTimeFired = 0;
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
-	nbFrames = parseAnimationState((lev->configurationElements.at("tie")).at(2));
+}
+
+void Hero::resetHero()
+{
+	if(health < 4)
+		health = 4;
+
+	posX = 0;
+	posY = 170;
+	state = ENTER;
+	animX = 0;
+	invincible = FALSE;
+	invincibilityTime = 1250;
+	heroChangedState = TRUE;
+	canFire = 1;
+	lastTimeFired = 0;
+	heroMovingUpOrDown = 0;
+	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
+	lasers.clear();
 }
 
 void Hero::animate()
 {
+//TODO can we do something more generic ? states loaded through a textfile
+
 	//If we have changed state between two calls to this function
-	//TODO can we do something more generic ? state loaded through a textfile
 	if (heroChangedState)
 	{
-		invincible = FALSE;
 		dontMove = FALSE;
 		switch(state)
 		{
@@ -56,21 +71,31 @@ void Hero::animate()
 			case HIT:
 				animX = 0;
 				animY = HIT * height;
-				invincible = TRUE;
+				makeInvincible();
 				break;
 		
 			case ENTER:
 				animX = 0;
 				animY = ENTER * height;
 				dontMove = TRUE;
-				invincible = TRUE;
+				makeInvincible();
 				break;
 
 			case DEAD:
-				animX = width -1;
+				animX = width - 1;
 				animY = STATIC * height;
 				dontMove = TRUE;
-				invincible = TRUE;
+				makeInvincible();
+				break;
+
+			case EXITING:
+				animX = 0;
+				animY = STATIC * height;
+				dontMove = TRUE;
+				invincibilityTime = 100000;
+				makeInvincible();
+				display = TRUE;
+				isBlinking = FALSE;
 				break;
 		
 			default:
@@ -101,9 +126,10 @@ void Hero::animate()
 
 				case HIT:
 					if (animX == 0)
-						{state = STATIC;
+					{
+						state = STATIC;
 						heroChangedState = TRUE;
-						invincible = FALSE;}
+					}
 					break;
 
 				case ENTER:
@@ -112,7 +138,21 @@ void Hero::animate()
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
-						invincible = FALSE;
+					}
+					break;
+
+				case EXITING:
+					//Make the ship exit to the right
+					posX = posX + 12;
+
+					//make the ship go toward the middle of the screen
+					if(posY > GAMEZONE_HEIGHT/2 - this->height/2 - 3)
+					{
+						posY = posY - 4;
+					}
+					if(posY < GAMEZONE_HEIGHT/2 - this->height/2 + 3)
+					{
+						posY = posY + 4;
 					}
 					break;
 
@@ -122,7 +162,8 @@ void Hero::animate()
 		}
 	}
 	animateLasers();
-	ge->toDisplay.push_back(this);
+	checkInvicibility();
+	processDisplay();
 }
 
 void Hero::fire()
@@ -130,7 +171,7 @@ void Hero::fire()
 	checkFire();
 	if (canFire)
 	{
-		lev->soundEngine->PlaySound("sound/tie_fire.wav");
+		lev->soundEngine->playSound("tie_fire");
 		cout<<"piou piou!\n";
 		lasers.push_back(new Laser(posX + width/2, posY + height/4, RIGHT, GREEN_LASER));
 		canFire = 0;
@@ -184,34 +225,36 @@ void Hero::moveRight()
 void Hero::animateLasers()
 {
 	for (std::list<Laser *>::iterator aLaser = lasers.begin(); aLaser != lasers.end(); ++aLaser)
+	{
+		(*aLaser)->animate();
+		if ((*aLaser)->posX > SCREEN_WIDTH + (*aLaser)->width || (*aLaser)->toRemove)
 		{
-			(*aLaser)->animate();
-			if ((*aLaser)->posX > SCREEN_WIDTH + (*aLaser)->width || (*aLaser)->toRemove)
-			{
-				lasers.erase(aLaser++);
-			}
-			else
-			{
-				ge->toDisplay.push_back(*aLaser);
-			}
+			lasers.erase(aLaser++);
 		}
+		else
+		{
+			ge->toDisplay.push_back(*aLaser);
+		}
+	}
 }
 
 void Hero::checkFire()
 {
-	unsigned int thing = lastTimeFired + fireRate;
-	if (thing <  SDL_GetTicks() && state !=DEAD)
+	unsigned int nextFireTime = lastTimeFired + fireRate;
+	if (nextFireTime < GameTimer && state !=DEAD)
 	{
 		canFire = 1;
-		lastTimeFired = SDL_GetTicks();
+		lastTimeFired = GameTimer;
 	}
 }
 
 void Hero::loseLife()
 {
-	if (nbLife <  0)
+	nbLife --;
+	if (nbLife < 0)
 	{
 		cout<<"GAME OVER!!!\n";
+		lev->levelState = LEVEL_LOST;
 	}
 	else
 	{
@@ -219,8 +262,13 @@ void Hero::loseLife()
 		posY = 170;
 		state = ENTER;
 		heroChangedState = TRUE;
-		nbLife --;
-		life = 4;
+		health = 4;
+		fireRate = 500;
+		canFire = 1;
+		lastTimeFired = 0;
+		heroMovingUpOrDown = 0;
+		topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
+		lasers.clear();
 	}
 }
 
@@ -230,6 +278,7 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 	{
 		if(aDrawable->isEnemy())
 		{
+			lev->soundEngine->playSound("tie_explode");
 			lev->createExplosion(this->posX-this->width/2, this->posY - this->height, TIE_EXPL);
 			this->toRemove = TRUE;
 			state = DEAD;
@@ -240,34 +289,37 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 		if (aDrawable->isLaser())
 		{
 			Laser * aLaser = static_cast<Laser*>(aDrawable);
-			life--;//= life - aLaser->power;
-			if (life<=0)
+			health--;//= life - aLaser->power;
+			if (health<=0)
 			{
 				lev->createExplosion(this->posX-this->width/2, this->posY - this->height, TIE_EXPL);
+				lev->soundEngine->playSound("tie_explode");
 				state = DEAD;
 				heroChangedState = TRUE;
 			}
 			else
 			{
+				lev->soundEngine->playSound("tie_hit");
 				lev->createExplosion(aLaser->posX-aLaser->width, aLaser->posY-this->height, SPARK);
 				state = HIT;
+				makeInvincible();
 				heroChangedState = TRUE;
 			}
-		return;
+			return;
 		}
 	}
 
 	if (aDrawable->isBonus())
 	{
 		Bonus * aBonus = static_cast<Bonus*>(aDrawable);
-		if (aBonus->type == BLIFE)
+		if (aBonus->type == BONUS_LIFE)
 		{
-			if(life < maxHealth)
+			if(health < maxHealth)
 			{
-				life++;// = life + 100;
+				health++;
 			}
 		}
-		if (aBonus->type == BFIRERATE)
+		if (aBonus->type == BONUS_FIRERATE)
 		{
 			fireRate = max(fireRate - 100, maxFireRate);
 		}
@@ -276,16 +328,25 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 	return;
 }
 
+void Hero::makeInvincible()
+{
+	startInvincibility = GameTimer;
+	invincible = TRUE;
+	isBlinking = TRUE;
+}
+
 void Hero::checkInvicibility()
 {
-	if (startInvincibility + invincibilityTime > gameTimer)
+	if (startInvincibility + invincibilityTime < GameTimer)
 	{
 		invincible = FALSE;
 		display = TRUE;
+		isBlinking = FALSE;
 	}
-	else
-	{
-		//Blinking effect showing that we are invincible
-		display = display + TRUE % 2;
-	}
+}
+
+void Hero::setState(int aState)
+{
+	state = aState;
+	heroChangedState = TRUE;
 }

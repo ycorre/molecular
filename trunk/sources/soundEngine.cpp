@@ -6,6 +6,19 @@
  */
 #include "soundEngine.h"
 
+
+
+void SoundEngine::playSound(string aSound)
+{
+	 Mix_PlayChannel(-1, sounds.at(aSound), 0);
+}
+	
+void SoundEngine::addSound(string pathTotASound, string aSoundId)
+{
+	sounds.insert(make_pair(aSoundId, Mix_LoadWAV(pathTotASound.c_str())));
+}
+
+/*
 #define NUM_SOUNDS 2
 
 struct sample {
@@ -37,7 +50,7 @@ void SoundEngine::PlaySound(string file)
     Uint32 dlen;
     SDL_AudioCVT cvt;
 
-    /* Look for an empty (or finished) sound slot */
+    // Look for an empty (or finished) sound slot 
     for ( index=0; index<NUM_SOUNDS; ++index ) {
         if ( sounds[index].dpos == sounds[index].dlen ) {
             break;
@@ -46,7 +59,7 @@ void SoundEngine::PlaySound(string file)
     if ( index == NUM_SOUNDS )
         return;
 
-    /* Load the sound file and convert it to 16-bit stereo at 22kHz */
+    // Load the sound file and convert it to 16-bit stereo at 22kHz 
     if ( SDL_LoadWAV(file.c_str(), &wave, &data, &dlen) == NULL ) {
         fprintf(stderr, "Couldn't load %s: %s\n", file.c_str(), SDL_GetError());
         return;
@@ -60,7 +73,7 @@ void SoundEngine::PlaySound(string file)
     SDL_FreeWAV(data);
 
     cout<<"play Sound\n";
-    /* Put the sound data in the slot (it starts playing immediately) */
+    // Put the sound data in the slot (it starts playing immediately) 
     if ( sounds[index].data ) {
         free(sounds[index].data);
     }
@@ -69,4 +82,4 @@ void SoundEngine::PlaySound(string file)
     sounds[index].dlen = cvt.len_cvt;
     sounds[index].dpos = 0;
     SDL_UnlockAudio();
-}
+}*/

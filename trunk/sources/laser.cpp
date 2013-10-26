@@ -1,5 +1,5 @@
 /*
- * Contains level 1 functions
+ * Contains laser functions
  */
 
 #include "laser.h"

@@ -4,12 +4,13 @@
 
 #include "level.h"
 
-void Level::loadLevel()
+void Level::loadLevel(Hero * aHero)
 {
-	loadConf();
+/*	loadConf();
 	loadObject();
 	cameraSpeed = 1;
-	hero = new Hero();
+	hero = aHero;
+	levelState = LEVEL_PLAYING;*/
 }
 
 void Level::loadObject()
@@ -67,25 +68,25 @@ void Level::checkEvent()
 {
 
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	{
+		if((*anElement)->toRemove)
 		{
-			if((*anElement)->toRemove)
+			activeElements.erase(anElement++);
+		}
+		else
+		{
+			if((*anElement)->isEnemy())
 			{
-				activeElements.erase(anElement++);
+				checkEnemyCollision(*anElement);
+				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				anEnemy->fire();
 			}
-			else
+			if((*anElement)->isBonus() ||(*anElement)->isLaser())
 			{
-				if((*anElement)->isEnemy())
-				{
-					checkEnemyCollision(*anElement);
-					Enemy * anEnemy = static_cast<Enemy *>(*anElement);
-					anEnemy->fire();
-				}
-				if((*anElement)->isBonus() ||(*anElement)->isLaser())
-				{
-					checkCollision(*anElement);
-				}
+				checkCollision(*anElement);
 			}
 		}
+	}
 }
 
 int Level::checkEnemyCollision(Drawable * anElement)
@@ -172,3 +173,13 @@ int Level::isOnScreen(Drawable * aDrawable)
 	return pe->isOnScreen(aDrawable);
 }
 
+void Level::endLevel()
+{
+	activeElements.clear();
+	levelState = LEVEL_WON;
+}
+
+void Level::finishLevel()
+{
+
+}

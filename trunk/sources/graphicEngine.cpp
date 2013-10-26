@@ -5,11 +5,27 @@
  
 #include "graphicEngine.h"
 
+GraphicEngine::GraphicEngine()
+{
+	alphaFading = 0;
+}
+
+void GraphicEngine::initGe()
+{
+	blackBox = new Drawable();
+	blackBox->width = 1200;
+	blackBox->height = 600;
+	blackBox->animX = 0;
+	blackBox->animY = 0;
+	blackBox->texture = loadTexture("res/bbox.png");
+	blackBox->texture = SDL_DisplayFormat(blackBox->texture);
+}
+
 //Load a texture as an SDL_Surface
-SDL_Surface * Ge::loadTexture(string path)
+SDL_Surface * GraphicEngine::loadTexture(string path)
 {
 		SDL_Surface * aSurface;
-		SDL_Surface *tmp = IMG_Load(path.c_str());
+		SDL_Surface * tmp = IMG_Load(path.c_str());
 		if (tmp == NULL) {
 			printf("Unable to load image: %s\n", SDL_GetError());
 			return NULL;
@@ -21,17 +37,25 @@ SDL_Surface * Ge::loadTexture(string path)
 		return aSurface;
 }
 
-void Ge::drawFrame()
+void GraphicEngine::drawFrame()
 {
-	for (std::vector<Drawable *>::iterator it = toDisplay.begin() ; it != toDisplay.end(); ++it)
+	if(!toDisplay.empty())
 	{
-		draw(*it);
+		for (std::vector<Drawable *>::iterator it = toDisplay.begin() ; it != toDisplay.end(); ++it)
+		{
+			draw(*it);
+		}
+
+		displayFrame();
 	}
-	displayFrame();
+	else
+	{
+		cout<<"Warning: GraphicEngine (drawFrame): The set of elements to display is empty\n";
+	}
 }
 
 //Draw an object on the screen
-int Ge::draw(Drawable * sprite)
+int GraphicEngine::draw(Drawable * sprite)
 {
 	SDL_Rect src, dest;
 	 
@@ -49,32 +73,94 @@ int Ge::draw(Drawable * sprite)
 	
 	SDL_BlitSurface(sprite->texture, &src, screen, &dest);
 
-    return(TRUE);
+    return 1;
 }
 
-void Ge::displayFrame()
+void GraphicEngine::displayFrame()
 {
 	SDL_Flip(screen);
 }
 
-void Ge::blitElement(SDL_Surface * anElement)
+void GraphicEngine::blitElement(SDL_Surface * anElement)
 {
 	SDL_BlitSurface(anElement, NULL, screen, NULL);
 }
 
 
-void Ge::addFont(string path)
+void GraphicEngine::addFont(string path)
 {
-	TTF_Font *font;
-	font = TTF_OpenFont("res/Arial.ttf", 24);
+	TTF_Font * font;
+	font = TTF_OpenFont(path.c_str(), 24);
+	if (font == NULL)
+    {
+        cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
+        TTF_Quit();
+        SDL_Quit();
+    	exit(1);
+    }
 	availableFonts.push_back(font);
 }
 
-void Ge::initColors()
+void GraphicEngine::initColors()
 {
 	SDL_Color white = {255, 255, 255};
 	SDL_Color red = {255, 0, 0};
 
 	availableColors.insert(make_pair("WHITE", white));
 	availableColors.insert(make_pair("RED", red));
+}
+
+//Perform a fade out effect
+void GraphicEngine::fadeOut()
+{
+	if(!isFading)
+	{
+		isFading = TRUE;
+		alphaFading = 0;
+	}
+
+	alphaFading = min(255, alphaFading + 2);
+	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
+	toDisplay.push_back(blackBox);
+
+	if(alphaFading == 255)
+	{
+		isFading = FALSE;
+	}
+}
+
+void GraphicEngine::fadeOut(int fadeOutSpeed)
+{
+	if(!isFading)
+	{
+		isFading = TRUE;
+		alphaFading = 0;
+	}
+
+	alphaFading = min(255, alphaFading + fadeOutSpeed);
+	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
+	toDisplay.push_back(blackBox);
+
+	if(alphaFading == 255)
+	{
+		isFading = FALSE;
+	}
+}
+
+void GraphicEngine::fadeIn()
+{
+	if(!isFading)
+	{
+		isFading = TRUE;
+		alphaFading = 255;
+	}
+
+	alphaFading = max(0, alphaFading - 1);
+	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
+	toDisplay.push_back(blackBox);
+
+	if(alphaFading == 0)
+	{
+		isFading = FALSE;
+	}
 }

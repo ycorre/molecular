@@ -16,101 +16,65 @@ void Keyboard::processKeyState()
 	keyStates = SDL_GetKeyState(NULL);
 }
 
-// Function to handle key press events during active game phase
-void Keyboard::handleKeyPress(SDL_keysym *keysym)
-{
-    switch (keysym->sym)
-	{
-		case SDLK_ESCAPE:
-			/* ESC key was pressed */
-			Quit(0);
-			break;
-		case SDLK_UP:
-
-			break;
-		case SDLK_DOWN:
-
-			break;
-		case SDLK_RIGHT:
-			break;
-		case SDLK_LEFT:
-
-			break;
-		case SDLK_SPACE:
-
-			break;
-		case SDLK_F1:
-
-			break;
-		default:
-			break;
-	}
-    return;
-}
 
 void Keyboard::processKeyPress()
 {
-	if(keyStates[SDLK_p])
-		{
+	if(keyStates[PAUSE_KEY])
+	{
 		if (!p_pressed)
-			{
-				game->pause();
-				p_pressed = TRUE;
-			}
+		{
+			game->pause();
+			p_pressed = TRUE;
 		}
+	}
     return;
 }
 
-void Keyboard::processKeyPressHero(Hero* hero)
+//Process in game keyboard events
+void Keyboard::processeyInGame(Hero* hero)
 {
 	if(keyStates[SDLK_ESCAPE])
-		Quit(0);
+		game->gameState = MENU;
 
-	if(keyStates[SDLK_o])
-		{game->launchLevel("level1");
-
-		cout<<"1 pressed\n";
-		}
-
-	if(keyStates[SDLK_i])
-		game->launchLevel("level2");
+	//Cheat for those who find the game too hard
+	if(keyStates[SDLK_KP_PLUS]||keyStates[SDLK_PLUS])
+		hero->nbLife++;
 
 	if (!hero->dontMove)
 	{
-		if(keyStates[SDLK_UP])
+		if(keyStates[UP_KEY])
 			hero->moveUp();
 
-		if(keyStates[SDLK_DOWN])
+		if(keyStates[DOWN_KEY])
 			hero->moveDown();
 
-		if(keyStates[SDLK_RIGHT])
+		if(keyStates[RIGHT_KEY])
 			hero->moveRight();
 
-		if(keyStates[SDLK_LEFT])
+		if(keyStates[LEFT_KEY])
 			hero->moveLeft();
 
-		if(keyStates[SDLK_SPACE])
+		if(keyStates[FIRE_KEY])
 			hero->fire();
 	}
 
-	if(keyStates[SDLK_F1])
-		{}
     return;
 }
 
+//Process in game key release
 void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
 {
     switch (keysym->sym)
 	{
-		case SDLK_UP:
+		case UP_KEY:
 			hero->heroMovingUpOrDown = 0;
 			break;
 			
-		case SDLK_DOWN:
+		case DOWN_KEY:
 			hero->heroMovingUpOrDown = 0;
 			break;
-			
-		case SDLK_p:
+
+		case PAUSE_KEY:
 			p_pressed = FALSE;
 			break;
 
@@ -120,12 +84,70 @@ void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
     return;
 }
 
+//Process in menu keyboard events
 void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 {
+
+	//If we are actually in transition from one menu to another: ignore all inputs
+	if(menu->menuInTransition)
+	{
+		return;
+	}
+
+	//If we are entering a new name for the high score
+	if(menu->currentMenu == MENU_NEWHIGHSCORE)
+	{
+		int validChar = FALSE;
+
+		if(keysym->unicode == (Uint16)' ')
+		{
+			validChar = TRUE;
+		}
+		//input is a number
+		else if((keysym->unicode >= (Uint16)'0') && (keysym->unicode <= (Uint16)'9'))
+		{
+			validChar = TRUE;
+		}
+		//input is a uppercase letter
+		else if((keysym->unicode >= (Uint16)'A') && (keysym->unicode <= (Uint16)'Z'))
+		{
+			validChar = TRUE;
+		}
+		//input is a lowercase letter
+		else if((keysym->unicode >= (Uint16)'a') && (keysym->unicode <= (Uint16)'z'))
+		{
+			validChar = TRUE;
+		}
+
+		if (validChar)
+			menu->addChar((char)keysym->unicode);
+
+		if((keysym->sym == SDLK_BACKSPACE))
+		{
+		 	menu->eraseChar();
+		}
+
+		if((keysym->sym == SDLK_RETURN))
+		{
+		 	menu->finishEnteringName();
+		}
+
+		return;
+	}
+
+	//If we are displaying one screen, then any touch take us to the next menu
+	if(menu->currentMenu == MENU_SUCCESS || menu->currentMenu == MENU_CREDIT ||
+			menu->currentMenu == MENU_GAMEOVER || menu->currentMenu == MENU_HIGHSCORE ||
+			menu->currentMenu == MENU_INTRO)
+	{
+		menu->transition();
+		return;
+	}
+
 	switch (keysym->sym)
 	{
 		case SDLK_ESCAPE:
-			Quit(0);
+			quit(0);
 			break;
 
 		case SDLK_UP:
@@ -144,23 +166,6 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 		default:
 			break;
 	}
-    return;
-}
-
-
-void Keyboard::processKeyPressMenu(Menu * menu)
-{
-	if(keyStates[SDLK_ESCAPE])
-		Quit(0);
-
-	if(keyStates[SDLK_UP])
-		menu->selectUp();
-
-	if(keyStates[SDLK_DOWN])
-		menu->selectDown();
-
-	if(keyStates[SDLK_SPACE] || keyStates[SDLK_RETURN])
-		menu->select();
 
     return;
 }

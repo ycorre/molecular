@@ -13,6 +13,7 @@ class Bonus: public Drawable
    public:
 
 	  int type;
+	  int scoreValue;
 
 	  Bonus();
 	  Bonus(int x, int y, int type);
@@ -21,8 +22,8 @@ class Bonus: public Drawable
 	  virtual void processCollisionWith(Drawable* aDrawable);
 };
 
-#define BLIFE 0
-#define BFIRERATE 1
+#define BONUS_LIFE 0
+#define BONUS_FIRERATE 1
 
 #endif
 
