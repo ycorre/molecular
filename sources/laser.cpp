@@ -4,6 +4,7 @@
 
 #include "laser.h"
 
+//80x34
 Laser::Laser()
 {
 	type = 0;
@@ -17,6 +18,7 @@ Laser::Laser()
 	state = 0;
 	animX = 0;
 	animY = 0;
+	collision = ge->loadTexture("res/laser_cmasktrans.png");
 }
 
 Laser::Laser(int x, int y, int dir, int aType)
@@ -30,6 +32,7 @@ Laser::Laser(int x, int y, int dir, int aType)
 		width = atoi(((lev->configurationElements.at("laserG")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("laserG")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("laserG")).at(2));
+		collision = ge->loadTexture("res/laser_cmasktrans.png");
 	}
 	if (type == RED_LASER)
 	{
@@ -37,6 +40,7 @@ Laser::Laser(int x, int y, int dir, int aType)
 		width = atoi(((lev->configurationElements.at("laserR")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("laserR")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("laserR")).at(2));
+		collision = ge->loadTexture("res/laser_dmasktrans.png");
 	}
 	posX = x;
 	posY = y;
@@ -49,13 +53,12 @@ void Laser::animate()
 {
 	if (direction == RIGHT)
 	{
-		posX = posX + 10;
+		posX = posX + 13;
 	}
 	else
 	{
-		posX = posX - 10;
+		posX = posX - 7;
 	}
-
 }
 
 void Laser::processCollisionWith(Drawable* aDrawable)

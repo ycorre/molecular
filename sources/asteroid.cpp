@@ -174,7 +174,18 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 {
 	if(aDrawable->isHero())
 	{
-		lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
+		if (type == ASTER_1THIRD)
+		{
+			lev->createExplosion(this->posX - this->width - 25, this->posY - this->height - 25, XWING_EXPL);
+		}
+		else if(type == ASTER_1THIRD)
+		{
+			lev->createExplosion(this->posX - 3*(this->width/4)  , this->posY - 3*(this->height/4), XWING_EXPL);
+		}
+		else
+		{
+			lev->createExplosion(this->posX - this->width  , this->posY - this->height/4, XWING_EXPL);
+		}
 		dropBonus(this->posX, this->posY);
 		this->toRemove = TRUE;
 		Score = Score + scoreValue;
@@ -187,7 +198,18 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 		life = life - aLaser->power;
 		if (life<=0)
 		{
-			lev->createExplosion(this->posX - this->width/2, this->posY - this->height/2, XWING_EXPL);
+			if (type == ASTER_1THIRD)
+			{
+				lev->createExplosion(this->posX - this->width - 25, this->posY - this->height - 25, XWING_EXPL);
+			}
+			else if(type == ASTER_1THIRD)
+			{
+				lev->createExplosion(this->posX - 3*(this->width/4)  , this->posY - 3*(this->height/4), XWING_EXPL);
+			}
+			else
+			{
+				lev->createExplosion(this->posX - this->width  , this->posY - this->height/4, XWING_EXPL);
+			}
 			Score = Score + scoreValue;
 			//The asteroid is not the smallest type
 			if(type != ASTER_1THIRD)

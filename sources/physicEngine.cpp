@@ -12,52 +12,51 @@ int Pe::collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable)
 	if (boundingBox(aDrawable, anotherDrawable))
 	{
 		if(pixelPerfect(aDrawable, anotherDrawable))
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 //Compute first if the two object boxes overlap
 int Pe::boundingBox(Drawable *aDrawable, Drawable *anotherDrawable)
 {
-	if (aDrawable->posX + aDrawable->width < anotherDrawable->posX)
-		{return 0;}
-	if (aDrawable->posX > anotherDrawable->posX + anotherDrawable->width)
-		{return 0;}
-	if (aDrawable->posY + aDrawable->height < anotherDrawable->posY)
-		{return 0;}
-	if (aDrawable->posY > anotherDrawable->posY + anotherDrawable->height)
-		{return 0;}
+	if (aDrawable->getXBoundary() + aDrawable->getWidthBoundary() < anotherDrawable->getXBoundary())
+		{return FALSE;}
+	if (aDrawable->getXBoundary() > anotherDrawable->getXBoundary() + anotherDrawable->getWidthBoundary())
+		{return FALSE;}
+	if (aDrawable->getYBoundary() + aDrawable->getHeightBoundary() < anotherDrawable->getYBoundary())
+		{return FALSE;}
+	if (aDrawable->getYBoundary() > anotherDrawable->getYBoundary() + anotherDrawable->getHeightBoundary())
+		{return FALSE;}
 
-	return 1;
+	return TRUE;
 }
 
 //Check if the two object have at least one overlapping pixel
 int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 {
-
-/*	cout<< "Falcin width "<< aDrawable->width << " h " << aDrawable->height << "\n";
-	cout<< "Falcin2 width "<< aDrawable->posX << " h " << aDrawable->posY << "\n";
-	cout<< "Falcon width "<< anotherDrawable->width << " h " << anotherDrawable->height << "\n";
-	cout<< "Falcon2 width "<< anotherDrawable->posX << " h " << anotherDrawable->posY << "\n";*/
-	pair<int, int> i, j;
+	pair<int, int> startingCoordinatesI, startingCoordinatesJ;
 	int overX, overY, x, y;
 	Uint32 pixA, pixB;
 
 	overEdgesComputing(aDrawable, anotherDrawable);
-	i = getStartOffsetForOverlapRectangle(aDrawable);
-	j = getStartOffsetForOverlapRectangle(anotherDrawable);
+	startingCoordinatesI = getStartOffsetForOverlapRectangle(aDrawable);
+	startingCoordinatesJ = getStartOffsetForOverlapRectangle(anotherDrawable);
 
-	if (i.second < 0 || j.second <0)
-		cout<<"!!!!!!!!!! i: "<<i.second<<",  j: "<<j.second<<" \n";
+	if (startingCoordinatesI.second < 0 || startingCoordinatesJ.second < 0)
+		cout<< "Error (pixelPerfect): second i: " << startingCoordinatesI.second << ",  j: " << startingCoordinatesJ.second << endl;
+
+	if (startingCoordinatesI.first < 0 || startingCoordinatesJ.first < 0)
+		cout<< "Error (pixelPerfect): first i: " << startingCoordinatesI.first << ",  j: " << startingCoordinatesJ.first << endl;
 
 	overX = overRight - overLeft;
 	overY = overBottom - overTop;
 	if (overY < 0)
-		{overY = overY * -1;}
+	{
+		overY = overY * -1;
+		cout<< "Error (pixelPerfect): overY is negative " << endl;
+	}
 
-	/*	effectiveOverlapRect := self overlapRect: i	extent: overX @ overY.
-	rect2 := self overlapRect: (j x + 30) @ j y	extent: overX @ overY.*/
 	x = 0;
 	y = 0;
 
@@ -67,13 +66,13 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 	{
 		while (y < (overY - 1))
 		{
-			pixA = getPixel((i.first + x), (i.second + y), aDrawable);
-			pixB = getPixel((j.first + x), (j.second + y), anotherDrawable);
-			if ((pixA > 0) && (pixB > 0 && pixB != 16777215))
+			pixA = getPixel((startingCoordinatesI.first + x), (startingCoordinatesI.second + y), aDrawable);
+			pixB = getPixel((startingCoordinatesJ.first + x), (startingCoordinatesJ.second + y), anotherDrawable);
+			if ((pixA > 0) && (pixB > 0))// && pixB != 16777215))
 			{
 				SDL_UnlockSurface(aDrawable->texture);
 				SDL_UnlockSurface(anotherDrawable->texture);
-				return 1;
+				return TRUE;
 			}
 			y = y + 1;
 		}
@@ -82,51 +81,56 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 	}
 	SDL_UnlockSurface(aDrawable->texture);
 	SDL_UnlockSurface(anotherDrawable->texture);
-	return 0;
+	return FALSE;
 }
 
 void Pe::overEdgesComputing(Drawable *aDrawable, Drawable *anotherDrawable)
 {
-	if(aDrawable->posY < anotherDrawable->posY)
-		{overTop = anotherDrawable->posY;}
+	if(aDrawable->getYBoundary() < anotherDrawable->getYBoundary())
+		{overTop = anotherDrawable->getYBoundary();}
 	else
-		{overTop = aDrawable->posY;}
+		{overTop = aDrawable->getYBoundary();}
 
-	if(aDrawable->posY + aDrawable->height > (anotherDrawable->posY + anotherDrawable->height))
-		{overBottom = anotherDrawable->posY + anotherDrawable->height;}
+	if(aDrawable->getYBoundary() + aDrawable->getHeightBoundary() > (anotherDrawable->getYBoundary() + anotherDrawable->getHeightBoundary()))
+		{overBottom = anotherDrawable->getYBoundary() + anotherDrawable->getHeightBoundary();}
 	else
-		{overBottom = aDrawable->posY + aDrawable->height;}
+		{overBottom = aDrawable->getYBoundary() + aDrawable->getHeightBoundary();}
 
-	if(aDrawable->posX < anotherDrawable->posX)
-		{overLeft = anotherDrawable->posX;}
+	if(aDrawable->getXBoundary() < anotherDrawable->getXBoundary())
+		{overLeft = anotherDrawable->getXBoundary();}
 	else
-		{overLeft = aDrawable->posX;}
+		{overLeft = aDrawable->getXBoundary();}
 
-	if(aDrawable->posX + aDrawable->width > (anotherDrawable->posX + anotherDrawable->width))
-		{overRight = anotherDrawable->posX + anotherDrawable->width;}
+	if(aDrawable->getXBoundary() + aDrawable->getWidthBoundary() > (anotherDrawable->getXBoundary() + anotherDrawable->getWidthBoundary()))
+		{overRight = anotherDrawable->getXBoundary() + anotherDrawable->getWidthBoundary();}
 	else
-		{overRight = aDrawable ->posX + aDrawable->width;}
+		{overRight = aDrawable ->getXBoundary() + aDrawable->getWidthBoundary();}
 }
 
 pair<int,int> Pe::getStartOffsetForOverlapRectangle(Drawable *aDrawable)
 {
-	int t2, t3;
-	t2 = overLeft - aDrawable->posX;
-	t3 = overTop - aDrawable->posY;
-	return make_pair(t2,t3);
+	int startingX, startingY;
+	startingX = overLeft - aDrawable->getXBoundary();
+	startingY = overTop - aDrawable->getYBoundary();
+
+	return make_pair(startingX, startingY);
 }
 
 Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 {
 	if (x < 0 || y < 0)
-		cout<<"Warning: x: " <<x<<",  y: "<<y<<" \n";
-	//Get position the coordinate of the pixel of the whole texture
-//	int pixelPos = aDrawable->animX + x + ((aDrawable->animY + y) * aDrawable->texture->w);
-	//int myX = aDrawable->animX + x;
-	//int myY = aDrawable->animY + y;
-//	return ((unsigned int*)aDrawable->texture->pixels)[pixelPos];
-	return getpixel(aDrawable->texture, x, y);// myX, myY);
-	//(((t2 currentClipRect memberAt: #x)  + t1 x) @ ((t2 currentClipRect memberAt: #y) + t1 y))
+		cout<<"Warning: x: " << x <<",  y: " << y << endl;
+
+	if(aDrawable->hasHitBox())
+	{
+		return 1;
+	}
+
+	int textureX, textureY;
+	textureX = aDrawable->animX + x;
+	textureY = aDrawable->animY + y;
+
+	return getpixel(aDrawable->getCollisionTexture(), textureX, textureY);
 }
 
 //make sure that the hero stays within screen boundary (from (0,0) to aPoint coordinate)
@@ -163,8 +167,8 @@ int Pe::isOnScreen(Drawable *aDrawable)
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
     int bpp = surface->format->BytesPerPixel;
-    // Here p is the address to the pixel we want to retrieve
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+    //Here p is the address to the pixel we want to retrieve
+    Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
     switch(bpp)
     {
@@ -188,7 +192,7 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
 			break;
 
 		default:
-			cout<<"Error while getting pixel value";
-			return 0;       // shouldn't happen, but avoids warnings
+			cout << "Warning (getPixel): Error while getting pixel value" << endl;
+			return 0;
     }
 }

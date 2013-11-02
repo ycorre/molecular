@@ -14,8 +14,10 @@
 
 #include "game.h"
 
-//TODO ENhance the loading config files system
+//TODO Enhance the loading config files system
 //Additionnal audio support
+//Handle memory release
+//
 
 //Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
@@ -58,6 +60,11 @@ int main(int argc, char **argv)
     game->mainLoop();
     
     return 1;
+}
+
+void Game::quitGame()
+{
+	quit(0);
 }
 
 int Game::mainLoop()
@@ -118,7 +125,8 @@ int Game::mainLoop()
 	    		break;
 
 	    	case INGAME:
-	    		keyboard->processeyInGame(currentLevel->hero);
+	    		keyboard->processeKeyInGame(currentLevel->hero);
+	    		keyboard->processeMouseInGame(currentLevel->hero);
 				currentLevel->drawLevel();
 				if (currentLevel->levelState == LEVEL_WON)
 				{
@@ -128,6 +136,8 @@ int Game::mainLoop()
 				{
 					menu->currentMenu = MENU_GAMEOVER;
 					graphicEngine.fadeOut(1);
+					menu -> menuInTransition = TRUE;
+					soundEngine.playSound("game_over");
 					gameState = MENU;
 				}
 				break;
@@ -168,14 +178,17 @@ int Game::initGame()
     Level1 * l1 = new Level1();
     Level2 * l2 = new Level2();
     Level3 * l3 = new Level3();
+    Level4 * l4 = new Level4();
 
     l1->name = "level1";
     l2->name = "level2";
     l3->name = "level3";
+    l4->name = "level4";
 
     levels.insert(make_pair("level1", l1));
     levels.insert(make_pair("level2", l2));
     levels.insert(make_pair("level3", l3));
+    levels.insert(make_pair("level4", l4));
 
     //Init the menu
     menu->introLength = 2500;
@@ -243,7 +256,7 @@ int Game::initSDL()
     }
     
     //Init Audio
-    if(Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 8192 ) == -1 )
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 8192) == -1)
 	{
     	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
     	quit(1);
@@ -251,6 +264,8 @@ int Game::initSDL()
 
     //Enable repetition of keyboard events
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
+    SDL_WM_GrabInput( SDL_GRAB_ON );
+    SDL_ShowCursor(0);
     
     Drawable::ge = &graphicEngine;
 

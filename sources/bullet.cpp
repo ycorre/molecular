@@ -4,6 +4,7 @@
 
 #include "laser.h"
 
+//35x18
 Bullet::Bullet()
 {
 	type = 0;
@@ -19,25 +20,10 @@ Bullet::Bullet()
 	state = 0;
 	animX = 0;
 	animY = 0;
-}
-
-Bullet::Bullet(int x, int y, int dir, int aType)
-{
-	power = 50;
-	direction = dir;
-	type = aType;
-	if (type == BLUE_BULLET)
-	{
-		texture = ge->textures.at("bullet");
-		width = atoi(((lev->configurationElements.at("bullet")).at(0)).c_str());
-		height =  atoi(((lev->configurationElements.at("bullet")).at(1)).c_str());
-		nbFrames = parseAnimationState((lev->configurationElements.at("bullet")).at(2));
-	}
-	posX = x;
-	posY = y;
-	state = 0;
-	animX = 0;
-	animY = 0;
+	hitBoxWidth = 26;
+	hitBoxHeight = 4;
+	hitBoxX = posX + 6;
+	hitBoxY = posY + 7;
 }
 
 Bullet::Bullet(int x, int y, int dir, int aType, int anAngle, int aSpeed)
@@ -60,31 +46,25 @@ Bullet::Bullet(int x, int y, int dir, int aType, int anAngle, int aSpeed)
 	state = 0;
 	animX = 0;
 	animY = 0;
+	hitBoxWidth = 24;
+	hitBoxHeight = 4;
+	hitBoxX = posX + 6;
+	hitBoxY = posY + 7;
 }
 
 void Bullet::animate()
 {
-
 	//Compute the next movement vector
+	//Handle by the physic engine ?
 	float vx, vy;
 	vx = (speed)*cos(angle);
 	vy = (speed)*sin(angle);
+
 	posX = posX + vx;
 	posY = posY + vy;
 
-/*
-	if (direction == RIGHT)
-	{
-		//posX = posX + 2;
-		posX = posX * cos(30);
-	}
-	else
-	{
-		posX = posX - 2;
-		//posX = posX - (2 * cos(75));
-		//posY = posY - (5 * sin(75));
-	}*/
-
+	hitBoxX = posX + 6;
+	hitBoxY = posY + 7;
 }
 
 void Bullet::processCollisionWith(Drawable* aDrawable)

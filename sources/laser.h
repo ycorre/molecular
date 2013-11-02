@@ -9,7 +9,7 @@
 #include "graphicEngine.h"
 #include "level.h"
 
-class Laser: public Drawable
+class Laser: public MaskedDrawable
 {
    public:
 
@@ -20,14 +20,14 @@ class Laser: public Drawable
 	  Laser();
 	  Laser(int x, int y, int dir, int type);
 	  virtual void animate();
-	  virtual int isLaser() {return 1;}
+	  virtual int isLaser() {return TRUE;}
 	  virtual void processCollisionWith(Drawable* aDrawable);
 };
 
 #define RED_LASER 0
 #define GREEN_LASER 1
 
-class Bullet: public Drawable
+class Bullet: public HitBoxedDrawable
 {
    public:
 
@@ -39,11 +39,10 @@ class Bullet: public Drawable
 	  int speed;
 
 	  Bullet();
-	  Bullet(int x, int y, int dir, int type);
 	  Bullet(int x, int y, int dir, int aType, int anAngle, int speed);
 	  virtual void animate();
-	  virtual int isBullet() {return 1;}
-	  virtual int isLaser() {return 1;}
+	  virtual int isBullet() {return TRUE;}
+	  virtual int isLaser() {return TRUE;}
 	  virtual void processCollisionWith(Drawable* aDrawable);
 };
 

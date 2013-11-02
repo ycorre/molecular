@@ -47,13 +47,46 @@ class Drawable
 	  virtual void blink();
 	  void processDisplay();
 	  int updateAnimationFrame();
-	  virtual int isEnemy() {return 0;}
-	  virtual int isHero() {return 0;}
-	  virtual int isLaser() {return 0;}
-	  virtual int isBonus() {return 0;}
+	  virtual int isEnemy() {return FALSE;}
+	  virtual int isHero() {return FALSE;}
+	  virtual int isLaser() {return FALSE;}
+	  virtual int isBonus() {return FALSE;}
+	  virtual int hasHitBox() {return FALSE;}
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable* aDrawable);
+	  virtual int getXBoundary();
+	  virtual int getYBoundary();
+	  virtual int getWidthBoundary();
+	  virtual int getHeightBoundary();
+	  virtual SDL_Surface * getCollisionTexture();
 };
+
+//Class for objects that use a hit box for collision detection
+class HitBoxedDrawable: public Drawable
+{
+	public:
+	  int hitBoxWidth;
+	  int hitBoxHeight;
+	  int hitBoxX;
+	  int hitBoxY;
+
+	  virtual int hasHitBox() {return TRUE;}
+	  virtual int getXBoundary();
+	  virtual int getYBoundary();
+	  virtual int getWidthBoundary();
+	  virtual int getHeightBoundary();
+};
+
+
+//Class for objects that use a mask for collision detection
+class MaskedDrawable: public Drawable
+{
+	public:
+	  SDL_Surface * collision;
+
+	  virtual SDL_Surface * getCollisionTexture();
+};
+
 
 vector<int> parseAnimationState(string aConf);
 

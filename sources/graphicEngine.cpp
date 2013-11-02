@@ -164,3 +164,59 @@ void GraphicEngine::fadeIn()
 		isFading = FALSE;
 	}
 }
+
+//Merge several drawables which have a texture of 4 bits per pixel
+//Following the formula destPixel.component = 255 - ((productOf(255-drawables.i.component))/powerOf(255, sizeOfdrawables)
+//(cf. the "Screen" equation at this page : http://docs.gimp.org/en/gimp-concepts-layer-modes.html)
+void GraphicEngine::mergeImages(vector <Drawable*> drawables, Drawable * destination)
+{
+	int x, y, i;
+	vector<Uint8 *> pixelPointers;
+	Uint32 pixelProd[4];
+	Uint32 divisionValue = pow(255, (drawables.size()-1));
+
+	for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
+	{
+		SDL_LockSurface((*aDrawable)->texture);
+	}
+
+	SDL_LockSurface(destination->texture);
+	Uint8 *pDest = (Uint8 *) destination->texture->pixels;
+
+	for(y=0; y<destination->height; y++)
+	{
+		for(x=0; x<destination->width; x++)
+		{
+			for(i=0; i<4; i++)
+			{
+				pixelProd[i] = 1 ;
+			}
+
+			for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
+			{
+				Uint8 * aPixelPointer =(Uint8 *)  (*aDrawable)->texture->pixels + (y * (*aDrawable)->texture->pitch) + (((*aDrawable)->animX + x) * 4);
+				pixelProd[0] *= (255 - aPixelPointer[0]); //min(255, pixelSum[0] + aPixelPointer[0]);
+				pixelProd[1] *= (255 - aPixelPointer[1]);
+				pixelProd[2] *= (255 - aPixelPointer[2]);
+				//Alpha layer values (ignored since we worked with drawables with no alpha channel)
+			//	pixelSum[3] *= (255 - aPixelPointer[3]);
+			}
+
+			pDest[0] = 255 - (pixelProd[0]/divisionValue);
+			pDest[1] = 255 - (pixelProd[1]/divisionValue);
+			pDest[2] = 255 - (pixelProd[2]/divisionValue);
+			pDest[3] = 0;// - (pixelSum[3]/255);
+
+			//Advance to the next pixel position to draw
+			pDest = pDest + 4;
+		}
+	}
+
+	//Unlock SDL surfaces
+	for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
+	{
+		SDL_UnlockSurface((*aDrawable)->texture);
+	}
+
+	SDL_UnlockSurface(destination->texture);
+}

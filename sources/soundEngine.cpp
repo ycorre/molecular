@@ -7,15 +7,14 @@
 #include "soundEngine.h"
 
 
-
 void SoundEngine::playSound(string aSound)
 {
 	 Mix_PlayChannel(-1, sounds.at(aSound), 0);
 }
 	
-void SoundEngine::addSound(string pathTotASound, string aSoundId)
+void SoundEngine::addSound(string pathToASound, string aSoundId)
 {
-	sounds.insert(make_pair(aSoundId, Mix_LoadWAV(pathTotASound.c_str())));
+	sounds.insert(make_pair(aSoundId, Mix_LoadWAV(pathToASound.c_str())));
 }
 
 /*

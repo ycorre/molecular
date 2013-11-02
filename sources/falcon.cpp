@@ -74,7 +74,7 @@ void Falcon::processCollisionWith(Drawable* aDrawable)
 		life = life - aLaser->power;
 		if (life<=0)
 		{
-			lev->createExplosion(this->posX + this->width/2 - 100, this->posY + (this->height/2) , XWING_EXPL);
+			lev->createExplosion(this->posX + this->width/2 - 125, this->posY + (this->height/2) -50, XWING_EXPL);
 			dropBonus(this->posX, this->posY);
 			this->toRemove = TRUE;
 			Score = Score + scoreValue * (type + 1);
@@ -148,6 +148,12 @@ void Falcon::firePattern()
 			lev->activeElements.push_back(new Bullet(posX + 30, posY + height/2, LEFT, BLUE_BULLET, 180, 3));
 			lev->activeElements.push_back(new Bullet(posX + 30, posY + height/2, LEFT, BLUE_BULLET, 150, 3));
 			lev->activeElements.push_back(new Bullet(posX + 30, posY + height/2, LEFT, BLUE_BULLET, 135, 3));
+
+			//Create sparks randomly to show damage
+			int x,y;
+			x = this->posX + (rand() % this->width) - 75;
+			y = this->posY + (rand() % this->height) - 75;
+			lev->createExplosion(x, y, SPARK);
 			break;
 
 		default:

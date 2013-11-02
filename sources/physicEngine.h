@@ -26,8 +26,8 @@ class Pe
 		int overBottom;
 
 		int collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable);
-		int pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable);
 		int boundingBox(Drawable *aDrawable, Drawable* anotherDrawable);
+		int pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable);
 		void overEdgesComputing(Drawable *aDrawable, Drawable *anotherDrawable);
 		pair<int,int> getStartOffsetForOverlapRectangle(Drawable *aDrawable);
 		Uint32 getPixel(int x, int y, Drawable * aDrawable);
