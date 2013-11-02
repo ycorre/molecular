@@ -14,6 +14,7 @@
 #include "level1.h"
 #include "level2.h"
 #include "level3.h"
+#include "level4.h"
 #include "keyb.h"
 #include "hero.h"
 
@@ -48,6 +49,7 @@ class Game
 		void launchLevel(string lev);
 		void launchNextLevel();
 		void checkNewHighScore();
+		void quitGame();
 		void pause();
 };
 

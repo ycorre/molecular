@@ -11,6 +11,7 @@
 #include <map>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <math.h>
 #include "drawable.h"
 
 // screen width, height, and bit depth
@@ -46,6 +47,7 @@ class GraphicEngine
 	  void fadeOut();
 	  void fadeOut(int speed);
 	  void fadeIn();
+	  void mergeImages(vector <Drawable*> drawables , Drawable * destination);
 	  SDL_Surface * loadTexture(string path);
 };
 

@@ -79,6 +79,7 @@ void Hero::animate()
 				animY = ENTER * height;
 				dontMove = TRUE;
 				makeInvincible();
+				SDL_WarpMouse(0, 170);
 				break;
 
 			case DEAD:
@@ -222,6 +223,47 @@ void Hero::moveRight()
 	}
 }
 
+void Hero::move(int x, int y)
+{
+	x = min(x, 30);
+	x = max(x, -30);
+
+	y = min(y, 16);
+	y = max(y, -16);
+
+	if (y<0)
+	{
+		if(!heroMovingUpOrDown)
+		{
+			state = GO_DOWN;
+			heroChangedState = TRUE;
+			heroMovingUpOrDown = 1;
+		}
+	}
+
+	if (y==0)
+	{
+		heroMovingUpOrDown = FALSE;
+	}
+
+	if (y>0)
+	{
+		if(!heroMovingUpOrDown)
+		{
+			state = GO_UP;
+			heroChangedState = TRUE;
+			heroMovingUpOrDown = 1;
+		}
+	}
+
+	posX = posX + x;
+	posY = posY + y;
+	posX = max((int)posX, 0);
+	posY = max((int)posY, 0);
+	posX = min((int)posX, SCREEN_WIDTH - this->width);
+	posY = min((int)posY, GAMEZONE_HEIGHT - this->height);
+}
+
 void Hero::animateLasers()
 {
 	for (std::list<Laser *>::iterator aLaser = lasers.begin(); aLaser != lasers.end(); ++aLaser)
@@ -233,7 +275,7 @@ void Hero::animateLasers()
 		}
 		else
 		{
-			ge->toDisplay.push_back(*aLaser);
+			(*aLaser)->processDisplay();
 		}
 	}
 }

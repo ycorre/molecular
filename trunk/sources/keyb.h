@@ -25,8 +25,9 @@ class Keyboard
 		void handleKeyUpHero(SDL_keysym *keysym, Hero  * hero);
 		void processKeyPress();
 		void processKeyState();
-		void processeyInGame(Hero* hero);
+		void processeKeyInGame(Hero* hero);
 		void handleKeyPressMenu(SDL_keysym *keysym, Menu * menu);
+		void processeMouseInGame(Hero * hero);
 };
 
 //Definition of the keymap

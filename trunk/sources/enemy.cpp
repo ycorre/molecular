@@ -79,7 +79,7 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 		}
 		else
 		{
-			lev->createExplosion(aLaser->posX, aLaser->posY-this->height, SPARK);
+			lev->createExplosion(aLaser->posX - aLaser->width/2, aLaser->posY-this->height, SPARK);
 		}
 		return;
 	}

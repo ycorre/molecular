@@ -18,6 +18,7 @@ class Explosion: public Drawable
 #define XWING_EXPL 0
 #define TIE_EXPL 1
 #define SPARK 2
+#define FALCON_EXPL 3
 
 #endif
 

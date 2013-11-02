@@ -31,7 +31,7 @@ void Keyboard::processKeyPress()
 }
 
 //Process in game keyboard events
-void Keyboard::processeyInGame(Hero* hero)
+void Keyboard::processeKeyInGame(Hero* hero)
 {
 	if(keyStates[SDLK_ESCAPE])
 		game->gameState = MENU;
@@ -57,6 +57,28 @@ void Keyboard::processeyInGame(Hero* hero)
 		if(keyStates[FIRE_KEY])
 			hero->fire();
 	}
+
+    return;
+}
+
+
+void Keyboard::processeMouseInGame(Hero * hero)
+{
+	int x, y, buttonMask;
+	buttonMask = SDL_GetRelativeMouseState(&x, &y);
+
+	if (!hero->dontMove)
+	{
+		hero->move(x, y);
+	}
+
+	if(buttonMask & SDL_BUTTON(1))
+	{
+		hero->fire();
+	}
+	//Get the mouse offsets
+	//int x = event.motion.relx;
+	//int y = event.motion.rely;
 
     return;
 }

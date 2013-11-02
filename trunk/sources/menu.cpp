@@ -55,6 +55,9 @@ void Menu::loadMenu()
 
 	arrow->posX = menuElements.at(0)->posX - 70;
 	arrow->posY = menuElements.at(0)->posY - 10;
+
+	soundEngine->addSound("sound/game_over.wav", "game_over");
+	soundEngine->addSound("sound/start_ambient.wav", "start_ambient");
 }
 
 void Menu::loadIntro()
@@ -186,7 +189,14 @@ void Menu::transition()
 	switch(currentMenu)
 	{
 		case MENU_GAMEOVER:
-			currentMenu = MENU_MAIN;
+			if (checkForNewHighScore())
+			{
+				currentMenu = MENU_NEWHIGHSCORE;
+			}
+			else
+			{
+				currentMenu =  MENU_MAIN;
+			}
 			break;
 
 		case MENU_INTRO:
@@ -296,9 +306,15 @@ void Menu::select()
 		return;
 	}
 
-	if(selected == 4)
+	if(selected == 5)
 	{
 		currentMenu = MENU_HIGHSCORE;
+		return;
+	}
+
+	if(selected == 6)
+	{
+		game->quitGame();
 		return;
 	}
 

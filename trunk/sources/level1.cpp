@@ -20,6 +20,8 @@ void Level1::loadLevel(Hero * aHero)
 	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = FALSE;
+
+	soundEngine->playSound("start_ambient");
 }
 
 void Level1::loadObject()

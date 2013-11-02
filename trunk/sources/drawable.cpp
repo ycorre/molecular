@@ -105,3 +105,61 @@ void Drawable::blink()
 	}
 	blinkingCounter = (blinkingCounter + 1) % 3;
 }
+
+int Drawable::getXBoundary()
+{
+	return posX;
+}
+
+int Drawable::getYBoundary()
+{
+	return posY;
+}
+
+int Drawable::getWidthBoundary()
+{
+	return width;
+}
+
+int Drawable::getHeightBoundary()
+{
+	return height;
+}
+
+SDL_Surface * Drawable::getCollisionTexture()
+{
+	return texture;
+}
+
+
+/*
+ * Hitboxed class functions
+ */
+int HitBoxedDrawable::getXBoundary()
+{
+	return hitBoxX;
+}
+
+int HitBoxedDrawable::getYBoundary()
+{
+	return hitBoxY;
+}
+
+int HitBoxedDrawable::getHeightBoundary()
+{
+	return hitBoxHeight;
+}
+
+int HitBoxedDrawable::getWidthBoundary()
+{
+	return hitBoxWidth;
+}
+
+/*
+ * Masked Drawable functions
+ */
+SDL_Surface * MaskedDrawable::getCollisionTexture()
+{
+	return collision;
+}
+

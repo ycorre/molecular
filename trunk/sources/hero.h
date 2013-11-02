@@ -37,6 +37,7 @@ class Hero: public Drawable
 	  Hero();
 	  void setState(int aState);
 	  void fire();
+	  void move(int x, int y);
 	  void moveUp();
 	  void moveDown();
 	  void moveLeft();
