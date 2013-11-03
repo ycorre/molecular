@@ -12,28 +12,28 @@ Asteroid::Asteroid(int asteroidType)
 	Drawable();
 	if (asteroidType == ASTER_NORMAL)
 	{
-		texture = ge->textures.at("asteroid");
+		this->getTexture("asteroid");
 		width = atoi(((lev->configurationElements.at("asteroid")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid")).at(2));
 	}
 	if (asteroidType == ASTER_DEMI)
 	{
-		texture = ge->textures.at("asteroid2");
+		this->getTexture("asteroid2");
 		width = atoi(((lev->configurationElements.at("asteroid2")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid2")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid2")).at(2));
 	}
 	if (asteroidType == ASTER_2THIRD)
 	{
-		texture = ge->textures.at("asteroid23");
+		this->getTexture("asteroid23");
 		width = atoi(((lev->configurationElements.at("asteroid23")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid23")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid23")).at(2));
 	}
 	if (asteroidType == ASTER_1THIRD)
 	{
-		texture = ge->textures.at("asteroid46");
+		this->getTexture("asteroid46");
 		width = atoi(((lev->configurationElements.at("asteroid46")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid46")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid46")).at(2));
@@ -60,28 +60,28 @@ Asteroid::Asteroid(int asteroidType, int sX, int sY, int aSpeed, float anAngle)
 	Drawable();
 	if (asteroidType == ASTER_NORMAL)
 	{
-		texture = ge->textures.at("asteroid");
+		this->getTexture("asteroid");
 		width = atoi(((lev->configurationElements.at("asteroid")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid")).at(2));
 	}
 	if (asteroidType == ASTER_DEMI)
 	{
-		texture = ge->textures.at("asteroid2");
+		this->getTexture("asteroid2");
 		width = atoi(((lev->configurationElements.at("asteroid2")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid2")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid2")).at(2));
 	}
 	if (asteroidType == ASTER_2THIRD)
 	{
-		texture = ge->textures.at("asteroid23");
+		this->getTexture("asteroid23");
 		width = atoi(((lev->configurationElements.at("asteroid23")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid23")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid23")).at(2));
 	}
 	if (asteroidType == ASTER_1THIRD)
 	{
-		texture = ge->textures.at("asteroid46");
+		this->getTexture("asteroid46");
 		width = atoi(((lev->configurationElements.at("asteroid46")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("asteroid46")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("asteroid46")).at(2));

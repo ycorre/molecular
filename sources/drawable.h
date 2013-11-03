@@ -24,8 +24,8 @@ class Drawable
 	  float posX;
 	  float posY;
 	  int state;
-	  int animX; //Position in the Sprite grid to display
-	  int animY;
+	  float animX; //Position in the Sprite grid to display
+	  float animY;
 	  int display; //Boolean: should the object be display
 	  int toRemove; //Boolean: should the object be destroyed
 	  int isBlinking; //Boolean: should the object be blinking
@@ -41,12 +41,19 @@ class Drawable
 	  vector<int> nbFrames;
 	  SDL_Surface * texture;
 
+	  //OpenGL stuff
+	  GLuint oglTexture;
+	  float textureXOrigin, textureYOrigin;
+
 	  Drawable();
 	  ~Drawable();
 	  virtual void animate();
 	  virtual void blink();
 	  void processDisplay();
 	  int updateAnimationFrame();
+	  void loadTexture(string path);
+	  void getTexture(string path);
+	  void createOGLTexture();
 	  virtual int isEnemy() {return FALSE;}
 	  virtual int isHero() {return FALSE;}
 	  virtual int isLaser() {return FALSE;}

@@ -18,33 +18,36 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 void Menu::loadMenu()
 {
 	mainBg = new Drawable();
-	mainBg->texture = ge->loadTexture("res/titre_wide.png");
+	mainBg->loadTexture("res/titre_wide.png");
+
+
+
 	mainBg->width = 1200;
 	mainBg->height = 600;
 
 	credit = new Drawable();
-	credit->texture = ge->loadTexture("res/credits2.gif");
+	credit->loadTexture("res/credits2.gif");
 	credit->width = 640;
 	credit->height = 480;
 	credit->posX = 280;
 	credit->posY = 60;
 
 	success = new Drawable();
-	success->texture = ge->loadTexture("res/end2.gif");
+	success->loadTexture("res/end2.gif");
 	success->width = 640;
 	success->height = 480;
 	success->posX = 280;
 	success->posY = 60;
 
 	gameOver = new Drawable();
-	gameOver->texture = ge->loadTexture("res/gameover2.gif");
+	gameOver->loadTexture("res/gameover2.gif");
 	gameOver->width = 640;
 	gameOver->height = 480;
 	gameOver->posX = 280;
 	gameOver->posY = 60;
 
  	arrow = new Drawable();
- 	arrow->texture = ge->loadTexture("res/zombix2.png");
+ 	arrow->loadTexture("res/zombix2.png");
  	arrow->width = 48;
  	arrow->height = 52;
  	arrow->nbFrames.clear();
@@ -63,12 +66,12 @@ void Menu::loadMenu()
 void Menu::loadIntro()
 {
 	logo = new Drawable();
-	logo->texture = ge->loadTexture("res/logo.png");
+	logo->loadTexture("res/logo.png");
 	logo->width = 1200;
  	logo->height = 480;
 
  	bbox = new Drawable();
- 	bbox->texture = ge->loadTexture("res/bbox.png");
+ 	bbox->loadTexture("res/bbox.png");
  	bbox->width = 1200;
  	bbox->height = 600;
  	bbox->animX = 0;

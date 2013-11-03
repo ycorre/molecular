@@ -3,7 +3,7 @@
 Falcon::Falcon()
 {
 	Drawable();
-	texture = ge->textures.at("falcon");
+	this->getTexture("falcon");
 	width = atoi(((lev->configurationElements.at("falcon")).at(0)).c_str());
 	height = atoi(((lev->configurationElements.at("falcon")).at(1)).c_str());
 	posX = 600;
@@ -25,7 +25,7 @@ Falcon::Falcon()
 	scoreValue = 5000;
 
 	healthDisplay = new Drawable();
-	healthDisplay->texture = ge->loadTexture("res/redBox.png");
+	healthDisplay->loadTexture("res/redBox.png");
 	healthDisplay->width = 1000;
 	healthDisplay->height = 25;
 	healthDisplay->posX = 100;

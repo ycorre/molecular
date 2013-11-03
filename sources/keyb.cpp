@@ -31,7 +31,7 @@ void Keyboard::processKeyPress()
 }
 
 //Process in game keyboard events
-void Keyboard::processeKeyInGame(Hero* hero)
+void Keyboard::processKeyInGame(Hero* hero)
 {
 	if(keyStates[SDLK_ESCAPE])
 		game->gameState = MENU;
@@ -70,11 +70,11 @@ void Keyboard::processeMouseInGame(Hero * hero)
 	if (!hero->dontMove)
 	{
 		hero->move(x, y);
-	}
 
-	if(buttonMask & SDL_BUTTON(1))
-	{
-		hero->fire();
+		if(buttonMask & SDL_BUTTON(1))
+		{
+			hero->fire();
+		}
 	}
 	//Get the mouse offsets
 	//int x = event.motion.relx;
@@ -109,8 +109,7 @@ void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
 //Process in menu keyboard events
 void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 {
-
-	//If we are actually in transition from one menu to another: ignore all inputs
+	//If we are currently in transition from one menu to another: ignore all inputs
 	if(menu->menuInTransition)
 	{
 		return;

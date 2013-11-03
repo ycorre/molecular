@@ -12,7 +12,7 @@ Bullet::Bullet()
 	direction = 0;
 	angle = 0;
 	speed = 1;
-	texture = ge->loadTexture("res/bullet.png");
+	this->loadTexture("res/bullet.png");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -33,7 +33,7 @@ Bullet::Bullet(int x, int y, int dir, int aType, int anAngle, int aSpeed)
 	type = aType;
 	if (type == BLUE_BULLET)
 	{
-		texture = ge->textures.at("bullet");
+		this->getTexture("bullet");
 		width = atoi(((lev->configurationElements.at("bullet")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("bullet")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("bullet")).at(2));

@@ -10,7 +10,7 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 	ge = aGraphicEngine;
 	//TODO put in conf file ?
 	string path = "res/ui.png";
-	backGround.texture = ge->loadTexture(path);
+	backGround.loadTexture(path);
 	backGround.width = SCREEN_WIDTH;
 	backGround.height = SCREEN_HEIGHT - GAMEZONE_HEIGHT;
 	backGround.posX = 0;
@@ -74,7 +74,7 @@ void HUD::loadHUDElements(string path)
 		tmp->height = atoi(((configurationElements.at(anElement->first)).at(1)).c_str());
 		tmp->posX = atoi(((configurationElements.at(anElement->first)).at(2)).c_str());
 		tmp->posY = GAMEZONE_HEIGHT + atoi(((configurationElements.at(anElement->first)).at(3)).c_str());
-		tmp->texture = ge->loadTexture((configurationElements.at(anElement->first)).at(4));
+		tmp->loadTexture((configurationElements.at(anElement->first)).at(4));
 
 		hudElements.insert(make_pair(anElement->first, *tmp));
 		//ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));

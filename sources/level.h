@@ -37,12 +37,14 @@ class Level
 	int levelState;
 	int cameraSpeed;
 	int exiting, ending, fading;
+	Drawable smallStars, bigStars, nebulae;
 
 	virtual void loadLevel(Hero * aHero);
 	virtual void loadConf();
 	virtual void loadObject();
 	virtual void loadTextures();
 	virtual void loadBackGround();
+	virtual void moveBackGround();
 	virtual void drawLevel();
 	virtual void checkEvent();
 	virtual void heroLoseLife();

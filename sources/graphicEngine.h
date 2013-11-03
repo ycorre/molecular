@@ -25,11 +25,12 @@ class Drawable;
 class GraphicEngine
 {
 	public:
-	  SDL_Surface *screen;
+	  SDL_Surface * screen;
 	  vector<Drawable *> toDisplay;
-	  map<string, SDL_Surface*> textures;
+	  map<string, SDL_Surface *> textures;
 	  vector<TTF_Font *> availableFonts;
 	  map<string, SDL_Color> availableColors;
+	  map<SDL_Surface *, GLuint> openGLTextures;
 
 	  //Black rectangle used for the fading effects
 	  Drawable * blackBox;
@@ -49,6 +50,7 @@ class GraphicEngine
 	  void fadeIn();
 	  void mergeImages(vector <Drawable*> drawables , Drawable * destination);
 	  SDL_Surface * loadTexture(string path);
+	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex);
 };
 
 

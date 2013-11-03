@@ -54,7 +54,7 @@ int Drawable::updateAnimationFrame()
 	if (updateTime < SDL_GetTicks())
 	{
 		//shift one sprite to the right; if we are at the end then go back to the beginning
-		animX = (animX + width) % (nbFrames.at(state)*width);
+		animX = (float) ((int) (animX + width) %  (nbFrames.at(state)*width));
 		lastTimeUpdated = SDL_GetTicks();
 		return 1;
 	}
@@ -94,6 +94,27 @@ void Drawable::processDisplay()
 	{
 		ge->toDisplay.push_back(this);
 	}
+}
+
+void Drawable::loadTexture(string path)
+{
+	this->texture = ge->loadTexture(path);
+	createOGLTexture();
+}
+
+void Drawable::getTexture(string aName)
+{
+	this->texture = ge->textures.at(aName);
+	this->oglTexture = ge->openGLTextures.at(this->texture);
+}
+
+void Drawable::createOGLTexture()
+{
+	glGenTextures(1, &this->oglTexture);
+	glBindTexture(GL_TEXTURE_2D, this->oglTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, this->texture->w, this->texture->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, this->texture->pixels);
 }
 
 void Drawable::blink()

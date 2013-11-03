@@ -9,7 +9,7 @@ using namespace std;
 Bonus::Bonus()
 {
 	type = 0;
-	texture = ge->loadTexture("res/laser_c.png");
+	this->loadTexture("res/laser_c.png");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -25,7 +25,7 @@ Bonus::Bonus(int x, int y, int bType)
 	type = bType;
 	if (bType == BONUS_LIFE)
 	{
-		texture = ge->textures.at("bonusLife");
+		this->getTexture("bonusLife");
 		width = atoi(((lev->configurationElements.at("bonusLife")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("bonusLife")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("bonusLife")).at(2));
@@ -34,7 +34,7 @@ Bonus::Bonus(int x, int y, int bType)
 	}
 	if (bType == BONUS_FIRERATE)
 	{
-		texture = ge->textures.at("bonusFireRate");
+		this->getTexture("bonusFireRate");
 		width = atoi(((lev->configurationElements.at("bonusFireRate")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("bonusFireRate")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("bonusFireRate")).at(2));
