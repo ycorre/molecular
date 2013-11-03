@@ -125,7 +125,7 @@ int Game::mainLoop()
 	    		break;
 
 	    	case INGAME:
-	    		keyboard->processeKeyInGame(currentLevel->hero);
+	    		keyboard->processKeyInGame(currentLevel->hero);
 	    		keyboard->processeMouseInGame(currentLevel->hero);
 				currentLevel->drawLevel();
 				if (currentLevel->levelState == LEVEL_WON)
@@ -238,10 +238,14 @@ int Game::initSDL()
     if (videoInfo->blit_hw)
     	videoFlags |= SDL_HWACCEL;
 
-    // get a SDL surface from screen
-    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    // Verify there is a surface
+    // get a SDL surface from screen
+    //graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
+
+    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL);
+
+    //Verify there is a surface
     if (!graphicEngine.screen)
 	{
 	    cerr <<  "Video mode set failed: << " << SDL_GetError() << endl;
@@ -256,18 +260,23 @@ int Game::initSDL()
     }
     
     //Init Audio
-    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 8192) == -1)
+
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)  == -1)
 	{
     	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
     	quit(1);
 	}
+    //Allocate more channels than the default parameter (8)
+    Mix_AllocateChannels(24);
 
     //Enable repetition of keyboard events
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
-    SDL_WM_GrabInput( SDL_GRAB_ON );
+    SDL_WM_GrabInput(SDL_GRAB_ON);
     SDL_ShowCursor(0);
     
     Drawable::ge = &graphicEngine;
+
+    initOpenGL();
 
     return 0;
 }
@@ -333,7 +342,7 @@ void Game::launchNextLevel()
 			break;
 	}
 
-	if (newLevel >= levelOrder.size())
+	if (newLevel >= 3)//levelOrder.size())
 	{
 		cout<<"Game won!!!!!!!!!!!\n";
 		menu->currentMenu = MENU_SUCCESS;
@@ -400,4 +409,34 @@ void Game::loadConf()
 			}
 		}
 	}
+}
+
+int initOpenGL()
+{
+	 //Initialize Projection Matrix
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	//Initialize Modelview Matrix
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	//Initialize clear color
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glEnable(GL_TEXTURE_2D);
+
+	//Check for error
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR)
+	{
+		cout<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
+		return FALSE;
+	}
+    glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	return TRUE;
 }

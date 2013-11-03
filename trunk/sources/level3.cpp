@@ -13,7 +13,7 @@ void Level3::loadLevel(Hero * aHero)
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
 	hero = aHero;
-	hero->texture = ge->textures.at("tie");
+	hero->getTexture("tie");
 	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
 	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
 	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
@@ -26,8 +26,8 @@ void Level3::loadLevel(Hero * aHero)
 
 void Level3::loadObject()
 {
-	loadBackGround();
 	loadTextures();
+	loadBackGround();
 }
 
 //Load all textures used for the level at the beginning
@@ -42,8 +42,9 @@ void Level3::loadTextures()
 
 void Level3::loadBackGround()
 {
+	Level::loadBackGround();
 	string path = "res/decor.png";
-	bg.texture = ge->loadTexture(path);
+	//bg.loadTexture(path);
 	bg.width = SCREEN_WIDTH;
 	bg.height = SCREEN_HEIGHT;
 	bg.posX = 0;
@@ -51,7 +52,7 @@ void Level3::loadBackGround()
 	bg.state = 0;
 	bg.animX = 0;
 	bg.animY = 0;
-	activeElements.push_back(&bg);
+	//activeElements.push_back(&bg);
 
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
@@ -82,6 +83,8 @@ void Level3::drawLevel()
 
 	hero->animate();
 	bg.animX = bg.animX + cameraSpeed;
+
+	moveBackGround();
 
 	if(ending)
 	{
@@ -188,7 +191,7 @@ void Level3::finishLevel()
 		if (hero->posX >= SCREEN_WIDTH - 100)
 		{
 			fading = TRUE;
-			exiting=FALSE;
+			exiting = FALSE;
 		}
 	}
 

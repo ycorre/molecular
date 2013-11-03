@@ -14,7 +14,7 @@ void Level1::loadLevel(Hero * aHero)
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
 	hero =  aHero;
-	hero->texture = ge->textures.at("tie");
+	hero->getTexture("tie");
 	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
 	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
 	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
@@ -26,8 +26,8 @@ void Level1::loadLevel(Hero * aHero)
 
 void Level1::loadObject()
 {
-	loadBackGround();
 	loadTextures();
+	loadBackGround();
 }
 
 //Load all textures used for the level at the beginning
@@ -42,16 +42,8 @@ void Level1::loadTextures()
 
 void Level1::loadBackGround()
 {
-	string path = "res/decor.png";
-	bg.texture = ge->loadTexture(path);
-	bg.width = SCREEN_WIDTH;
-	bg.height = GAMEZONE_HEIGHT;
-	bg.posX = 0;
-	bg.posY = 0;
-	bg.state = 0;
+	Level::loadBackGround();
 	bg.animX = 0;
-	bg.animY = 0;
-	activeElements.push_back(&bg);
 	
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
@@ -85,6 +77,7 @@ void Level1::drawLevel()
 	hero->animate();
 
 	//Move the background
+	moveBackGround();
 	bg.animX = bg.animX + cameraSpeed;
 
 	if(ending)

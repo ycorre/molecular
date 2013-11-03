@@ -10,6 +10,7 @@ Text::Text(SDL_Color aColor, TTF_Font * aFont)
 	color = aColor;
 	font = aFont;
 	content = "";
+	oglTexture = NULL;
 }
 
 Text::Text(SDL_Color aColor, TTF_Font * aFont, int Xpos, int Ypos, int aWidth, int aHeight)
@@ -21,6 +22,7 @@ Text::Text(SDL_Color aColor, TTF_Font * aFont, int Xpos, int Ypos, int aWidth, i
 	height = aHeight;
 	color = aColor;
 	font = aFont;
+	oglTexture = NULL;
 	content = "";
 }
 
@@ -35,13 +37,26 @@ void Text::write(string aText)
 	}
 
 	content = aText;
-	texture = TTF_RenderText_Solid(font, aText.c_str(), color);
+	texture = TTF_RenderUTF8_Blended(font, aText.c_str(), color);
 	if (texture == NULL)
 	{
-		cerr << "TTF_RenderText_Solid() Failed: " << TTF_GetError() << endl;
+		cerr << "TTF_RenderUTF8_Blended() Failed: " << TTF_GetError() << endl;
 		TTF_Quit();
 		SDL_Quit();
 		exit(1);
+	}
+
+	this->width = this->texture->w;
+	this->height = this->texture->h;
+
+	if(this->oglTexture == NULL)
+	{
+		createOGLTexture();
+	}
+	else
+	{
+		glDeleteTextures(1, &this->oglTexture);
+		createOGLTexture();
 	}
 }
 
@@ -49,7 +64,9 @@ void Text::write(string aText)
 //(e.g. the color of the text)
 void Text::update()
 {
-	texture = TTF_RenderText_Solid(font, content.c_str(), color);
+	texture =  TTF_RenderUTF8_Blended(font, content.c_str(), color);
+	glDeleteTextures(1, &this->oglTexture);
+	createOGLTexture();
 }
 
 void Text::setColor(SDL_Color aColor)

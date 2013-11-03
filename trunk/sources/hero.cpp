@@ -231,7 +231,7 @@ void Hero::move(int x, int y)
 	y = min(y, 16);
 	y = max(y, -16);
 
-	if (y<0)
+/*	if (y<0)
 	{
 		if(!heroMovingUpOrDown)
 		{
@@ -254,7 +254,7 @@ void Hero::move(int x, int y)
 			heroChangedState = TRUE;
 			heroMovingUpOrDown = 1;
 		}
-	}
+	}*/
 
 	posX = posX + x;
 	posY = posY + y;

@@ -6,11 +6,7 @@
 
 void Level::loadLevel(Hero * aHero)
 {
-/*	loadConf();
-	loadObject();
-	cameraSpeed = 1;
-	hero = aHero;
-	levelState = LEVEL_PLAYING;*/
+
 }
 
 void Level::loadObject()
@@ -31,18 +27,54 @@ void Level::loadTextures()
 
 void Level::loadBackGround()
 {
-	string path = "res/decor.png";
-	bg.texture = ge->loadTexture(path);
-	bg.width = SCREEN_WIDTH;
-	bg.height = SCREEN_HEIGHT;
-	bg.posX = 0;
-	bg.posY = 0;
-	bg.state = 0;
-	bg.animX = 0;
-	bg.animY = 0;
-	activeElements.push_back(&bg);
+	bigStars.getTexture("bigStars");
+	bigStars.width = SCREEN_WIDTH;
+	bigStars.height = SCREEN_HEIGHT;
+	bigStars.posX = 0;
+	bigStars.posY = 0;
+	bigStars.state = 0;
+	bigStars.animX = 0;
+	bigStars.animY = 0;
+
+	smallStars.getTexture("smallStars");
+	smallStars.width = SCREEN_WIDTH;
+	smallStars.height = SCREEN_HEIGHT;
+	smallStars.posX = 0;
+	smallStars.posY = 0;
+	smallStars.state = 0;
+	smallStars.animX = 0;
+	smallStars.animY = 0;
+
+	nebulae.getTexture("nebulae");
+	nebulae.width = SCREEN_WIDTH;
+	nebulae.height = SCREEN_HEIGHT;
+	nebulae.posX = 0;
+	nebulae.posY = 0;
+	nebulae.state = 0;
+	nebulae.animX = 0;
+	nebulae.animY = 0;
 }
 
+void Level::moveBackGround()
+{
+	//Move the backgrounds
+	nebulae.animX = nebulae.animX + 0.5;
+	bigStars.animX = bigStars.animX + 1.5;
+	smallStars.animX = smallStars.animX + 1;
+
+	//Set the blending parameters
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+	//glBlendEquation(GL_FUNC_ADD);
+
+	//Draw the textures
+	ge->draw(&nebulae);
+	ge->draw(&bigStars);
+	ge->draw(&smallStars);
+
+	//Restore the blending parameters
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
 
 void Level::drawLevel()
 {

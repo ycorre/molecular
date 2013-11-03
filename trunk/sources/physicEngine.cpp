@@ -68,7 +68,7 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 		{
 			pixA = getPixel((startingCoordinatesI.first + x), (startingCoordinatesI.second + y), aDrawable);
 			pixB = getPixel((startingCoordinatesJ.first + x), (startingCoordinatesJ.second + y), anotherDrawable);
-			if ((pixA > 0) && (pixB > 0))// && pixB != 16777215))
+			if ((pixA > 0) && (pixB > 0 && pixB != 16777215))
 			{
 				SDL_UnlockSurface(aDrawable->texture);
 				SDL_UnlockSurface(anotherDrawable->texture);

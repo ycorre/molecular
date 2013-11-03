@@ -54,7 +54,7 @@ class Game
 };
 
 void controlFPS();
-
+int initOpenGL();
 
 //Definition of the values for the gameState variable
 #define MENU 1

@@ -3,7 +3,7 @@
 Enemy::Enemy()
 {
 	Drawable();
-	texture = ge->textures.at("xwing");
+	this->getTexture("xwing");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -22,7 +22,7 @@ Enemy::Enemy()
 Enemy::Enemy(int x, int y, int typeXW, int dir)
 {
 	Drawable();
-	texture = ge->textures.at("xwing");
+	this->getTexture("xwing");
 	width = atoi(((lev->configurationElements.at("xwing")).at(0)).c_str());
 	height = atoi(((lev->configurationElements.at("xwing")).at(1)).c_str());
 	posX = x;

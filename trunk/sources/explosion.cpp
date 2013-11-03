@@ -2,7 +2,7 @@
 
 Explosion::Explosion()
 {
-	texture = ge->loadTexture("res/expl2.png");
+	this->loadTexture("res/expl2.png");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -17,7 +17,7 @@ Explosion::Explosion()
 Explosion::Explosion(int x, int y, int typeExpl)
 {
 	Drawable();
-	texture = ge->textures.at("explosion");
+	this->getTexture("explosion");
 	width = atoi(((lev->configurationElements.at("explosion")).at(0)).c_str());
 	height =  atoi(((lev->configurationElements.at("explosion")).at(1)).c_str());
 	posX = x;

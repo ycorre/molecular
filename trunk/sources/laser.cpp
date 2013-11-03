@@ -10,7 +10,7 @@ Laser::Laser()
 	type = 0;
 	power = 50;
 	direction = 0;
-	texture = ge->loadTexture("res/laser_c.png");
+	this->loadTexture("res/laser_c.png");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -28,7 +28,7 @@ Laser::Laser(int x, int y, int dir, int aType)
 	type = aType;
 	if (type == GREEN_LASER)
 	{
-		texture = ge->textures.at("laserG");
+		this->getTexture("laserG");
 		width = atoi(((lev->configurationElements.at("laserG")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("laserG")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("laserG")).at(2));
@@ -36,7 +36,7 @@ Laser::Laser(int x, int y, int dir, int aType)
 	}
 	if (type == RED_LASER)
 	{
-		texture = ge->textures.at("laserR");
+		this->getTexture("laserR");
 		width = atoi(((lev->configurationElements.at("laserR")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("laserR")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("laserR")).at(2));

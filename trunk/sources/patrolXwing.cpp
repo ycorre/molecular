@@ -9,7 +9,7 @@ Patrol::Patrol(int x, int y, int typeXW, int dir)
 {
 	//Enemy(x,y,type,dir);
 	Drawable();
-	texture = ge->textures.at("xwing");
+	this->getTexture("xwing");
 	width = atoi(((lev->configurationElements.at("xwing")).at(0)).c_str());
 	height = atoi(((lev->configurationElements.at("xwing")).at(1)).c_str());
 	posX = x;

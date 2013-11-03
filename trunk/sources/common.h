@@ -5,6 +5,9 @@
 #include <SDL_opengl.h>
 using namespace std;
 
+//Do we use OpenGL rendering ?
+#define USE_OPENGL 1
+
 //Set up boolean values
 #define TRUE  1
 #define FALSE 0
