@@ -21,11 +21,13 @@ void Level2::loadLevel(Hero * aHero)
 	nextStepValues.push_back(3500);
 	nextStepValues.push_back(4000);
 	nextStepValues.push_back(4500);
+	nextStepValues.push_back(5000);
 	nextStepValues.push_back(100000);
+
 	hero = aHero;
-	hero->getTexture("tie");
 	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
 	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
+	hero->getTexture("tie");
 	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
 	hero->resetHero();
 	ending = fading = exiting = FALSE;
@@ -53,13 +55,13 @@ void Level2::loadBackGround()
 
 	string path = "res/decor.png";
 	//bg.loadTexture(path);
-	bg.width = SCREEN_WIDTH;
-	bg.height = SCREEN_HEIGHT;
-	bg.posX = 0;
-	bg.posY = 0;
-	bg.state = 0;
-	bg.animX = 0;
-	bg.animY = 0;
+	background.width = SCREEN_WIDTH;
+	background.height = SCREEN_HEIGHT;
+	background.posX = 0;
+	background.posY = 0;
+	background.state = 0;
+//	background.setAnimX(0);
+//	background.setAnimY(0);
 	//activeElements.push_back(&bg);
 
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
@@ -88,7 +90,7 @@ void Level2::drawLevel()
 	hud->displayScore(Score);
 
 	hero->animate();
-	bg.animX = bg.animX + cameraSpeed;
+	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	moveBackGround();
 
@@ -127,7 +129,7 @@ void Level2::checkEvent()
 	}
 
 	//Gradually increase difficulty
-	if(bg.animX >= nextDiffcultyStep)
+	if(background.getAnimX() >= nextDiffcultyStep)
 	{
 		if (nextDiffcultyStep >= 1000)
 		{
@@ -148,14 +150,20 @@ void Level2::checkEvent()
 		if (nextDiffcultyStep >= 4500)
 		{
 			asteroidRate = 300;
-			nextDiffcultyStep = 100000;
+			nextDiffcultyStep = 5000;
+		}
+		if (nextDiffcultyStep >= 5000)
+		{
+			asteroidRate = 550;
+			asteroidTypeGenerated = ASTER_2THIRD;
+			nextDiffcultyStep = 5500;
 		}
 		nextDiffcultyStep = nextStepValues.front();
 		nextStepValues.pop_front();
 	}
 
 	//Winning conditions
-	if(bg.animX >= 6300 - SCREEN_WIDTH && hero->state != DEAD)
+	if(background.getAnimX() >= 6900 - SCREEN_WIDTH && hero->state != DEAD)
 	{
 		//Level won
 		finishLevel();
@@ -279,6 +287,7 @@ void Level2::finishLevel()
 		//Start fading out
 		if (hero->posX >= SCREEN_WIDTH - 300)
 		{
+			ge->startFadingOut(3);
 			fading = TRUE;
 			exiting=FALSE;
 		}
@@ -287,7 +296,6 @@ void Level2::finishLevel()
 	//Fade out
 	if(fading)
 	{
-		ge->fadeOut();
 		if (ge->isFading == FALSE)
 		{
 			fading = FALSE;

@@ -16,8 +16,8 @@ Laser::Laser()
 	posX = 0;
 	posY = 0;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	collision = ge->loadTexture("res/laser_cmasktrans.png");
 }
 
@@ -45,8 +45,8 @@ Laser::Laser(int x, int y, int dir, int aType)
 	posX = x;
 	posY = y;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 }
 
 void Laser::animate()

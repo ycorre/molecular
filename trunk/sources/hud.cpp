@@ -9,26 +9,24 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 
 	ge = aGraphicEngine;
 	//TODO put in conf file ?
-	string path = "res/ui.png";
-	backGround.loadTexture(path);
 	backGround.width = SCREEN_WIDTH;
 	backGround.height = SCREEN_HEIGHT - GAMEZONE_HEIGHT;
+	string path = "res/ui.png";
+	backGround.loadTexture(path);
 	backGround.posX = 0;
 	backGround.posY = GAMEZONE_HEIGHT;
 	backGround.state = 0;
-	backGround.animX = 0;
-	backGround.animY = 0;
+	backGround.setAnimX(0);
+	backGround.setAnimY(0);
 
 	//TODO put the next two elements in the conf file
 	lifeHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
-
 	lifeHUD->width = 300;
 	lifeHUD->height = 300;
 	lifeHUD->posX = 500;
 	lifeHUD->posY = 500;
 
 	scoreHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
-
 	scoreHUD->width = 300;
 	scoreHUD->height = 300;
 	scoreHUD->posX = 800;

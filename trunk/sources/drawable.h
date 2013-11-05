@@ -18,18 +18,22 @@ class Level;
 
 class Drawable
 {
+	private:
+	  int animX; //Position in the Sprite grid to display
+	  int animY;
+
 	public:
 	  int width;
 	  int height;
 	  float posX;
 	  float posY;
 	  int state;
-	  float animX; //Position in the Sprite grid to display
-	  float animY;
 	  int display; //Boolean: should the object be display
 	  int toRemove; //Boolean: should the object be destroyed
 	  int isBlinking; //Boolean: should the object be blinking
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
+	  string name;
+	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
 
 	  //static since the graphic engine is the same for all the objects
 	  static GraphicEngine * ge;
@@ -54,18 +58,28 @@ class Drawable
 	  void loadTexture(string path);
 	  void getTexture(string path);
 	  void createOGLTexture();
+	  void computeOGLXValues();
+	  void computeOGLYValues();
+	  void clean();
 	  virtual int isEnemy() {return FALSE;}
 	  virtual int isHero() {return FALSE;}
 	  virtual int isLaser() {return FALSE;}
 	  virtual int isBonus() {return FALSE;}
 	  virtual int hasHitBox() {return FALSE;}
+	  virtual int isComposite() {return FALSE;}
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable* aDrawable);
 	  virtual int getXBoundary();
 	  virtual int getYBoundary();
 	  virtual int getWidthBoundary();
 	  virtual int getHeightBoundary();
+	  virtual int getAnimX();
+	  virtual void setAnimX(int aValue);
+	  virtual int getAnimY();
+	  virtual void setAnimY(int aValue);
 	  virtual SDL_Surface * getCollisionTexture();
+
+
 };
 
 //Class for objects that use a hit box for collision detection
@@ -92,6 +106,15 @@ class MaskedDrawable: public Drawable
 	  SDL_Surface * collision;
 
 	  virtual SDL_Surface * getCollisionTexture();
+};
+
+//Class for objects that uses several textures that require blending to display
+class CompositeDrawable: public Drawable
+{
+	public:
+	  vector<Drawable *> toMerge;
+
+	  virtual int isComposite() {return TRUE;}
 };
 
 

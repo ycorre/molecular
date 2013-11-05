@@ -1,15 +1,5 @@
 /*
  * Main class of the game
- *
- * Part of this code was created by Jeff Molofee '99
- * (ported to Linux/SDL by Ti Leggett '01)
- *
- * If you've found this code useful, please let me know.
- *
- * Visit Jeff at http://nehe.gamedev.net/
- *
- * or for port-specific comments, questions, bugreports etc.
- * email to leggett@eecs.tulane.edu
  */
 
 #include "game.h"
@@ -83,6 +73,7 @@ int Game::mainLoop()
 	{
 	    //Clear the elements to be displayed at the beginning of the loop
     	graphicEngine.toDisplay.clear();
+    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     	//Process SDL events
 	    while (SDL_PollEvent(&event))
@@ -135,8 +126,8 @@ int Game::mainLoop()
 				if (currentLevel->levelState == LEVEL_LOST)
 				{
 					menu->currentMenu = MENU_GAMEOVER;
-					graphicEngine.fadeOut(1);
-					menu -> menuInTransition = TRUE;
+					//graphicEngine.startFadingOut(3);
+					menu->menuInTransition = TRUE;
 					soundEngine.playSound("game_over");
 					gameState = MENU;
 				}
@@ -238,12 +229,13 @@ int Game::initSDL()
     if (videoInfo->blit_hw)
     	videoFlags |= SDL_HWACCEL;
 
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
     // get a SDL surface from screen
-    //graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
-
+#if USE_OPENGL
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL);
+#else
+    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
+#endif
 
     //Verify there is a surface
     if (!graphicEngine.screen)
@@ -260,7 +252,6 @@ int Game::initSDL()
     }
     
     //Init Audio
-
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)  == -1)
 	{
     	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
@@ -276,7 +267,9 @@ int Game::initSDL()
     
     Drawable::ge = &graphicEngine;
 
+#if USE_OPENGL
     initOpenGL();
+#endif
 
     return 0;
 }
@@ -324,8 +317,8 @@ void Game::launchLevel(string aLevel)
 	currentLevel->soundEngine = &soundEngine;
 	Drawable::lev = currentLevel;
 	hero = new Hero();
-    GameTimer = 0;
-    Score = 0;
+	GameTimer = 0;
+	Score = 0;
 
 	currentLevel->loadLevel(hero);
 	gameState = INGAME;
@@ -413,14 +406,14 @@ void Game::loadConf()
 
 int initOpenGL()
 {
-	 //Initialize Projection Matrix
+	//Initialize Projection Matrix
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
 	//Initialize Modelview Matrix
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	//Initialize clear color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -433,10 +426,10 @@ int initOpenGL()
 		cout<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
 		return FALSE;
 	}
-    glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
+	glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	return TRUE;
 }

@@ -45,13 +45,13 @@ void Level3::loadBackGround()
 	Level::loadBackGround();
 	string path = "res/decor.png";
 	//bg.loadTexture(path);
-	bg.width = SCREEN_WIDTH;
-	bg.height = SCREEN_HEIGHT;
-	bg.posX = 0;
-	bg.posY = 0;
-	bg.state = 0;
-	bg.animX = 0;
-	bg.animY = 0;
+	background.width = SCREEN_WIDTH;
+	background.height = SCREEN_HEIGHT;
+	background.posX = 0;
+	background.posY = 0;
+	background.state = 0;
+	//background.setAnimX(0);
+	//background.setAnimY(0);
 	//activeElements.push_back(&bg);
 
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
@@ -82,7 +82,7 @@ void Level3::drawLevel()
 	theFalcon->healthDisplay->processDisplay();
 
 	hero->animate();
-	bg.animX = bg.animX + cameraSpeed;
+	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	moveBackGround();
 
@@ -190,6 +190,7 @@ void Level3::finishLevel()
 		//Start fading out
 		if (hero->posX >= SCREEN_WIDTH - 100)
 		{
+			ge->startFadingOut(3);
 			fading = TRUE;
 			exiting = FALSE;
 		}
@@ -198,7 +199,6 @@ void Level3::finishLevel()
 	//Fade out
 	if(fading)
 	{
-		ge->fadeOut();
 		if (ge->isFading == FALSE)
 		{
 			fading = FALSE;

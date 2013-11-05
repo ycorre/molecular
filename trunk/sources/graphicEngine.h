@@ -35,6 +35,7 @@ class GraphicEngine
 	  //Black rectangle used for the fading effects
 	  Drawable * blackBox;
 	  int alphaFading;
+	  int fadingSpeed;
 	  int isFading;
 
 	  GraphicEngine();
@@ -45,12 +46,14 @@ class GraphicEngine
 	  void blitElement(SDL_Surface * anElement);
 	  void addFont(string path);
 	  void initColors();
-	  void fadeOut();
-	  void fadeOut(int speed);
 	  void fadeIn();
 	  void mergeImages(vector <Drawable*> drawables , Drawable * destination);
 	  SDL_Surface * loadTexture(string path);
 	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex);
+	  void startFadingOut(int aFadingSpeed);
+
+	private:
+	  void fadeOut();
 };
 
 

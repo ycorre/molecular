@@ -44,7 +44,7 @@ class Menu
 		pair<string, unsigned int> ahighScores[5];
 		vector<pair<string, unsigned int> > highScores;
 		vector<Text *> highScoreElements;
-		int currentMenu;
+		int currentMenu, nextMenu;
 
 		Menu(GraphicEngine * aGe, SoundEngine * aSe);
 		void loadMenu();

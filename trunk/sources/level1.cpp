@@ -43,7 +43,7 @@ void Level1::loadTextures()
 void Level1::loadBackGround()
 {
 	Level::loadBackGround();
-	bg.animX = 0;
+	background.setAnimX(0);
 	
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
@@ -78,7 +78,7 @@ void Level1::drawLevel()
 
 	//Move the background
 	moveBackGround();
-	bg.animX = bg.animX + cameraSpeed;
+	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	if(ending)
 	{
@@ -113,7 +113,7 @@ void Level1::checkEvent()
 	}
 
 	//Winning conditions
-	if(bg.animX >= 6000 - SCREEN_WIDTH && hero->state != DEAD)
+	if(background.getAnimX() >= 5800 - SCREEN_WIDTH && hero->state != DEAD)
 	{
 		//Level won
 		finishLevel();
@@ -274,6 +274,7 @@ void Level1::finishLevel()
 		//Start fading out
 		if (hero->posX >= SCREEN_WIDTH - 300)
 		{
+			ge->startFadingOut(3);
 			fading = TRUE;
 			exiting = FALSE;
 		}
@@ -282,7 +283,6 @@ void Level1::finishLevel()
 	//Fade out
 	if(fading)
 	{
-		ge->fadeOut();
 		if (ge->isFading == FALSE)
 		{
 			fading = FALSE;

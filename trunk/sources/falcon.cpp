@@ -9,8 +9,8 @@ Falcon::Falcon()
 	posX = 600;
 	posY = 100;
 	state = 0;
-	animX = 0;
-	animY = 0 * height;
+	setAnimX(0);
+	setAnimY(0);
 	direction = 0;
 	type = 0;
 	bonusProbability = 10;
@@ -30,7 +30,7 @@ Falcon::Falcon()
 	healthDisplay->height = 25;
 	healthDisplay->posX = 100;
 	healthDisplay->posY = 540;
-	healthDisplay->animX = 0;
+	healthDisplay->	setAnimX(0);
 	initialHealthDisplayWidth = healthDisplay->width;
 }
 

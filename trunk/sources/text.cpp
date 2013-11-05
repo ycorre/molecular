@@ -49,6 +49,7 @@ void Text::write(string aText)
 	this->width = this->texture->w;
 	this->height = this->texture->h;
 
+#if USE_OPENGL
 	if(this->oglTexture == NULL)
 	{
 		createOGLTexture();
@@ -58,6 +59,7 @@ void Text::write(string aText)
 		glDeleteTextures(1, &this->oglTexture);
 		createOGLTexture();
 	}
+#endif
 }
 
 //Used when changes are made on the text elements
@@ -65,8 +67,10 @@ void Text::write(string aText)
 void Text::update()
 {
 	texture =  TTF_RenderUTF8_Blended(font, content.c_str(), color);
+#if USE_OPENGL
 	glDeleteTextures(1, &this->oglTexture);
 	createOGLTexture();
+#endif
 }
 
 void Text::setColor(SDL_Color aColor)

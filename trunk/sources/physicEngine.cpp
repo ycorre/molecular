@@ -127,8 +127,8 @@ Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 	}
 
 	int textureX, textureY;
-	textureX = aDrawable->animX + x;
-	textureY = aDrawable->animY + y;
+	textureX = aDrawable->getAnimX() + x;
+	textureY = aDrawable->getAnimY() + y;
 
 	return getpixel(aDrawable->getCollisionTexture(), textureX, textureY);
 }

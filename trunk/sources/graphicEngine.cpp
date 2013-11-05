@@ -15,10 +15,10 @@ void GraphicEngine::initGe()
 	blackBox = new Drawable();
 	blackBox->width = 1200;
 	blackBox->height = 600;
-	blackBox->animX = 0;
-	blackBox->animY = 0;
 	blackBox->loadTexture("res/bbox.png");
 	blackBox->texture = SDL_DisplayFormat(blackBox->texture);
+	blackBox->setAnimX(0);
+	blackBox->setAnimY(0);
 }
 
 //Load a texture as an SDL_Surface
@@ -34,10 +34,12 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 		aSurface = SDL_DisplayFormatAlpha(tmp);
 		SDL_FreeSurface(tmp);
 
+#if USE_OPENGL
 		GLuint oglTex;
 		createOGLTexture(aSurface, &oglTex);
 
 		openGLTextures.insert(make_pair(aSurface, oglTex));
+#endif
 
 		return aSurface;
 }
@@ -46,65 +48,97 @@ void GraphicEngine::drawFrame()
 {
 	if(!toDisplay.empty())
 	{
-		for (std::vector<Drawable *>::iterator it = toDisplay.begin() ; it != toDisplay.end(); ++it)
+		for (std::vector<Drawable *>::iterator aDrawable = toDisplay.begin() ; aDrawable != toDisplay.end(); ++aDrawable)
 		{
-			draw(*it);
+			draw(*aDrawable);
 		}
 	}
 	else
 	{
 		cout<<"Warning: GraphicEngine (drawFrame): The set of elements to display is empty\n";
 	}
+
+	//Check for effects to perform
+	if(isFading)
+	{
+		fadeOut();
+	}
+
 	displayFrame();
 }
 
 //Draw an object on the screen
 int GraphicEngine::draw(Drawable * sprite)
 {
-/*	SDL_Rect src, dest;
-	 
-	//Specify which part of the texture to display
-	*/
-/*	src.x = sprite->animX;
-	src.y = sprite->animY;
-	src.w = sprite->width;
-	src.h = sprite->height;
-	
-	//Specify where to display on the screen 
-	dest.x = sprite->posX;
-	dest.y = sprite->posY;
-	dest.w = sprite->width;
-	dest.h = sprite->height;
 
-	SDL_BlitSurface(sprite->texture, &src, screen, &dest);*/
+#if USE_OPENGL
+	if (!sprite->isComposite())
+	{
+		glBindTexture(GL_TEXTURE_2D, sprite->oglTexture);
+		glBegin(GL_QUADS);
+			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
+			glVertex2i(sprite->posX, sprite->posY);
+			//glVertex3i(sprite->posX, sprite->posY, -1);
 
-	glBindTexture(GL_TEXTURE_2D, sprite->oglTexture);
+			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
+			glVertex2i(sprite->posX + sprite->width, sprite->posY);
+			//glVertex3i(sprite->posX + sprite->width, sprite->posY, -1);
 
-	glBegin(GL_QUADS);
+			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
+			glVertex2i(sprite->posX + sprite->width, sprite->posY + sprite->height);
+			//glVertex3i(sprite->posX + sprite->width, sprite->posY + sprite->height, -1);
 
-		glTexCoord2f((float)sprite->animX/(float)sprite->texture->w, (float)sprite->animY/(float)sprite->texture->h);
-		glVertex2i(sprite->posX, sprite->posY);
+			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
+			glVertex2i(sprite->posX, sprite->posY + sprite->height);
+			//glVertex3i(sprite->posX, sprite->posY + sprite->height, -1);
 
-		glTexCoord2f((float)sprite->animX/(float)sprite->texture->w + (float)sprite->width/(float)sprite->texture->w, (float)sprite->animY/(float)sprite->texture->h);
-		glVertex2i(sprite->posX + sprite->width, sprite->posY );
+		glEnd();
+	}
+	else
+	{
+		CompositeDrawable * aCDraw = static_cast<CompositeDrawable*> (sprite);
+		//Set the blending parameters
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
-		glTexCoord2f((float)sprite->animX/(float)sprite->texture->w + (float)sprite->width/(float)sprite->texture->w, (float)sprite->animY/(float)sprite->texture->h +(float)sprite->height/(float)sprite->texture->h);
-		glVertex2i(sprite->posX + sprite->width, sprite->posY + sprite->height);
+		//Draw the textures
+		for (std::vector<Drawable *>::iterator aDrawable = aCDraw->toMerge.begin() ; aDrawable != aCDraw->toMerge.end(); ++aDrawable)
+		{
+			draw(*aDrawable);
+		}
 
-		glTexCoord2f((float)sprite->animX/(float)sprite->texture->w, (float)sprite->animY/(float)sprite->texture->h + (float)sprite->height/(float)sprite->texture->h);
-		glVertex2i(sprite->posX, sprite->posY + sprite->height);
+		//Restore the default blending parameters
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+#else
+		SDL_Rect src, dest;
 
-	glEnd();
+		//Specify which part of the texture to display
+
+		src.x = sprite->animX;
+		src.y = sprite->animY;
+		src.w = sprite->width;
+		src.h = sprite->height;
+
+		//Specify where to display on the screen
+		dest.x = sprite->posX;
+		dest.y = sprite->posY;
+		dest.w = sprite->width;
+		dest.h = sprite->height;
+
+		SDL_BlitSurface(sprite->texture, &src, screen, &dest);
+#endif
 
     return 1;
 }
 
 void GraphicEngine::displayFrame()
 {
-
+#if USE_OPENGL
 	SDL_GL_SwapBuffers();
-
-//	SDL_Flip(screen);
+#else
+	SDL_Flip(screen);
+#endif
 }
 
 void GraphicEngine::blitElement(SDL_Surface * anElement)
@@ -136,72 +170,39 @@ void GraphicEngine::initColors()
 	availableColors.insert(make_pair("RED", red));
 }
 
+void GraphicEngine::startFadingOut(int aFadingSpeed)
+{
+	fadingSpeed = aFadingSpeed;
+	isFading = TRUE;
+	alphaFading = 0;
+}
+
 //Perform a fade out effect
 void GraphicEngine::fadeOut()
 {
-	if(!isFading)
-	{
-		isFading = TRUE;
-		alphaFading = 0;
-	}
+	alphaFading = min(255, alphaFading + fadingSpeed);
 
-	alphaFading = min(255, alphaFading + 2);
-
-	//SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
-	//toDisplay.push_back(blackBox);
+#if USE_OPENGL
 	float alphaGL = (float) alphaFading / 255.0;
 
-	glColor4f(0, 0, 0, alphaGL);
+	glColor4f(0., 0., 0., alphaGL);
 	glBegin(GL_QUADS);
-		/*glVertex2f(0.0f, 0.0f);
+		glVertex2f(0.0f, 0.0f);
 		glVertex2f(SCREEN_WIDTH, 0.0f);
 		glVertex2f(SCREEN_WIDTH, SCREEN_HEIGHT);
-		glVertex2f(0.0f, SCREEN_HEIGHT);*/
-
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(SCREEN_WIDTH, 0.0f, 0.0f);
-		glVertex3f(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
-		glVertex3f(0.0f, SCREEN_HEIGHT, 0.0f);
+		glVertex2f(0.0f, SCREEN_HEIGHT);
 	glEnd();
+
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+#else
+	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
+	toDisplay.push_back(blackBox);
+#endif
 
 	if(alphaFading == 255)
 	{
 		isFading = FALSE;
 	}
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-}
-
-void GraphicEngine::fadeOut(int fadeOutSpeed)
-{
-	if(!isFading)
-	{
-		isFading = TRUE;
-		alphaFading = 0;
-	}
-
-	alphaFading = min(255, alphaFading + fadeOutSpeed);
-	//SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
-	//toDisplay.push_back(blackBox);
-	float alphaGL = (float) alphaFading / 255.0;
-
-	//glColor4f(1.0, 1.0, 1.0, alphaGL);
-	glColor4f(0, 0, 0, alphaGL);
-	glBegin(GL_QUADS);
-	/*	glVertex2f(0.0f, 0.0f);
-		glVertex2f(SCREEN_WIDTH, 0.0f);
-		glVertex2f(SCREEN_WIDTH, SCREEN_HEIGHT);
-		glVertex2f(0.0f, SCREEN_HEIGHT);*/
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(SCREEN_WIDTH, 0.0f, 0.0f);
-		glVertex3f(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
-		glVertex3f(0.0f, SCREEN_HEIGHT, 0.0f);
-	glEnd();
-
-	if(alphaFading == 255)
-	{
-		isFading = FALSE;
-	}
-	glColor4f(1.0, 1.0, 1.0, 1.0);
 }
 
 void GraphicEngine::fadeIn()
@@ -213,10 +214,25 @@ void GraphicEngine::fadeIn()
 	}
 
 	alphaFading = max(0, alphaFading - 1);
+
+#if USE_OPENGL
+	float alphaGL = (float) alphaFading / 255.0;
+
+	glColor4f(1., 1., 1., alphaGL);
+	glBegin(GL_QUADS);
+		glVertex2f(0.0f, 0.0f);
+		glVertex2f(SCREEN_WIDTH, 0.0f);
+		glVertex2f(SCREEN_WIDTH, SCREEN_HEIGHT);
+		glVertex2f(0.0f, SCREEN_HEIGHT);
+	glEnd();
+
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+#else
 	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
 	toDisplay.push_back(blackBox);
+#endif
 
-	if(alphaFading == 0)
+	if(alphaFading <= 0)
 	{
 		isFading = FALSE;
 	}
@@ -226,10 +242,11 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
 {
 	glGenTextures(1, oglTex);
 	glBindTexture(GL_TEXTURE_2D, *oglTex);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
 }
+
 
 //Merge several drawables which have a texture of 4 bits per pixel
 //Following the formula destPixel.component = 255 - ((productOf(255-drawables.i.component))/powerOf(255, sizeOfdrawables)

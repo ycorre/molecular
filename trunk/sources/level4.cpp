@@ -48,8 +48,8 @@ void Level4::loadBackGround()
 	bigStars.posX = 0;
 	bigStars.posY = 0;
 	bigStars.state = 0;
-	bigStars.animX = 0;
-	bigStars.animY = 0;
+	bigStars.setAnimX(0);
+	bigStars.setAnimY(0);
 	//activeElements.push_back(&bigStars);
 
 	smallStars.loadTexture("res/PetitesEtoiles.png");
@@ -58,8 +58,8 @@ void Level4::loadBackGround()
 	smallStars.posX = 0;
 	smallStars.posY = 0;
 	smallStars.state = 0;
-	smallStars.animX = 0;
-	smallStars.animY = 0;
+	smallStars.setAnimX(0);
+	smallStars.setAnimY(0);
 	//activeElements.push_back(&smallStars);
 
 	nebulae.loadTexture("res/NebuleuseEtoiles.png");
@@ -68,27 +68,8 @@ void Level4::loadBackGround()
 	nebulae.posX = 0;
 	nebulae.posY = 0;
 	nebulae.state = 0;
-	nebulae.animX = 0;
-	nebulae.animY = 0;
-
-	rayonH.texture = ge->loadTexture("res/rayonH.png");
-	rayonH.width = 200;
-	rayonH.height = 200;
-	rayonH.posX = 200;
-	rayonH.posY = 0;
-	rayonH.state = 0;
-	rayonH.animX = 0;
-	rayonH.animY = 0;
-
-	rayonV.texture = ge->loadTexture("res/rayonV.png");
-	rayonV.width = 200;
-	rayonV.height = 200;
-	rayonV.posX = 400;
-	rayonV.posY = 0;
-	rayonV.state = 0;
-	rayonV.animX = 0;
-	rayonV.animY = 0;
-	//activeElements.push_back(&nebulae);
+	nebulae.setAnimX(0);
+	nebulae.setAnimY(0);
 
 	//fullBg.texture = SDL_CreateRGBSurface(SDL_SRCALPHA, 200, 200, 32, 0x000000ff,0x0000ff00,0x00ff0000, 0xff000000);
 	///fullBg.texture = SDL_CreateRGBSurface(SDL_SRCALPHA, 200, 200, 32,0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
@@ -99,8 +80,8 @@ void Level4::loadBackGround()
 	fullBg.posX = 0;
 	fullBg.posY = 0;
 	fullBg.state = 0;
-	fullBg.animX = 0;
-	fullBg.animY = 0;
+	fullBg.setAnimX(0);
+	fullBg.setAnimY(0);
 
 
 	// toMerge.push_back(&bigStars);
@@ -206,9 +187,9 @@ void Level4::drawLevel()
 
 	hero->animate();
 	//bg.animX = bg.animX + cameraSpeed;
-	nebulae.animX = nebulae.animX + 0.5;
-	bigStars.animX = bigStars.animX + 1.5;
-	smallStars.animX = smallStars.animX + 1;
+	nebulae.setAnimX(nebulae.getAnimX() + 0.5);
+	bigStars.setAnimX(bigStars.getAnimX() + 1.5);
+	smallStars.setAnimX(smallStars.getAnimX() + 1);
 
 	//mergeBg();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -328,6 +309,7 @@ void Level4::finishLevel()
 		//Start fading out
 		if (hero->posX >= SCREEN_WIDTH - 100)
 		{
+			ge->startFadingOut(3);
 			fading = TRUE;
 			exiting=FALSE;
 		}
@@ -336,7 +318,6 @@ void Level4::finishLevel()
 	//Fade out
 	if(fading)
 	{
-		ge->fadeOut();
 		if (ge->isFading == FALSE)
 		{
 			fading = FALSE;

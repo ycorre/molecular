@@ -18,8 +18,8 @@ Bullet::Bullet()
 	posX = 0;
 	posY = 0;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	hitBoxWidth = 26;
 	hitBoxHeight = 4;
 	hitBoxX = posX + 6;
@@ -44,8 +44,8 @@ Bullet::Bullet(int x, int y, int dir, int aType, int anAngle, int aSpeed)
 	posX = x;
 	posY = y;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	hitBoxWidth = 24;
 	hitBoxHeight = 4;
 	hitBoxX = posX + 6;

@@ -11,6 +11,7 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	menuColor = ge->availableColors.at("WHITE");
 	menuFont = ge->availableFonts.at(0);
 	currentMenu = MENU_INTRO;
+	nextMenu = MENU_INTRO;
 	selected = 0;
 	menuInTransition = FALSE;
 }
@@ -18,38 +19,36 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 void Menu::loadMenu()
 {
 	mainBg = new Drawable();
+	mainBg->width = 1200;
+	mainBg->height = 600;
 	mainBg->loadTexture("res/titre_wide.png");
 
 
-
-	mainBg->width = 1200;
-	mainBg->height = 600;
-
 	credit = new Drawable();
-	credit->loadTexture("res/credits2.gif");
 	credit->width = 640;
 	credit->height = 480;
+	credit->loadTexture("res/credits2.gif");
 	credit->posX = 280;
 	credit->posY = 60;
 
 	success = new Drawable();
-	success->loadTexture("res/end2.gif");
 	success->width = 640;
 	success->height = 480;
+	success->loadTexture("res/end2.gif");
 	success->posX = 280;
 	success->posY = 60;
 
 	gameOver = new Drawable();
-	gameOver->loadTexture("res/gameover2.gif");
 	gameOver->width = 640;
 	gameOver->height = 480;
+	gameOver->loadTexture("res/gameover2.gif");
 	gameOver->posX = 280;
 	gameOver->posY = 60;
 
  	arrow = new Drawable();
- 	arrow->loadTexture("res/zombix2.png");
  	arrow->width = 48;
  	arrow->height = 52;
+ 	arrow->loadTexture("res/zombix2.png");
  	arrow->nbFrames.clear();
  	arrow->nbFrames.push_back(4);
 
@@ -66,17 +65,18 @@ void Menu::loadMenu()
 void Menu::loadIntro()
 {
 	logo = new Drawable();
-	logo->loadTexture("res/logo.png");
 	logo->width = 1200;
  	logo->height = 480;
+	logo->loadTexture("res/logo.png");
+
 
  	bbox = new Drawable();
- 	bbox->loadTexture("res/bbox.png");
  	bbox->width = 1200;
  	bbox->height = 600;
- 	bbox->animX = 0;
- 	bbox->animY = 0;
+ 	bbox->loadTexture("res/bbox.png");
 	bbox->texture = SDL_DisplayFormat(bbox->texture);
+ 	bbox->setAnimX(0);
+ 	bbox->setAnimY(0);
 
  	startIntro = SDL_GetTicks();
  	endIntro = startIntro + introLength;
@@ -84,13 +84,11 @@ void Menu::loadIntro()
 
 void Menu::displayMenu()
 {
-	if(ge->isFading)
+	if(menuInTransition && !ge->isFading)
 	{
-		ge->fadeOut(6);
-		return;
+		currentMenu = nextMenu;
+		menuInTransition = FALSE;
 	}
-
-	menuInTransition = FALSE;
 
 	switch(currentMenu)
 	{
@@ -125,6 +123,12 @@ void Menu::displayMenu()
 		default:
 			break;
 	}
+
+	/*if(ge->isFading)
+	{
+		ge->fadeOut(6);
+		return;
+	}*/
 }
 
 void Menu::displayMainMenu()
@@ -144,14 +148,16 @@ void Menu::displayMainMenu()
 
 void Menu::displayIntro()
 {
+	ge->toDisplay.push_back(bbox);
 	ge->toDisplay.push_back(logo);
 	int diff = endIntro - SDL_GetTicks();
 
 	//Start fading out during the last second
-	if(diff<1000)
+	if(diff<1000 && !menuInTransition)
 	{
-		ge->fadeOut();
-		transition();
+		ge->startFadingOut(6);
+		nextMenu = MENU_MAIN;
+		menuInTransition = TRUE;
 	}
 }
 
@@ -194,40 +200,40 @@ void Menu::transition()
 		case MENU_GAMEOVER:
 			if (checkForNewHighScore())
 			{
-				currentMenu = MENU_NEWHIGHSCORE;
+				nextMenu = MENU_NEWHIGHSCORE;
 			}
 			else
 			{
-				currentMenu =  MENU_MAIN;
+				nextMenu =  MENU_MAIN;
 			}
 			break;
 
 		case MENU_INTRO:
-			currentMenu = MENU_MAIN;
+			nextMenu = MENU_MAIN;
 			break;
 
 		case MENU_SUCCESS:
-			currentMenu = MENU_CREDIT;
+			nextMenu = MENU_CREDIT;
 			break;
 
 		case MENU_CREDIT:
 			if (checkForNewHighScore())
 			{
-				currentMenu = MENU_NEWHIGHSCORE;
+				nextMenu = MENU_NEWHIGHSCORE;
 			}
 			else
 			{
-				currentMenu = MENU_HIGHSCORE;
+				nextMenu = MENU_HIGHSCORE;
 			}
 
 			break;
 
 		case MENU_HIGHSCORE:
-			currentMenu = MENU_MAIN;
+			nextMenu = MENU_MAIN;
 			break;
 
 		case MENU_NEWHIGHSCORE:
-			currentMenu = MENU_HIGHSCORE;
+			nextMenu = MENU_HIGHSCORE;
 			break;
 
 		default:
@@ -235,7 +241,7 @@ void Menu::transition()
 	}
 
 	menuInTransition = TRUE;
-	ge->fadeOut();
+	ge->startFadingOut(6);
 
 	return;
 }
@@ -312,6 +318,7 @@ void Menu::select()
 	if(selected == 5)
 	{
 		currentMenu = MENU_HIGHSCORE;
+		nextMenu = MENU_HIGHSCORE;
 		return;
 	}
 

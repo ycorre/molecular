@@ -25,7 +25,7 @@ class Pe;
 class Level
 {
 	public:
-	Drawable bg;
+	CompositeDrawable background;
 	GraphicEngine * ge;
 	Pe * pe;
 	Hero * hero;
@@ -52,6 +52,7 @@ class Level
 	virtual void createBonus(int x, int y, int type);
 	virtual int checkCollision(Drawable * anEnemy);
 	virtual int checkEnemyCollision(Drawable * anElement);
+	virtual void cleanLevel();
 	virtual void endLevel();
 	virtual void finishLevel();
 	int isOnScreen(Drawable * aDrawable);

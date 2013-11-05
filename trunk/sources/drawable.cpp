@@ -12,6 +12,7 @@ Drawable::Drawable()
 {
 	lastTimeUpdated = 0;
 	nbFrames.push_back(1);
+	texture = NULL;
 	state = 0;
 	posX = 0;
 	posY = 0;
@@ -54,7 +55,7 @@ int Drawable::updateAnimationFrame()
 	if (updateTime < SDL_GetTicks())
 	{
 		//shift one sprite to the right; if we are at the end then go back to the beginning
-		animX = (float) ((int) (animX + width) %  (nbFrames.at(state)*width));
+		setAnimX((animX + width) %  (nbFrames.at(state)*width));
 		lastTimeUpdated = SDL_GetTicks();
 		return 1;
 	}
@@ -99,22 +100,40 @@ void Drawable::processDisplay()
 void Drawable::loadTexture(string path)
 {
 	this->texture = ge->loadTexture(path);
+#if USE_OPENGL
 	createOGLTexture();
+#endif
 }
 
 void Drawable::getTexture(string aName)
 {
-	this->texture = ge->textures.at(aName);
+	this->name = aName;
+	this->texture = ge->textures.at(this->name );
+#if USE_OPENGL
 	this->oglTexture = ge->openGLTextures.at(this->texture);
+	setAnimX(animX);
+	setAnimY(animY);
+#endif
 }
 
 void Drawable::createOGLTexture()
 {
 	glGenTextures(1, &this->oglTexture);
 	glBindTexture(GL_TEXTURE_2D, this->oglTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4, this->texture->w, this->texture->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, this->texture->pixels);
+
+	setAnimX(animX);
+	setAnimY(animY);
+}
+
+void Drawable::clean()
+{
+#if USE_OPENGL
+	ge->openGLTextures.erase(this->texture);
+#endif
+	ge->textures.erase(this->name );
 }
 
 void Drawable::blink()
@@ -125,6 +144,51 @@ void Drawable::blink()
 		display = (display + 1) % 2;
 	}
 	blinkingCounter = (blinkingCounter + 1) % 3;
+}
+
+int Drawable::getAnimX()
+{
+	return animX;
+}
+
+void Drawable::setAnimX(int animX)
+{
+	this->animX = animX;
+#if USE_OPENGL
+	if(texture!= NULL)
+	{
+		computeOGLXValues();
+	}
+
+#endif
+}
+
+void Drawable::computeOGLXValues()
+{
+	ogl_Xorigin = (float)this->animX/(float)this->texture->w;
+	ogl_Xcorner = ogl_Xorigin + (float)this->width/(float)this->texture->w;
+}
+
+int Drawable::getAnimY()
+{
+	return animY;
+}
+
+void Drawable::setAnimY(int animY)
+{
+	this->animY = animY;
+#if USE_OPENGL
+	if(texture!= NULL)
+	{
+		computeOGLYValues();
+	}
+#endif
+}
+
+void Drawable::computeOGLYValues()
+{
+	ogl_Yorigin = (float)this->animY/(float)this->texture->h;
+	ogl_Ycorner = ogl_Yorigin + (float)this->height/(float)this->texture->h;
 }
 
 int Drawable::getXBoundary()

@@ -34,7 +34,10 @@ void Keyboard::processKeyPress()
 void Keyboard::processKeyInGame(Hero* hero)
 {
 	if(keyStates[SDLK_ESCAPE])
+	{
+		game->currentLevel->cleanLevel();
 		game->gameState = MENU;
+	}
 
 	//Cheat for those who find the game too hard
 	if(keyStates[SDLK_KP_PLUS]||keyStates[SDLK_PLUS])

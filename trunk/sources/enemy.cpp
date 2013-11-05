@@ -9,8 +9,8 @@ Enemy::Enemy()
 	posX = 0;
 	posY = 0;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	scoreValue = 0;
 	type = XRED;
 	bonusProbability = 10;
@@ -28,8 +28,8 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	posX = x;
 	posY = y;
 	state = typeXW;
-	animX = 0;
-	animY = typeXW * height;
+	setAnimX(0);
+	setAnimY(typeXW * height);
 	direction = dir;
 	type = typeXW;
 	scoreValue = 200;
