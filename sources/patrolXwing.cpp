@@ -15,11 +15,12 @@ Patrol::Patrol(int x, int y, int typeXW, int dir)
 	posX = x;
 	posY = y;
 	state = typeXW;
-	animX = 0;
-	animY = typeXW * height;
+	setAnimX(0);
+	setAnimY(typeXW * height);
 	direction = dir;
 	type = typeXW;
 	bonusProbability = 10;
+	scoreValue = 200;
 	canFire = FALSE;
 	fireRate = 1250;
 	lastTimeFired = 0;

@@ -27,53 +27,46 @@ void Level::loadTextures()
 
 void Level::loadBackGround()
 {
-	bigStars.getTexture("bigStars");
+	background.toMerge.clear();
 	bigStars.width = SCREEN_WIDTH;
 	bigStars.height = SCREEN_HEIGHT;
+	bigStars.getTexture("bigStars");
 	bigStars.posX = 0;
 	bigStars.posY = 0;
 	bigStars.state = 0;
-	bigStars.animX = 0;
-	bigStars.animY = 0;
+	bigStars.setAnimX(0);
+	bigStars.setAnimY(0);
 
-	smallStars.getTexture("smallStars");
 	smallStars.width = SCREEN_WIDTH;
 	smallStars.height = SCREEN_HEIGHT;
+	smallStars.getTexture("smallStars");
 	smallStars.posX = 0;
 	smallStars.posY = 0;
 	smallStars.state = 0;
-	smallStars.animX = 0;
-	smallStars.animY = 0;
+	smallStars.setAnimX(0);
+	smallStars.setAnimY(0);
 
-	nebulae.getTexture("nebulae");
 	nebulae.width = SCREEN_WIDTH;
 	nebulae.height = SCREEN_HEIGHT;
+	nebulae.getTexture("nebulae");
 	nebulae.posX = 0;
 	nebulae.posY = 0;
 	nebulae.state = 0;
-	nebulae.animX = 0;
-	nebulae.animY = 0;
+	nebulae.setAnimX(0);
+	nebulae.setAnimY(0);
+
+	background.toMerge.push_back(&nebulae);
+	background.toMerge.push_back(&smallStars);
+	background.toMerge.push_back(&bigStars);
+	activeElements.push_back(&background);
 }
 
 void Level::moveBackGround()
 {
 	//Move the backgrounds
-	nebulae.animX = nebulae.animX + 0.5;
-	bigStars.animX = bigStars.animX + 1.5;
-	smallStars.animX = smallStars.animX + 1;
-
-	//Set the blending parameters
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-	//glBlendEquation(GL_FUNC_ADD);
-
-	//Draw the textures
-	ge->draw(&nebulae);
-	ge->draw(&bigStars);
-	ge->draw(&smallStars);
-
-	//Restore the blending parameters
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	nebulae.setAnimX(nebulae.getAnimX() + 0.5);
+	bigStars.setAnimX(bigStars.getAnimX() + 1.5);
+	smallStars.setAnimX(smallStars.getAnimX() + 1);
 }
 
 void Level::drawLevel()
@@ -91,7 +84,7 @@ void Level::drawLevel()
 		}
 	}
 	hero->animate();
-	bg.animX = bg.animX + cameraSpeed;
+	background.setAnimX(background.getAnimX() + cameraSpeed);
 }
 
 
@@ -205,9 +198,18 @@ int Level::isOnScreen(Drawable * aDrawable)
 	return pe->isOnScreen(aDrawable);
 }
 
+void Level::cleanLevel()
+{
+	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	{
+		(*anElement)->clean();
+	}
+	activeElements.clear();
+}
+
 void Level::endLevel()
 {
-	activeElements.clear();
+	cleanLevel();
 	levelState = LEVEL_WON;
 }
 

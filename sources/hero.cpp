@@ -12,7 +12,7 @@ Hero::Hero()
 	posX = 0;
 	posY = 170;
 	state = ENTER;
-	animX = 0;
+	//setAnimX(0);
 	invincible = FALSE;
 	invincibilityTime = 1250;
 	heroChangedState = TRUE;
@@ -32,7 +32,7 @@ void Hero::resetHero()
 	posX = 0;
 	posY = 170;
 	state = ENTER;
-	animX = 0;
+	setAnimX(0);
 	invincible = FALSE;
 	invincibilityTime = 1250;
 	heroChangedState = TRUE;
@@ -54,44 +54,44 @@ void Hero::animate()
 		switch(state)
 		{
 			case STATIC:
-				animX = 0;
-				animY = STATIC * height;
+				setAnimX(0);
+				setAnimY(STATIC * height);
 				break;
 		
 			case GO_UP:
-				animX = 0;
-				animY = GO_UP * height;
+				setAnimX(0);
+				setAnimY(GO_UP * height);
 				break;
 		
 			case GO_DOWN:
-				animX = 0;
-				animY = GO_DOWN * height;
+				setAnimX(0);
+				setAnimY(GO_DOWN * height);
 				break;
 		
 			case HIT:
-				animX = 0;
-				animY = HIT * height;
+				setAnimX(0);
+				setAnimY(HIT * height);
 				makeInvincible();
 				break;
 		
 			case ENTER:
-				animX = 0;
-				animY = ENTER * height;
+				setAnimX(0);
+				setAnimY(ENTER * height);
 				dontMove = TRUE;
 				makeInvincible();
 				SDL_WarpMouse(0, 170);
 				break;
 
 			case DEAD:
-				animX = width - 1;
-				animY = STATIC * height;
+				setAnimX(width - 1);
+				setAnimY(STATIC * height);
 				dontMove = TRUE;
 				makeInvincible();
 				break;
 
 			case EXITING:
-				animX = 0;
-				animY = STATIC * height;
+				setAnimX(0);
+				setAnimY(STATIC * height);
 				dontMove = TRUE;
 				invincibilityTime = 100000;
 				makeInvincible();
@@ -114,19 +114,19 @@ void Hero::animate()
 					break;
 
 				case GO_UP:
-					if (animX == 0)
+					if (getAnimX() == 0)
 						{state = STATIC;
 						heroChangedState = TRUE;}
 					break;
 
 				case GO_DOWN:
-					if (animX == 0)
+					if (getAnimX() == 0)
 						{state = STATIC;
 						heroChangedState = TRUE;}
 					break;
 
 				case HIT:
-					if (animX == 0)
+					if (getAnimX() == 0)
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
@@ -135,7 +135,7 @@ void Hero::animate()
 
 				case ENTER:
 					posX = posX + 6;
-					if (animX == 0)
+					if (getAnimX() == 0)
 					{
 						state = STATIC;
 						heroChangedState = TRUE;

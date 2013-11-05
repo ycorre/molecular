@@ -15,8 +15,8 @@ Bonus::Bonus()
 	posX = 0;
 	posY = 0;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	scoreValue = 200;
 }
 
@@ -44,8 +44,8 @@ Bonus::Bonus(int x, int y, int bType)
 	posX = x;
 	posY = y;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	scoreValue = 200;
 }
 

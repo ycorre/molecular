@@ -8,8 +8,8 @@ Explosion::Explosion()
 	posX = 0;
 	posY = 0;
 	state = 0;
-	animX = 0;
-	animY = 0;
+	setAnimX(0);
+	setAnimY(0);
 	type = XWING_EXPL;
 }
 
@@ -24,8 +24,8 @@ Explosion::Explosion(int x, int y, int typeExpl)
 	posY = y;
 	type = typeExpl;
 	state = type;
-	animX = 0;
-	animY = state * height;
+	setAnimX(0);
+	setAnimY(state * height);
 	nbFrames = parseAnimationState((lev->configurationElements.at("explosion")).at(2));
 }
 
@@ -37,7 +37,7 @@ Explosion::~Explosion()
 void Explosion::animate()
 {
 	updateAnimationFrame();
-	if (animX == 0)
+	if (getAnimX() == 0)
 	{
 		display = FALSE;
 		toRemove = TRUE;
