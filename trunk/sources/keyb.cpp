@@ -39,6 +39,15 @@ void Keyboard::processKeyInGame(Hero* hero)
 		game->gameState = MENU;
 	}
 
+	if(keyStates[SDLK_b])
+	{
+		if (!p_pressed)
+		{
+			game->currentLevel->displayBackGround = (game->currentLevel->displayBackGround + 1) % 2;
+			p_pressed = TRUE;
+		}
+	}
+
 	//Cheat for those who find the game too hard
 	if(keyStates[SDLK_KP_PLUS]||keyStates[SDLK_PLUS])
 		hero->nbLife++;
@@ -99,6 +108,7 @@ void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
 			hero->heroMovingUpOrDown = 0;
 			break;
 
+		case SDLK_b:
 		case PAUSE_KEY:
 			p_pressed = FALSE;
 			break;

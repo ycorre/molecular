@@ -37,10 +37,18 @@ class Level
 	int levelState;
 	int cameraSpeed;
 	int exiting, ending, fading;
-	Drawable smallStars, bigStars, nebulae;
+	Drawable bkg_mid, bkg_near, bkg_distant;
+	int displayBackGround;
+
+	vector<vector<float> > stars;
+	vector<vector<float> > starPoints;
+	vector<Drawable * > starDrawable;
+	int numberOfStarPoints, numberOfStars;
+	float maxDepth;
 
 	virtual void loadLevel(Hero * aHero);
 	virtual void loadConf();
+	void loadStarConf();
 	virtual void loadObject();
 	virtual void loadTextures();
 	virtual void loadBackGround();
@@ -55,6 +63,8 @@ class Level
 	virtual void cleanLevel();
 	virtual void endLevel();
 	virtual void finishLevel();
+	void generateStarfield();
+	void displayStarField();
 	int isOnScreen(Drawable * aDrawable);
 };
 

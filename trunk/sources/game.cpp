@@ -72,9 +72,9 @@ int Game::mainLoop()
     while (!done)
 	{
 	    //Clear the elements to be displayed at the beginning of the loop
-    	graphicEngine.toDisplay.clear();
+        graphicEngine.toDisplay.clear();
     	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+        glLoadIdentity();
     	//Process SDL events
 	    while (SDL_PollEvent(&event))
 		{
@@ -125,8 +125,7 @@ int Game::mainLoop()
 				}
 				if (currentLevel->levelState == LEVEL_LOST)
 				{
-					menu->currentMenu = MENU_GAMEOVER;
-					//graphicEngine.startFadingOut(3);
+					menu->nextMenu = MENU_GAMEOVER;
 					menu->menuInTransition = TRUE;
 					soundEngine.playSound("game_over");
 					gameState = MENU;
@@ -198,7 +197,8 @@ int Game::initSDL()
 
     //This holds some info about our display
     const SDL_VideoInfo *videoInfo;
-	
+
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0)
 	{
@@ -217,7 +217,10 @@ int Game::initSDL()
 
     //The flags to pass to SDL_SetVideoMode
     videoFlags = SDL_DOUBLEBUF; 	   // Enable double buffering
-    videoFlags |= SDL_HWPALETTE;       // Store the palette in hardware
+    videoFlags |= SDL_OPENGL;       // Store the palette in hardware
+    videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
+        videoFlags |= SDL_HWPALETTE;
+
 
     // This checks to see if surfaces can be stored in memory
     if (videoInfo->hw_available)
@@ -231,8 +234,11 @@ int Game::initSDL()
 
     // get a SDL surface from screen
 #if USE_OPENGL
+
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_OPENGL);
+    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
+    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
+
 #else
     graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
 #endif
@@ -406,30 +412,56 @@ void Game::loadConf()
 
 int initOpenGL()
 {
+
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
 	//Initialize Projection Matrix
-	glMatrixMode(GL_PROJECTION);
+/*	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	//gluPerspective(0.0f,(GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_WIDTH,0.1f,100.0f);
 
 	//Initialize Modelview Matrix
 	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	glLoadIdentity();*/
+	glEnable(GL_TEXTURE_2D);
+	//glShadeModel(GL_SMOOTH);
+
 
 	//Initialize clear color
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_TEXTURE_2D);
 
+   // glClearDepth( 1.0f );
+
+	//glEnable(GL_LIGHTING);
 	//Check for error
-	GLenum error = glGetError();
+	/*GLenum error = glGetError();
 	if(error != GL_NO_ERROR)
 	{
 		cout<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
 		return FALSE;
-	}
-	glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 1);
+	}*/
+	//glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 50);
+	//glLoadIdentity();
+	//glScalef(1, 1, -0.1);
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	return TRUE;
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	// glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
+
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	//Set the view
+	gluPerspective(45.0f, (GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_WIDTH, 1.0f, 100.0f);
+
+
+	    glMatrixMode(GL_MODELVIEW);
+	    glLoadIdentity();
+		glTranslatef(-0.5, -0.5 , -1.2);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

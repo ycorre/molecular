@@ -12,6 +12,7 @@
 #include <sstream>
 #include <SDL_image.h>
 #include "level.h"
+void testBackGround();
 
 class Level4:  public Level
 {
@@ -20,6 +21,7 @@ class Level4:  public Level
 	Drawable fullBg, smallStars, bigStars, nebulae;
 	Drawable rayonH, rayonV;
 	vector<Drawable *> toMerge;
+
 
 	virtual void loadLevel(Hero * aHero);
 	void loadConf();
@@ -35,6 +37,9 @@ class Level4:  public Level
 	virtual void finishLevel();
 	int checkEnemyCollision(Drawable * anElement);
 	int checkBonusCollision(Drawable * anElement);
+
+
+	void testBackGround();
 
 	void mergeBg();
 };
