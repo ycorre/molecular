@@ -19,14 +19,15 @@ class Level;
 class Drawable
 {
 	private:
-	  int animX; //Position in the Sprite grid to display
-	  int animY;
+	  float animX; //Position in the Sprite grid to display
+	  float animY;
 
 	public:
 	  int width;
 	  int height;
 	  float posX;
 	  float posY;
+	  float posZ; //Depth
 	  int state;
 	  int display; //Boolean: should the object be display
 	  int toRemove; //Boolean: should the object be destroyed
@@ -73,10 +74,10 @@ class Drawable
 	  virtual int getYBoundary();
 	  virtual int getWidthBoundary();
 	  virtual int getHeightBoundary();
-	  virtual int getAnimX();
-	  virtual void setAnimX(int aValue);
-	  virtual int getAnimY();
-	  virtual void setAnimY(int aValue);
+	  virtual float getAnimX();
+	  virtual void setAnimX(float aValue);
+	  virtual float getAnimY();
+	  virtual void setAnimY(float aValue);
 	  virtual SDL_Surface * getCollisionTexture();
 
 

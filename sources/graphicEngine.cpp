@@ -12,13 +12,13 @@ GraphicEngine::GraphicEngine()
 
 void GraphicEngine::initGe()
 {
-	blackBox = new Drawable();
+	/*blackBox = new Drawable();
 	blackBox->width = 1200;
 	blackBox->height = 600;
 	blackBox->loadTexture("res/bbox.png");
 	blackBox->texture = SDL_DisplayFormat(blackBox->texture);
 	blackBox->setAnimX(0);
-	blackBox->setAnimY(0);
+	blackBox->setAnimY(0);*/
 }
 
 //Load a texture as an SDL_Surface
@@ -46,6 +46,11 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 
 void GraphicEngine::drawFrame()
 {
+#if USE_OPENGL
+    glLoadIdentity();
+	glTranslatef(-0.5, -0.5 , -1.2);
+#endif
+
 	if(!toDisplay.empty())
 	{
 		for (std::vector<Drawable *>::iterator aDrawable = toDisplay.begin() ; aDrawable != toDisplay.end(); ++aDrawable)
@@ -74,23 +79,33 @@ int GraphicEngine::draw(Drawable * sprite)
 #if USE_OPENGL
 	if (!sprite->isComposite())
 	{
+
+		//glTranslatef(0.0f, 0.0f, 0.1f);
+	//	glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
 		glBindTexture(GL_TEXTURE_2D, sprite->oglTexture);
 		glBegin(GL_QUADS);
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-			glVertex2i(sprite->posX, sprite->posY);
-			//glVertex3i(sprite->posX, sprite->posY, -1);
+			//glVertex3f(sprite->posX, sprite->posY,0);
+			glVertex3f(sprite->posX/1200.0, (600- sprite->posY)/600.0, 0.);
+			//glVertex3f(sprite->posX, (600- sprite->posY), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-			glVertex2i(sprite->posX + sprite->width, sprite->posY);
-			//glVertex3i(sprite->posX + sprite->width, sprite->posY, -1);
+			//glVertex2i(sprite->posX + sprite->width, sprite->posY);
+			//glVertex3f(sprite->posX + sprite->width, sprite->posY,0);
+			glVertex3f((sprite->posX + sprite->width)/1200.0, (600-sprite->posY)/600, 0.);
+			//glVertex3f((sprite->posX + sprite->width), (600-sprite->posY), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			glVertex2i(sprite->posX + sprite->width, sprite->posY + sprite->height);
-			//glVertex3i(sprite->posX + sprite->width, sprite->posY + sprite->height, -1);
+			//glVertex3f(sprite->posX + sprite->width, sprite->posY + sprite->height,0);
+			//glVertex2i(sprite->posX + sprite->width, sprite->posY + sprite->height);
+			glVertex3f((sprite->posX + sprite->width)/1200.0, (600-(sprite->posY + sprite->height))/600, 0);
+			//glVertex3f((sprite->posX + sprite->width), (600-(sprite->posY + sprite->height)), 0.);
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-			glVertex2i(sprite->posX, sprite->posY + sprite->height);
-			//glVertex3i(sprite->posX, sprite->posY + sprite->height, -1);
+			//glVertex3f(sprite->posX, sprite->posY + sprite->height,0);
+			//glVertex2i(sprite->posX, sprite->posY + sprite->height);
+			glVertex3f(sprite->posX/1200.0, (600-(sprite->posY + sprite->height))/600, 0.);
+			//glVertex3f(sprite->posX, (600-(sprite->posY + sprite->height)), 0.);
 
 		glEnd();
 	}
@@ -183,17 +198,20 @@ void GraphicEngine::fadeOut()
 	alphaFading = min(255, alphaFading + fadingSpeed);
 
 #if USE_OPENGL
-	float alphaGL = (float) alphaFading / 255.0;
 
-	glColor4f(0., 0., 0., alphaGL);
+	float alphaGL = (float) alphaFading / 255.0;
+	glDisable(GL_TEXTURE_2D);
+	glColor4f(0.0f, 0.0f, 0.0f, alphaGL);
+
 	glBegin(GL_QUADS);
-		glVertex2f(0.0f, 0.0f);
-		glVertex2f(SCREEN_WIDTH, 0.0f);
-		glVertex2f(SCREEN_WIDTH, SCREEN_HEIGHT);
-		glVertex2f(0.0f, SCREEN_HEIGHT);
+		glVertex3f(0.0f, 0.0f, 0.0f);
+		glVertex3f(SCREEN_WIDTH, 0.0f, 0.0f);
+		glVertex3f(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+		glVertex3f(0.0f, SCREEN_HEIGHT, 0.0f);
 	glEnd();
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glEnable(GL_TEXTURE_2D);
 #else
 	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
 	toDisplay.push_back(blackBox);
@@ -217,8 +235,9 @@ void GraphicEngine::fadeIn()
 
 #if USE_OPENGL
 	float alphaGL = (float) alphaFading / 255.0;
-
+	glDisable(GL_TEXTURE_2D);
 	glColor4f(1., 1., 1., alphaGL);
+
 	glBegin(GL_QUADS);
 		glVertex2f(0.0f, 0.0f);
 		glVertex2f(SCREEN_WIDTH, 0.0f);
@@ -226,6 +245,7 @@ void GraphicEngine::fadeIn()
 		glVertex2f(0.0f, SCREEN_HEIGHT);
 	glEnd();
 
+	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 #else
 	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
@@ -242,9 +262,9 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
 {
 	glGenTextures(1, oglTex);
 	glBindTexture(GL_TEXTURE_2D, *oglTex);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4 , aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
 }
 
 

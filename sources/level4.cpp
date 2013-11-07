@@ -1,5 +1,6 @@
 /*
  * Contains level 4 functions
+ * Level 4 is a dummy level use to test experimental features
  */
 
 #include "level4.h"
@@ -25,8 +26,9 @@ void Level4::loadLevel(Hero * aHero)
 
 void Level4::loadObject()
 {
-	loadBackGround();
 	loadTextures();
+	loadBackGround();
+	generateStarfield();
 }
 
 //Load all textures used for the level at the beginning
@@ -41,18 +43,19 @@ void Level4::loadTextures()
 
 void Level4::loadBackGround()
 {
-	string path = "res/decor.png";
-	bigStars.loadTexture("res/GrandesEtoiles.png");
+	Level::loadBackGround();
+	//string path = "res/decor.png";
+	bigStars.loadTexture("res/bkg_distant.png");
 	bigStars.width = SCREEN_WIDTH;
 	bigStars.height = SCREEN_HEIGHT;
-	bigStars.posX = 0;
-	bigStars.posY = 0;
+	bigStars.posX = -SCREEN_WIDTH/2.0;
+	bigStars.posY = SCREEN_HEIGHT/2.0;
 	bigStars.state = 0;
 	bigStars.setAnimX(0);
 	bigStars.setAnimY(0);
 	//activeElements.push_back(&bigStars);
 
-	smallStars.loadTexture("res/PetitesEtoiles.png");
+	/*smallStars.loadTexture("res/PetitesEtoiles.png");
 	smallStars.width = SCREEN_WIDTH;
 	smallStars.height = SCREEN_HEIGHT;
 	smallStars.posX = 0;
@@ -81,7 +84,7 @@ void Level4::loadBackGround()
 	fullBg.posY = 0;
 	fullBg.state = 0;
 	fullBg.setAnimX(0);
-	fullBg.setAnimY(0);
+	fullBg.setAnimY(0);/
 
 
 	// toMerge.push_back(&bigStars);
@@ -124,48 +127,7 @@ void Level4::loadBackGround()
 	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
 	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
 	soundEngine->addSound("sound/tie_hit.wav", "tie_hit");
-}
 
-void Level4::mergeBg()
-{
-	int x,y;
-	SDL_LockSurface(bigStars.texture);
-	SDL_LockSurface(nebulae.texture);
-	SDL_LockSurface(smallStars.texture);
-	SDL_LockSurface(fullBg.texture);
-	/*Uint8 *p1 = (Uint8 *) rayonV.texture->pixels; //+ (y * rayonV.texture->pitch) + (x * 4);
-	Uint8 *p2 = (Uint8 *) rayonH.texture->pixels; //+ (y * rayonH.texture->pitch) + (x * 4);
-	Uint8 *p3 = (Uint8 *) fullBg.texture->pixels; //;+ (y * fullBg.texture->pitch) + (x * 4);*/
-
-	for(y=0; y<GAMEZONE_HEIGHT; y++)
-	{
-		for(x=0; x<SCREEN_WIDTH; x++)
-		{
-			//Here p is the address to the pixel we want to retrieve
-/*			Uint8 *p1 = (Uint8 *) bigStars.texture->pixels + (y * bigStars.texture->pitch) + ((bigStars.animX + x) * 4);
-			Uint8 *p2 = (Uint8 *) nebulae.texture->pixels + (y * nebulae.texture->pitch) + ((nebulae.animX + x) * 4);
-			Uint8 *p3 = (Uint8 *) smallStars.texture->pixels + (y * smallStars.texture->pitch) + ((smallStars.animX + x) * 4);
-			//Uint8 *p2 = (Uint8 *) rayonH.texture->pixels; //+ (y * rayonH.texture->pitch) + (x * 4);
-			Uint8 *p4 = (Uint8 *) fullBg.texture->pixels + (y * fullBg.texture->pitch) + (x * 4);*/
-		//	Uint8 *p1 = (Uint8 *) nebulae.texture->pixels + (y * nebulae.texture->pitch) + (x * 4);
-
-		//	Uint8 pix1= p1[0];
-		/*	p3[0] =  p2[0]; //+ p1[0];
-			p3[1] =  p2[1];//+ p1[1];
-			p3[2] =  p2[2];//+ p1[2];
-			p3[3] =  p2[3];//+ p1[3];*/
-		//	cout << p2[0] << ", " << pix1 << ", " << p3[0] <<endl;
-/*			p4[0] = min(255, p2[0] + p1[0] + p3[0]);
-			p4[1] = min(255, p2[1] + p1[1] + p3[1]);
-			p4[2] = min(255, p2[2] + p1[2] + p3[2]);
-			p4[3] = min(255, p2[3] + p1[3] + p3[3]);
-*/
-		}
-	}
-	SDL_UnlockSurface(bigStars.texture);
-	SDL_UnlockSurface(nebulae.texture);
-	SDL_UnlockSurface(fullBg.texture);
-	SDL_UnlockSurface(smallStars.texture);
 }
 
 
@@ -186,13 +148,14 @@ void Level4::drawLevel()
 	hud->displayScore(Score);
 
 	hero->animate();
+
 	//bg.animX = bg.animX + cameraSpeed;
-	nebulae.setAnimX(nebulae.getAnimX() + 0.5);
+/*	nebulae.setAnimX(nebulae.getAnimX() + 0.5);
 	bigStars.setAnimX(bigStars.getAnimX() + 1.5);
-	smallStars.setAnimX(smallStars.getAnimX() + 1);
+	smallStars.setAnimX(smallStars.getAnimX() + 1);*/
 
 	//mergeBg();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+/*	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 //	glBlendEquation(GL_FUNC_ADD);
 	ge->draw(&nebulae);
@@ -203,13 +166,201 @@ void Level4::drawLevel()
 	//activeElements.push_back(&fullBg);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//glBlendEquation(GL_FUNC_ADD);
+	//glBlendEquation(GL_FUNC_ADD);*/
+
+	displayStarField();
+//	testBackGround();
 
 	if(ending)
 	{
 		finishLevel();
 	}
 }
+
+void Level4::testBackGround()
+{
+
+	//  glLoadIdentity( );
+   // glTranslatef( 0.0f, .0f, -5.5f );
+
+	glDisable(GL_TEXTURE_2D);
+	glColor4f(1., 1., 1., 1.0);
+
+	for (std::vector<vector<float> >::iterator aStar = stars.begin() ; aStar != stars.end(); ++aStar)
+	{
+		glBegin(GL_QUADS);
+			glVertex3f((*aStar).at(0), (*aStar).at(1), -(*aStar).at(2));
+			glVertex3f((*aStar).at(3), (*aStar).at(1), -(*aStar).at(2));
+			glVertex3f((*aStar).at(3), aStar->at(4),-(*aStar).at(2));
+			glVertex3f((*aStar).at(0), (*aStar).at(4), -(*aStar).at(2));
+		glEnd();
+
+		/*glBegin(GL_POINTS);
+			glVertex3f((*aStar).at(0), (*aStar).at(1), -(*aStar).at(2));
+
+		glEnd();*/
+
+		aStar->at(0)= aStar->at(0) - (1.0/1200.0);
+		aStar->at(3)= aStar->at(3) - (1.0/1200.0);
+	}
+
+	for (std::vector<vector<float> >::iterator aStar = starPoints.begin() ; aStar != starPoints.end(); ++aStar)
+	{
+		glBegin(GL_POINTS);
+			glVertex3f((*aStar).at(0), (*aStar).at(1), -(*aStar).at(2));
+		glEnd();
+
+		aStar->at(0)= aStar->at(0) - (1.0/1200.0);
+	}
+/*	float x0 = 0;
+	glColor4f(1., 0., 0., 1.0);
+	glBegin(GL_QUADS);
+		glVertex3f(0, SCREEN_HEIGHT/600.0, 0);
+		glVertex3f(SCREEN_WIDTH/2400.0, SCREEN_HEIGHT/600.0, 0.);
+		glVertex3f(SCREEN_WIDTH/2400.0, SCREEN_HEIGHT/1200.0,0.);
+		glVertex3f(0, SCREEN_HEIGHT/1200.0, 0.);
+	glEnd();
+
+	glColor4f(0., 0., 1., 1.0);
+	//glTranslatef(0.0f,0.0f,-2.0f);
+	glBegin(GL_QUADS);
+
+		glVertex3f(x0 , 0.0f, 0);
+		glVertex3f(SCREEN_WIDTH/2400.0 , 0.0f, 0.);
+		glVertex3f(SCREEN_WIDTH/2400.0 , SCREEN_HEIGHT/1200.0,0.);
+		glVertex3f(x0 , SCREEN_HEIGHT/1200.0, 0.);
+	glEnd();
+
+	glColor4f(0., 1., 0., 1.0);
+	//glTranslatef(0.0f,0.0f,-2.0f);
+	glBegin(GL_QUADS);
+		glVertex3f(SCREEN_WIDTH/1200 , 0.0f, -1);
+		glVertex3f(SCREEN_WIDTH/600 , 0.0f, -1.);
+		glVertex3f(SCREEN_WIDTH/600 , SCREEN_HEIGHT/600,-1.);
+		glVertex3f(SCREEN_WIDTH/1200 , SCREEN_HEIGHT/600, -1.);
+	glEnd();
+
+	glColor4f(1., 0., 1., 1.0);
+	//glTranslatef(0.0f,0.0f,-2.0f);
+	glBegin(GL_QUADS);
+		glVertex3f(SCREEN_WIDTH/1200 , SCREEN_HEIGHT/600, -2);
+		glVertex3f(SCREEN_WIDTH/600 , SCREEN_HEIGHT/600, -2.);
+		glVertex3f(SCREEN_WIDTH/600 , SCREEN_HEIGHT/300,-2.);
+		glVertex3f(SCREEN_WIDTH/1200 , SCREEN_HEIGHT/300, -2.);
+	glEnd();
+//
+//	glTranslatef( 0.0f, 0.0f, 0.5f );*/
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+	glEnable(GL_TEXTURE_2D);
+	glTranslatef( 0.0f, 0.0f, -maxDepth );
+	glScalef(maxDepth, maxDepth, 1.0f);
+
+	glBindTexture(GL_TEXTURE_2D, bigStars.oglTexture);
+	glBegin(GL_QUADS);
+		glTexCoord2f(bigStars.ogl_Xorigin, bigStars.ogl_Yorigin);
+		glVertex3f((bigStars.posX)/1200.0, ((600- bigStars.posY))/600.0, 0);
+
+		glTexCoord2f(bigStars.ogl_Xcorner, bigStars.ogl_Yorigin);
+		glVertex3f(((bigStars.posX) + bigStars.width)/1200.0, ((600-bigStars.posY))/600, 0);
+
+		glTexCoord2f(bigStars.ogl_Xcorner, bigStars.ogl_Ycorner);
+		glVertex3f(((bigStars.posX ) + bigStars.width)/1200.0, ((600-(bigStars.posY + bigStars.height)))/600, 0);
+
+		glTexCoord2f(bigStars.ogl_Xorigin, bigStars.ogl_Ycorner);
+		glVertex3f((bigStars.posX)/1200.0, ((600-(bigStars.posY + bigStars.height)))/600, 0);
+	glEnd();
+
+		bigStars.setAnimX(bigStars.getAnimX() + 0.2);
+}
+
+#if 0
+float xrot, yrot, zrot = 0;
+void Level4::testBackGround()
+{
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	 glLoadIdentity( );
+	    glTranslatef( 0., 0., -5.5f );
+
+
+	    glRotatef( xrot, 1.0f, 0.0f, 0.0f); /* Rotate On The X Axis */
+	       glRotatef( yrot, 0.0f, 1.0f, 0.0f); /* Rotate On The Y Axis */
+	       glRotatef( zrot, 0.0f, 0.0f, 1.0f); /* Rotate On The Z Axis */
+
+	       glBindTexture(GL_TEXTURE_2D, bigStars.oglTexture);
+
+	   //	glDisable(GL_TEXTURE_2D);
+	  // 	glColor4f(1., 0., 0., 1.0);
+ glBegin(GL_QUADS);
+   /* Front Face */
+   /* Bottom Left Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f, -1.0f, 1.0f );
+   /* Bottom Right Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f, -1.0f, 1.0f );
+   /* Top Right Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f,  1.0f, 1.0f );
+   /* Top Left Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f,  1.0f, 1.0f );
+
+   /* Back Face */
+   /* Bottom Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
+   /* Top Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
+   /* Top Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f,  1.0f, -1.0f );
+   /* Bottom Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f, -1.0f, -1.0f );
+
+   /* Top Face */
+   /* Top Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
+   /* Bottom Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
+   /* Bottom Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 0.0f ); glVertex3f(  1.0f,  1.0f,  1.0f );
+   /* Top Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 1.0f ); glVertex3f(  1.0f,  1.0f, -1.0f );
+
+   /* Bottom Face */
+   /* Top Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
+   /* Top Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 1.0f ); glVertex3f(  1.0f, -1.0f, -1.0f );
+   /* Bottom Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 0.0f ); glVertex3f(  1.0f, -1.0f,  1.0f );
+   /* Bottom Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
+
+   /* Right face */
+   /* Bottom Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 0.0f ); glVertex3f( 1.0f, -1.0f, -1.0f );
+   /* Top Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 1.0f ); glVertex3f( 1.0f,  1.0f, -1.0f );
+   /* Top Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 1.0f ); glVertex3f( 1.0f,  1.0f,  1.0f );
+   /* Bottom Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 0.0f ); glVertex3f( 1.0f, -1.0f,  1.0f );
+
+   /* Left Face */
+   /* Bottom Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 0.0f ); glVertex3f( -1.0f, -1.0f, -1.0f );
+   /* Bottom Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 0.0f ); glVertex3f( -1.0f, -1.0f,  1.0f );
+   /* Top Right Of The Texture and Quad */
+   glTexCoord2f( 0.0f, 1.0f ); glVertex3f( -1.0f,  1.0f,  1.0f );
+   /* Top Left Of The Texture and Quad */
+   glTexCoord2f( 1.0f, 1.0f ); glVertex3f( -1.0f,  1.0f, -1.0f );
+ glEnd( );
+// glTranslatef( 0.0f, 0.0f, -2.5f );
+
+ xrot += 0.3f; /* X Axis Rotation */
+ yrot += 0.2f; /* Y Axis Rotation */
+ zrot += 0.4f;
+ //SDL_GL_SwapBuffers();
+	//glColor4f(1.0, 1.0, 1.0, 1.0);
+	//glEnable(GL_TEXTURE_2D);
+}
+#endif
 
 //function that handle the events (enemies apparitions, collision checks,  etc...)
 void Level4::checkEvent()
@@ -363,6 +514,8 @@ void Level4::loadConf()
 			configurationElements.insert(make_pair(type, confElements));
 		}
 	}
+
+loadStarConf();
 }
 
 
