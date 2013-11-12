@@ -10,15 +10,16 @@ Laser::Laser()
 	type = 0;
 	power = 50;
 	direction = 0;
-	this->loadTexture("res/laser_c.png");
-	width = texture->w;
-	height = texture->h;
+	this->loadTexture("res/Electron.png");
+	width = getTexture()->w;
+	height = getTexture()->h;
 	posX = 0;
 	posY = 0;
 	state = 0;
+	toBlend = TRUE;
 	setAnimX(0);
 	setAnimY(0);
-	collision = ge->loadTexture("res/laser_cmasktrans.png");
+	collision = ge->loadTexture("res/ElectronMask.png");
 }
 
 Laser::Laser(int x, int y, int dir, int aType)
@@ -28,22 +29,23 @@ Laser::Laser(int x, int y, int dir, int aType)
 	type = aType;
 	if (type == GREEN_LASER)
 	{
-		this->getTexture("laserG");
-		width = atoi(((lev->configurationElements.at("laserG")).at(0)).c_str());
-		height =  atoi(((lev->configurationElements.at("laserG")).at(1)).c_str());
-		nbFrames = parseAnimationState((lev->configurationElements.at("laserG")).at(2));
-		collision = ge->loadTexture("res/laser_cmasktrans.png");
+		this->addTexture("electron");
+		width = atoi(((lev->configurationElements.at("electron")).at(0)).c_str());
+		height =  atoi(((lev->configurationElements.at("electron")).at(1)).c_str());
+		nbFrames = parseAnimationState((lev->configurationElements.at("electron")).at(2));
+		collision = ge->loadTexture("res/ElectronMask.png");
 	}
 	if (type == RED_LASER)
 	{
-		this->getTexture("laserR");
-		width = atoi(((lev->configurationElements.at("laserR")).at(0)).c_str());
-		height =  atoi(((lev->configurationElements.at("laserR")).at(1)).c_str());
-		nbFrames = parseAnimationState((lev->configurationElements.at("laserR")).at(2));
-		collision = ge->loadTexture("res/laser_dmasktrans.png");
+		this->addTexture("shoot");
+		width = atoi(((lev->configurationElements.at("shoot")).at(0)).c_str());
+		height =  atoi(((lev->configurationElements.at("shoot")).at(1)).c_str());
+		nbFrames = parseAnimationState((lev->configurationElements.at("shoot")).at(2));
+		collision = ge->loadTexture("res/Shoot_Col.png");
 	}
 	posX = x;
 	posY = y;
+	toBlend = TRUE;
 	state = 0;
 	setAnimX(0);
 	setAnimY(0);
@@ -51,13 +53,14 @@ Laser::Laser(int x, int y, int dir, int aType)
 
 void Laser::animate()
 {
+	//updateAnimationFrame();
 	if (direction == RIGHT)
 	{
-		posX = posX + 13;
+		posX = posX + 20;
 	}
 	else
 	{
-		posX = posX - 7;
+		posX = posX - 5;
 	}
 }
 

@@ -22,6 +22,7 @@ class Drawable
 	  float animX; //Position in the Sprite grid to display
 	  float animY;
 
+
 	public:
 	  int width;
 	  int height;
@@ -35,6 +36,10 @@ class Drawable
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
+	  int toBlend;
+	  int animationUpdateFrequency; //How often we update the frame in the animation
+			//41 ms ~= 24 FPS
+			//33 ms ~= 30 FPS
 
 	  //static since the graphic engine is the same for all the objects
 	  static GraphicEngine * ge;
@@ -57,17 +62,20 @@ class Drawable
 	  void processDisplay();
 	  int updateAnimationFrame();
 	  void loadTexture(string path);
-	  void getTexture(string path);
+
 	  void createOGLTexture();
 	  void computeOGLXValues();
 	  void computeOGLYValues();
 	  void clean();
+
 	  virtual int isEnemy() {return FALSE;}
 	  virtual int isHero() {return FALSE;}
 	  virtual int isLaser() {return FALSE;}
 	  virtual int isBonus() {return FALSE;}
 	  virtual int hasHitBox() {return FALSE;}
 	  virtual int isComposite() {return FALSE;}
+
+	  virtual void addTexture(string name);
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable* aDrawable);
 	  virtual int getXBoundary();
@@ -78,9 +86,10 @@ class Drawable
 	  virtual void setAnimX(float aValue);
 	  virtual float getAnimY();
 	  virtual void setAnimY(float aValue);
+
+	  virtual SDL_Surface * getTexture();
+	  virtual GLuint getOpenGLTexture();
 	  virtual SDL_Surface * getCollisionTexture();
-
-
 };
 
 //Class for objects that use a hit box for collision detection
@@ -116,6 +125,18 @@ class CompositeDrawable: public Drawable
 	  vector<Drawable *> toMerge;
 
 	  virtual int isComposite() {return TRUE;}
+};
+
+class MultiTextureDrawable: public Drawable
+{
+	public:
+	  map<string, SDL_Surface *> textures;
+	  map<string, GLuint> oglTextures;
+	  string textureState;
+
+	  virtual void addTexture(string path);
+	  virtual SDL_Surface * getTexture();
+	  virtual GLuint getOpenGLTexture();
 };
 
 

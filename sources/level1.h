@@ -18,15 +18,15 @@ class Level1:  public Level
 	public:
 	int cameraSpeed;
 
-	//Level1();
+	Level1();
+	void loadEnemies();
+	void instantiateEnemies();
 	virtual void loadLevel(Hero * aHero);
-	virtual void loadConf();
 	virtual void loadObject();
 	virtual void loadTextures();
 	virtual void loadBackGround();
 	virtual void drawLevel();
 	virtual void checkEvent();
-	void createWave1();
 	virtual int checkCollision(Drawable * anElement);
 	virtual void createExplosion(int x, int y, int type);
 	virtual void createBonus(int x, int y, int type);

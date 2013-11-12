@@ -18,42 +18,37 @@ Bullet::Bullet()
 	posX = 0;
 	posY = 0;
 	state = 0;
+	toBlend = TRUE;
 	setAnimX(0);
 	setAnimY(0);
-	hitBoxWidth = 26;
-	hitBoxHeight = 4;
-	hitBoxX = posX + 6;
-	hitBoxY = posY + 7;
 }
 
-Bullet::Bullet(int x, int y, int dir, int aType, int anAngle, int aSpeed)
+Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 {
 	power = 50;
-	direction = dir;
-	type = aType;
-	if (type == BLUE_BULLET)
-	{
-		this->getTexture("bullet");
-		width = atoi(((lev->configurationElements.at("bullet")).at(0)).c_str());
-		height =  atoi(((lev->configurationElements.at("bullet")).at(1)).c_str());
-		nbFrames = parseAnimationState((lev->configurationElements.at("bullet")).at(2));
-	}
+	direction = 0;
+	type = 0;
+
+	this->addTexture("shoot");
+	width = atoi(((lev->configurationElements.at("shoot")).at(0)).c_str());
+	height =  atoi(((lev->configurationElements.at("shoot")).at(1)).c_str());
+	nbFrames = parseAnimationState((lev->configurationElements.at("shoot")).at(2));
+	collision = ge->loadTexture("res/Shoot_Col.png");
+
 	//Conversion from degree to radian
-	angle = anAngle * (PI / 180.0);
+	angle = anAngle; //180 * (PI / 180.0);
 	speed = aSpeed;
 	posX = x;
 	posY = y;
 	state = 0;
+	toBlend = TRUE;
 	setAnimX(0);
 	setAnimY(0);
-	hitBoxWidth = 24;
-	hitBoxHeight = 4;
-	hitBoxX = posX + 6;
-	hitBoxY = posY + 7;
 }
 
 void Bullet::animate()
 {
+	updateAnimationFrame();
 	//Compute the next movement vector
 	//Handle by the physic engine ?
 	float vx, vy;
@@ -62,9 +57,6 @@ void Bullet::animate()
 
 	posX = posX + vx;
 	posY = posY + vy;
-
-	hitBoxX = posX + 6;
-	hitBoxY = posY + 7;
 }
 
 void Bullet::processCollisionWith(Drawable* aDrawable)

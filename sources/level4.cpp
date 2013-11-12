@@ -5,6 +5,11 @@
 
 #include "level4.h"
 
+Level4::Level4()
+{
+
+}
+
 void Level4::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
@@ -15,7 +20,7 @@ void Level4::loadLevel(Hero * aHero)
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
 	hero = aHero;
-	hero->getTexture("tie");
+	hero->addTexture("tie");
 	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
 	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
 	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
@@ -255,7 +260,7 @@ void Level4::testBackGround()
 	glTranslatef( 0.0f, 0.0f, -maxDepth );
 	glScalef(maxDepth, maxDepth, 1.0f);
 
-	glBindTexture(GL_TEXTURE_2D, bigStars.oglTexture);
+	glBindTexture(GL_TEXTURE_2D, bigStars.getOpenGLTexture());
 	glBegin(GL_QUADS);
 		glTexCoord2f(bigStars.ogl_Xorigin, bigStars.ogl_Yorigin);
 		glVertex3f((bigStars.posX)/1200.0, ((600- bigStars.posY))/600.0, 0);

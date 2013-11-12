@@ -27,7 +27,7 @@ class Laser: public MaskedDrawable
 #define RED_LASER 0
 #define GREEN_LASER 1
 
-class Bullet: public HitBoxedDrawable
+class Bullet: public MaskedDrawable
 {
    public:
 
@@ -39,7 +39,7 @@ class Bullet: public HitBoxedDrawable
 	  int speed;
 
 	  Bullet();
-	  Bullet(int x, int y, int dir, int aType, int anAngle, int speed);
+	  Bullet(int x, int y, float anAngle, int speed);
 	  virtual void animate();
 	  virtual int isBullet() {return TRUE;}
 	  virtual int isLaser() {return TRUE;}

@@ -6,79 +6,153 @@
  */
 #include "soundEngine.h"
 
+SoundEngine::SoundEngine()
+{
+	numberOfChannel = 24;
+}
+
+void SoundEngine::init()
+{
+    //Allocate more channels than the default parameter (8)
+    Mix_AllocateChannels(numberOfChannel);
+    Mix_Init(MIX_INIT_MP3);
+	Mix_ChannelFinished(channelDone);
+}
 
 void SoundEngine::playSound(string aSound)
 {
-	 Mix_PlayChannel(-1, sounds.at(aSound), 0);
+	sounds.at(aSound)->play();
 }
-	
+
+void SoundEngine::stopSound(string aSound)
+{
+	sounds.at(aSound)->stop();
+}
+
+void SoundEngine::playSound(Sound * aSound)
+{
+	aSound->playingChannel = Mix_PlayChannel(-1, aSound->soundData, aSound->numberOfLoops);
+	if (aSound->playingChannel!= -1)
+	{
+		aSound->isPlaying = TRUE;
+	}
+	else
+	{
+		cerr << "Error could not play sound" << aSound->name << endl;
+	}
+}
+
+void SoundEngine::stopSound(Sound * aSound)
+{
+	Mix_HaltChannel(aSound->playingChannel);
+
+	if (aSound->playingChannel!= -1)
+	{
+		aSound->isPlaying = FALSE;
+	}
+	else
+	{
+		aSound->isPlaying = FALSE;
+		cerr << "Error could not play sound" << aSound->name << endl;
+	}
+}
+
+void SoundEngine::playMusic(string aMusic)
+{
+	musics.at(aMusic)->play();
+}
+
+void SoundEngine::stopMusic(string aMusic)
+{
+	musics.at(aMusic)->stop();
+}
+
+void SoundEngine::playMusic(Music * aMusic)
+{
+	aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
+	if (aMusic->playingChannel!= -1)
+	{
+		aMusic->isPlaying = TRUE;
+	}
+	else
+	{
+		cerr << "Error could not play sound" << aMusic->name << endl;
+	}
+}
+
+void SoundEngine::stopMusic(Music * aMusic)
+{
+	Mix_HaltMusic();
+	aMusic->isPlaying = FALSE;
+}
+
 void SoundEngine::addSound(string pathToASound, string aSoundId)
 {
-	sounds.insert(make_pair(aSoundId, Mix_LoadWAV(pathToASound.c_str())));
+	//Check if the sound is already loaded
+	if(sounds.find(aSoundId) == sounds.end())
+	{
+		Sound * aSound = new Sound(pathToASound, aSoundId);
+
+		sounds.insert(make_pair(aSoundId, aSound));
+	}
+	else
+	{
+		cerr << "SoundEngine Error: The sound " << aSoundId << " has already been loaded " << endl;
+	}
 }
 
-/*
-#define NUM_SOUNDS 2
-
-struct sample {
-    Uint8 *data;
-    Uint32 dpos;
-    Uint32 dlen;
-} sounds[NUM_SOUNDS];
-
-void SoundEngine::mixaudio(void *unused, Uint8 *stream, unsigned int len)
+int SoundEngine::loadSound(string pathToASound, Sound * aSound)
 {
-    int i;
-    Uint32 amount;
+	aSound->soundData = Mix_LoadWAV(pathToASound.c_str());
 
-    for ( i=0; i<NUM_SOUNDS; ++i ) {
-        amount = (sounds[i].dlen-sounds[i].dpos);
-        if ( amount > len ) {
-            amount = len;
-        }
-        SDL_MixAudio(stream, &sounds[i].data[sounds[i].dpos], amount, SDL_MIX_MAXVOLUME);
-        sounds[i].dpos += amount;
-    }
+	if(aSound->soundData == NULL)
+	{
+		cerr << "SoundEngine Error: Could not load " << pathToASound << endl;
+		return 0;
+	}
+
+	return 1;
 }
 
-void SoundEngine::PlaySound(string file)
+void SoundEngine::addMusic(string pathToASound, string aMusicId)
 {
-    int index;
-    SDL_AudioSpec wave;
-    Uint8 *data;
-    Uint32 dlen;
-    SDL_AudioCVT cvt;
+	//Check if the sound is already loaded
+	if(musics.find(aMusicId) == musics.end())
+	{
+		Music * aMusic = new Music(pathToASound, aMusicId);
 
-    // Look for an empty (or finished) sound slot 
-    for ( index=0; index<NUM_SOUNDS; ++index ) {
-        if ( sounds[index].dpos == sounds[index].dlen ) {
-            break;
-        }
-    }
-    if ( index == NUM_SOUNDS )
-        return;
+		musics.insert(make_pair(aMusicId, aMusic));
+	}
+	else
+	{
+		cerr << "SoundEngine Error: The sound " << aMusicId << " has already been loaded " << endl;
+	}
+}
 
-    // Load the sound file and convert it to 16-bit stereo at 22kHz 
-    if ( SDL_LoadWAV(file.c_str(), &wave, &data, &dlen) == NULL ) {
-        fprintf(stderr, "Couldn't load %s: %s\n", file.c_str(), SDL_GetError());
-        return;
-    }
-    SDL_BuildAudioCVT(&cvt, wave.format, wave.channels, wave.freq,
-                            AUDIO_S16,   2,             22050);
-    cvt.buf = (Uint8 *)malloc(dlen*cvt.len_mult);
-    memcpy(cvt.buf, data, dlen);
-    cvt.len = dlen;
-    SDL_ConvertAudio(&cvt);
-    SDL_FreeWAV(data);
+int SoundEngine::loadMusic(string pathToASound, Music * aMusic)
+{
+	aMusic->musicData = Mix_LoadMUS(pathToASound.c_str());
 
-    cout<<"play Sound\n";
-    // Put the sound data in the slot (it starts playing immediately) 
-    if ( sounds[index].data ) {
-        free(sounds[index].data);
-    }
-    SDL_LockAudio();
-    sounds[index].data = cvt.buf;
-    sounds[index].dlen = cvt.len_cvt;
-    sounds[index].dpos = 0;
-    SDL_UnlockAudio();
-}*/
+	if(aMusic->musicData == NULL)
+	{
+		cerr << "SoundEngine Error: Could not load " << pathToASound << endl;
+		return 0;
+	}
+
+	return 1;
+}
+
+void SoundEngine::clearSounds()
+{
+	sounds.clear();
+}
+
+void SoundEngine::stopAllSounds()
+{
+	Mix_HaltChannel(-1);
+}
+
+void channelDone(int channel)
+{
+  // cout<< "channel " << channel << " finished playback" << endl;
+}

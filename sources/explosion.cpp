@@ -17,7 +17,7 @@ Explosion::Explosion()
 Explosion::Explosion(int x, int y, int typeExpl)
 {
 	Drawable();
-	this->getTexture("explosion");
+	this->addTexture("explosion");
 	width = atoi(((lev->configurationElements.at("explosion")).at(0)).c_str());
 	height =  atoi(((lev->configurationElements.at("explosion")).at(1)).c_str());
 	posX = x;

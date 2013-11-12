@@ -22,7 +22,7 @@ class Level4:  public Level
 	Drawable rayonH, rayonV;
 	vector<Drawable *> toMerge;
 
-
+	Level4();
 	virtual void loadLevel(Hero * aHero);
 	void loadConf();
 	void loadObject();

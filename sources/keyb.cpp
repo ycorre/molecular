@@ -87,10 +87,11 @@ void Keyboard::processeMouseInGame(Hero * hero)
 		{
 			hero->fire();
 		}
+		else if (!keyStates[FIRE_KEY])
+		{
+			hero->isFiring = FALSE;
+		}
 	}
-	//Get the mouse offsets
-	//int x = event.motion.relx;
-	//int y = event.motion.rely;
 
     return;
 }
@@ -106,6 +107,10 @@ void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
 			
 		case DOWN_KEY:
 			hero->heroMovingUpOrDown = 0;
+			break;
+
+		case FIRE_KEY:
+			hero->isFiring = FALSE;
 			break;
 
 		case SDLK_b:
@@ -172,7 +177,7 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 	//If we are displaying one screen, then any touch take us to the next menu
 	if(menu->currentMenu == MENU_SUCCESS || menu->currentMenu == MENU_CREDIT ||
 			menu->currentMenu == MENU_GAMEOVER || menu->currentMenu == MENU_HIGHSCORE ||
-			menu->currentMenu == MENU_INTRO)
+			menu->currentMenu == MENU_INTRO || (menu->currentMenu == MENU_LEVELSELECT && keysym->sym == SDLK_ESCAPE))
 	{
 		menu->transition();
 		return;
@@ -185,11 +190,19 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 			break;
 
 		case SDLK_UP:
-			menu->selectUp();
+			menu->selectionMove(UP);
 			break;
 
 		case SDLK_DOWN:
-			menu->selectDown();
+			menu->selectionMove(DOWN);
+			break;
+
+		case SDLK_RIGHT:
+			menu->selectionMove(RIGHT);
+			break;
+
+		case SDLK_LEFT:
+			menu->selectionMove(LEFT);
 			break;
 
 		case SDLK_SPACE:

@@ -4,20 +4,26 @@
 
 #include "level1.h"
 
+Level1::Level1()
+{
+
+}
+
 void Level1::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	loadConf();
+	loadEnemies();
 	loadObject();
-	createWave1();
+	instantiateEnemies();
+
 	hud = new HUD(ge);
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
+
 	hero =  aHero;
-	hero->getTexture("tie");
-	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
-	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
-	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
+	hero->setTexture();
+
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = FALSE;
 
@@ -43,15 +49,18 @@ void Level1::loadTextures()
 void Level1::loadBackGround()
 {
 	Level::loadBackGround();
-	background.setAnimX(0);
 	
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
 	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
 	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
 	soundEngine->addSound("sound/tie_hit.wav", "tie_hit");
+	soundEngine->addSound("sound/Mitraille_attack.wav", "mitAttack");
+	soundEngine->addSound("sound/Mitraille_loop.wav", "mitLoop");
+	soundEngine->addSound("sound/EnnemiGun01.wav", "enemyGun");
+	soundEngine->addSound("sound/Mitraille_release.wav", "mitRelease");
+	soundEngine->sounds.at("mitLoop")->setLoop(-1);
 }
-
 
 void Level1::drawLevel()
 {
@@ -80,11 +89,11 @@ void Level1::drawLevel()
 	moveBackGround();
 	background.setAnimX(background.getAnimX() + cameraSpeed);
 
+	//If we are in the finishing sequence
 	if(ending)
 	{
 		finishLevel();
 	}
-
 }
 
 //function that handle the events (enemies apparitions, collision checks,  etc...)
@@ -113,63 +122,10 @@ void Level1::checkEvent()
 	}
 
 	//Winning conditions
-	if(background.getAnimX() >= 5800 - SCREEN_WIDTH && hero->state != DEAD)
+	if(background.getAnimX() >= 15800 - SCREEN_WIDTH && hero->state != DEAD)
 	{
 		//Level won
 		finishLevel();
-	}
-}
-
-//TODO Standardize the loading and the description of the patterns of enemies
-void Level1::createWave1()
-{
-	int i;
-	int xc[5] = {1040, 1140, 1140, 1240, 1240};
-	int yc[5] = {180, 290, 90, 350, 10};
-	int xc3[5] = {2540, 2740, 2740, 2840, 2840};
-	int yc3[5] = {170, 290, 90, 350, 10};
-	int xc2[5] = {4040, 4140, 4140, 4240, 4240};
-
-	int xc5[5] = {5840, 5940, 5940, 6040, 6040};
-	int xc4[5] = {5640, 5740, 5740, 5840, 5840};
-
-	int xc6[5] = {7840, 8840, 8840, 8040, 8040};
-	int xc7[5] = {9040, 8140, 8140, 9040, 9040};
-	int xc8[5] = {8240, 9240, 9240, 8440, 8440};
-
-
-	int xPatrolRed1[5] = {1840, 1960, 2080, 2200, 2320};
-	int xPatrolRed2[5] = {3340, 3460, 3580, 3700, 3820};
-
-	int yPatrolDown[1] = {0};
-	int yPatrolUp[1] = {GAMEZONE_HEIGHT - 100};
-
-	int xPatrolBlue[5] = {4700, 4820, 4940, 5060, 5180};
-	int xPatrolBlue2[5] = {7000, 7120, 7240, 7360, 7480};
-
-
-	for (i=0; i < 5; i++)
-	{
-		//Regular
-		activeElements.push_back(new Enemy(xc[i], yc[i], XRED, 1));
-		activeElements.push_back(new Enemy(xc2[i], yc[i], XYELLOW, 1));
-		activeElements.push_back(new Enemy(xc3[i], yc3[i], XBLUE, 1));
-
-		activeElements.push_back(new Enemy(xc4[i], yc[i], XRED, 1));
-		activeElements.push_back(new Enemy(xc5[i], yc[i], XBLUE, 1));
-
-		activeElements.push_back(new Enemy(xc6[i], yc[i], XRED, 1));
-		activeElements.push_back(new Enemy(xc7[i], yc[i], XYELLOW, 1));
-		activeElements.push_back(new Enemy(xc8[i], yc[i], XBLUE, 1));
-
-		//Patrol
-		activeElements.push_back(new Patrol(xPatrolRed1[i], yPatrolDown[0], XRED, DOWN));
-		activeElements.push_back(new Patrol(xPatrolRed2[i], yPatrolUp[0], XRED, UP));
-		activeElements.push_back(new Patrol(xPatrolRed2[i], yPatrolDown[0], XRED, DOWN));
-		activeElements.push_back(new Patrol(xPatrolBlue[i], yPatrolDown[0], XBLUE, DOWN));
-		activeElements.push_back(new Patrol(xPatrolBlue2[i], yPatrolDown[0], XBLUE, DOWN));
-		activeElements.push_back(new Patrol(xPatrolBlue2[i], yPatrolUp[0], XBLUE, UP));
-
 	}
 }
 
@@ -225,13 +181,20 @@ void Level1::createBonus(int x, int y, int type)
 	activeElements.push_back(new Bonus(x, y, type));
 }
 
-//Load all the configuration elements from a text file
-//Format: elementName;width;height;listOfAnimationStatus$nbOfFramesInAnAnimation;pathToTextureFile
-void Level1::loadConf()
+
+
+
+//Load enemies from a configuration files
+//Format is on the first line:
+//sinus wave width;sinus wave height;speed
+//The next lines: enemies position
+//x;y
+void Level1::loadEnemies()
 {
+	enemyConfigurationElements.clear();
 	ifstream file;
 	string line;
-	string fileName = "conf/l1.conf";
+	string fileName = "conf/enemyL1.conf";
 	string token;
 	string type;
 	vector<string> confElements;
@@ -240,18 +203,36 @@ void Level1::loadConf()
 	file.open(fileName.c_str());
 	while(getline(file, line))
 	{
-		if(line.size()!=0) //Ignore empty lines
+		if(!line.empty()) //Ignore empty lines
 		{
 			confElements.clear();
 			istringstream myLine(line);
-			getline(myLine, type, ';');
+			//getline(myLine, type, ';');
 
 			while(getline(myLine, token, ';'))
 			{
 				confElements.push_back(token);
 			}
-			configurationElements.insert(make_pair(type, confElements));
+			enemyConfigurationElements.push_back(confElements);
 		}
+	}
+}
+
+void Level1::instantiateEnemies()
+{
+	vector<string> confCharacteristics = enemyConfigurationElements.front();
+
+	float sinWidth = atof(confCharacteristics.at(0).c_str());
+	float sinHeight = atof(confCharacteristics.at(1).c_str());
+	float speed = atof(confCharacteristics.at(2).c_str());
+	//Delete the first element
+	enemyConfigurationElements.pop_front();
+
+	for (list<vector<string> >::iterator anEnemy = enemyConfigurationElements.begin(); anEnemy != enemyConfigurationElements.end(); ++anEnemy)
+	{
+		int pX = atoi((anEnemy->at(0)).c_str());
+		int pY = atoi((anEnemy->at(1)).c_str());
+		activeElements.push_back(new Enemy(pX, pY, sinWidth, sinHeight, speed));
 	}
 }
 

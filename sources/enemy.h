@@ -11,7 +11,7 @@
 #define XBLUE 1
 #define XYELLOW 2
 
-class Enemy: public Drawable
+class Enemy: public MaskedDrawable
 {
 	public:
 		int direction;
@@ -19,12 +19,19 @@ class Enemy: public Drawable
 		int type;
 		int life;
 		int canFire;
-		int fireRate;
+		int fireRate, minFireRate, maxFireRate;
 		int scoreValue;
+		float speed;
 		unsigned int lastTimeFired;
+
+		//Sinusoid movement stuff
+		float originY;
+		float sinusWidth;
+		float sinusHeigth;
 
 		Enemy();
 		Enemy(int x, int y, int type, int dir);
+		Enemy(int x, int y, float sinWidth, float sinHeigth, float speed);
 		void dropBonus(int x, int y);
 		virtual void animate();
 		virtual void processCollisionWith(Drawable* aDrawable);
@@ -48,47 +55,22 @@ class Patrol: public Enemy
 #define ASTER_2THIRD 1
 #define ASTER_1THIRD 2
 
-class Asteroid: public Enemy
+class Bomb: public Enemy
 {
 	public:
 		float angle;
 		int speed;
 
-		Asteroid();
-		Asteroid(int type);
+		Bomb();
+	//	Bomb(int type);
 		//used to set small fragments of asteroid
-		Asteroid(int typeXW, int sX, int sY, int speed, float angle);
-		void processCollisionWith(Drawable* aDrawable);
-		void createSmallerAsteroid(Asteroid * anElement);
+		Bomb(int sX, int sY, int speed, float angle);
+		//void processCollisionWith(Drawable* aDrawable);
+		//void createSmallerAsteroid(Asteroid * anElement);
 		virtual void animate();
 		void setAngleAndSpeed();
-};
-
-class Falcon: public Enemy
-{
-	public:
-		int destinationX;
-		int destinationY;
-		int speed;
-		int initialLife;
-		int initialHealthDisplayWidth;
-		int currentPhase;
-		int fireCounter;
-		Drawable * healthDisplay;
-
-		Falcon();
-		//Falcon(int type);
-		void processCollisionWith(Drawable* aDrawable);
 		virtual void fire();
-		virtual void animate();
-		virtual void checkFire();
-		void firePattern();
-		void displayHealth();
 };
-
-#define FALCON_PHASE_1 0
-#define FALCON_PHASE_2 1
-#define FALCON_PHASE_3 2
 
 #endif
 

@@ -163,26 +163,33 @@ int Game::initGame()
 	keyboard->game = this;
 	physicEngine = *(new Pe());
 	soundEngine = *(new SoundEngine());
+	soundEngine.init();
 	menu = new Menu(&graphicEngine, &soundEngine);
 
     Level1 * l1 = new Level1();
     Level2 * l2 = new Level2();
-    Level3 * l3 = new Level3();
     Level4 * l4 = new Level4();
 
     l1->name = "level1";
     l2->name = "level2";
-    l3->name = "level3";
     l4->name = "level4";
 
     levels.insert(make_pair("level1", l1));
     levels.insert(make_pair("level2", l2));
-    levels.insert(make_pair("level3", l3));
-    levels.insert(make_pair("level4", l4));
+
+    int i;
+    for(i = 1; i<10; i++)
+    {
+    	stringstream ss;
+    	ss<< "level" <<i;
+    	lockedLevel.insert(make_pair(ss.str(), TRUE));
+    }
+
+    lockedLevel.at("level1") = FALSE;
+    lockedLevel.at("level2") = FALSE;
 
     //Init the menu
     menu->introLength = 2500;
-    menu->loadIntro();
     menu->loadMenu();
     menu->game = this;
 
@@ -263,8 +270,6 @@ int Game::initSDL()
     	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
     	quit(1);
 	}
-    //Allocate more channels than the default parameter (8)
-    Mix_AllocateChannels(24);
 
     //Enable repetition of keyboard events
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
@@ -341,7 +346,7 @@ void Game::launchNextLevel()
 			break;
 	}
 
-	if (newLevel >= 3)//levelOrder.size())
+	if (newLevel >= 1)//levelOrder.size())
 	{
 		cout<<"Game won!!!!!!!!!!!\n";
 		menu->currentMenu = MENU_SUCCESS;
@@ -412,56 +417,39 @@ void Game::loadConf()
 
 int initOpenGL()
 {
-
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	//Initialize Projection Matrix
-/*	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	//gluPerspective(0.0f,(GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_WIDTH,0.1f,100.0f);
-
-	//Initialize Modelview Matrix
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();*/
 	glEnable(GL_TEXTURE_2D);
-	//glShadeModel(GL_SMOOTH);
 
-
-	//Initialize clear color
+	//Initialize clear color (black and opaque)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-   // glClearDepth( 1.0f );
-
-	//glEnable(GL_LIGHTING);
-	//Check for error
-	/*GLenum error = glGetError();
-	if(error != GL_NO_ERROR)
-	{
-		cout<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
-		return FALSE;
-	}*/
-	//glOrtho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -1, 50);
-	//glLoadIdentity();
-	//glScalef(1, 1, -0.1);
-
-
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	// glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
-
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
+	float ratio = (GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_HEIGHT;
+
 	//Set the view
-	gluPerspective(45.0f, (GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_WIDTH, 1.0f, 100.0f);
+	//90.0f since cotangent(45) = 1 which simplifies the coordinates on the y axis
+	//the x coordinate are too be multipliate by the ratio
+	gluPerspective(90.0f, ratio, 1.0f, 100.0f);
 
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(-0.5, -0.5 , -1);
 
-	    glMatrixMode(GL_MODELVIEW);
-	    glLoadIdentity();
-		glTranslatef(-0.5, -0.5 , -1.2);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//Check for error
+	GLenum error = glGetError();
+	if(error != GL_NO_ERROR)
+	{
+		cerr<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
+		return FALSE;
+	}
 }

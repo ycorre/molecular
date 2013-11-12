@@ -12,17 +12,41 @@ Hero::Hero()
 	posX = 0;
 	posY = 170;
 	state = ENTER;
-	//setAnimX(0);
 	invincible = FALSE;
-	invincibilityTime = 1250;
+	invincibilityTime = 1500;
 	heroChangedState = TRUE;
 	canFire = 1;
-	maxFireRate = 200;
-	fireRate = 500;
+	maxFireRate = 80;
+	fireRate = 80;
 	lastTimeFired = 0;
+	collision =  ge->loadTexture("res/Joueur_Col.png");
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
+	isFiring = FALSE;
 }
+
+void Hero::setTexture()
+{
+	addTexture("atom");
+	width = atoi(((lev->configurationElements.at("atom")).at(0)).c_str());
+	height = atoi(((lev->configurationElements.at("atom")).at(1)).c_str());
+	nbFrames = parseAnimationState((lev->configurationElements.at("atom")).at(2));
+	setAnimX(0);
+
+	firingEffect = new Drawable();
+	firingEffect->addTexture("muzzl");
+	firingEffect->nbFrames = parseAnimationState((lev->configurationElements.at("muzzl")).at(2));
+	firingEffect->width = atoi(((lev->configurationElements.at("muzzl")).at(0)).c_str());
+	firingEffect->height = atoi(((lev->configurationElements.at("muzzl")).at(1)).c_str());
+	firingEffect->posX = 0;
+	firingEffect->posY = 0;
+	firingEffect->setAnimX(0);
+	firingEffect->setAnimY(0);
+	firingEffect->toBlend = TRUE;
+	firingEffect->display = FALSE;
+	//firingEffect->animationUpdateFrequency = 33;
+}
+
 
 void Hero::resetHero()
 {
@@ -32,7 +56,7 @@ void Hero::resetHero()
 	posX = 0;
 	posY = 170;
 	state = ENTER;
-	setAnimX(0);
+	//setAnimX(0);
 	invincible = FALSE;
 	invincibilityTime = 1250;
 	heroChangedState = TRUE;
@@ -40,6 +64,7 @@ void Hero::resetHero()
 	lastTimeFired = 0;
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
+	isFiring = FALSE;
 	lasers.clear();
 }
 
@@ -57,36 +82,41 @@ void Hero::animate()
 				setAnimX(0);
 				setAnimY(STATIC * height);
 				break;
-		
+
 			case GO_UP:
 				setAnimX(0);
-				setAnimY(GO_UP * height);
+				setAnimY(STATIC * height);
 				break;
-		
+
 			case GO_DOWN:
 				setAnimX(0);
-				setAnimY(GO_DOWN * height);
+				setAnimY(STATIC * height);
 				break;
-		
+
 			case HIT:
 				setAnimX(0);
+				dontMove = TRUE;
 				setAnimY(HIT * height);
 				makeInvincible();
 				break;
 		
 			case ENTER:
 				setAnimX(0);
-				setAnimY(ENTER * height);
+				setAnimY(STATIC * height);
 				dontMove = TRUE;
+				display = TRUE;
 				makeInvincible();
 				SDL_WarpMouse(0, 170);
 				break;
 
 			case DEAD:
-				setAnimX(width - 1);
+				setAnimX(0);
 				setAnimY(STATIC * height);
 				dontMove = TRUE;
 				makeInvincible();
+				isBlinking = FALSE;
+				isFiring = FALSE;
+				display = FALSE;
 				break;
 
 			case EXITING:
@@ -96,6 +126,7 @@ void Hero::animate()
 				invincibilityTime = 100000;
 				makeInvincible();
 				display = TRUE;
+				isFiring = FALSE;
 				isBlinking = FALSE;
 				break;
 		
@@ -126,6 +157,7 @@ void Hero::animate()
 					break;
 
 				case HIT:
+					posX = max(0, (int)posX - 9);
 					if (getAnimX() == 0)
 					{
 						state = STATIC;
@@ -162,19 +194,57 @@ void Hero::animate()
 			}
 		}
 	}
+
+	//We want the effect to stop on a weakly lighted frame
+	//So we play between condition
+	if(isFiring || firingEffect->display)
+	{
+		//We started firing
+		if (isFiring && (!firingEffect->display))
+		{
+			firingEffect->display = TRUE;
+			lev->soundEngine->playSound("mitAttack");
+		}
+
+		//Update position to match with the one of the ship
+		firingEffect->posX = posX + this->width/2 - 8;
+		firingEffect->posY = posY;
+		
+		lev->soundEngine->playSound("mitLoop");
+		int updated = firingEffect->updateAnimationFrame();
+
+		//if(firingEffect->getAnimX() == 0)
+		//	lev->soundEngine->playSound("mitLoop");
+
+		//We stopped firing and now we want to stop on a correct frame
+		//We stop when we are back to the strongest lighted
+		//but not if this the current frame (hence the updated condition)
+		if ((!isFiring) && updated && (((int)(firingEffect->getAnimX()/firingEffect->width) % 3) == 0))
+		{
+			firingEffect->display = FALSE;
+			lev->soundEngine->stopSound("mitLoop");
+			lev->soundEngine->playSound("mitRelease");
+		}
+
+		firingEffect->processDisplay();
+	}
+
 	animateLasers();
-	checkInvicibility();
+	if(state!=DEAD)
+		checkInvicibility();
+
 	processDisplay();
 }
 
 void Hero::fire()
 {
+	isFiring = TRUE;
 	checkFire();
 	if (canFire)
 	{
-		lev->soundEngine->playSound("tie_fire");
+		
 		cout<<"piou piou!\n";
-		lasers.push_back(new Laser(posX + width/2, posY + height/4, RIGHT, GREEN_LASER));
+		lasers.push_back(new Laser(posX, posY + 32, RIGHT, GREEN_LASER));
 		canFire = 0;
 	}
 }
@@ -183,12 +253,6 @@ void Hero::moveUp()
 {
 	if(topFlag)
 	{
-		if(!heroMovingUpOrDown)
-		{
-			state = GO_UP;
-			heroChangedState = TRUE;
-			heroMovingUpOrDown = 1;
-		}
 		posY = posY - 6;
 	}
 }
@@ -197,12 +261,6 @@ void Hero::moveDown()
 {
 	if(bottomFlag)
 	{
-		if(!heroMovingUpOrDown)
-		{
-			state = GO_DOWN;
-			heroChangedState = TRUE;
-			heroMovingUpOrDown = 1;
-		}
 		posY = posY + 6;
 	}
 }
@@ -230,31 +288,6 @@ void Hero::move(int x, int y)
 
 	y = min(y, 16);
 	y = max(y, -16);
-
-/*	if (y<0)
-	{
-		if(!heroMovingUpOrDown)
-		{
-			state = GO_DOWN;
-			heroChangedState = TRUE;
-			heroMovingUpOrDown = 1;
-		}
-	}
-
-	if (y==0)
-	{
-		heroMovingUpOrDown = FALSE;
-	}
-
-	if (y>0)
-	{
-		if(!heroMovingUpOrDown)
-		{
-			state = GO_UP;
-			heroChangedState = TRUE;
-			heroMovingUpOrDown = 1;
-		}
-	}*/
 
 	posX = posX + x;
 	posY = posY + y;
@@ -304,8 +337,9 @@ void Hero::loseLife()
 		posY = 170;
 		state = ENTER;
 		heroChangedState = TRUE;
+		display = FALSE;
 		health = 4;
-		fireRate = 500;
+		fireRate = 80;
 		canFire = 1;
 		lastTimeFired = 0;
 		heroMovingUpOrDown = 0;
@@ -374,7 +408,7 @@ void Hero::makeInvincible()
 {
 	startInvincibility = GameTimer;
 	invincible = TRUE;
-	isBlinking = TRUE;
+	//isBlinking = TRUE;
 }
 
 void Hero::checkInvicibility()

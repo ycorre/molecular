@@ -16,17 +16,12 @@ class Level2:  public Level
 {
 	public:
 	//Frequency at which asteroid are generated
-	int asteroidRate;
-	//Type of generated asteroid
-	int asteroidTypeGenerated;
+	int bombGenerationRate;
 	//Keep track of the last asteroid generated
-	unsigned int lastTimeAsteroid;
+	unsigned int lastTimeBomb;
 
-	int nextDiffcultyStep;
-	list<int> nextStepValues;
-
+	Level2();
 	virtual void loadLevel(Hero * aHero);
-	void loadConf();
 	void loadObject();
 	void loadTextures();
 	void loadBackGround();
@@ -38,7 +33,7 @@ class Level2:  public Level
 	void createBonus(int x, int y, int type);
 	int checkEnemyCollision(Drawable * anElement);
 	int checkBonusCollision(Drawable * anElement);
-	int generateAsteroid();
+	int generateBomb();
 	virtual void finishLevel();
 };
 

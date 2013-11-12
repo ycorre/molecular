@@ -11,6 +11,7 @@ Level * Drawable::lev;
 Drawable::Drawable()
 {
 	lastTimeUpdated = 0;
+	animationUpdateFrequency = 40;
 	nbFrames.push_back(1);
 	texture = NULL;
 	state = 0;
@@ -23,6 +24,7 @@ Drawable::Drawable()
 	height = 1;
 	display = TRUE;
 	toRemove = FALSE;
+	toBlend = FALSE;
 	isBlinking = FALSE;
 	blinkingCounter = 0;
 }
@@ -52,11 +54,11 @@ int Drawable::updateAnimationFrame()
 {
 	//41 ms ~= 24 FPS
 	//33 ms ~= 30 FPS
-	unsigned int updateTime = lastTimeUpdated + 33;
+	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
 	if (updateTime < SDL_GetTicks())
 	{
 		//shift one sprite to the right; if we are at the end then go back to the beginning
-		setAnimX((float)(((int)animX + width) %  (nbFrames.at(state)*width)));
+		setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
 		lastTimeUpdated = SDL_GetTicks();
 		return 1;
 	}
@@ -106,7 +108,7 @@ void Drawable::loadTexture(string path)
 #endif
 }
 
-void Drawable::getTexture(string aName)
+void Drawable::addTexture(string aName)
 {
 	this->name = aName;
 	this->texture = ge->textures.at(this->name);
@@ -134,7 +136,7 @@ void Drawable::clean()
 #if USE_OPENGL
 	ge->openGLTextures.erase(this->texture);
 #endif
-	ge->textures.erase(this->name );
+	ge->textures.erase(this->name);
 }
 
 void Drawable::blink()
@@ -155,19 +157,19 @@ float Drawable::getAnimX()
 void Drawable::setAnimX(float animX)
 {
 	this->animX = animX;
+
 #if USE_OPENGL
 	if(texture!= NULL)
 	{
 		computeOGLXValues();
 	}
-
 #endif
 }
 
 void Drawable::computeOGLXValues()
 {
-	ogl_Xorigin = this->animX/(float)this->texture->w;
-	ogl_Xcorner = ogl_Xorigin + (float)this->width/(float)this->texture->w;
+	ogl_Xorigin = this->animX/(float)this->getTexture()->w;
+	ogl_Xcorner = ogl_Xorigin + (float)this->width/(float)this->getTexture()->w;
 }
 
 float Drawable::getAnimY()
@@ -188,8 +190,8 @@ void Drawable::setAnimY(float animY)
 
 void Drawable::computeOGLYValues()
 {
-	ogl_Yorigin = this->animY/(float)this->texture->h;
-	ogl_Ycorner = ogl_Yorigin + (float)this->height/(float)this->texture->h;
+	ogl_Yorigin = this->animY/(float)this->getTexture()->h;
+	ogl_Ycorner = ogl_Yorigin + (float)this->height/(float)this->getTexture()->h;
 }
 
 int Drawable::getXBoundary()
@@ -217,6 +219,15 @@ SDL_Surface * Drawable::getCollisionTexture()
 	return texture;
 }
 
+SDL_Surface * Drawable::getTexture()
+{
+	return texture;
+}
+
+GLuint Drawable::getOpenGLTexture()
+{
+	return oglTexture;
+}
 
 /*
  * Hitboxed class functions
@@ -249,3 +260,32 @@ SDL_Surface * MaskedDrawable::getCollisionTexture()
 	return collision;
 }
 
+/*
+ * Multi texture Drawable functions
+ */
+
+void MultiTextureDrawable::addTexture(string aName)
+{
+	//this->name = aName;
+	textures.insert(make_pair(aName, ge->textures.at(aName)));
+	if(texture==NULL)
+	{
+		texture = ge->textures.at(aName);
+	}
+	textureState = aName;
+#if USE_OPENGL
+	oglTextures.insert(make_pair(aName, ge->openGLTextures.at(textures.at(aName))));
+	setAnimX(getAnimX());
+	setAnimY(getAnimY());
+#endif
+}
+
+SDL_Surface * MultiTextureDrawable::getTexture()
+{
+	return textures.at(textureState);
+}
+
+GLuint MultiTextureDrawable::getOpenGLTexture()
+{
+	return oglTextures.at(textureState);
+}
