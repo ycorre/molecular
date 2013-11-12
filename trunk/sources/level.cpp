@@ -4,6 +4,13 @@
 
 #include "level.h"
 
+Level::Level()
+{
+	bkg_nearSpeed = 0.4;
+	bkg_midSpeed = 0.2;
+	bkg_distantSpeed = 0.1;
+}
+
 void Level::loadLevel(Hero * aHero)
 {
 
@@ -27,10 +34,10 @@ void Level::loadTextures()
 
 void Level::loadBackGround()
 {
-#if USE_OPENGL
+#if 0 //USE_OPENGL
 	displayBackGround = TRUE;
 
-	bkg_distant.getTexture("bkg_distant");
+	bkg_distant.addTexture("bkg_distant");
 	bkg_distant.width = SCREEN_WIDTH;
 	bkg_distant.height = SCREEN_HEIGHT;
 	bkg_distant.posX = -SCREEN_WIDTH/2.0;
@@ -39,15 +46,15 @@ void Level::loadBackGround()
 	bkg_distant.setAnimX(0);
 	bkg_distant.setAnimY(0);
 
-	loadStarConf();
-	generateStarfield();
+	//loadStarConf();
+//	generateStarfield();
 #else
 
-
+#endif
 	background.toMerge.clear();
 	bkg_near.width = SCREEN_WIDTH;
 	bkg_near.height = SCREEN_HEIGHT;
-	bkg_near.getTexture("bkg_near");
+	bkg_near.addTexture("bkg_near");
 	bkg_near.posX = 0;
 	bkg_near.posY = 0;
 	bkg_near.state = 0;
@@ -56,7 +63,7 @@ void Level::loadBackGround()
 
 	bkg_mid.width = SCREEN_WIDTH;
 	bkg_mid.height = SCREEN_HEIGHT;
-	bkg_mid.getTexture("bkg_mid");
+	bkg_mid.addTexture("bkg_mid");
 	bkg_mid.posX = 0;
 	bkg_mid.posY = 0;
 	bkg_mid.state = 0;
@@ -64,11 +71,11 @@ void Level::loadBackGround()
 	bkg_mid.setAnimY(0);
 
 
-	bkg_distant.getTexture("bkg_distant");
+	bkg_distant.addTexture("bkg_distant");
 	bkg_distant.width = SCREEN_WIDTH;
 	bkg_distant.height = SCREEN_HEIGHT;
-	bkg_distant.posX = -SCREEN_WIDTH/2.0;
-	bkg_distant.posY =  SCREEN_HEIGHT/2.0;
+	bkg_distant.posX = 0;
+	bkg_distant.posY =  0;
 	bkg_distant.state = 0;
 	bkg_distant.setAnimX(0);
 	bkg_distant.setAnimY(0);
@@ -77,19 +84,20 @@ void Level::loadBackGround()
 	background.toMerge.push_back(&bkg_mid);
 	background.toMerge.push_back(&bkg_near);
 	activeElements.push_back(&background);
-#endif
+
 }
 
 void Level::moveBackGround()
 {
-#if USE_OPENGL
-	displayStarField();
+#if 0 //USE_OPENGL
+	//displayStarField();
 #else
-	//Move the backgrounds
-	bkg_distant.setAnimX(bkg_distant.getAnimX() + 0.1);
-	bkg_mid.setAnimX(bkg_mid.getAnimX() + 0.2);
-	bkg_near.setAnimX(bkg_near.getAnimX() + 0.4);
 #endif
+	//Move the backgrounds
+	bkg_distant.setAnimX(bkg_distant.getAnimX() + bkg_distantSpeed);
+	bkg_mid.setAnimX(bkg_mid.getAnimX() + bkg_midSpeed);
+	bkg_near.setAnimX(bkg_near.getAnimX() + bkg_nearSpeed);
+
 }
 
 void Level::drawLevel()
@@ -209,6 +217,15 @@ void Level::loadConf()
 			configurationElements.insert(make_pair(type, confElements));
 		}
 	}
+
+	confElements.clear();
+	confElements = configurationElements.at("bkg_conf");
+
+	bkg_distantSpeed = atof(confElements.at(0).c_str());
+	bkg_midSpeed = atof(confElements.at(1).c_str());
+	bkg_nearSpeed = atof(confElements.at(2).c_str());
+
+	configurationElements.erase("bkg_conf");
 }
 
 void Level::heroLoseLife()
@@ -228,6 +245,8 @@ void Level::cleanLevel()
 		(*anElement)->clean();
 	}
 	activeElements.clear();
+
+	soundEngine->stopAllSounds();
 }
 
 void Level::endLevel()
@@ -396,7 +415,7 @@ void Level::displayStarField()
 		glTranslatef(0.0f, 0.0f, -maxDepth);
 		glScalef(maxDepth, maxDepth, 1.0f);
 
-		glBindTexture(GL_TEXTURE_2D, bkg_distant.oglTexture);
+		glBindTexture(GL_TEXTURE_2D, bkg_distant.getOpenGLTexture());
 		glBegin(GL_QUADS);
 			glTexCoord2f(bkg_distant.ogl_Xorigin, bkg_distant.ogl_Yorigin);
 			glVertex3f((bkg_distant.posX)/1200.0, ((600- bkg_distant.posY))/600.0, 0);

@@ -13,7 +13,7 @@
 
 class Laser;
 
-class Hero: public Drawable
+class Hero: public MaskedDrawable
 {
 	public:
 	  //Values kept from one level to the next
@@ -27,6 +27,7 @@ class Hero: public Drawable
 	  int invincible;
 	  list<Laser*> lasers;
 	  unsigned int lastTimeFired;
+	  int isFiring;
 	  int leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
 
 	  //Should be constant throughout the game
@@ -36,6 +37,7 @@ class Hero: public Drawable
 
 	  Hero();
 	  void setState(int aState);
+	  void setTexture();
 	  void fire();
 	  void move(int x, int y);
 	  void moveUp();
@@ -53,13 +55,14 @@ class Hero: public Drawable
 	  virtual void processCollisionWith(Drawable * aDrawable);
 
 	private:
+	  Drawable * firingEffect;
 	  int heroChangedState;
 };
 
 #define STATIC 0
-#define GO_UP 1
-#define GO_DOWN 2
-#define HIT 3
+#define GO_UP 2
+#define GO_DOWN 3
+#define HIT 1
 #define ENTER 4
 #define DEAD 5
 #define EXITING 6

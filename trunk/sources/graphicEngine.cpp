@@ -48,7 +48,7 @@ void GraphicEngine::drawFrame()
 {
 #if USE_OPENGL
     glLoadIdentity();
-	glTranslatef(-0.5, -0.5 , -1.2);
+	glTranslatef(-1.5, -1  , -1);
 #endif
 
 	if(!toDisplay.empty())
@@ -80,34 +80,31 @@ int GraphicEngine::draw(Drawable * sprite)
 	if (!sprite->isComposite())
 	{
 
-		//glTranslatef(0.0f, 0.0f, 0.1f);
-	//	glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-		glBindTexture(GL_TEXTURE_2D, sprite->oglTexture);
+		if(sprite->toBlend)
+		{
+			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
 		glBegin(GL_QUADS);
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-			//glVertex3f(sprite->posX, sprite->posY,0);
-			glVertex3f(sprite->posX/1200.0, (600- sprite->posY)/600.0, 0.);
-			//glVertex3f(sprite->posX, (600- sprite->posY), 0.);
+			glVertex3f((sprite->posX/(SCREEN_WIDTH/3)), (800- sprite->posY)/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-			//glVertex2i(sprite->posX + sprite->width, sprite->posY);
-			//glVertex3f(sprite->posX + sprite->width, sprite->posY,0);
-			glVertex3f((sprite->posX + sprite->width)/1200.0, (600-sprite->posY)/600, 0.);
-			//glVertex3f((sprite->posX + sprite->width), (600-sprite->posY), 0.);
+			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/3) , (800-sprite->posY)/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			//glVertex3f(sprite->posX + sprite->width, sprite->posY + sprite->height,0);
-			//glVertex2i(sprite->posX + sprite->width, sprite->posY + sprite->height);
-			glVertex3f((sprite->posX + sprite->width)/1200.0, (600-(sprite->posY + sprite->height))/600, 0);
-			//glVertex3f((sprite->posX + sprite->width), (600-(sprite->posY + sprite->height)), 0.);
+			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/3), (800-(sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0);
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-			//glVertex3f(sprite->posX, sprite->posY + sprite->height,0);
-			//glVertex2i(sprite->posX, sprite->posY + sprite->height);
-			glVertex3f(sprite->posX/1200.0, (600-(sprite->posY + sprite->height))/600, 0.);
-			//glVertex3f(sprite->posX, (600-(sprite->posY + sprite->height)), 0.);
+			glVertex3f((sprite->posX/(SCREEN_WIDTH/3)), (800-(sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0.);
 
 		glEnd();
+
+		if(sprite->toBlend)
+		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
 	}
 	else
 	{
@@ -141,7 +138,7 @@ int GraphicEngine::draw(Drawable * sprite)
 		dest.w = sprite->width;
 		dest.h = sprite->height;
 
-		SDL_BlitSurface(sprite->texture, &src, screen, &dest);
+		SDL_BlitSurface(sprite->getTexture(), &src, screen, &dest);
 #endif
 
     return 1;
@@ -280,11 +277,11 @@ void GraphicEngine::mergeImages(vector <Drawable*> drawables, Drawable * destina
 
 	for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
 	{
-		SDL_LockSurface((*aDrawable)->texture);
+		SDL_LockSurface((*aDrawable)->getTexture());
 	}
 
-	SDL_LockSurface(destination->texture);
-	Uint8 *pDest = (Uint8 *) destination->texture->pixels;
+	SDL_LockSurface(destination->getTexture());
+	Uint8 *pDest = (Uint8 *) destination->getTexture()->pixels;
 
 	for(y=0; y<destination->height; y++)
 	{
@@ -319,8 +316,8 @@ void GraphicEngine::mergeImages(vector <Drawable*> drawables, Drawable * destina
 	//Unlock SDL surfaces
 	for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
 	{
-		SDL_UnlockSurface((*aDrawable)->texture);
+		SDL_UnlockSurface((*aDrawable)->getTexture());
 	}
 
-	SDL_UnlockSurface(destination->texture);
+	SDL_UnlockSurface(destination->getTexture());
 }

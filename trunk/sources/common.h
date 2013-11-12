@@ -5,6 +5,8 @@
 #include <SDL_opengl.h>
 using namespace std;
 
+//#define NULL 0
+
 //Do we use OpenGL rendering ?
 #define USE_OPENGL 1
 

@@ -3,7 +3,7 @@
 Enemy::Enemy()
 {
 	Drawable();
-	this->getTexture("xwing");
+	this->addTexture("enemy");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -15,16 +15,19 @@ Enemy::Enemy()
 	type = XRED;
 	bonusProbability = 10;
 	direction = LEFT;
+	speed = 2;
+	originY = posY;
+	sinusWidth = 400;
+	sinusHeigth = 80;
 	life = 50;
 }
-
 
 Enemy::Enemy(int x, int y, int typeXW, int dir)
 {
 	Drawable();
-	this->getTexture("xwing");
-	width = atoi(((lev->configurationElements.at("xwing")).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at("xwing")).at(1)).c_str());
+	this->addTexture("enemy");
+	width = atoi(((lev->configurationElements.at("enemy")).at(0)).c_str());
+	height = atoi(((lev->configurationElements.at("enemy")).at(1)).c_str());
 	posX = x;
 	posY = y;
 	state = typeXW;
@@ -35,23 +38,63 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	scoreValue = 200;
 	bonusProbability = 10;
 	canFire = FALSE;
-	fireRate = 2500;
+	minFireRate = 2000;
+	maxFireRate = 1000;
+	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 50 * (typeXW+1);
-	nbFrames = parseAnimationState((lev->configurationElements.at("xwing")).at(2));
+	collision =  ge->loadTexture("res/Ennemi_mask.png");
+	nbFrames = parseAnimationState((lev->configurationElements.at("enemy")).at(2));
+	speed = 2;
+
+	originY = y;
+	sinusWidth = 400;
+	sinusHeigth = 80;
+}
+
+Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
+{
+	Drawable();
+	this->addTexture("enemy");
+	width = atoi(((lev->configurationElements.at("enemy")).at(0)).c_str());
+	height = atoi(((lev->configurationElements.at("enemy")).at(1)).c_str());
+	posX = x;
+	posY = y;
+	state = 0;
+	setAnimX(0);
+	setAnimY(0);
+	direction = RIGHT;
+	type = 0;
+	scoreValue = 200;
+	bonusProbability = 10;
+	canFire = FALSE;
+	minFireRate = 2000;
+	maxFireRate = 1000;
+	fireRate = minFireRate + (rand() % maxFireRate);
+	lastTimeFired = 0;
+	life = 50;
+	collision =  ge->loadTexture("res/Ennemi_mask.png");
+	nbFrames = parseAnimationState((lev->configurationElements.at("enemy")).at(2));
+	speed = aSpeed;
+
+	originY = y;
+	sinusWidth = sinWidth;
+	sinusHeigth = sinHeigth;
 }
 
 void Enemy::animate()
 {
 	updateAnimationFrame();
-	if(direction == RIGHT)
-	{
-		posX = posX + 2;
-	}
-	else
-	{
-		posX = posX - 2;
-	}
+
+	posX = posX - speed;
+
+	//Normalize posX on [0, 2PI]
+	//The width of the sinusoid is given by sinusWidth,
+	float vx = ((int)posX % (int)sinusWidth)*((2*PI)/sinusWidth);
+
+	//Compute the movement on the Y axis
+	float vy = sin(vx);
+	posY = originY + vy*sinusHeigth;
 }
 
 void Enemy::processCollisionWith(Drawable* aDrawable)
@@ -79,7 +122,7 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 		}
 		else
 		{
-			lev->createExplosion(aLaser->posX - aLaser->width/2, aLaser->posY-this->height, SPARK);
+		//	lev->createExplosion(aLaser->posX - aLaser->width/2, aLaser->posY-this->height, SPARK);
 		}
 		return;
 	}
@@ -106,9 +149,15 @@ void Enemy::fire()
 	checkFire();
 	if (canFire)
 	{
-		lev->soundEngine->playSound("xwing_fire");
+		lev->soundEngine->playSound("enemyGun");
 
-		lev->activeElements.push_back(new Laser(posX + 30, posY + 30, LEFT, RED_LASER));
+		//Shoot toward the hero
+		//Compute the angle
+		float xDiff = lev->hero->posX - posX;
+		float yDiff = lev->hero->posY - posY;
+		float angle = atan2(yDiff, xDiff);
+
+		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));
 		canFire = 0;
 	}
 }
@@ -122,6 +171,7 @@ void Enemy::checkFire()
 		{
 			canFire = 1;
 			lastTimeFired = GameTimer;
+			fireRate = minFireRate + (rand() % maxFireRate);
 		}
 	}
 }

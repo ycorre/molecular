@@ -9,7 +9,7 @@
 //Check if a collision between two objects
 int Pe::collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable)
 {
-	if (boundingBox(aDrawable, anotherDrawable))
+	if (boundingBox(aDrawable, anotherDrawable) && isOnScreen(aDrawable) && isOnScreen(anotherDrawable))
 	{
 		if(pixelPerfect(aDrawable, anotherDrawable))
 			return TRUE;
@@ -60,18 +60,19 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 	x = 0;
 	y = 0;
 
-	SDL_LockSurface(aDrawable->texture);
-	SDL_LockSurface(anotherDrawable->texture);
+	SDL_LockSurface(aDrawable->getTexture());
+	SDL_LockSurface(anotherDrawable->getTexture());
 	while (x < (overX - 1))
 	{
 		while (y < (overY - 1))
 		{
 			pixA = getPixel((startingCoordinatesI.first + x), (startingCoordinatesI.second + y), aDrawable);
 			pixB = getPixel((startingCoordinatesJ.first + x), (startingCoordinatesJ.second + y), anotherDrawable);
-			if ((pixA > 0) && (pixB > 0 && pixB != 16777215))
+
+			if ((pixA > 0) && (pixB > 0))
 			{
-				SDL_UnlockSurface(aDrawable->texture);
-				SDL_UnlockSurface(anotherDrawable->texture);
+				SDL_UnlockSurface(aDrawable->getTexture());
+				SDL_UnlockSurface(anotherDrawable->getTexture());
 				return TRUE;
 			}
 			y = y + 1;
@@ -79,8 +80,8 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 		x = x + 1;
 		y = 0;
 	}
-	SDL_UnlockSurface(aDrawable->texture);
-	SDL_UnlockSurface(anotherDrawable->texture);
+	SDL_UnlockSurface(aDrawable->getTexture());
+	SDL_UnlockSurface(anotherDrawable->getTexture());
 	return FALSE;
 }
 
@@ -127,9 +128,10 @@ Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 	}
 
 	int textureX, textureY;
-	textureX = aDrawable->getAnimX() + x;
-	textureY = aDrawable->getAnimY() + y;
+	textureX = ((int) aDrawable->getAnimX() + x) % aDrawable->getCollisionTexture()->w;
+	textureY = ((int) aDrawable->getAnimY() + y) % aDrawable->getCollisionTexture()->h;
 
+	//cout<< textureX << ", " << textureY << endl;
 	return getpixel(aDrawable->getCollisionTexture(), textureX, textureY);
 }
 
@@ -154,9 +156,13 @@ void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 //make sure that an item is on screen
 int Pe::isOnScreen(Drawable *aDrawable)
 {
-	if (aDrawable->posX + aDrawable->width < 0 ||
+/*	if (aDrawable->posX + aDrawable->width < 0 ||
 		aDrawable->posY + aDrawable->height < 0 ||
 		aDrawable->posX > SCREEN_WIDTH - aDrawable->width ||
+		aDrawable->posY > GAMEZONE_HEIGHT)*/
+	if (aDrawable->posX + aDrawable->width < 0 ||
+		aDrawable->posY + aDrawable->height < 0 ||
+		aDrawable->posX > SCREEN_WIDTH ||
 		aDrawable->posY > GAMEZONE_HEIGHT)
 	{
 		return FALSE;
@@ -166,7 +172,7 @@ int Pe::isOnScreen(Drawable *aDrawable)
 
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
 {
-    int bpp = surface->format->BytesPerPixel;
+    int bpp = 4;// surface->format->BytesPerPixel;
     //Here p is the address to the pixel we want to retrieve
     Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
@@ -180,14 +186,14 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
 			return *(Uint16 *)p;
 			break;
 
-		case 3:
-			if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		case 4:
+			//if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				return p[0] << 16 | p[1] << 8 | p[2];
-			else
-				return p[0] | p[1] << 8 | p[2] << 16;
+			//else
+			//	return p[0] | p[1] << 8 | p[2] << 16;
 			break;
 
-		case 4:
+		case 3:
 			return *(Uint32 *)p;
 			break;
 

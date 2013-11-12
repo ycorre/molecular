@@ -33,11 +33,13 @@ class Level
 	SoundEngine * soundEngine;
 	list<Drawable*> activeElements;
 	map<string, vector<string> > configurationElements;
+	list<vector<string> > enemyConfigurationElements;
 	string name;
 	int levelState;
 	int cameraSpeed;
 	int exiting, ending, fading;
 	Drawable bkg_mid, bkg_near, bkg_distant;
+	float bkg_nearSpeed, bkg_midSpeed, bkg_distantSpeed;
 	int displayBackGround;
 
 	vector<vector<float> > stars;
@@ -46,6 +48,7 @@ class Level
 	int numberOfStarPoints, numberOfStars;
 	float maxDepth;
 
+	Level();
 	virtual void loadLevel(Hero * aHero);
 	virtual void loadConf();
 	void loadStarConf();

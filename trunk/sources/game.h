@@ -13,7 +13,6 @@
 #include "level.h"
 #include "level1.h"
 #include "level2.h"
-#include "level3.h"
 #include "level4.h"
 #include "keyb.h"
 #include "hero.h"
@@ -33,6 +32,7 @@ class Game
 		//List of levels
 		map<string, Level*> levels;
 		vector<string> levelOrder;
+		map<string, int>lockedLevel;
 		int score;
 
 		//Hold the current state of the game (cf. below for the state)

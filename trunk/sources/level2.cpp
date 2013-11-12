@@ -4,32 +4,26 @@
 
 #include "level2.h"
 
+Level2::Level2()
+{
+
+}
+
 void Level2::loadLevel(Hero * aHero)
 {
+	activeElements.clear();
 	loadConf();
 	loadObject();
 	hud = new HUD(ge);
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
-	asteroidRate = 750;
-	asteroidTypeGenerated = ASTER_1THIRD;
-	lastTimeAsteroid = 0;
+	bombGenerationRate = 1500;
+	lastTimeBomb = 0;
 	levelState = LEVEL_PLAYING;
-	nextDiffcultyStep = 1000;
-	nextStepValues.push_back(2000);
-	nextStepValues.push_back(3000);
-	nextStepValues.push_back(3500);
-	nextStepValues.push_back(4000);
-	nextStepValues.push_back(4500);
-	nextStepValues.push_back(5000);
-	nextStepValues.push_back(100000);
 
-	hero = aHero;
-	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
-	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
-	hero->getTexture("tie");
-	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
-	hero->resetHero();
+	hero =  aHero;
+	hero->setTexture();
+
 	ending = fading = exiting = FALSE;
 }
 
@@ -53,22 +47,21 @@ void Level2::loadBackGround()
 {
 	Level::loadBackGround();
 
-	string path = "res/decor.png";
-	//bg.loadTexture(path);
 	background.width = SCREEN_WIDTH;
 	background.height = SCREEN_HEIGHT;
 	background.posX = 0;
 	background.posY = 0;
 	background.state = 0;
-//	background.setAnimX(0);
-//	background.setAnimY(0);
-	//activeElements.push_back(&bg);
 
 	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
 	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
 	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
 	soundEngine->addSound("sound/tie_hit.wav", "tie_hit");
+	soundEngine->addSound("sound/Mitraille_attack.wav", "mitAttack");
+	soundEngine->addSound("sound/Mitraille_loop.wav", "mitLoop");
+	soundEngine->addSound("sound/EnnemiGun01.wav", "enemyGun");
+	soundEngine->addSound("sound/Mitraille_release.wav", "mitRelease");
 }
 
 
@@ -93,6 +86,7 @@ void Level2::drawLevel()
 	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	moveBackGround();
+	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	if(ending)
 	{
@@ -114,6 +108,8 @@ void Level2::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
+				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				anEnemy->fire();
 			}
 			if((*anElement)->isBonus() ||(*anElement)->isLaser())
 			{
@@ -122,44 +118,10 @@ void Level2::checkEvent()
 		}
 	}
 
-	//Generate Asteroid ?
-	if(generateAsteroid())
+	//Generate Bomb ?
+	if(generateBomb())
 	{
-		activeElements.push_back(new Asteroid(asteroidTypeGenerated));
-	}
-
-	//Gradually increase difficulty
-	if(background.getAnimX() >= nextDiffcultyStep)
-	{
-		if (nextDiffcultyStep >= 1000)
-		{
-			asteroidRate = 550;
-		}
-		if (nextDiffcultyStep >= 2000)
-		{
-			asteroidTypeGenerated = ASTER_2THIRD;
-		}
-		if (nextDiffcultyStep >= 3000)
-		{
-			asteroidRate = 400;
-		}
-		if (nextDiffcultyStep >= 3500)
-		{
-			asteroidTypeGenerated = ASTER_NORMAL;
-		}
-		if (nextDiffcultyStep >= 4500)
-		{
-			asteroidRate = 300;
-			nextDiffcultyStep = 5000;
-		}
-		if (nextDiffcultyStep >= 5000)
-		{
-			asteroidRate = 550;
-			asteroidTypeGenerated = ASTER_2THIRD;
-			nextDiffcultyStep = 5500;
-		}
-		nextDiffcultyStep = nextStepValues.front();
-		nextStepValues.pop_front();
+		activeElements.push_back(new Bomb());
 	}
 
 	//Winning conditions
@@ -225,43 +187,12 @@ void Level2::createBonus(int x, int y, int type)
 	activeElements.push_back(new Bonus(x, y, BONUS_FIRERATE));
 }
 
-//Load all the configuration elements from a text file
-//Format: elementName;width;height;listOfAnimationStatus$nbOfFramesInAnAnimation;pathToTextureFile
-void Level2::loadConf()
+int Level2::generateBomb()
 {
-	ifstream file;
-	string line;
-	string fileName = "conf/l1.conf";
-	string token;
-	string type;
-	vector<string> confElements;
-	string confElement;
-
-	file.open(fileName.c_str());
-	while(getline(file, line))
+	unsigned int nextBombTime = lastTimeBomb + bombGenerationRate;
+	if (nextBombTime < GameTimer)
 	{
-		if(line.size()!=0) //Ignore empty lines
-		{
-			confElements.clear();
-			istringstream myLine(line);
-			getline(myLine, type, ';');
-
-			while(getline(myLine, token, ';'))
-			{
-				confElements.push_back(token);
-			}
-
-			configurationElements.insert(make_pair(type, confElements));
-		}
-	}
-}
-
-int Level2::generateAsteroid()
-{
-	unsigned int nextAsteroidTime = lastTimeAsteroid + asteroidRate;
-	if (nextAsteroidTime < GameTimer)
-	{
-		lastTimeAsteroid = GameTimer;
+		lastTimeBomb = GameTimer;
 		return TRUE;
 	}
 	return FALSE;
@@ -275,7 +206,7 @@ void Level2::finishLevel()
 		exiting = TRUE;
 		hero->setState(EXITING);
 		fading = FALSE;
-		asteroidRate = 1000000;
+		bombGenerationRate = 1000000;
 	}
 
 	//Play Victory sound

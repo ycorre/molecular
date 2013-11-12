@@ -14,15 +14,111 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	nextMenu = MENU_INTRO;
 	selected = 0;
 	menuInTransition = FALSE;
+	startingGame = FALSE;
 }
 
 void Menu::loadMenu()
 {
-	mainBg = new Drawable();
-	mainBg->width = 1200;
-	mainBg->height = 600;
-	mainBg->loadTexture("res/titre_wide.png");
+	loadMenuElements("conf/menu.conf");
+	loadTextures();
+	readHighScore("conf/highscore");
 
+	bkgTitle = new Drawable();
+	bkgTitle->width = 1200;
+	bkgTitle->height = 800;
+	bkgTitle->addTexture("bkgTitle");
+
+	bkgLevel = new Drawable();
+	bkgLevel->width = 1200;
+	bkgLevel->height = 800;
+	bkgLevel->addTexture("bkgLevel");
+
+	bkgOption = new Drawable();
+	bkgOption->width = 1200;
+	bkgOption->height = 800;
+	bkgOption->addTexture("bkgOption");
+
+	logo = new Drawable();
+	logo->width = 1200;
+ 	logo->height = 800;
+	logo->addTexture("logo");
+
+	title = new Drawable();
+	title->width = 926;
+	title->height = 152;
+	title->addTexture("title");
+	title->posX = 137;
+	title->posY = 100;
+
+	optionTitle = new Drawable();
+	optionTitle->width = 1110;
+	optionTitle->height = 70;
+	optionTitle->addTexture("optionTitle");
+	optionTitle->posX = 45;
+	optionTitle->posY = 100;
+
+	levelTitle = new Drawable();
+	levelTitle->width = 892;
+	levelTitle->height = 60;
+	levelTitle->addTexture("levelTitle");
+	levelTitle->posX = 154;
+	levelTitle->posY = 100;
+
+	bubble1 = new Drawable();
+	bubble1->width = 1200;
+	bubble1->height = 800;
+	bubble1->addTexture("bubble1");
+
+	bubble2 = new Drawable();
+	bubble2->width = 1200;
+	bubble2->height = 800;
+	bubble2->addTexture("bubble2");
+
+	bubbles = new CompositeDrawable();
+	bubbles->width = 1200;
+	bubbles->height = 800;
+	bubbles->toMerge.push_back(bubble1);
+	bubbles->toMerge.push_back(bubble2);
+	bubbles->toMerge.push_back(bkgTitle);
+
+	optionButton = new MultiTextureDrawable();
+	optionButton->name = "option";
+	optionButton->width = 384;
+	optionButton->height = 64;
+	optionButton->posX = 427;
+	optionButton->posY = 450;
+	optionButton->addTexture("optionOn");
+	optionButton->addTexture("optionOff");
+	optionButton->addTexture("optionHl");
+	optionButton->textureState = "optionOff";
+
+	quitButton = new MultiTextureDrawable();
+	quitButton->name = "quit";
+	quitButton->width = 384;
+	quitButton->height = 64;
+	quitButton->posX = 427;
+	quitButton->posY = 600;
+	quitButton->addTexture("quitOn");
+	quitButton->addTexture("quitOff");
+	quitButton->addTexture("quitHl");
+	quitButton->textureState = "quitOff";
+
+	levelSelectButton = new MultiTextureDrawable();
+	levelSelectButton->name = "level";
+	levelSelectButton->width = 384;
+	levelSelectButton->height = 64;
+	levelSelectButton->posX = 427;
+	levelSelectButton->posY = 300;
+	levelSelectButton->addTexture("levelOff");
+	levelSelectButton->addTexture("levelOn");
+	levelSelectButton->addTexture("levelHl");
+	levelSelectButton->textureState = "levelHl";
+
+	menuElements.push_back(levelSelectButton);
+	menuElements.push_back(quitButton);
+	menuElements.push_back(optionButton);
+
+	sort(menuElements.begin(), menuElements.end(), sortElement);
 
 	credit = new Drawable();
 	credit->width = 640;
@@ -45,41 +141,78 @@ void Menu::loadMenu()
 	gameOver->posX = 280;
 	gameOver->posY = 60;
 
- 	arrow = new Drawable();
- 	arrow->width = 48;
- 	arrow->height = 52;
- 	arrow->loadTexture("res/zombix2.png");
- 	arrow->nbFrames.clear();
- 	arrow->nbFrames.push_back(4);
-
-	loadMenuElements("conf/menu.conf");
-	readHighScore("conf/highscore");
-
-	arrow->posX = menuElements.at(0)->posX - 70;
-	arrow->posY = menuElements.at(0)->posY - 10;
-
 	soundEngine->addSound("sound/game_over.wav", "game_over");
 	soundEngine->addSound("sound/start_ambient.wav", "start_ambient");
+	soundEngine->addSound("sound/FractalZeptoReal.wav", "fractal");
+	soundEngine->addMusic("sound/OptionsScreen.mp3", "musicMenu");
+
+	soundEngine->addSound("sound/Valide.wav", "validated");
+	soundEngine->addSound("sound/Buzz.wav", "buzz");
+	soundEngine->addSound("sound/Vuit.wav", "selected");
+
+ 	soundEngine->playSound("fractal");
+
+	loadIntro();
+	setSelectedLevel(0);
+
+ 	startIntro = SDL_GetTicks();
+ 	endIntro = startIntro + introLength;
 }
 
 void Menu::loadIntro()
 {
-	logo = new Drawable();
-	logo->width = 1200;
- 	logo->height = 480;
-	logo->loadTexture("res/logo.png");
+	string tmp= "Level";
+	int levelNumber = 0;
+	float stepY = 0;
+	float stepX = 200;
 
+	for(levelNumber = 0; levelNumber < 9; levelNumber++)
+	{
+		stringstream ss;
+		ss << levelNumber+1;
+		string numLevel = ss.str();
+		Drawable * aLevelPic = new Drawable();
+		aLevelPic->loadTexture("res/Level"+ numLevel +".png");
+		aLevelPic->width = aLevelPic->getTexture()->w;
+		aLevelPic->height = aLevelPic->getTexture()->h;
+		stepX = stepX + 225;
 
- 	bbox = new Drawable();
- 	bbox->width = 1200;
- 	bbox->height = 600;
- 	bbox->loadTexture("res/bbox.png");
-	bbox->texture = SDL_DisplayFormat(bbox->texture);
- 	bbox->setAnimX(0);
- 	bbox->setAnimY(0);
+		if(levelNumber % 3 == 0)
+		{
+			stepX = 300;
+			stepY = stepY + 200;
+		}
+		aLevelPic->posX = stepX;
+		aLevelPic->posY = stepY;
+		aLevelPic->setAnimX(0);
+		aLevelPic->setAnimY(0);
 
- 	startIntro = SDL_GetTicks();
- 	endIntro = startIntro + introLength;
+		levelSelectElements.push_back(aLevelPic);
+
+		MultiTextureDrawable * levelHighlight = new MultiTextureDrawable();
+		levelHighlight->name = "levelHighligt";
+		levelHighlight->width = 192;
+		levelHighlight->height = 192;
+		levelHighlight->posX = stepX - 10;
+		levelHighlight->posY = stepY - 10;
+		levelHighlight->addTexture("levelHighligtOn");
+		levelHighlight->addTexture("levelHighligtOff");
+		levelHighlight->addTexture("levelHighligtHl");
+		levelHighlight->textureState = "levelHighligtOff";
+
+		levelSelectHalo.push_back(levelHighlight);
+
+		Drawable * levelLocked = new Drawable();
+		levelLocked->name = "levelHighligt";
+		levelLocked->width = 176;
+		levelLocked->height = 176;
+		levelLocked->posX = stepX - 2;
+		levelLocked->posY = stepY - 2;
+		levelLocked->display = TRUE;
+		levelLocked->addTexture("levelLock");
+
+		levelLocks.push_back(levelLocked);
+	}
 }
 
 void Menu::displayMenu()
@@ -88,12 +221,23 @@ void Menu::displayMenu()
 	{
 		currentMenu = nextMenu;
 		menuInTransition = FALSE;
+		if(startingGame)
+		{
+			startingGame = FALSE;
+			stringstream ss;
+			ss << "level" << (selectedLevel%2) +1;
+			game->launchLevel(ss.str());
+		}
 	}
 
 	switch(currentMenu)
 	{
 		case MENU_MAIN:
 			displayMainMenu();
+			break;
+
+		case MENU_LEVELSELECT:
+			displayLevelSelection();
 			break;
 
 		case MENU_INTRO:
@@ -123,47 +267,67 @@ void Menu::displayMenu()
 		default:
 			break;
 	}
-
-	/*if(ge->isFading)
-	{
-		ge->fadeOut(6);
-		return;
-	}*/
 }
 
 void Menu::displayMainMenu()
 {
-	ge->toDisplay.push_back(mainBg);
-	for (std::vector<Text *>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
+	ge->toDisplay.push_back(bubbles);
+	ge->toDisplay.push_back(title);
+
+	bubble1->setAnimX(bubble1->getAnimX()+0.3);
+	bubble2->setAnimX(bubble2->getAnimX()+0.1);
+
+	for (std::vector<MultiTextureDrawable *>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
-		if((*anElement)->display)
-		{
-			ge->toDisplay.push_back(*anElement);
-		}
+		(*anElement)->processDisplay();
 	}
-	arrow->updateAnimationFrame();
-	ge->toDisplay.push_back(arrow);
 }
 
 void Menu::displayIntro()
 {
-	ge->toDisplay.push_back(bbox);
 	ge->toDisplay.push_back(logo);
 	int diff = endIntro - SDL_GetTicks();
 
 	//Start fading out during the last second
 	if(diff<1000 && !menuInTransition)
 	{
+		soundEngine->playMusic("musicMenu");
 		ge->startFadingOut(6);
 		nextMenu = MENU_MAIN;
 		menuInTransition = TRUE;
 	}
 }
 
+void Menu::displayLevelSelection()
+{
+	ge->toDisplay.push_back(bkgLevel);
+	ge->toDisplay.push_back(levelTitle);
+
+	for (std::vector<MultiTextureDrawable *>::iterator anElement = levelSelectHalo.begin() ; anElement != levelSelectHalo.end(); ++anElement)
+	{
+		(*anElement)->animate();
+		(*anElement)->processDisplay();
+	}
+
+	for (std::vector<Drawable *>::iterator anElement = levelSelectElements.begin() ; anElement != levelSelectElements.end(); ++anElement)
+	{
+		(*anElement)->animate();
+		(*anElement)->processDisplay();
+	}
+
+	for (std::vector<Drawable *>::iterator anElement = levelLocks.begin() ; anElement != levelLocks.end(); ++anElement)
+	{
+		(*anElement)->animate();
+		(*anElement)->processDisplay();
+	}
+}
+
 void Menu::displayHighScore()
 {
-	ge->toDisplay.push_back(bbox);
+	ge->toDisplay.push_back(bkgOption);
+	ge->toDisplay.push_back(optionTitle);
+
 	for (std::vector<Text *>::iterator anElement = highScoreElements.begin() ; anElement != highScoreElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
@@ -176,19 +340,16 @@ void Menu::displayHighScore()
 
 void Menu::displayCredit()
 {
-	ge->toDisplay.push_back(bbox);
 	ge->toDisplay.push_back(credit);
 }
 
 void Menu::displayGameOver()
 {
-	ge->toDisplay.push_back(bbox);
 	ge->toDisplay.push_back(gameOver);
 }
 
 void Menu::displaySuccess()
 {
-	ge->toDisplay.push_back(bbox);
 	ge->toDisplay.push_back(success);
 }
 
@@ -210,6 +371,14 @@ void Menu::transition()
 
 		case MENU_INTRO:
 			nextMenu = MENU_MAIN;
+			soundEngine->playMusic("musicMenu");
+			break;
+
+		case MENU_LEVELSELECT:
+			{
+				nextMenu = MENU_MAIN;
+				menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Hl";
+			}
 			break;
 
 		case MENU_SUCCESS:
@@ -230,6 +399,7 @@ void Menu::transition()
 
 		case MENU_HIGHSCORE:
 			nextMenu = MENU_MAIN;
+			menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Hl";
 			break;
 
 		case MENU_NEWHIGHSCORE:
@@ -275,7 +445,7 @@ void Menu::loadMenuElements(string path)
 	}
 
 	//Instantiate the corresponding drawable elements
-	for (std::map<string, vector<string> >::iterator anElement = configurationElements.begin() ; anElement != configurationElements.end(); ++anElement)
+/*	for (std::map<string, vector<string> >::iterator anElement = configurationElements.begin() ; anElement != configurationElements.end(); ++anElement)
 	{
 		Text * tmp = new Text(menuColor, menuFont);
 
@@ -288,51 +458,165 @@ void Menu::loadMenuElements(string path)
 		menuElements.push_back(tmp);
 	}
 
-	sort(menuElements.begin(), menuElements.end(), sortElement);
+	sort(menuElements.begin(), menuElements.end(), sortElement);*/
 }
 
-void Menu::selectUp()
+void Menu::selectionMove(int direction)
 {
-	menuElements.at(selected)->setColor(ge->availableColors.at("WHITE"));
-	selected = (selected - 1 + menuElements.size()) % menuElements.size();
-	arrow->posY = menuElements.at(selected)->posY - 10;
-	menuElements.at(selected)->setColor(ge->availableColors.at("RED"));
+	soundEngine->playSound("selected");
+	switch(currentMenu)
+	{
+		case MENU_MAIN:
+			mainSelectionMove(direction);
+			break;
+
+		case MENU_LEVELSELECT:
+			levelSelectionMove(direction);
+			break;
+
+		default:
+			break;
+	}
 }
 
-void Menu::selectDown()
+void Menu::mainSelectionMove(int direction)
 {
-	menuElements.at(selected)->setColor(ge->availableColors.at("WHITE"));
-	selected = (selected + 1) % menuElements.size();
-	arrow->posY = menuElements.at(selected)->posY - 10;
-	menuElements.at(selected)->setColor(ge->availableColors.at("RED"));
+	switch(direction)
+	{
+		case UP:
+			setMainSelection((selected - 1 + menuElements.size()) % menuElements.size());
+			break;
+
+		case DOWN:
+			setMainSelection((selected + 1) % menuElements.size());
+			break;
+
+		default:
+				break;
+	}
+}
+
+void  Menu::setMainSelection(int aValue)
+{
+	menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Off";
+	selected = aValue;
+	menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Hl";
+}
+
+
+void Menu::levelSelectionMove(int direction)
+{
+	switch(direction)
+	{
+		case RIGHT:
+			setSelectedLevel((selectedLevel + 1) % levelSelectHalo.size());
+			break;
+
+		case LEFT:
+			setSelectedLevel((selectedLevel - 1 + levelSelectHalo.size()) % levelSelectHalo.size());
+			break;
+
+		case DOWN:
+			setSelectedLevel((selectedLevel + 3) % levelSelectHalo.size());
+			break;
+
+		case UP:
+			setSelectedLevel((selectedLevel - 3 + levelSelectHalo.size()) % levelSelectHalo.size());
+			break;
+
+		default:
+			break;
+	}
+}
+
+void Menu::setSelectedLevel(int aValue)
+{
+	levelSelectHalo.at(selectedLevel)->textureState = levelSelectHalo.at(selectedLevel)->name + "Off";
+	selectedLevel = aValue;
+	levelSelectHalo.at(selectedLevel)->textureState = levelSelectHalo.at(selectedLevel)->name + "Hl";
 }
 
 void Menu::select()
 {
+	switch(currentMenu)
+	{
+		case MENU_MAIN:
+			selectMainMenu();
+			break;
+
+		case MENU_LEVELSELECT:
+			selectLevel();
+			break;
+
+		default:
+			break;
+	}
+}
+
+void Menu::selectMainMenu()
+{
+	menuElements.at(selected)->textureState = menuElements.at(selected)->name + "On";
 	if(selected == 0)
 	{
-		game->newGame();
+		soundEngine->playSound("validated");
+		setSelectedLevel(selectedLevel);
+		updateLocks();
+		nextMenu = MENU_LEVELSELECT;
+		transition();
 		return;
 	}
 
-	if(selected == 5)
+	if(selected == 1)
 	{
-		currentMenu = MENU_HIGHSCORE;
+		soundEngine->playSound("validated");
 		nextMenu = MENU_HIGHSCORE;
+		transition();
 		return;
 	}
 
-	if(selected == 6)
+	if(selected == 2)
 	{
 		game->quitGame();
 		return;
 	}
-
-	stringstream ss;
-	ss << "level" << selected;
-	game->launchLevel(ss.str());
 }
 
+void Menu::updateLocks()
+{
+	int i;
+    for(i = 1; i<10; i++)
+    {
+    	stringstream ss;
+    	ss<< "level" << i;
+    	levelLocks.at(i-1)->display = game->lockedLevel.at(ss.str());
+    }
+}
+
+void Menu::selectLevel()
+{
+	levelSelectHalo.at(selectedLevel)->textureState = levelSelectHalo.at(selectedLevel)->name + "On";
+
+	stringstream ss;
+    ss<< "level" << selectedLevel + 1;
+	if(game->lockedLevel.at(ss.str()))
+	{
+		soundEngine->playSound("buzz");
+	}
+	else
+	{
+		startingGame = TRUE;
+		soundEngine->playSound("validated");
+		transition();
+	}
+}
+
+void Menu::loadTextures()
+{
+	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
+	{
+		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
+	}
+}
 
 /*
  * High Scores related functions
@@ -384,7 +668,7 @@ void Menu::readHighScore(string path)
 //Sort and trim the high scores and update the display
 void Menu::updateHighScore()
 {
-	int ypos = 150;
+	int ypos = 350;
 	highScoreElements.clear();
 
 	//Instantiate the scores as Text elements at position in accordance with their rank
@@ -425,7 +709,6 @@ void Menu::saveHighScore()
 //Allow the user to enter his name if he has a new highscore
 void Menu::enterHighScore()
 {
-	ge->toDisplay.push_back(bbox);
 	Text * youWon =new Text(menuColor, menuFont, 480, 25, 300, 300);
 	Text * instruction =new Text(menuColor, menuFont, 450, 75, 300, 300);
 
@@ -502,7 +785,7 @@ int Menu::checkForNewHighScore()
 			updateHighScore();
 
 			//Search for the position of the new high score
-			//Useful when multiple high score have the same score
+			//Useful when multiple high score have the same score value
 			for (std::vector<pair<string, unsigned int> >::iterator anotherElement = highScores.begin(); anotherElement != highScores.end(); ++anotherElement)
 			{
 				if(anotherElement->first == " ")
@@ -537,7 +820,7 @@ void Menu::sortHighScores()
 }
 
 
-bool sortElement(Text *a, Text* b)
+bool sortElement(MultiTextureDrawable *a, MultiTextureDrawable* b)
 {
 	return (a->posY < b->posY);
 }

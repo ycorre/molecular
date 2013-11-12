@@ -24,13 +24,13 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 	lifeHUD->width = 300;
 	lifeHUD->height = 300;
 	lifeHUD->posX = 500;
-	lifeHUD->posY = 500;
+	lifeHUD->posY = 700;
 
 	scoreHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
 	scoreHUD->width = 300;
 	scoreHUD->height = 300;
 	scoreHUD->posX = 800;
-	scoreHUD->posY = 500;
+	scoreHUD->posY = 700;
 
 }
 

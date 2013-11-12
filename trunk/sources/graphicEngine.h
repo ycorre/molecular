@@ -16,8 +16,8 @@
 
 // screen width, height, and bit depth
 #define SCREEN_WIDTH  1200
-#define SCREEN_HEIGHT 600
-#define GAMEZONE_HEIGHT 480
+#define SCREEN_HEIGHT 800
+#define GAMEZONE_HEIGHT 680
 #define SCREEN_BPP     32
 
 class Drawable;
@@ -27,9 +27,11 @@ class GraphicEngine
 	public:
 	  SDL_Surface * screen;
 	  vector<Drawable *> toDisplay;
-	  map<string, SDL_Surface *> textures;
+
 	  vector<TTF_Font *> availableFonts;
 	  map<string, SDL_Color> availableColors;
+
+	  map<string, SDL_Surface *> textures;
 	  map<SDL_Surface *, GLuint> openGLTextures;
 
 	  //Black rectangle used for the fading effects
