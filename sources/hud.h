@@ -19,11 +19,12 @@ class HUD
 {
 	public:
 	GraphicEngine * ge;
-	Drawable backGround;
+	Drawable * backGround;
 	map<string, vector<string> > configurationElements;
-	map<string, Drawable> hudElements;
+	map<string, Drawable *> hudElements;
 	Text * lifeHUD;
 	Text * scoreHUD;
+	Drawable * health, * massLoad, * radioLoad;
 
 	HUD();
 	HUD(GraphicEngine * ge);
@@ -32,8 +33,9 @@ class HUD
 	void displayHealth(int life);
 	void displayLife(int nbLife);
 	void displayScore(int score);
+	void displayMassPotential(float massPo);
+	void displayRadioPotential(float radioPo);
 };
-
 
 #endif
 

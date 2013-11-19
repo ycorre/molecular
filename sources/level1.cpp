@@ -18,7 +18,6 @@ void Level1::loadLevel(Hero * aHero)
 	instantiateEnemies();
 
 	hud = new HUD(ge);
-	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
 
 	hero =  aHero;
@@ -80,6 +79,8 @@ void Level1::drawLevel()
 	hud->displayUI();
 	hud->displayHealth(hero->health);
 	hud->displayLife(hero->nbLife);
+	hud->displayMassPotential(hero->massPotential);
+	hud->displayRadioPotential(hero->radioactivePotential);
 	hud->displayScore(Score);
 
 	//Animate the hero
@@ -111,7 +112,7 @@ void Level1::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
 				anEnemy->fire();
 			}
 			if((*anElement)->isBonus() || (*anElement)->isLaser())
@@ -141,14 +142,15 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 		}
 	}
 
-	for (list<Laser*>::iterator aLaser = hero->lasers.begin(); aLaser != hero->lasers.end(); ++aLaser)
+	for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
 	{
 		Laser * aL = *aLaser;
 		if(pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
-			aL->toRemove = TRUE;
-			hero->lasers.erase(aLaser++);
+			aL->processCollisionWith(anElement);
+			aL->display = FALSE;
+			hero->getLasers()->erase(aLaser++);
 			return 1;
 		}
 	}

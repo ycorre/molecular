@@ -8,29 +8,30 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 {
 
 	ge = aGraphicEngine;
-	//TODO put in conf file ?
-	backGround.width = SCREEN_WIDTH;
-	backGround.height = SCREEN_HEIGHT - GAMEZONE_HEIGHT;
-	string path = "res/ui.png";
-	backGround.loadTexture(path);
-	backGround.posX = 0;
-	backGround.posY = GAMEZONE_HEIGHT;
-	backGround.state = 0;
-	backGround.setAnimX(0);
-	backGround.setAnimY(0);
+	loadHUDElements("conf/hud.conf");
+
+	backGround = hudElements.at("hud_bkg");
+	backGround->width = SCREEN_WIDTH;
+	backGround->height = SCREEN_HEIGHT - GAMEZONE_HEIGHT;
+	backGround->setAnimX(0);
+	backGround->setAnimY(0);
 
 	//TODO put the next two elements in the conf file
-	lifeHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
+	lifeHUD = new Text(ge->availableColors.at("BLUE"), ge->availableFonts.at("lCrystal"));
 	lifeHUD->width = 300;
 	lifeHUD->height = 300;
-	lifeHUD->posX = 500;
-	lifeHUD->posY = 700;
+	lifeHUD->posX = 820;
+	lifeHUD->posY = 758;
 
-	scoreHUD = new Text(ge->availableColors.at("WHITE"), ge->availableFonts.at(0));
+	scoreHUD = new Text(ge->availableColors.at("BLUE"), ge->availableFonts.at("lCrystal"));
 	scoreHUD->width = 300;
 	scoreHUD->height = 300;
-	scoreHUD->posX = 800;
-	scoreHUD->posY = 700;
+	scoreHUD->posX = 1020;
+	scoreHUD->posY = 758;
+
+	health = hudElements.at("hud_gauge");
+	massLoad = hudElements.at("hud_mass");
+	radioLoad = hudElements.at("hud_radio");
 
 }
 
@@ -74,44 +75,86 @@ void HUD::loadHUDElements(string path)
 		tmp->posY = GAMEZONE_HEIGHT + atoi(((configurationElements.at(anElement->first)).at(3)).c_str());
 		tmp->loadTexture((configurationElements.at(anElement->first)).at(4));
 
-		hudElements.insert(make_pair(anElement->first, *tmp));
-		//ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
+		hudElements.insert(make_pair(anElement->first, tmp));
 	}
 
 }
 
 void HUD::displayUI()
 {
-	ge->toDisplay.push_back(&backGround);
+	backGround->processDisplay();
+
+	ge->toDisplay.push_back(radioLoad);
 }
 
 //Display the current health of the player
-void HUD::displayHealth(int life)
+void HUD::displayHealth(int healthValue)
 {
-	int i;
-	for(i=0; i< life; i++)
+	static float i = 0.0;
+
+	if(i < healthValue * 3)
 	{
-		stringstream ss;
-		ss <<"life"<< i+1;
-		ge->toDisplay.push_back(&hudElements.at(ss.str()));
+		i = i + 0.3;
 	}
+	if (i > healthValue * 3)
+	{
+		i = i - 0.3;
+	}
+	health->setAnimX((int)(i) * health->width);
+
+	health->processDisplay();
 }
 
 void HUD::displayLife(int nbLife)
 {
 	stringstream ss;
-	ss <<"Life: "<< nbLife;
+	ss << nbLife;
 	lifeHUD->write(ss.str());
 
-	ge->toDisplay.push_back(lifeHUD);
+	lifeHUD->processDisplay();
 }
 
 void HUD::displayScore(int score)
 {
 	stringstream ss;
-	ss <<"Score: "<< score;
+	ss << score;
 	scoreHUD->write(ss.str());
 
-	ge->toDisplay.push_back(scoreHUD);
+	scoreHUD->processDisplay();
+}
+
+
+void HUD::displayMassPotential(float massPo)
+{
+	static float i = 0.0;
+
+	if(i < massPo)
+	{
+		i = i + 0.3;
+	}
+	if (i > massPo)
+	{
+		i = i - 0.3;
+	}
+	massLoad->setAnimY((int)(i) * massLoad->height);
+
+	massLoad->processDisplay();
+}
+
+void HUD::displayRadioPotential(float radioPo)
+{
+	static float i = 0.0;
+
+	if(i < radioPo)
+	{
+		i = i + 0.3;
+	}
+	if (i > radioPo)
+	{
+		i = i - 0.3;
+	}
+	radioLoad->setAnimY((int)(i) * radioLoad->height);
+
+	radioLoad->processDisplay();
 }
 

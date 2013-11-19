@@ -27,6 +27,15 @@ void Keyboard::processKeyPress()
 			p_pressed = TRUE;
 		}
 	}
+
+	if(keyStates[STOP_MUSIC_KEY])
+	{
+		if (!p_pressed)
+		{
+			game->stopMusic();
+			p_pressed = TRUE;
+		}
+	}
     return;
 }
 
@@ -67,7 +76,7 @@ void Keyboard::processKeyInGame(Hero* hero)
 			hero->moveLeft();
 
 		if(keyStates[FIRE_KEY])
-			hero->fire();
+			hero->teleport();
 	}
 
     return;
@@ -114,6 +123,7 @@ void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
 			break;
 
 		case SDLK_b:
+		case STOP_MUSIC_KEY:
 		case PAUSE_KEY:
 			p_pressed = FALSE;
 			break;

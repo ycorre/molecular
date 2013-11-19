@@ -381,7 +381,7 @@ void Level4::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
 				anEnemy->fire();
 			}
 			if((*anElement)->isBonus() ||(*anElement)->isLaser())
@@ -406,14 +406,14 @@ int Level4::checkEnemyCollision(Drawable * anElement)
 		}
 	}
 
-	for (list<Laser*>::iterator aLaser = hero->lasers.begin(); aLaser != hero->lasers.end(); ++aLaser)
+	for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
 	{
 		Laser * aL = *aLaser;
 		if(pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
 			aL->toRemove = TRUE;
-			hero->lasers.erase(aLaser++);
+			hero->getLasers()->erase(aLaser++);
 			return 1;
 		}
 	}

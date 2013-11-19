@@ -26,6 +26,7 @@ Drawable::Drawable()
 	toRemove = FALSE;
 	toBlend = FALSE;
 	isBlinking = FALSE;
+	currentFrame = 0;
 	blinkingCounter = 0;
 }
 
@@ -55,15 +56,15 @@ int Drawable::updateAnimationFrame()
 	//41 ms ~= 24 FPS
 	//33 ms ~= 30 FPS
 	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
-	if (updateTime < SDL_GetTicks())
+	if (updateTime < ProgramTimer)
 	{
 		//shift one sprite to the right; if we are at the end then go back to the beginning
 		setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
-		lastTimeUpdated = SDL_GetTicks();
-		return 1;
+		lastTimeUpdated = ProgramTimer;
+		return TRUE;
 	}
 
-	return 0;
+	return FALSE;
 }
 
 vector<int> parseAnimationState(string aConf)
@@ -229,6 +230,11 @@ GLuint Drawable::getOpenGLTexture()
 	return oglTexture;
 }
 
+void Drawable::setWidth(int aValue)
+{
+	width = aValue;
+}
+
 /*
  * Hitboxed class functions
  */
@@ -266,7 +272,6 @@ SDL_Surface * MaskedDrawable::getCollisionTexture()
 
 void MultiTextureDrawable::addTexture(string aName)
 {
-	//this->name = aName;
 	textures.insert(make_pair(aName, ge->textures.at(aName)));
 	if(texture==NULL)
 	{
@@ -288,4 +293,42 @@ SDL_Surface * MultiTextureDrawable::getTexture()
 GLuint MultiTextureDrawable::getOpenGLTexture()
 {
 	return oglTextures.at(textureState);
+}
+
+void MultiTextureDrawable::setTextureState(string aState)
+{
+	textureState = name + aState;
+	currentFrame = 0;
+}
+
+
+/*
+ * FrameDrawable functions
+ */
+int FrameDrawable::updateAnimationFrame()
+{
+
+	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
+	if (updateTime < ProgramTimer)
+	{
+		//increment to the next frame or loop back to the beginning
+		//Textures are a grid of frame numbered from left to right and from top to bottom
+		currentFrame = (currentFrame + 1) % nbFrames.at(state);
+		//Compute the position in the texture
+		setAnimY((currentFrame / (getTexture()->w/realWidth)) * height);
+		setAnimX((currentFrame % (getTexture()->w/realWidth)) * realWidth);
+		lastTimeUpdated = ProgramTimer;
+		return 1;
+	}
+
+	return 0;
+}
+
+void FrameDrawable::setWidth(int aValue)
+{
+	width = aValue;
+	realWidth = width;
+	numberOfFrameInLine = getTexture()->w/width;
+	setAnimY(0);
+	setAnimX(0);
 }

@@ -63,7 +63,7 @@ void Bullet::processCollisionWith(Drawable* aDrawable)
 {
 	if (aDrawable->isHero())
 	{
-		Hero * myHero = static_cast<Hero*>(aDrawable);
+		Hero * myHero = dynamic_cast<Hero*>(aDrawable);
 		if (!myHero->invincible)
 		{
 			this->toRemove = TRUE;
