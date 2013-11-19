@@ -8,6 +8,7 @@
 GraphicEngine::GraphicEngine()
 {
 	alphaFading = 0;
+	aspectRatio = 1.0;
 }
 
 void GraphicEngine::initGe()
@@ -27,7 +28,7 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 		SDL_Surface * aSurface;
 		SDL_Surface * tmp = IMG_Load(path.c_str());
 		if (tmp == NULL) {
-			cout << "Unable to load image: " << SDL_GetError() << endl;
+			cerr << "Unable to load image: " << SDL_GetError() << endl;
 			return NULL;
 		}
 
@@ -48,7 +49,7 @@ void GraphicEngine::drawFrame()
 {
 #if USE_OPENGL
     glLoadIdentity();
-	glTranslatef(-1.5, -1  , -1);
+	glTranslatef(-aspectRatio, -1  , -1);
 #endif
 
 	if(!toDisplay.empty())
@@ -88,16 +89,16 @@ int GraphicEngine::draw(Drawable * sprite)
 		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
 		glBegin(GL_QUADS);
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-			glVertex3f((sprite->posX/(SCREEN_WIDTH/3)), (800- sprite->posY)/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT- sprite->posY)/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/3) , (800-sprite->posY)/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/(aspectRatio*2)) , (SCREEN_HEIGHT-sprite->posY)/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/3), (800-(sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0);
+			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0);
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-			glVertex3f((sprite->posX/(SCREEN_WIDTH/3)), (800-(sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0.);
 
 		glEnd();
 
@@ -159,10 +160,10 @@ void GraphicEngine::blitElement(SDL_Surface * anElement)
 }
 
 
-void GraphicEngine::addFont(string path)
+void GraphicEngine::addFont(string aName, string path)
 {
 	TTF_Font * font;
-	font = TTF_OpenFont(path.c_str(), 24);
+	font = TTF_OpenFont(path.c_str(), 18);
 	if (font == NULL)
     {
         cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
@@ -170,16 +171,18 @@ void GraphicEngine::addFont(string path)
         SDL_Quit();
     	exit(1);
     }
-	availableFonts.push_back(font);
+	availableFonts.insert(make_pair(aName, font));
 }
 
 void GraphicEngine::initColors()
 {
 	SDL_Color white = {255, 255, 255};
 	SDL_Color red = {255, 0, 0};
+	SDL_Color blue = {29, 210, 199};
 
 	availableColors.insert(make_pair("WHITE", white));
 	availableColors.insert(make_pair("RED", red));
+	availableColors.insert(make_pair("BLUE", blue));
 }
 
 void GraphicEngine::startFadingOut(int aFadingSpeed)

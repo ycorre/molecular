@@ -29,8 +29,6 @@ Bonus::Bonus(int x, int y, int bType)
 		width = atoi(((lev->configurationElements.at("bonusLife")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("bonusLife")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("bonusLife")).at(2));
-		nbFrames.clear();
-		nbFrames.push_back(20);
 	}
 	if (bType == BONUS_FIRERATE)
 	{
@@ -38,8 +36,6 @@ Bonus::Bonus(int x, int y, int bType)
 		width = atoi(((lev->configurationElements.at("bonusFireRate")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("bonusFireRate")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("bonusFireRate")).at(2));
-		nbFrames.clear();
-		nbFrames.push_back(20);
 	}
 	posX = x;
 	posY = y;

@@ -13,7 +13,7 @@ Enemy::Enemy()
 	setAnimY(0);
 	scoreValue = 0;
 	type = XRED;
-	bonusProbability = 10;
+	bonusProbability = 50;
 	direction = LEFT;
 	speed = 2;
 	originY = posY;
@@ -36,7 +36,7 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	direction = dir;
 	type = typeXW;
 	scoreValue = 200;
-	bonusProbability = 10;
+	bonusProbability = 50;
 	canFire = FALSE;
 	minFireRate = 2000;
 	maxFireRate = 1000;
@@ -66,7 +66,7 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	direction = RIGHT;
 	type = 0;
 	scoreValue = 200;
-	bonusProbability = 10;
+	bonusProbability = 50;
 	canFire = FALSE;
 	minFireRate = 2000;
 	maxFireRate = 1000;
@@ -110,8 +110,8 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 	}
 	if (aDrawable->isLaser())
 	{
-		Laser * aLaser =  static_cast<Laser*>(aDrawable);
-		life = life - aLaser->power;
+		Laser * aLaser =  dynamic_cast<Laser*>(aDrawable);
+		life = life -50;// aLaser->power;
 		if (life<=0)
 		{
 			lev->soundEngine->playSound("xwing_explode");
@@ -119,10 +119,6 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 			Score = Score + scoreValue * (type + 1);
 			this->toRemove = TRUE;
 			dropBonus(this->posX, this->posY);
-		}
-		else
-		{
-		//	lev->createExplosion(aLaser->posX - aLaser->width/2, aLaser->posY-this->height, SPARK);
 		}
 		return;
 	}
@@ -158,7 +154,7 @@ void Enemy::fire()
 		float angle = atan2(yDiff, xDiff);
 
 		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));
-		canFire = 0;
+		canFire = FALSE;
 	}
 }
 
@@ -169,7 +165,7 @@ void Enemy::checkFire()
 		unsigned int nextFireTime = lastTimeFired + fireRate;
 		if (nextFireTime < GameTimer)
 		{
-			canFire = 1;
+			canFire = TRUE;
 			lastTimeFired = GameTimer;
 			fireRate = minFireRate + (rand() % maxFireRate);
 		}

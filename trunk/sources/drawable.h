@@ -37,6 +37,7 @@ class Drawable
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
 	  int toBlend;
+	  int currentFrame;
 	  int animationUpdateFrequency; //How often we update the frame in the animation
 			//41 ms ~= 24 FPS
 			//33 ms ~= 30 FPS
@@ -60,7 +61,7 @@ class Drawable
 	  virtual void animate();
 	  virtual void blink();
 	  void processDisplay();
-	  int updateAnimationFrame();
+	  virtual int updateAnimationFrame();
 	  void loadTexture(string path);
 
 	  void createOGLTexture();
@@ -86,6 +87,7 @@ class Drawable
 	  virtual void setAnimX(float aValue);
 	  virtual float getAnimY();
 	  virtual void setAnimY(float aValue);
+	  virtual void setWidth(int aValue);
 
 	  virtual SDL_Surface * getTexture();
 	  virtual GLuint getOpenGLTexture();
@@ -110,7 +112,7 @@ class HitBoxedDrawable: public Drawable
 
 
 //Class for objects that use a mask for collision detection
-class MaskedDrawable: public Drawable
+class MaskedDrawable: virtual public Drawable
 {
 	public:
 	  SDL_Surface * collision;
@@ -127,7 +129,8 @@ class CompositeDrawable: public Drawable
 	  virtual int isComposite() {return TRUE;}
 };
 
-class MultiTextureDrawable: public Drawable
+//Class for objects who have several image as texture
+class MultiTextureDrawable: virtual public Drawable
 {
 	public:
 	  map<string, SDL_Surface *> textures;
@@ -137,6 +140,18 @@ class MultiTextureDrawable: public Drawable
 	  virtual void addTexture(string path);
 	  virtual SDL_Surface * getTexture();
 	  virtual GLuint getOpenGLTexture();
+	  void setTextureState(string aState);
+};
+
+//Class for objects who have a grid of sprites as texture
+class FrameDrawable: virtual public Drawable
+{
+	public:
+	  int numberOfFrameInLine;
+	  int realWidth;
+
+	  virtual int updateAnimationFrame();
+	  virtual void setWidth(int aValue);
 };
 
 

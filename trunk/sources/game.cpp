@@ -157,7 +157,8 @@ int Game::initGame()
 {
 	loadConf();
 	graphicEngine.initGe();
-	graphicEngine.addFont("res/Arial.ttf");
+	graphicEngine.addFont("lCrystal", "res/LiquidCrystal.otf");
+	graphicEngine.addFont("arial", "res/Arial.ttf");
 	graphicEngine.initColors();
 	keyboard = new Keyboard();
 	keyboard->game = this;
@@ -181,7 +182,7 @@ int Game::initGame()
     for(i = 1; i<10; i++)
     {
     	stringstream ss;
-    	ss<< "level" <<i;
+    	ss<< "level" << i;
     	lockedLevel.insert(make_pair(ss.str(), TRUE));
     }
 
@@ -205,7 +206,6 @@ int Game::initSDL()
     //This holds some info about our display
     const SDL_VideoInfo *videoInfo;
 
-
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0)
 	{
@@ -224,9 +224,11 @@ int Game::initSDL()
 
     //The flags to pass to SDL_SetVideoMode
     videoFlags = SDL_DOUBLEBUF; 	   // Enable double buffering
+#if USE_OPENGL
     videoFlags |= SDL_OPENGL;       // Store the palette in hardware
     videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
-        videoFlags |= SDL_HWPALETTE;
+#endif
+    videoFlags |= SDL_HWPALETTE;
 
 
     // This checks to see if surfaces can be stored in memory
@@ -273,10 +275,15 @@ int Game::initSDL()
 
     //Enable repetition of keyboard events
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
+
+    //Keep the mouse inside the game window
     SDL_WM_GrabInput(SDL_GRAB_ON);
+
+    //Hide cursor
     SDL_ShowCursor(0);
     
     Drawable::ge = &graphicEngine;
+    graphicEngine.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 
 #if USE_OPENGL
     initOpenGL();
@@ -363,6 +370,18 @@ void Game::launchNextLevel()
 
 	currentLevel->loadLevel(hero);
 	gameState = INGAME;
+}
+
+void Game::stopMusic()
+{
+	/*if(soundEngine.currentMusic->isPlaying)
+	{
+		soundEngine.stopMusic();
+	}
+	else
+	{
+		soundEngine.playMusic();
+	}*/
 }
 
 //Update Timers
@@ -452,4 +471,6 @@ int initOpenGL()
 		cerr<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
 		return FALSE;
 	}
+
+	return TRUE;
 }

@@ -26,10 +26,13 @@ class SoundEngine
 	public:
 		map<string, Sound *> sounds;
 		map<string, Music *> musics;
+		string currentMusic;
 		
 		int soundVolume;
 		int musicVolume;
 		int numberOfChannel;
+		int pauseMusic, pauseSound;
+		int mute;
 
 		SoundEngine();
 		void init();
@@ -42,8 +45,10 @@ class SoundEngine
 		void stopSound(string aSound);
 		void playMusic(string aMusic);
 		void playMusic(Music * aMusic);
+		void playMusic();
 		void stopMusic(string aMusic);
 		void stopMusic(Music * aMusic);
+		void stopMusic();
 		void addSound(string pathTotASound, string aSoundId);
 		void addMusic(string pathTotASound, string aSoundId);
 		void clearSounds();

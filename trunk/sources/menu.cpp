@@ -9,7 +9,7 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	ge = aGe;
 	soundEngine = aSe;
 	menuColor = ge->availableColors.at("WHITE");
-	menuFont = ge->availableFonts.at(0);
+	menuFont = ge->availableFonts.at("lCrystal");
 	currentMenu = MENU_INTRO;
 	nextMenu = MENU_INTRO;
 	selected = 0;
@@ -225,8 +225,9 @@ void Menu::displayMenu()
 		{
 			startingGame = FALSE;
 			stringstream ss;
-			ss << "level" << (selectedLevel%2) +1;
+			ss << "level" << (selectedLevel) + 1;
 			game->launchLevel(ss.str());
+			return;
 		}
 	}
 
@@ -377,7 +378,7 @@ void Menu::transition()
 		case MENU_LEVELSELECT:
 			{
 				nextMenu = MENU_MAIN;
-				menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Hl";
+				menuElements.at(selected)->setTextureState("Hl");
 			}
 			break;
 
@@ -399,7 +400,7 @@ void Menu::transition()
 
 		case MENU_HIGHSCORE:
 			nextMenu = MENU_MAIN;
-			menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Hl";
+			menuElements.at(selected)->setTextureState("Hl");
 			break;
 
 		case MENU_NEWHIGHSCORE:
@@ -498,9 +499,9 @@ void Menu::mainSelectionMove(int direction)
 
 void  Menu::setMainSelection(int aValue)
 {
-	menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Off";
+	menuElements.at(selected)->setTextureState("Off");
 	selected = aValue;
-	menuElements.at(selected)->textureState = menuElements.at(selected)->name + "Hl";
+	menuElements.at(selected)->setTextureState("Hl");
 }
 
 
@@ -531,9 +532,9 @@ void Menu::levelSelectionMove(int direction)
 
 void Menu::setSelectedLevel(int aValue)
 {
-	levelSelectHalo.at(selectedLevel)->textureState = levelSelectHalo.at(selectedLevel)->name + "Off";
+	levelSelectHalo.at(selectedLevel)->setTextureState("Off");
 	selectedLevel = aValue;
-	levelSelectHalo.at(selectedLevel)->textureState = levelSelectHalo.at(selectedLevel)->name + "Hl";
+	levelSelectHalo.at(selectedLevel)->setTextureState("Hl");
 }
 
 void Menu::select()
@@ -555,7 +556,7 @@ void Menu::select()
 
 void Menu::selectMainMenu()
 {
-	menuElements.at(selected)->textureState = menuElements.at(selected)->name + "On";
+	menuElements.at(selected)->setTextureState("On");
 	if(selected == 0)
 	{
 		soundEngine->playSound("validated");

@@ -138,19 +138,19 @@ Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 //make sure that the hero stays within screen boundary (from (0,0) to aPoint coordinate)
 void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 {
-	aHero->leftFlag = 1;
-	aHero->rightFlag = 1;
-	aHero->topFlag = 1;
-	aHero->bottomFlag = 1;
+	aHero->leftFlag = TRUE;
+	aHero->rightFlag = TRUE;
+	aHero->topFlag = TRUE;
+	aHero->bottomFlag = TRUE;
 
-	if(aHero->posX <= 0)
-		{aHero->leftFlag = 0;}
-	if(aHero->posY <= 0)
-		{aHero->topFlag = 0;}
-	if(aHero->posX + aHero->width >= aPoint.first)
-		{aHero->rightFlag = 0;}
-	if(aHero->posY + aHero->height >= aPoint.second)
-		{aHero->bottomFlag = 0;}
+	if(aHero->posX <= -66)
+		{aHero->leftFlag = FALSE;}
+	if(aHero->posY <= -66)
+		{aHero->topFlag = FALSE;}
+	if(aHero->posX + aHero->width >= aPoint.first + 66)
+		{aHero->rightFlag = FALSE;}
+	if(aHero->posY + aHero->height >= aPoint.second + 66)
+		{aHero->bottomFlag = FALSE;}
 }
 
 //make sure that an item is on screen

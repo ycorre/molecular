@@ -10,30 +10,39 @@
 #include "explosion.h"
 #include "level.h"
 #include "laser.h"
+#include "weapon.h"
 
 class Laser;
+class Weapon;
 
-class Hero: public MaskedDrawable
+class Hero: public MaskedDrawable, public FrameDrawable, public MultiTextureDrawable
 {
 	public:
 	  //Values kept from one level to the next
 	  int health;
 	  int nbLife;
-	  int fireRate;
+	  float regenMassPo;
+	  Weapon * currentWeapon;
+	  vector<Weapon*> ownedWeapons;
 
 	  //Should be reset from one level to the next
 	  int heroMovingUpOrDown;
 	  int canFire;
 	  int invincible;
-	  list<Laser*> lasers;
-	  unsigned int lastTimeFired;
 	  int isFiring;
 	  int leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
+	  float massPotential;
+	  float radioactivePotential;
+
+	  MultiTextureDrawable * effect;
+	  string currentEffect;
 
 	  //Should be constant throughout the game
 	  int maxHealth;
-	  int maxFireRate;
 	  Uint32 invincibilityTime, startInvincibility;
+	  Uint32 startTeleporting;
+
+	  float hitAngle;
 
 	  Hero();
 	  void setState(int aState);
@@ -45,11 +54,16 @@ class Hero: public MaskedDrawable
 	  void moveLeft();
 	  void moveRight();
 	  void animateLasers();
-	  void checkFire();
-	  void makeInvincible();
+	  void makeInvincible(int time);
 	  void checkInvicibility();
 	  void loseLife();
 	  void resetHero();
+	  void hitBackoff();
+	  void teleport();
+	  void playEffect();
+	  void startEffect(string anEffect);
+	  int endTeleport();
+	  list<Laser*> * getLasers();
 	  virtual void animate();
 	  virtual int isHero() {return 1;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
@@ -60,12 +74,13 @@ class Hero: public MaskedDrawable
 };
 
 #define STATIC 0
-#define GO_UP 2
-#define GO_DOWN 3
+#define APPAR 4
+#define DISPAR 5
 #define HIT 1
-#define ENTER 4
-#define DEAD 5
+#define ENTER 2
+#define DEAD 3
 #define EXITING 6
+#define CURSOR 7
 
 #endif
 

@@ -22,11 +22,12 @@ Laser::Laser()
 	collision = ge->loadTexture("res/ElectronMask.png");
 }
 
-Laser::Laser(int x, int y, int dir, int aType)
+Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 {
 	power = 50;
 	direction = dir;
 	type = aType;
+	firingWeapon = aWeapon;
 	if (type == GREEN_LASER)
 	{
 		this->addTexture("electron");
@@ -34,6 +35,11 @@ Laser::Laser(int x, int y, int dir, int aType)
 		height =  atoi(((lev->configurationElements.at("electron")).at(1)).c_str());
 		nbFrames = parseAnimationState((lev->configurationElements.at("electron")).at(2));
 		collision = ge->loadTexture("res/ElectronMask.png");
+		trail = new FrameDrawable();
+		trail->addTexture("electronTrail");
+		trail->setWidth(atoi(((lev->configurationElements.at("electronTrail")).at(0)).c_str()));
+		trail->height =  atoi(((lev->configurationElements.at("electronTrail")).at(1)).c_str());
+		trail->nbFrames = parseAnimationState((lev->configurationElements.at("electronTrail")).at(2));
 	}
 	if (type == RED_LASER)
 	{
@@ -43,6 +49,12 @@ Laser::Laser(int x, int y, int dir, int aType)
 		nbFrames = parseAnimationState((lev->configurationElements.at("shoot")).at(2));
 		collision = ge->loadTexture("res/Shoot_Col.png");
 	}
+	trail->posX = x + width - 30;
+	trail->posY = y + 10;
+	trail->toBlend = TRUE;
+	trail->state = 0;
+	trail->setAnimX(0);
+	trail->setAnimY(0);
 	posX = x;
 	posY = y;
 	toBlend = TRUE;
@@ -53,7 +65,19 @@ Laser::Laser(int x, int y, int dir, int aType)
 
 void Laser::animate()
 {
-	//updateAnimationFrame();
+	trail->updateAnimationFrame();
+	trail->width = (this->posX - trail->posX + 124);
+	ge->toDisplay.push_back(trail);
+
+	if (trail->currentFrame == 0)
+	{
+		display = FALSE;
+		toRemove = TRUE;
+		trail->display = FALSE;
+		trail->toRemove = TRUE;
+		impacts.clear();
+	}
+
 	if (direction == RIGHT)
 	{
 		posX = posX + 20;
@@ -66,13 +90,14 @@ void Laser::animate()
 
 void Laser::processCollisionWith(Drawable* aDrawable)
 {
+	firingWeapon->createImpact(posX, posY - 80);
+
 	if (aDrawable->isHero())
 	{
-		Hero * myHero = static_cast<Hero*>(aDrawable);
+		Hero * myHero = dynamic_cast<Hero*>(aDrawable);
 		if (!myHero->invincible)
 		{
 			this->toRemove = TRUE;
 		}
 	}
 }
-

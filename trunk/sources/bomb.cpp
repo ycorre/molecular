@@ -8,7 +8,7 @@ Bomb::Bomb()
 	height = atoi(((lev->configurationElements.at("bomb")).at(1)).c_str());
 	this->addTexture("bomb");
 	nbFrames = parseAnimationState((lev->configurationElements.at("bomb")).at(2));
-	collision =  ge->loadTexture("res/Joueur_Col.png");
+	collision =  ge->loadTexture("res/Bomb_Col.png");
 
 	state = 0;
 	setAnimX(0);
@@ -72,11 +72,6 @@ void Bomb::fire()
 	checkFire();
 	if (canFire)
 	{
-		//lev->soundEngine->playSound("enemyGun");
-
-		//Shoot toward the hero
-		//Compute the angle
-
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 0, 3));
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 45* (PI / 180.0), 3));
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 90* (PI / 180.0), 3));
@@ -86,7 +81,7 @@ void Bomb::fire()
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 270* (PI / 180.0), 3));
 		lev->activeElements.push_back(new Bullet(posX + 14 , posY + 16, 315* (PI / 180.0), 3));
 
-		canFire = 0;
+		canFire = FALSE;
 	}
 }
 

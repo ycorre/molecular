@@ -83,6 +83,7 @@ void Level::loadBackGround()
 	background.toMerge.push_back(&bkg_distant);
 	background.toMerge.push_back(&bkg_mid);
 	background.toMerge.push_back(&bkg_near);
+	background.setAnimX(0.0);
 	activeElements.push_back(&background);
 
 }
@@ -134,7 +135,7 @@ void Level::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
 				anEnemy->fire();
 			}
 			if((*anElement)->isBonus() ||(*anElement)->isLaser())
@@ -154,7 +155,7 @@ int Level::checkEnemyCollision(Drawable * anElement)
 		return 1;
 	}
 
-	for (list<Laser*>::iterator aLaser = hero->lasers.begin(); aLaser != hero->lasers.end(); ++aLaser)
+/*	for (list<Laser*>::iterator aLaser = hero->lasers.begin(); aLaser != hero->lasers.end(); ++aLaser)
 	{
 		Laser * aL = *aLaser;
 		if(pe->collisionDetection(aL, anElement))
@@ -163,7 +164,7 @@ int Level::checkEnemyCollision(Drawable * anElement)
 			aL->toRemove = TRUE;
 			return 1;
 		}
-	}
+	}*/
 	return 0;
 }
 

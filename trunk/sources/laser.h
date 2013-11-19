@@ -9,6 +9,8 @@
 #include "graphicEngine.h"
 #include "level.h"
 
+class Weapon;
+
 class Laser: public MaskedDrawable
 {
    public:
@@ -16,12 +18,17 @@ class Laser: public MaskedDrawable
 	  int type;
 	  int power;
 	  int direction;
+	  Weapon * firingWeapon;
+	  FrameDrawable * trail;
+	  vector<Drawable *> impacts;
 
 	  Laser();
-	  Laser(int x, int y, int dir, int type);
+	//  Laser(int x, int y, int dir, int type);
+	  Laser(int x, int y, int dir, int type, Weapon * aWeapon);
 	  virtual void animate();
 	  virtual int isLaser() {return TRUE;}
 	  virtual void processCollisionWith(Drawable* aDrawable);
+	  void createImpact(float x, float y);
 };
 
 #define RED_LASER 0
@@ -34,7 +41,6 @@ class Bullet: public MaskedDrawable
 	  int type;
 	  int power;
 	  int direction;
-	  int angleDeg;
 	  float angle;
 	  int speed;
 

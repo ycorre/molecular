@@ -49,6 +49,7 @@ class Game
 		void launchLevel(string lev);
 		void launchNextLevel();
 		void checkNewHighScore();
+		void stopMusic();
 		void quitGame();
 		void pause();
 };

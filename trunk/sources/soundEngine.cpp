@@ -9,6 +9,8 @@
 SoundEngine::SoundEngine()
 {
 	numberOfChannel = 24;
+	currentMusic = "";
+	pauseMusic = pauseSound = mute = FALSE;
 }
 
 void SoundEngine::init()
@@ -57,35 +59,6 @@ void SoundEngine::stopSound(Sound * aSound)
 	}
 }
 
-void SoundEngine::playMusic(string aMusic)
-{
-	musics.at(aMusic)->play();
-}
-
-void SoundEngine::stopMusic(string aMusic)
-{
-	musics.at(aMusic)->stop();
-}
-
-void SoundEngine::playMusic(Music * aMusic)
-{
-	aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
-	if (aMusic->playingChannel!= -1)
-	{
-		aMusic->isPlaying = TRUE;
-	}
-	else
-	{
-		cerr << "Error could not play sound" << aMusic->name << endl;
-	}
-}
-
-void SoundEngine::stopMusic(Music * aMusic)
-{
-	Mix_HaltMusic();
-	aMusic->isPlaying = FALSE;
-}
-
 void SoundEngine::addSound(string pathToASound, string aSoundId)
 {
 	//Check if the sound is already loaded
@@ -114,6 +87,68 @@ int SoundEngine::loadSound(string pathToASound, Sound * aSound)
 	return 1;
 }
 
+
+void SoundEngine::clearSounds()
+{
+	sounds.clear();
+}
+
+void SoundEngine::stopAllSounds()
+{
+	Mix_HaltChannel(-1);
+}
+
+void channelDone(int channel)
+{
+  // cout<< "channel " << channel << " finished playback" << endl;
+}
+
+
+
+/*
+ * Music functions
+ */
+
+void SoundEngine::playMusic(string aMusic)
+{
+	musics.at(aMusic)->play();
+}
+
+void SoundEngine::stopMusic(string aMusic)
+{
+	musics.at(aMusic)->stop();
+}
+
+void SoundEngine::playMusic(Music * aMusic)
+{
+	//currentMusic = aMusic->name;
+	aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
+	if (aMusic->playingChannel!= -1)
+	{
+		aMusic->isPlaying = TRUE;
+	}
+	else
+	{
+		cerr << "Error could not play sound" << aMusic->name << endl;
+	}
+}
+
+void SoundEngine::playMusic()
+{
+	playMusic(currentMusic);
+}
+
+void SoundEngine::stopMusic(Music * aMusic)
+{
+	Mix_HaltMusic();
+	aMusic->isPlaying = FALSE;
+}
+
+void SoundEngine::stopMusic()
+{
+	Mix_HaltMusic();
+}
+
 void SoundEngine::addMusic(string pathToASound, string aMusicId)
 {
 	//Check if the sound is already loaded
@@ -140,19 +175,4 @@ int SoundEngine::loadMusic(string pathToASound, Music * aMusic)
 	}
 
 	return 1;
-}
-
-void SoundEngine::clearSounds()
-{
-	sounds.clear();
-}
-
-void SoundEngine::stopAllSounds()
-{
-	Mix_HaltChannel(-1);
-}
-
-void channelDone(int channel)
-{
-  // cout<< "channel " << channel << " finished playback" << endl;
 }

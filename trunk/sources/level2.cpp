@@ -15,13 +15,12 @@ void Level2::loadLevel(Hero * aHero)
 	loadConf();
 	loadObject();
 	hud = new HUD(ge);
-	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
 	bombGenerationRate = 1500;
 	lastTimeBomb = 0;
 	levelState = LEVEL_PLAYING;
 
-	hero =  aHero;
+	hero = aHero;
 	hero->setTexture();
 
 	ending = fading = exiting = FALSE;
@@ -62,6 +61,7 @@ void Level2::loadBackGround()
 	soundEngine->addSound("sound/Mitraille_loop.wav", "mitLoop");
 	soundEngine->addSound("sound/EnnemiGun01.wav", "enemyGun");
 	soundEngine->addSound("sound/Mitraille_release.wav", "mitRelease");
+	soundEngine->sounds.at("mitLoop")->setLoop(-1);
 }
 
 
@@ -81,9 +81,10 @@ void Level2::drawLevel()
 	hud->displayHealth(hero->health);
 	hud->displayLife(hero->nbLife);
 	hud->displayScore(Score);
+	hud->displayMassPotential(hero->massPotential);
+	hud->displayRadioPotential(hero->radioactivePotential);
 
 	hero->animate();
-	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	moveBackGround();
 	background.setAnimX(background.getAnimX() + cameraSpeed);
@@ -108,7 +109,7 @@ void Level2::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = static_cast<Enemy *>(*anElement);
+				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
 				anEnemy->fire();
 			}
 			if((*anElement)->isBonus() ||(*anElement)->isLaser())
@@ -145,14 +146,15 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 		}
 	}
 
-	for (list<Laser*>::iterator aLaser = hero->lasers.begin(); aLaser != hero->lasers.end(); ++aLaser)
+	for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
 	{
 		Laser * aL = *aLaser;
 		if(pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
-			aL->toRemove = TRUE;
-			hero->lasers.erase(aLaser++);
+			aL->processCollisionWith(anElement);
+			aL->display = TRUE;
+			hero->getLasers()->erase(aLaser++);
 			return 1;
 		}
 	}
@@ -161,7 +163,6 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 
 int Level2::checkCollision(Drawable * anElement)
 {
-
 	if (hero->state == DEAD)
 	{
 		return 0;
@@ -173,6 +174,7 @@ int Level2::checkCollision(Drawable * anElement)
 		hero->processCollisionWith(anElement);
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -195,6 +197,7 @@ int Level2::generateBomb()
 		lastTimeBomb = GameTimer;
 		return TRUE;
 	}
+
 	return FALSE;
 }
 

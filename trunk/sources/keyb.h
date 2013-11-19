@@ -37,7 +37,7 @@ class Keyboard
 #define RIGHT_KEY SDLK_RIGHT
 #define FIRE_KEY SDLK_SPACE
 #define PAUSE_KEY SDLK_p
-
+#define STOP_MUSIC_KEY SDLK_m
 void quit(int returnCode);
 
 #endif

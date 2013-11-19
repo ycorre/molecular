@@ -101,11 +101,12 @@ Music::Music(string aPath, string aName)
 {
 	name = aName;
 	soundData = NULL;
+	musicData = NULL;
 	this->load(aPath);
 	playingChannel = -1;
 	isPlaying = FALSE;
 	volume = 0;
-	looped = FALSE;
+	looped = TRUE;
 	numberOfLoops = 0;
 }
 
