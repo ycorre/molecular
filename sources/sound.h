@@ -55,6 +55,7 @@ class Music: public Sound
 		virtual void play();
 		//virtual void pause();
 		virtual void stop();
+		virtual void fadeOut(int aTime);
 };
 
 #endif /* SOUND_H */

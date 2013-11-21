@@ -5,9 +5,7 @@
 #include "game.h"
 
 //TODO Enhance the loading config files system
-//Additionnal audio support
 //Handle memory release
-//
 
 //Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
@@ -453,8 +451,8 @@ int initOpenGL()
 	float ratio = (GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_HEIGHT;
 
 	//Set the view
-	//90.0f since cotangent(45) = 1 which simplifies the coordinates on the y axis
-	//the x coordinate are too be multipliate by the ratio
+	//90.0f since cotangent(45) = 1 which simplifies the coordinates computing on the y axis
+	//the x coordinates are too be multiply by the ratio
 	gluPerspective(90.0f, ratio, 1.0f, 100.0f);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -468,7 +466,7 @@ int initOpenGL()
 	GLenum error = glGetError();
 	if(error != GL_NO_ERROR)
 	{
-		cerr<< "Error initializing OpenGL! " << gluErrorString(error) << endl;
+		cerr << "Error initializing OpenGL! " << gluErrorString(error) << endl;
 		return FALSE;
 	}
 

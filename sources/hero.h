@@ -15,7 +15,7 @@
 class Laser;
 class Weapon;
 
-class Hero: public MaskedDrawable, public FrameDrawable, public MultiTextureDrawable
+class Hero: public MaskedDrawable, public MultiSizeTextureDrawable
 {
 	public:
 	  //Values kept from one level to the next
@@ -33,8 +33,9 @@ class Hero: public MaskedDrawable, public FrameDrawable, public MultiTextureDraw
 	  int leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
 	  float massPotential;
 	  float radioactivePotential;
+	  float backOffSpeed;
 
-	  MultiTextureDrawable * effect;
+	  MultiSizeTextureDrawable * effect;
 	  string currentEffect;
 
 	  //Should be constant throughout the game
@@ -58,7 +59,7 @@ class Hero: public MaskedDrawable, public FrameDrawable, public MultiTextureDraw
 	  void checkInvicibility();
 	  void loseLife();
 	  void resetHero();
-	  void hitBackoff();
+	  float hitBackoff();
 	  void teleport();
 	  void playEffect();
 	  void startEffect(string anEffect);

@@ -25,7 +25,7 @@ Patrol::Patrol(int x, int y, int typeXW, int dir)
 	fireRate = 1250;
 	lastTimeFired = 0;
 	life = 50 * (typeXW+1);
-	nbFrames = parseAnimationState((lev->configurationElements.at("xwing")).at(2));
+	parseAnimationState((lev->configurationElements.at("xwing")).at(2));
 }
 
 void Patrol::animate()

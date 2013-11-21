@@ -26,6 +26,7 @@ class SoundEngine
 	public:
 		map<string, Sound *> sounds;
 		map<string, Music *> musics;
+		Music * currentMusi;
 		string currentMusic;
 		
 		int soundVolume;
@@ -49,12 +50,12 @@ class SoundEngine
 		void stopMusic(string aMusic);
 		void stopMusic(Music * aMusic);
 		void stopMusic();
+		void fadeMusic(int timeMs);
+		void fadeMusic(string aMusic, int ms);
 		void addSound(string pathTotASound, string aSoundId);
 		void addMusic(string pathTotASound, string aSoundId);
 		void clearSounds();
 		void stopAllSounds();
-		//void mixaudio(void *unused, Uint8 *stream, unsigned int len);
-
 };
 
 void channelDone(int channel);

@@ -44,7 +44,7 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	lastTimeFired = 0;
 	life = 50 * (typeXW+1);
 	collision =  ge->loadTexture("res/Ennemi_mask.png");
-	nbFrames = parseAnimationState((lev->configurationElements.at("enemy")).at(2));
+	parseAnimationState((lev->configurationElements.at("enemy")).at(2));
 	speed = 2;
 
 	originY = y;
@@ -74,7 +74,7 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	lastTimeFired = 0;
 	life = 50;
 	collision =  ge->loadTexture("res/Ennemi_mask.png");
-	nbFrames = parseAnimationState((lev->configurationElements.at("enemy")).at(2));
+	parseAnimationState((lev->configurationElements.at("enemy")).at(2));
 	speed = aSpeed;
 
 	originY = y;

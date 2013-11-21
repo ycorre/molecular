@@ -15,6 +15,7 @@ Drawable::Drawable()
 	nbFrames.push_back(1);
 	texture = NULL;
 	state = 0;
+	stateString = "static";
 	posX = 0;
 	posY = 0;
 	posZ = 0;
@@ -28,6 +29,7 @@ Drawable::Drawable()
 	isBlinking = FALSE;
 	currentFrame = 0;
 	blinkingCounter = 0;
+	opacity = 1.0f;
 }
 
 Drawable::~Drawable()
@@ -67,25 +69,32 @@ int Drawable::updateAnimationFrame()
 	return FALSE;
 }
 
-vector<int> parseAnimationState(string aConf)
+void Drawable::parseAnimationState(string aConf)
 {
 	istringstream aConfStream(aConf);
 	string aState;
-	vector<int> nbFrames;
+	nbFrames.clear();
+	numberOfFrames.clear();
 
 	while(getline(aConfStream, aState,'#'))
 	{
 		if(aState.size()!=0){
 			istringstream nbFrame(aState);
+			string aName;
 			string aNumber;
-			getline(nbFrame, aNumber, '$');
+			getline(nbFrame, aName, '$');
 			//Get the second element (the one we are interested in)
 			getline(nbFrame, aNumber, '$');
 			nbFrames.push_back(atoi(aNumber.c_str()));
+			//Special case for static (default case)
+			if(aName == "static")
+			{
+				aName = "";
+			}
+			numberOfFrames.insert(make_pair(name+aName ,atoi(aNumber.c_str())));
 		}
 	}
 
-	return nbFrames;
 }
 
 void Drawable::processDisplay()
@@ -170,7 +179,7 @@ void Drawable::setAnimX(float animX)
 void Drawable::computeOGLXValues()
 {
 	ogl_Xorigin = this->animX/(float)this->getTexture()->w;
-	ogl_Xcorner = ogl_Xorigin + (float)this->width/(float)this->getTexture()->w;
+	ogl_Xcorner = ogl_Xorigin + (float)this->getWidth()/(float)this->getTexture()->w;
 }
 
 float Drawable::getAnimY()
@@ -192,7 +201,7 @@ void Drawable::setAnimY(float animY)
 void Drawable::computeOGLYValues()
 {
 	ogl_Yorigin = this->animY/(float)this->getTexture()->h;
-	ogl_Ycorner = ogl_Yorigin + (float)this->height/(float)this->getTexture()->h;
+	ogl_Ycorner = ogl_Yorigin + (float)this->getHeight()/(float)this->getTexture()->h;
 }
 
 int Drawable::getXBoundary()
@@ -235,6 +244,25 @@ void Drawable::setWidth(int aValue)
 	width = aValue;
 }
 
+float Drawable::getPosX()
+{
+	return posX;
+}
+
+float Drawable::getPosY()
+{
+	return posY;
+}
+
+float Drawable::getWidth()
+{
+	return width;
+}
+
+float Drawable::getHeight()
+{
+	return height;
+}
 /*
  * Hitboxed class functions
  */
@@ -269,7 +297,6 @@ SDL_Surface * MaskedDrawable::getCollisionTexture()
 /*
  * Multi texture Drawable functions
  */
-
 void MultiTextureDrawable::addTexture(string aName)
 {
 	textures.insert(make_pair(aName, ge->textures.at(aName)));
@@ -301,7 +328,6 @@ void MultiTextureDrawable::setTextureState(string aState)
 	currentFrame = 0;
 }
 
-
 /*
  * FrameDrawable functions
  */
@@ -313,15 +339,16 @@ int FrameDrawable::updateAnimationFrame()
 	{
 		//increment to the next frame or loop back to the beginning
 		//Textures are a grid of frame numbered from left to right and from top to bottom
+		//currentFrame = (currentFrame + 1) % nbFrames.at(state);
 		currentFrame = (currentFrame + 1) % nbFrames.at(state);
 		//Compute the position in the texture
 		setAnimY((currentFrame / (getTexture()->w/realWidth)) * height);
 		setAnimX((currentFrame % (getTexture()->w/realWidth)) * realWidth);
 		lastTimeUpdated = ProgramTimer;
-		return 1;
+		return TRUE;
 	}
 
-	return 0;
+	return FALSE;
 }
 
 void FrameDrawable::setWidth(int aValue)
@@ -331,4 +358,76 @@ void FrameDrawable::setWidth(int aValue)
 	numberOfFrameInLine = getTexture()->w/width;
 	setAnimY(0);
 	setAnimX(0);
+}
+
+/*
+ * MultiSizeTextureDrawable functions
+ */
+void MultiSizeTextureDrawable::addTexture(string aName, vector<string> * aConf)
+{
+	textures.insert(make_pair(aName, ge->textures.at(aName)));
+	if(texture==NULL)
+	{
+		texture = ge->textures.at(aName);
+	}
+	textureState = aName;
+	textureSizes.insert(make_pair(aName, (make_pair(atoi(aConf->at(0).c_str()), atoi(aConf->at(1).c_str())))));
+#if USE_OPENGL
+	oglTextures.insert(make_pair(aName, ge->openGLTextures.at(textures.at(aName))));
+	setAnimX(getAnimX());
+	setAnimY(getAnimY());
+#endif
+}
+
+int MultiSizeTextureDrawable::updateAnimationFrame()
+{
+	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
+
+	if (updateTime < ProgramTimer)
+	{
+		//Increment to the next frame or loop back to the beginning
+		//Textures are a grid of frame numbered from left to right and from top to bottom
+		//currentFrame = (currentFrame + 1) % nbFrames.at(state);
+		currentFrame = (currentFrame + 1) % numberOfFrames.at(textureState);
+
+		//Compute the position in the texture
+		setAnimY((currentFrame / (getTexture()->w/currentWidth)) * currentHeight);
+		setAnimX((currentFrame % (getTexture()->w/currentWidth)) * currentWidth);
+		lastTimeUpdated = ProgramTimer;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void MultiSizeTextureDrawable::setTextureState(string aState)
+{
+	textureState = name + aState;
+	currentWidth = textureSizes.at(textureState).first;
+	currentHeight = textureSizes.at(textureState).second;
+	posXCorrection = width / 2 - currentWidth / 2;
+	posYCorrection = height / 2 - currentHeight / 2;
+	currentFrame = 0;
+}
+
+float MultiSizeTextureDrawable::getPosX()
+{
+	return posX + posXCorrection;
+
+}
+
+float MultiSizeTextureDrawable::getPosY()
+{
+	return posY + posYCorrection;
+}
+
+
+float MultiSizeTextureDrawable::getWidth()
+{
+	return currentWidth;
+}
+
+float MultiSizeTextureDrawable::getHeight()
+{
+	return currentHeight;
 }

@@ -32,7 +32,7 @@ Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 	this->addTexture("shoot");
 	width = atoi(((lev->configurationElements.at("shoot")).at(0)).c_str());
 	height =  atoi(((lev->configurationElements.at("shoot")).at(1)).c_str());
-	nbFrames = parseAnimationState((lev->configurationElements.at("shoot")).at(2));
+	parseAnimationState((lev->configurationElements.at("shoot")).at(2));
 	collision = ge->loadTexture("res/Shoot_Col.png");
 
 	//Conversion from degree to radian

@@ -26,7 +26,7 @@ Explosion::Explosion(int x, int y, int typeExpl)
 	state = type;
 	setAnimX(0);
 	setAnimY(state * height);
-	nbFrames = parseAnimationState((lev->configurationElements.at("explosion")).at(2));
+	parseAnimationState((lev->configurationElements.at("explosion")).at(2));
 }
 
 Explosion::~Explosion()

@@ -29,7 +29,7 @@ void Weapon::fire(Hero * aHero)
 	checkFire();
 	if (canFire)
 	{
-		shoots.push_back(new Laser(aHero->posX, aHero->posY + 80, RIGHT, GREEN_LASER, this));
+		shoots.push_back(new Laser(aHero->posX - 64, aHero->posY + 16, RIGHT, GREEN_LASER, this));
 		canFire = FALSE;
 	}
 }
@@ -78,8 +78,8 @@ void Weapon::createImpact(float x, float y)
 	Drawable * anImpact = new Drawable();
 	anImpact->addTexture("electronImpact");
 	anImpact->setWidth(atoi(((lev->configurationElements.at("electronImpact")).at(0)).c_str()));
-	anImpact->height =  atoi(((lev->configurationElements.at("electronImpact")).at(1)).c_str());
-	anImpact->nbFrames = parseAnimationState((lev->configurationElements.at("electronImpact")).at(2));
+	anImpact->height = atoi(((lev->configurationElements.at("electronImpact")).at(1)).c_str());
+	anImpact->parseAnimationState((lev->configurationElements.at("electronImpact")).at(2));
 	anImpact->toBlend = TRUE;
 	anImpact->state = 0;
 	anImpact->posX = x;

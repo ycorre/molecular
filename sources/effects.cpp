@@ -24,7 +24,7 @@ Effect::Effect(int x, int y, string typeEffect)
 	type = typeEffect;
 	setAnimX(0);
 	setAnimY(state * height);
-	nbFrames = parseAnimationState((lev->configurationElements.at("explosion")).at(2));
+	parseAnimationState((lev->configurationElements.at("explosion")).at(2));
 }
 
 Effect::~Effect()

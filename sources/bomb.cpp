@@ -7,7 +7,7 @@ Bomb::Bomb()
 	width = atoi(((lev->configurationElements.at("bomb")).at(0)).c_str());
 	height = atoi(((lev->configurationElements.at("bomb")).at(1)).c_str());
 	this->addTexture("bomb");
-	nbFrames = parseAnimationState((lev->configurationElements.at("bomb")).at(2));
+	parseAnimationState((lev->configurationElements.at("bomb")).at(2));
 	collision =  ge->loadTexture("res/Bomb_Col.png");
 
 	state = 0;
@@ -50,7 +50,7 @@ Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 	lastTimeFired = 0;
 	life = 250;
 	collision =  ge->loadTexture("res/Ennemi_mask.png");
-	nbFrames = parseAnimationState((lev->configurationElements.at("bomb")).at(2));
+	parseAnimationState((lev->configurationElements.at("bomb")).at(2));
 	speed = aSpeed;
 	angle = anAngle * (PI / 180.0);
 }
@@ -92,7 +92,9 @@ void Bomb::setAngleAndSpeed()
 	int arrivalSide = (rand() % 3);
 	int angleDegree;
 
+
 	//Set the angle (in degrees)
+	//We try too sharp angle
 	if (arrivalSide == RIGHT)
 	{
 		posX = SCREEN_WIDTH;
@@ -103,14 +105,14 @@ void Bomb::setAngleAndSpeed()
 	if (arrivalSide == UP)
 	{
 		posY = -height;
-		posX = rand() % SCREEN_WIDTH;
-		angleDegree = rand() % 180; //values between 0 and 180
+		posX =  (rand() % (SCREEN_WIDTH - 100)) + 100;
+		angleDegree = (rand() % 150) + 15; //values between 15 and 165
 	}
-	if (arrivalSide == DOWN || arrivalSide == LEFT)
+	if (arrivalSide == DOWN || arrivalSide == LEFT) //Actually DOWN but since we don't want anything coming from the left
 	{
 		posY = GAMEZONE_HEIGHT;
-		posX = rand() % SCREEN_WIDTH;
-		angleDegree = (rand() % 180) + 180; // -180 and 0
+		posX = (rand() % (SCREEN_WIDTH - 100)) + 100;
+		angleDegree = (rand() % 150) + 195; // -165 and -15
 	}
 
 	//Convert into radians
