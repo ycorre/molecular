@@ -3,11 +3,12 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <SDL_opengl.h>
+//#include <minmax.h>
+
 using namespace std;
 
-//#define NULL 0
-
 //Do we use OpenGL rendering ?
+//TODO check that the SDL one is not broken
 #define USE_OPENGL 1
 
 //Set up boolean values

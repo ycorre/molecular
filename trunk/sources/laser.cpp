@@ -33,20 +33,20 @@ Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 		this->addTexture("electron");
 		width = atoi(((lev->configurationElements.at("electron")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("electron")).at(1)).c_str());
-		nbFrames = parseAnimationState((lev->configurationElements.at("electron")).at(2));
+		parseAnimationState((lev->configurationElements.at("electron")).at(2));
 		collision = ge->loadTexture("res/ElectronMask.png");
 		trail = new FrameDrawable();
 		trail->addTexture("electronTrail");
 		trail->setWidth(atoi(((lev->configurationElements.at("electronTrail")).at(0)).c_str()));
 		trail->height =  atoi(((lev->configurationElements.at("electronTrail")).at(1)).c_str());
-		trail->nbFrames = parseAnimationState((lev->configurationElements.at("electronTrail")).at(2));
+		trail->parseAnimationState((lev->configurationElements.at("electronTrail")).at(2));
 	}
 	if (type == RED_LASER)
 	{
 		this->addTexture("shoot");
 		width = atoi(((lev->configurationElements.at("shoot")).at(0)).c_str());
 		height =  atoi(((lev->configurationElements.at("shoot")).at(1)).c_str());
-		nbFrames = parseAnimationState((lev->configurationElements.at("shoot")).at(2));
+		parseAnimationState((lev->configurationElements.at("shoot")).at(2));
 		collision = ge->loadTexture("res/Shoot_Col.png");
 	}
 	trail->posX = x + width - 30;
@@ -65,8 +65,21 @@ Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 
 void Laser::animate()
 {
+	if (display)
+	{
+		if (direction == RIGHT)
+		{
+			posX = posX + 20;
+		}
+		else
+		{
+			posX = posX - 5;
+		}
+		trail->width = min(1200, (int)(this->posX - trail->posX + 124));
+		trail->setAnimX(trail->getAnimX());
+	}
+
 	trail->updateAnimationFrame();
-	trail->width = (this->posX - trail->posX + 124);
 	ge->toDisplay.push_back(trail);
 
 	if (trail->currentFrame == 0)
@@ -78,14 +91,7 @@ void Laser::animate()
 		impacts.clear();
 	}
 
-	if (direction == RIGHT)
-	{
-		posX = posX + 20;
-	}
-	else
-	{
-		posX = posX - 5;
-	}
+
 }
 
 void Laser::processCollisionWith(Drawable* aDrawable)

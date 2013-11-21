@@ -143,13 +143,13 @@ void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 	aHero->topFlag = TRUE;
 	aHero->bottomFlag = TRUE;
 
-	if(aHero->posX <= -66)
+	if(aHero->posX <= 0)
 		{aHero->leftFlag = FALSE;}
-	if(aHero->posY <= -66)
+	if(aHero->posY <= 0)
 		{aHero->topFlag = FALSE;}
-	if(aHero->posX + aHero->width >= aPoint.first + 66)
+	if(aHero->posX + aHero->width >= aPoint.first)
 		{aHero->rightFlag = FALSE;}
-	if(aHero->posY + aHero->height >= aPoint.second + 66)
+	if(aHero->posY + aHero->height >= aPoint.second)
 		{aHero->bottomFlag = FALSE;}
 }
 

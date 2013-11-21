@@ -86,20 +86,21 @@ int GraphicEngine::draw(Drawable * sprite)
 			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 		}
 
+		glColor4f(1.0, 1.0, 1.0, sprite->opacity);
 		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
+
 		glBegin(GL_QUADS);
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-			glVertex3f((sprite->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT- sprite->posY)/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/(aspectRatio*2)) , (SCREEN_HEIGHT-sprite->posY)/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			glVertex3f((sprite->posX + sprite->width)/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0);
+			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0);
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-			glVertex3f((sprite->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->posY + sprite->height))/(SCREEN_HEIGHT/2), 0.);
-
+			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
 		glEnd();
 
 		if(sprite->toBlend)
@@ -271,6 +272,7 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
 //Merge several drawables which have a texture of 4 bits per pixel
 //Following the formula destPixel.component = 255 - ((productOf(255-drawables.i.component))/powerOf(255, sizeOfdrawables)
 //(cf. the "Screen" equation at this page : http://docs.gimp.org/en/gimp-concepts-layer-modes.html)
+//To be removed as it is not performant enough
 void GraphicEngine::mergeImages(vector <Drawable*> drawables, Drawable * destination)
 {
 	int x, y, i;

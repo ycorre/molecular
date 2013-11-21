@@ -19,7 +19,8 @@ class Level;
 class Drawable
 {
 	private:
-	  float animX; //Position in the Sprite grid to display
+	  //Positions inside the Sprite grid to display
+	  float animX;
 	  float animY;
 
 
@@ -29,7 +30,9 @@ class Drawable
 	  float posX;
 	  float posY;
 	  float posZ; //Depth
+	  float opacity;
 	  int state;
+	  string stateString;
 	  int display; //Boolean: should the object be display
 	  int toRemove; //Boolean: should the object be destroyed
 	  int isBlinking; //Boolean: should the object be blinking
@@ -50,6 +53,7 @@ class Drawable
 	  int lastTimeUpdated;
 	  //The number of frames in each animation // TODO change to map when conf load by file
 	  vector<int> nbFrames;
+	  map<string, int> numberOfFrames;
 	  SDL_Surface * texture;
 
 	  //OpenGL stuff
@@ -63,11 +67,12 @@ class Drawable
 	  void processDisplay();
 	  virtual int updateAnimationFrame();
 	  void loadTexture(string path);
+	  virtual void parseAnimationState(string aConf);
+	  void clean();
 
 	  void createOGLTexture();
 	  void computeOGLXValues();
 	  void computeOGLYValues();
-	  void clean();
 
 	  virtual int isEnemy() {return FALSE;}
 	  virtual int isHero() {return FALSE;}
@@ -86,8 +91,12 @@ class Drawable
 	  virtual float getAnimX();
 	  virtual void setAnimX(float aValue);
 	  virtual float getAnimY();
+	  virtual float getPosX();
+	  virtual float getPosY();
 	  virtual void setAnimY(float aValue);
 	  virtual void setWidth(int aValue);
+	  virtual float getWidth();
+	  virtual float getHeight();
 
 	  virtual SDL_Surface * getTexture();
 	  virtual GLuint getOpenGLTexture();
@@ -129,7 +138,7 @@ class CompositeDrawable: public Drawable
 	  virtual int isComposite() {return TRUE;}
 };
 
-//Class for objects who have several image as texture
+//Class for objects who have several images as texture
 class MultiTextureDrawable: virtual public Drawable
 {
 	public:
@@ -140,7 +149,7 @@ class MultiTextureDrawable: virtual public Drawable
 	  virtual void addTexture(string path);
 	  virtual SDL_Surface * getTexture();
 	  virtual GLuint getOpenGLTexture();
-	  void setTextureState(string aState);
+	  virtual void setTextureState(string aState);
 };
 
 //Class for objects who have a grid of sprites as texture
@@ -154,8 +163,23 @@ class FrameDrawable: virtual public Drawable
 	  virtual void setWidth(int aValue);
 };
 
+//Class for objects who have several images of different size as texture
+class MultiSizeTextureDrawable: virtual public MultiTextureDrawable, virtual public FrameDrawable
+{
+	public:
+	  int spriteWidth;
+	  int currentWidth, currentHeight;
+	  int posXCorrection, posYCorrection;
+	  map<string, pair<int, int> > textureSizes;
 
-vector<int> parseAnimationState(string aConf);
+	  virtual float getPosX();
+	  virtual float getPosY();
+	  virtual float getWidth();
+	  virtual float getHeight();
+	  virtual void addTexture(string path, vector<string> * aConf);
+	  virtual void setTextureState(string aState);
+	  virtual int updateAnimationFrame();
+};
 
 #endif
 

@@ -20,10 +20,10 @@ void Level4::loadLevel(Hero * aHero)
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
 	hero = aHero;
-	hero->addTexture("tie");
+	//hero->addTexture("tie", atomDead);
 	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
 	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
-	hero->nbFrames = parseAnimationState((configurationElements.at("tie")).at(2));
+	hero->parseAnimationState((configurationElements.at("tie")).at(2));
 	hero->resetHero();
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = FALSE;

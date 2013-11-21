@@ -140,3 +140,17 @@ void Music::stop()
 		soundEngine->stopMusic(this);
 	}
 }
+
+void Music::fadeOut(int aTime)
+{
+	if(looped)
+	{
+		if(isPlaying)
+			soundEngine->fadeMusic(aTime);
+	}
+	else
+	{
+		soundEngine->fadeMusic(aTime);
+	}
+	isPlaying = FALSE;
+}

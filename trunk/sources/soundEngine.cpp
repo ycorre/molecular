@@ -121,7 +121,7 @@ void SoundEngine::stopMusic(string aMusic)
 
 void SoundEngine::playMusic(Music * aMusic)
 {
-	//currentMusic = aMusic->name;
+	//currentMusi = aMusic;
 	aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
 	if (aMusic->playingChannel!= -1)
 	{
@@ -162,6 +162,17 @@ void SoundEngine::addMusic(string pathToASound, string aMusicId)
 	{
 		cerr << "SoundEngine Error: The sound " << aMusicId << " has already been loaded " << endl;
 	}
+}
+
+void SoundEngine::fadeMusic(string aMusic, int ms)
+{
+	musics.at(aMusic)->fadeOut(ms);
+}
+
+void SoundEngine::fadeMusic(int ms)
+{
+	//Check if the sound is already loaded
+	Mix_FadeOutMusic(ms);
 }
 
 int SoundEngine::loadMusic(string pathToASound, Music * aMusic)

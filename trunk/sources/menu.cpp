@@ -8,7 +8,7 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 {
 	ge = aGe;
 	soundEngine = aSe;
-	menuColor = ge->availableColors.at("WHITE");
+	menuColor = ge->availableColors.at("BLUE");
 	menuFont = ge->availableFonts.at("lCrystal");
 	currentMenu = MENU_INTRO;
 	nextMenu = MENU_INTRO;
@@ -272,11 +272,14 @@ void Menu::displayMenu()
 
 void Menu::displayMainMenu()
 {
+	static int i =0;
 	ge->toDisplay.push_back(bubbles);
 	ge->toDisplay.push_back(title);
 
 	bubble1->setAnimX(bubble1->getAnimX()+0.3);
 	bubble2->setAnimX(bubble2->getAnimX()+0.1);
+
+	soundEngine->playMusic("musicMenu");
 
 	for (std::vector<MultiTextureDrawable *>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
 	{
@@ -293,7 +296,6 @@ void Menu::displayIntro()
 	//Start fading out during the last second
 	if(diff<1000 && !menuInTransition)
 	{
-		soundEngine->playMusic("musicMenu");
 		ge->startFadingOut(6);
 		nextMenu = MENU_MAIN;
 		menuInTransition = TRUE;
@@ -372,7 +374,6 @@ void Menu::transition()
 
 		case MENU_INTRO:
 			nextMenu = MENU_MAIN;
-			soundEngine->playMusic("musicMenu");
 			break;
 
 		case MENU_LEVELSELECT:
@@ -607,6 +608,7 @@ void Menu::selectLevel()
 	{
 		startingGame = TRUE;
 		soundEngine->playSound("validated");
+		soundEngine->fadeMusic("musicMenu", 1500);
 		transition();
 	}
 }

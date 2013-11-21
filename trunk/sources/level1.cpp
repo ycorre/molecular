@@ -138,39 +138,38 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
-			return 1;
+			return TRUE;
 		}
 	}
 
 	for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
 	{
 		Laser * aL = *aLaser;
-		if(pe->collisionDetection(aL, anElement))
+		if(aL->display && pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
 			aL->processCollisionWith(anElement);
 			aL->display = FALSE;
-			hero->getLasers()->erase(aLaser++);
-			return 1;
+			return TRUE;
 		}
 	}
-	return 0;
+	return FALSE;
 }
 
 int Level1::checkCollision(Drawable * anElement)
 {
 	if (hero->state == DEAD)
 	{
-		return 0;
+		return FALSE;
 	}
 
 	if(pe->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
 		hero->processCollisionWith(anElement);
-		return 1;
+		return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 void Level1::createExplosion(int x, int y, int type)
@@ -182,8 +181,6 @@ void Level1::createBonus(int x, int y, int type)
 {
 	activeElements.push_back(new Bonus(x, y, type));
 }
-
-
 
 
 //Load enemies from a configuration files
