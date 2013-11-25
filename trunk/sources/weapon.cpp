@@ -60,7 +60,7 @@ void Weapon::animateLasers()
 		}
 	}
 
-	for (std::list<Drawable *>::iterator anImpact = impacts.begin(); anImpact != impacts.end(); ++anImpact)
+	for (std::list<AnimatedDrawable *>::iterator anImpact = impacts.begin(); anImpact != impacts.end(); ++anImpact)
 	{
 		if ((*anImpact)->updateAnimationFrame() && (*anImpact)->getAnimX()==0)
 		{
@@ -75,13 +75,10 @@ void Weapon::animateLasers()
 
 void Weapon::createImpact(float x, float y)
 {
-	Drawable * anImpact = new Drawable();
-	anImpact->addTexture("electronImpact");
-	anImpact->setWidth(atoi(((lev->configurationElements.at("electronImpact")).at(0)).c_str()));
-	anImpact->height = atoi(((lev->configurationElements.at("electronImpact")).at(1)).c_str());
-	anImpact->parseAnimationState((lev->configurationElements.at("electronImpact")).at(2));
+	AnimatedDrawable * anImpact = new AnimatedDrawable();
+	anImpact->copyFrom(lev->loadedObjects.at("electronImpact"));
+
 	anImpact->toBlend = TRUE;
-	anImpact->state = 0;
 	anImpact->posX = x;
 	anImpact->posY = y;
 	anImpact->setAnimX(0);

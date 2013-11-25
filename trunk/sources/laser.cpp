@@ -30,26 +30,13 @@ Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 	firingWeapon = aWeapon;
 	if (type == GREEN_LASER)
 	{
-		this->addTexture("electron");
-		width = atoi(((lev->configurationElements.at("electron")).at(0)).c_str());
-		height =  atoi(((lev->configurationElements.at("electron")).at(1)).c_str());
-		parseAnimationState((lev->configurationElements.at("electron")).at(2));
+		copyFrom(lev->loadedObjects.at("electron"));
 		collision = ge->loadTexture("res/ElectronMask.png");
-		trail = new FrameDrawable();
-		trail->addTexture("electronTrail");
-		trail->setWidth(atoi(((lev->configurationElements.at("electronTrail")).at(0)).c_str()));
-		trail->height =  atoi(((lev->configurationElements.at("electronTrail")).at(1)).c_str());
-		trail->parseAnimationState((lev->configurationElements.at("electronTrail")).at(2));
+
+		trail = new AnimatedDrawable();
+		trail->copyFrom(lev->loadedObjects.at("electronTrail"));
 	}
-	if (type == RED_LASER)
-	{
-		this->addTexture("shoot");
-		width = atoi(((lev->configurationElements.at("shoot")).at(0)).c_str());
-		height =  atoi(((lev->configurationElements.at("shoot")).at(1)).c_str());
-		parseAnimationState((lev->configurationElements.at("shoot")).at(2));
-		collision = ge->loadTexture("res/Shoot_Col.png");
-	}
-	trail->posX = x + width - 30;
+	trail->posX = x + width/2 - 30;
 	trail->posY = y + 10;
 	trail->toBlend = TRUE;
 	trail->state = 0;
@@ -57,10 +44,13 @@ Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 	trail->setAnimY(0);
 	posX = x;
 	posY = y;
+	scaleX = 0.5;
+	scaleY = 0.5;
 	toBlend = TRUE;
 	state = 0;
 	setAnimX(0);
 	setAnimY(0);
+	setAnimation("static");
 }
 
 void Laser::animate()
@@ -76,13 +66,14 @@ void Laser::animate()
 			posX = posX - 5;
 		}
 		trail->width = min(1200, (int)(this->posX - trail->posX + 124));
+		//trail->currentAnimation->width = min(1200, (int)(this->posX - trail->posX + 124));
 		trail->setAnimX(trail->getAnimX());
 	}
 
 	trail->updateAnimationFrame();
 	ge->toDisplay.push_back(trail);
 
-	if (trail->currentFrame == 0)
+	if (trail->currentAnimation->hasEnded)
 	{
 		display = FALSE;
 		toRemove = TRUE;
@@ -90,8 +81,6 @@ void Laser::animate()
 		trail->toRemove = TRUE;
 		impacts.clear();
 	}
-
-
 }
 
 void Laser::processCollisionWith(Drawable* aDrawable)

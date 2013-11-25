@@ -11,7 +11,7 @@
 
 class Weapon;
 
-class Laser: public MaskedDrawable
+class Laser: public MaskedDrawable, public AnimatedDrawable
 {
    public:
 
@@ -19,7 +19,7 @@ class Laser: public MaskedDrawable
 	  int power;
 	  int direction;
 	  Weapon * firingWeapon;
-	  FrameDrawable * trail;
+	  AnimatedDrawable * trail;
 	  vector<Drawable *> impacts;
 
 	  Laser();
@@ -34,7 +34,7 @@ class Laser: public MaskedDrawable
 #define RED_LASER 0
 #define GREEN_LASER 1
 
-class Bullet: public MaskedDrawable
+class Bullet: public MaskedDrawable,  public AnimatedDrawable
 {
    public:
 

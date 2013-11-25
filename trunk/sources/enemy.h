@@ -11,7 +11,7 @@
 #define XBLUE 1
 #define XYELLOW 2
 
-class Enemy: public MaskedDrawable
+class Enemy: public MaskedDrawable, public AnimatedDrawable
 {
 	public:
 		int direction;
@@ -41,12 +41,13 @@ class Enemy: public MaskedDrawable
 };
 
 
-class Patrol: public Enemy
+class Mitrailleur: public Enemy
 {
 	public:
-		Patrol();
-		Patrol(int x, int y, int type, int dir);
+		Mitrailleur();
+		Mitrailleur(int x, int y);
 		virtual void animate();
+		virtual void checkFire();
 };
 
 #define ASTER_NORMAL 0
@@ -62,11 +63,7 @@ class Bomb: public Enemy
 		int speed;
 
 		Bomb();
-	//	Bomb(int type);
-		//used to set small fragments of asteroid
 		Bomb(int sX, int sY, int speed, float angle);
-		//void processCollisionWith(Drawable* aDrawable);
-		//void createSmallerAsteroid(Asteroid * anElement);
 		virtual void animate();
 		void setAngleAndSpeed();
 		virtual void fire();

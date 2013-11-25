@@ -28,39 +28,14 @@ Hero::Hero()
 	currentEffect = "";
 }
 
-void Hero::setTexture()
+void Hero::setTexture(Drawable * levelHero)
 {
-	name = "atom";
-	addTexture("atom", &lev->configurationElements.at("atom"));
-	setWidth(atoi(((lev->configurationElements.at("atom")).at(0)).c_str()));
-	height = atoi(((lev->configurationElements.at("atom")).at(1)).c_str());
-	parseAnimationState((lev->configurationElements.at("atom")).at(2));
-	addTexture("atomHit", &lev->configurationElements.at("atomHit"));
-	addTexture("atomDead", &lev->configurationElements.at("atomDead"));
-	addTexture("atomEnter", &lev->configurationElements.at("atomEnter"));
-	addTexture("atomAppar", &lev->configurationElements.at("atomAppar"));
-	addTexture("atomDispar", &lev->configurationElements.at("atomDispar"));
-	addTexture("atomCursor", &lev->configurationElements.at("atomCursor"));
-	setAnimX(0);
+	copyFrom(lev->loadedObjects.at("atom"));
 
-	effect = new MultiSizeTextureDrawable();
-	effect->name = "effect";
-	effect->addTexture("effect", &lev->configurationElements.at("effect"));
-	effect->height =  atoi(((lev->configurationElements.at("effect")).at(1)).c_str());
-	effect->setWidth(atoi(((lev->configurationElements.at("effect")).at(0)).c_str()));
-	effect->parseAnimationState((lev->configurationElements.at("effect")).at(2));
-	effect->toBlend = TRUE;
-	effect->addTexture("effectHit", &lev->configurationElements.at("effectHit"));
-	effect->addTexture("effectAppar", &lev->configurationElements.at("effectAppar"));
-	effect->addTexture("effectDispar", &lev->configurationElements.at("effectDispar"));
+	effect = new AnimatedDrawable();
 
-	firingEffect = new Drawable();
-	firingEffect->addTexture("muzzl");
-	firingEffect->parseAnimationState((lev->configurationElements.at("muzzl")).at(2));
-	firingEffect->width = atoi(((lev->configurationElements.at("muzzl")).at(0)).c_str());
-	firingEffect->height = atoi(((lev->configurationElements.at("muzzl")).at(1)).c_str());
-	firingEffect->posX = 0;
-	firingEffect->posY = 0;
+	firingEffect = new AnimatedDrawable();
+	firingEffect->copyFrom(lev->loadedObjects.at("muzzl"));
 	firingEffect->setAnimX(0);
 	firingEffect->setAnimY(0);
 	firingEffect->toBlend = TRUE;
@@ -97,7 +72,7 @@ void Hero::animate()
 		switch(state)
 		{
 			case STATIC:
-				setTextureState("");
+				setAnimation("static");
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -106,6 +81,7 @@ void Hero::animate()
 				dontMove = TRUE;
 				makeInvincible(4000);
 				startEffect("Dispar");
+				setAnimation("Dispar");
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -113,7 +89,7 @@ void Hero::animate()
 			case CURSOR:
 				opacity = 1.0;
 				display = FALSE;
-				setTextureState("Cursor");
+				setAnimation("Cursor");
 				makeInvincible(3000);
 				startTeleporting = GameTimer;
 				dontMove = TRUE;
@@ -123,7 +99,7 @@ void Hero::animate()
 
 			case APPAR:
 				display = TRUE;
-				setTextureState("Appar");
+				setAnimation("Appar");
 				dontMove = TRUE;
 				makeInvincible(4000);
 				setAnimX(0);
@@ -131,7 +107,8 @@ void Hero::animate()
 				break;
 
 			case HIT:
-				setTextureState("Hit");
+				setAnimation("Hit");
+				startEffect("Hit");
 				dontMove = TRUE;
 				backOffSpeed = 13.0;
 				makeInvincible(2000);
@@ -145,7 +122,7 @@ void Hero::animate()
 				display = TRUE;
 				isBlinking = FALSE;
 				makeInvincible(1500);
-				setTextureState("Enter");
+				setAnimation("Enter");
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -157,7 +134,8 @@ void Hero::animate()
 				makeInvincible(4000);
 				isBlinking = FALSE;
 				isFiring = FALSE;
-				setTextureState("Dead");
+				setAnimation("Dead");
+				startEffect("Dead");
 				break;
 
 			case EXITING:
@@ -165,6 +143,7 @@ void Hero::animate()
 				setAnimY(0);
 				dontMove = TRUE;
 				makeInvincible(100000);
+				setAnimation("Exiting");
 				display = TRUE;
 				isFiring = FALSE;
 				isBlinking = FALSE;
@@ -187,13 +166,13 @@ void Hero::animate()
 				case DISPAR:
 					if (!currentEffect.empty())
 					{
-						if(effect->currentFrame == 0 || effect->currentFrame == 2 || effect->currentFrame == 4 || effect->currentFrame == 6)
+						if(effect->currentAnimation->currentFrame == 0 || effect->currentAnimation->currentFrame == 2 || effect->currentAnimation->currentFrame == 4 || effect->currentAnimation->currentFrame == 6)
 							opacity = 0;
-						if(effect->currentFrame == 1)
+						if(effect->currentAnimation->currentFrame == 1)
 							opacity = 1.0;
-						if(effect->currentFrame == 3)
+						if(effect->currentAnimation->currentFrame == 3)
 							opacity = 0.75;
-						if(effect->currentFrame == 5)
+						if(effect->currentAnimation->currentFrame == 5)
 							opacity = 0.5;
 					}
 					if (currentEffect.empty())
@@ -214,7 +193,7 @@ void Hero::animate()
 					break;
 
 				case APPAR:
-					if (currentFrame == numberOfFrames.at(textureState) - 1)
+					if (currentAnimation->hasEnded)
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
@@ -227,7 +206,7 @@ void Hero::animate()
 					{
 						dontMove = FALSE;
 					}
-					if (currentFrame == numberOfFrames.at(textureState) - 1)
+					if (currentAnimation->hasEnded)
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
@@ -235,7 +214,7 @@ void Hero::animate()
 					break;
 
 				case ENTER:
-					if (currentFrame == numberOfFrames.at(textureState) - 1)
+					if (currentAnimation->hasEnded)
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
@@ -243,10 +222,10 @@ void Hero::animate()
 					break;
 
 				case DEAD:
-					if (currentFrame == 0)
+					if (currentAnimation->hasEnded)
 					{
 						loseLife();
-						setTextureState("");
+						//setTextureState("");
 					}
 					break;
 
@@ -284,8 +263,8 @@ void Hero::animate()
 		}
 
 		//Update position to match with the one of the ship
-		firingEffect->posX = posX - 40;
-		firingEffect->posY = posY - 96;
+		firingEffect->posX = posX - 12;
+		firingEffect->posY = posY - 16;
 		
 		lev->soundEngine->playSound("mitLoop");
 		int updated = firingEffect->updateAnimationFrame();
@@ -451,7 +430,7 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 
 	if (aDrawable->isBonus())
 	{
-		Bonus * aBonus = static_cast<Bonus*>(aDrawable);
+		Bonus * aBonus = dynamic_cast<Bonus*>(aDrawable);
 		if (aBonus->type == BONUS_LIFE)
 		{
 			if(health < maxHealth)
@@ -536,15 +515,21 @@ int  Hero::endTeleport()
 
 void Hero::startEffect(string anEffect)
 {
-	effect->setTextureState(anEffect);
-	effect->posX = posX;
-	effect->posY = posY;
+	lev->createEffect(posX, posY, anEffect);
+	//activeEffects.push_back(new Effect(posX, posY, anEffect));
+	//effect->setTextureState(anEffect);
+	//effect->posX = posX;
+	//effect->posY = posY;
 
-	currentEffect = anEffect;
+	//currentEffect = anEffect;
 }
 
 void Hero::playEffect()
 {
+	for(vector<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
+	{
+		(*anEffect)->animate();
+	}
 	effect->posX = posX;
 	effect->posY = posY;
 

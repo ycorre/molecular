@@ -17,16 +17,14 @@ Explosion::Explosion()
 Explosion::Explosion(int x, int y, int typeExpl)
 {
 	Drawable();
-	this->addTexture("explosion");
-	width = atoi(((lev->configurationElements.at("explosion")).at(0)).c_str());
-	height =  atoi(((lev->configurationElements.at("explosion")).at(1)).c_str());
+	copyFrom(lev->loadedObjects.at("explosion"));
 	posX = x;
 	posY = y;
 	type = typeExpl;
+	setAnimation("enemyExplode");
 	state = type;
 	setAnimX(0);
-	setAnimY(state * height);
-	parseAnimationState((lev->configurationElements.at("explosion")).at(2));
+	setAnimY(0);
 }
 
 Explosion::~Explosion()

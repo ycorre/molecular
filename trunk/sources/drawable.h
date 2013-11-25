@@ -15,6 +15,16 @@
 
 class GraphicEngine;
 class Level;
+class Animation;
+
+enum ParamValues { undefinedValue,
+				  pName,
+				  pWidth,
+				  pHeight,
+				  pTexture,
+				  pAnimations,
+				  pAnim,
+				  pNumberOfFrames};
 
 class Drawable
 {
@@ -23,7 +33,6 @@ class Drawable
 	  float animX;
 	  float animY;
 
-
 	public:
 	  int width;
 	  int height;
@@ -31,19 +40,22 @@ class Drawable
 	  float posY;
 	  float posZ; //Depth
 	  float opacity;
+	  float scaleX;
+	  float scaleY;
+	  float rotX;
+	  float rotY;
 	  int state;
-	  string stateString;
+	  map<int, float> scalingEffect;
+	  map<int, float> opacityEffect;
 	  int display; //Boolean: should the object be display
 	  int toRemove; //Boolean: should the object be destroyed
 	  int isBlinking; //Boolean: should the object be blinking
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
+	  int posXCorrection, posYCorrection;
 	  int toBlend;
-	  int currentFrame;
-	  int animationUpdateFrequency; //How often we update the frame in the animation
-			//41 ms ~= 24 FPS
-			//33 ms ~= 30 FPS
+	  map<string, int> confParameters;
 
 	  //static since the graphic engine is the same for all the objects
 	  static GraphicEngine * ge;
@@ -51,24 +63,25 @@ class Drawable
 
 	  //last timestamp where the animation was updated; useful to control the animation speed
 	  int lastTimeUpdated;
-	  //The number of frames in each animation // TODO change to map when conf load by file
-	  vector<int> nbFrames;
-	  map<string, int> numberOfFrames;
 	  SDL_Surface * texture;
 
 	  //OpenGL stuff
 	  GLuint oglTexture;
 	  float textureXOrigin, textureYOrigin;
 
+	  map<string, SDL_Surface *> textures;
+	  map<string, GLuint> oglTextures;
+
 	  Drawable();
 	  ~Drawable();
 	  virtual void animate();
 	  virtual void blink();
 	  void processDisplay();
-	  virtual int updateAnimationFrame();
 	  void loadTexture(string path);
-	  virtual void parseAnimationState(string aConf);
+
 	  void clean();
+	  void loadFrom(string aConfString);
+	  void copyFrom(Drawable * aDrawable);
 
 	  void createOGLTexture();
 	  void computeOGLXValues();
@@ -103,22 +116,29 @@ class Drawable
 	  virtual SDL_Surface * getCollisionTexture();
 };
 
-//Class for objects that use a hit box for collision detection
-class HitBoxedDrawable: public Drawable
+
+class AnimatedDrawable: virtual public Drawable
 {
 	public:
-	  int hitBoxWidth;
-	  int hitBoxHeight;
-	  int hitBoxX;
-	  int hitBoxY;
+	  //How often we update the frame in the animation
+	  	//41 ms ~= 24 FPS
+	  	//33 ms ~= 30 FPS
+	  int animationUpdateFrequency;
+	  Animation * currentAnimation;
+	  map <string, Animation *> animations;
 
-	  virtual int hasHitBox() {return TRUE;}
-	  virtual int getXBoundary();
-	  virtual int getYBoundary();
-	  virtual int getWidthBoundary();
-	  virtual int getHeightBoundary();
+	  AnimatedDrawable();
+	  virtual float getWidth();
+	  virtual float getHeight();
+	  virtual float getPosX();
+	  virtual float getPosY();
+	  virtual int getCurrentFrame();
+	  void parseAnimationState(string aConf);
+	  int updateAnimationFrame();
+	  void copyFrom(AnimatedDrawable * aDrawable);
+	  void setAnimation(string anAnimationName);
+	  void loadFrom(string aConfString);
 };
-
 
 //Class for objects that use a mask for collision detection
 class MaskedDrawable: virtual public Drawable
@@ -142,8 +162,8 @@ class CompositeDrawable: public Drawable
 class MultiTextureDrawable: virtual public Drawable
 {
 	public:
-	  map<string, SDL_Surface *> textures;
-	  map<string, GLuint> oglTextures;
+	 // map<string, SDL_Surface *> textures;
+	 // map<string, GLuint> oglTextures;
 	  string textureState;
 
 	  virtual void addTexture(string path);
@@ -152,34 +172,33 @@ class MultiTextureDrawable: virtual public Drawable
 	  virtual void setTextureState(string aState);
 };
 
-//Class for objects who have a grid of sprites as texture
-class FrameDrawable: virtual public Drawable
+class Animation
 {
 	public:
-	  int numberOfFrameInLine;
-	  int realWidth;
+	  string name;
+	  int width;
+	  int height;
+	  float texturePosX;
+	  float texturePosY;
+	  int numberOfFrames;
+	  int currentFrame;
+	  int loop;
+	  SDL_Surface * texture;
+	  GLuint oglTexture;
+	  //How often we update the frame in the animation
+	  //41 ms ~= 24 FPS
+	  //33 ms ~= 30 FPS
+	  int animationUpdateFrequency;
+	  Drawable * drawable;
+	  int hasEnded;
 
-	  virtual int updateAnimationFrame();
-	  virtual void setWidth(int aValue);
+	  Animation();
+	  Animation(Animation * anAnim);
+	  Animation(Drawable * aDrawable);
+	  int nextFrame();
+	  void setAnimationParameter(string aConf);
+	  void loadTexture(string path);
 };
 
-//Class for objects who have several images of different size as texture
-class MultiSizeTextureDrawable: virtual public MultiTextureDrawable, virtual public FrameDrawable
-{
-	public:
-	  int spriteWidth;
-	  int currentWidth, currentHeight;
-	  int posXCorrection, posYCorrection;
-	  map<string, pair<int, int> > textureSizes;
-
-	  virtual float getPosX();
-	  virtual float getPosY();
-	  virtual float getWidth();
-	  virtual float getHeight();
-	  virtual void addTexture(string path, vector<string> * aConf);
-	  virtual void setTextureState(string aState);
-	  virtual int updateAnimationFrame();
-};
 
 #endif
-

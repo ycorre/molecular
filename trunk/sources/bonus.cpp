@@ -25,17 +25,19 @@ Bonus::Bonus(int x, int y, int bType)
 	type = bType;
 	if (bType == BONUS_LIFE)
 	{
-		this->addTexture("bonusLife");
+		copyFrom(lev->loadedObjects.at("bonusLife"));
+		/*this->addTexture("bonusLife");
 		width = atoi(((lev->configurationElements.at("bonusLife")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("bonusLife")).at(1)).c_str());
-		parseAnimationState((lev->configurationElements.at("bonusLife")).at(2));
+		parseAnimationState((lev->configurationElements.at("bonusLife")).at(2));*/
 	}
 	if (bType == BONUS_FIRERATE)
 	{
-		this->addTexture("bonusDiamond");
+		copyFrom(lev->loadedObjects.at("bonusDiamond"));
+	/*	this->addTexture("bonusDiamond");
 		width = atoi(((lev->configurationElements.at("bonusDiamond")).at(0)).c_str());
 		height = atoi(((lev->configurationElements.at("bonusDiamond")).at(1)).c_str());
-		parseAnimationState((lev->configurationElements.at("bonusDiamond")).at(2));
+		parseAnimationState((lev->configurationElements.at("bonusDiamond")).at(2));*/
 	}
 	posX = x;
 	posY = y;

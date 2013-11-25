@@ -13,13 +13,15 @@ GraphicEngine::GraphicEngine()
 
 void GraphicEngine::initGe()
 {
-	/*blackBox = new Drawable();
+#if !USE_OPENGL
+	blackBox = new Drawable();
 	blackBox->width = 1200;
 	blackBox->height = 600;
 	blackBox->loadTexture("res/bbox.png");
 	blackBox->texture = SDL_DisplayFormat(blackBox->texture);
 	blackBox->setAnimX(0);
-	blackBox->setAnimY(0);*/
+	blackBox->setAnimY(0);
+#endif
 }
 
 //Load a texture as an SDL_Surface
@@ -48,7 +50,9 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 void GraphicEngine::drawFrame()
 {
 #if USE_OPENGL
+	//Reset the view matrix
     glLoadIdentity();
+    //Perform a translation so that we are starting our coordinates at point (0,0)
 	glTranslatef(-aspectRatio, -1  , -1);
 #endif
 
@@ -86,22 +90,49 @@ int GraphicEngine::draw(Drawable * sprite)
 			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 		}
 
+		//Set the opacity
 		glColor4f(1.0, 1.0, 1.0, sprite->opacity);
+
+		glPushMatrix();
+
+		//If some scaling operations are required
+		if (sprite->scaleX != 1 || sprite->scaleY != 1)
+		{
+			float oX = (sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2)));
+			float oY = (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+
+			//Translate back to 0,0 in order to perform the scaling
+			glTranslatef(oX, oY, 0.0);
+			//Scale
+			glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
+			//Translate back to the normal position
+			glTranslatef(-oX, -oY, 0.0);
+		}
+
+		//glRotatef(angle, sprite->rotX, sprite->rotY, 1.0);
+		//Use the object texture
 		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
 
+		//Draw a quadrilateral
 		glBegin(GL_QUADS);
+			//Texture coordinates to display
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
+			//Coordinates of the quadrilateral
 			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
 			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0);
+			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
 			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+
 		glEnd();
+
+		glPopMatrix();
 
 		if(sprite->toBlend)
 		{

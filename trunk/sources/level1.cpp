@@ -13,6 +13,7 @@ void Level1::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	loadConf();
+	loadObjects();
 	loadEnemies();
 	loadObject();
 	instantiateEnemies();
@@ -20,8 +21,8 @@ void Level1::loadLevel(Hero * aHero)
 	hud = new HUD(ge);
 	cameraSpeed = 1;
 
-	hero =  aHero;
-	hero->setTexture();
+	hero = aHero;
+	hero->setTexture(loadedObjects.at("atom"));
 
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = FALSE;
@@ -83,6 +84,14 @@ void Level1::drawLevel()
 	hud->displayRadioPotential(hero->radioactivePotential);
 	hud->displayScore(Score);
 
+	for (list<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
+	{
+		if((*anEffect)->animateEffect())
+		{
+			activeEffects.erase(anEffect++);
+		}
+	}
+
 	//Animate the hero
 	hero->animate();
 
@@ -101,7 +110,7 @@ void Level1::drawLevel()
 void Level1::checkEvent()
 {
 
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		if((*anElement)->toRemove)
 		{
@@ -215,7 +224,10 @@ void Level1::loadEnemies()
 			enemyConfigurationElements.push_back(confElements);
 		}
 	}
+	loadEffects();
+	instantiateEffects();
 }
+
 
 void Level1::instantiateEnemies()
 {
@@ -232,8 +244,24 @@ void Level1::instantiateEnemies()
 		int pX = atoi((anEnemy->at(0)).c_str());
 		int pY = atoi((anEnemy->at(1)).c_str());
 		activeElements.push_back(new Enemy(pX, pY, sinWidth, sinHeight, speed));
+				//pX, pY, sinWidth, sinHeight, speed));
 	}
 }
+
+
+void Level1::instantiateEffects()
+{
+	string line;
+
+	for (vector<string>::iterator anEffect = effectConfigurationElements.begin(); anEffect != effectConfigurationElements.end(); ++anEffect)
+	{
+		Effect * aNewEffect = new Effect();
+		aNewEffect->loadConf((*anEffect));
+
+		loadedEffects.insert(make_pair(aNewEffect->name, aNewEffect));
+	}
+}
+
 
 void Level1::finishLevel()
 {

@@ -13,6 +13,7 @@ void Level2::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	loadConf();
+	loadObjects();
 	loadObject();
 	hud = new HUD(ge);
 	cameraSpeed = 1;
@@ -21,7 +22,7 @@ void Level2::loadLevel(Hero * aHero)
 	levelState = LEVEL_PLAYING;
 
 	hero = aHero;
-	hero->setTexture();
+	hero->setTexture(loadedObjects.at("atom"));
 
 	ending = fading = exiting = FALSE;
 }

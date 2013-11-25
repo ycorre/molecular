@@ -8,7 +8,7 @@
 #include "graphicEngine.h"
 #include "level.h"
 
-class Bonus: public Drawable
+class Bonus: public AnimatedDrawable
 {
    public:
 
