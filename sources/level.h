@@ -18,6 +18,7 @@
 #include "bonus.h"
 #include "hero.h"
 #include "hud.h"
+#include "effect.h"
 
 class Hero;
 class Pe;
@@ -33,7 +34,12 @@ class Level
 	SoundEngine * soundEngine;
 	list<Drawable*> activeElements;
 	map<string, vector<string> > configurationElements;
+	map<string, Effect *> loadedEffects;
+	list<Effect *> activeEffects;
 	list<vector<string> > enemyConfigurationElements;
+	vector<string> effectConfigurationElements;
+	vector<string> objectConfiguration;
+	map<string, AnimatedDrawable *> loadedObjects;
 	string name;
 	int levelState;
 	int cameraSpeed;
@@ -52,13 +58,15 @@ class Level
 	virtual void loadLevel(Hero * aHero);
 	virtual void loadConf();
 	void loadStarConf();
-	virtual void loadObject();
+	virtual void loadObjects();
 	virtual void loadTextures();
 	virtual void loadBackGround();
 	virtual void moveBackGround();
 	virtual void drawLevel();
 	virtual void checkEvent();
 	virtual void heroLoseLife();
+	virtual void loadEffects();
+	virtual void createEffect(int x, int y, string name);
 	virtual void createExplosion(int x, int y, int type);
 	virtual void createBonus(int x, int y, int type);
 	virtual int checkCollision(Drawable * anEnemy);

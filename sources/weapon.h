@@ -24,7 +24,7 @@ class Weapon: public Drawable
 	  int fireRate;
 	  int maxFireRate;
 	  list<Laser *> shoots;
-	  list<Drawable *> impacts;
+	  list<AnimatedDrawable *> impacts;
 
 	  Weapon();
 	  void fire(Hero * aHero);

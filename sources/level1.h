@@ -32,7 +32,8 @@ class Level1:  public Level
 	virtual void createBonus(int x, int y, int type);
 	virtual int checkEnemyCollision(Drawable * anElement);
 	virtual void finishLevel();
+	void instantiateEffects();
 };
-
+void loadEffects();
 #endif
 

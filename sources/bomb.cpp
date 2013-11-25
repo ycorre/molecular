@@ -3,12 +3,8 @@
 Bomb::Bomb()
 {
 	Drawable();
-
-	width = atoi(((lev->configurationElements.at("bomb")).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at("bomb")).at(1)).c_str());
-	this->addTexture("bomb");
-	parseAnimationState((lev->configurationElements.at("bomb")).at(2));
-	collision =  ge->loadTexture("res/Bomb_Col.png");
+	copyFrom(lev->loadedObjects.at("bomb"));
+	collision = ge->loadTexture("res/Bomb_Col.png");
 
 	state = 0;
 	setAnimX(0);
@@ -31,9 +27,7 @@ Bomb::Bomb()
 Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 {
 	Drawable();
-	this->addTexture("bomb");
-	width = atoi(((lev->configurationElements.at("bomb")).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at("bomb")).at(1)).c_str());
+	copyFrom(lev->loadedObjects.at("bomb"));
 	posX = x;
 	posY = y;
 	state = 0;
@@ -49,8 +43,8 @@ Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 250;
-	collision =  ge->loadTexture("res/Ennemi_mask.png");
-	parseAnimationState((lev->configurationElements.at("bomb")).at(2));
+	collision = ge->loadTexture("res/Ennemi_mask.png");
+
 	speed = aSpeed;
 	angle = anAngle * (PI / 180.0);
 }
@@ -91,7 +85,6 @@ void Bomb::setAngleAndSpeed()
 	//Set which side of the screen it will appear from
 	int arrivalSide = (rand() % 3);
 	int angleDegree;
-
 
 	//Set the angle (in degrees)
 	//We try too sharp angle

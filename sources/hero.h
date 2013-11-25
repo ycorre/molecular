@@ -11,11 +11,13 @@
 #include "level.h"
 #include "laser.h"
 #include "weapon.h"
+#include "effect.h"
 
 class Laser;
 class Weapon;
+class Effect;
 
-class Hero: public MaskedDrawable, public MultiSizeTextureDrawable
+class Hero: public MaskedDrawable , public AnimatedDrawable
 {
 	public:
 	  //Values kept from one level to the next
@@ -35,8 +37,9 @@ class Hero: public MaskedDrawable, public MultiSizeTextureDrawable
 	  float radioactivePotential;
 	  float backOffSpeed;
 
-	  MultiSizeTextureDrawable * effect;
+	  AnimatedDrawable * effect;
 	  string currentEffect;
+	  vector<Effect *> activeEffects;
 
 	  //Should be constant throughout the game
 	  int maxHealth;
@@ -47,7 +50,7 @@ class Hero: public MaskedDrawable, public MultiSizeTextureDrawable
 
 	  Hero();
 	  void setState(int aState);
-	  void setTexture();
+	  void setTexture(Drawable * aModel);
 	  void fire();
 	  void move(int x, int y);
 	  void moveUp();
@@ -70,7 +73,7 @@ class Hero: public MaskedDrawable, public MultiSizeTextureDrawable
 	  virtual void processCollisionWith(Drawable * aDrawable);
 
 	private:
-	  Drawable * firingEffect;
+	  AnimatedDrawable * firingEffect;
 	  int heroChangedState;
 };
 

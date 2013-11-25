@@ -3,9 +3,6 @@
 Enemy::Enemy()
 {
 	Drawable();
-	this->addTexture("enemy");
-	width = texture->w;
-	height = texture->h;
 	posX = 0;
 	posY = 0;
 	state = 0;
@@ -43,7 +40,7 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 50 * (typeXW+1);
-	collision =  ge->loadTexture("res/Ennemi_mask.png");
+	collision = ge->loadTexture("res/Ennemi_mask.png");
 	parseAnimationState((lev->configurationElements.at("enemy")).at(2));
 	speed = 2;
 
@@ -55,9 +52,8 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 {
 	Drawable();
-	this->addTexture("enemy");
-	width = atoi(((lev->configurationElements.at("enemy")).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at("enemy")).at(1)).c_str());
+	copyFrom(lev->loadedObjects.at("enemy"));
+
 	posX = x;
 	posY = y;
 	state = 0;
@@ -73,8 +69,7 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 50;
-	collision =  ge->loadTexture("res/Ennemi_mask.png");
-	parseAnimationState((lev->configurationElements.at("enemy")).at(2));
+	collision = ge->loadTexture("res/Ennemi_mask.png");
 	speed = aSpeed;
 
 	originY = y;

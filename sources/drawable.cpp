@@ -11,11 +11,8 @@ Level * Drawable::lev;
 Drawable::Drawable()
 {
 	lastTimeUpdated = 0;
-	animationUpdateFrequency = 40;
-	nbFrames.push_back(1);
 	texture = NULL;
 	state = 0;
-	stateString = "static";
 	posX = 0;
 	posY = 0;
 	posZ = 0;
@@ -27,9 +24,22 @@ Drawable::Drawable()
 	toRemove = FALSE;
 	toBlend = FALSE;
 	isBlinking = FALSE;
-	currentFrame = 0;
 	blinkingCounter = 0;
+	posXCorrection = 0;
+	posYCorrection = 0;
 	opacity = 1.0f;
+	scaleX = 1.0f;
+	scaleY = 1.0f;
+	rotX = 0;
+	rotY = 0;
+
+	//confParameters = {("name", pName), ("width", pWidth), ("height", pHeight), ("texture", pTexture), ("anim", pAnim), ("animations", pAnimations)};
+	confParameters["name"] = pName;
+	confParameters["width"] = pWidth;
+	confParameters["height"] = pHeight;
+	confParameters["texture"] = pTexture;
+	confParameters["anim"] = pAnim;
+	confParameters["animations"] = pAnimations;
 }
 
 Drawable::~Drawable()
@@ -52,49 +62,68 @@ void Drawable::processCollisionWith(Drawable* aDrawable)
 
 }
 
-//Change the animation to display
+/*
 int Drawable::updateAnimationFrame()
 {
 	//41 ms ~= 24 FPS
 	//33 ms ~= 30 FPS
-	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
+	/*unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
 	if (updateTime < ProgramTimer)
 	{
 		//shift one sprite to the right; if we are at the end then go back to the beginning
-		setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
+		currentAnimation->nextFrame();
+		//setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
 		lastTimeUpdated = ProgramTimer;
 		return TRUE;
 	}
 
 	return FALSE;
-}
+}*/
 
-void Drawable::parseAnimationState(string aConf)
+void Drawable::loadFrom(string aConfString)
 {
-	istringstream aConfStream(aConf);
-	string aState;
-	nbFrames.clear();
-	numberOfFrames.clear();
+	istringstream aConfStream(aConfString);
+	string aLine;
+	string token;
 
-	while(getline(aConfStream, aState,'#'))
+	getline(aConfStream, aLine);
+
+	istringstream myLine(aLine);
+	getline(myLine, token, ';');
+	name = token;
+
+	while(getline(myLine, token, ';'))
 	{
-		if(aState.size()!=0){
-			istringstream nbFrame(aState);
-			string aName;
-			string aNumber;
-			getline(nbFrame, aName, '$');
-			//Get the second element (the one we are interested in)
-			getline(nbFrame, aNumber, '$');
-			nbFrames.push_back(atoi(aNumber.c_str()));
-			//Special case for static (default case)
-			if(aName == "static")
-			{
-				aName = "";
-			}
-			numberOfFrames.insert(make_pair(name+aName ,atoi(aNumber.c_str())));
+		istringstream aParam(token);
+		string paramType;
+		string paramValue;
+		getline(aParam, paramType, ':');
+		getline(aParam, paramValue, ':');
+
+		switch(confParameters.at(paramType))
+		{
+			case pName:
+				name = paramValue;
+				cout<< name << endl;
+				break;
+
+			case pWidth:
+				width = atoi(paramValue.c_str());
+				break;
+
+			case pHeight:
+				height = atoi(paramValue.c_str());
+				break;
+
+			case pTexture:
+				loadTexture(paramValue.c_str());
+				break;
+
+			default:
+				cerr << "Drawable loadFrom(): Unknown configuration parameter: " << paramType << endl;
+				break;
 		}
 	}
-
 }
 
 void Drawable::processDisplay()
@@ -204,6 +233,17 @@ void Drawable::computeOGLYValues()
 	ogl_Ycorner = ogl_Yorigin + (float)this->getHeight()/(float)this->getTexture()->h;
 }
 
+void Drawable::copyFrom(Drawable * aDrawable)
+{
+	name = aDrawable->name;
+	width = aDrawable->width;
+	height = aDrawable->height;
+	texture = aDrawable->texture;
+	oglTexture = aDrawable->oglTexture;
+	textures = aDrawable->textures;
+	oglTextures = aDrawable->oglTextures;
+}
+
 int Drawable::getXBoundary()
 {
 	return posX;
@@ -216,12 +256,12 @@ int Drawable::getYBoundary()
 
 int Drawable::getWidthBoundary()
 {
-	return width;
+	return width * scaleX;
 }
 
 int Drawable::getHeightBoundary()
 {
-	return height;
+	return height * scaleY;
 }
 
 SDL_Surface * Drawable::getCollisionTexture()
@@ -263,27 +303,208 @@ float Drawable::getHeight()
 {
 	return height;
 }
+
 /*
- * Hitboxed class functions
+ * AnimatedDrawable Functions
  */
-int HitBoxedDrawable::getXBoundary()
+AnimatedDrawable::AnimatedDrawable()
 {
-	return hitBoxX;
+	Drawable();
+	animationUpdateFrequency = 40;
+	currentAnimation = NULL;
 }
 
-int HitBoxedDrawable::getYBoundary()
+
+float AnimatedDrawable::getWidth()
 {
-	return hitBoxY;
+	return currentAnimation->width;
 }
 
-int HitBoxedDrawable::getHeightBoundary()
+float AnimatedDrawable::getHeight()
 {
-	return hitBoxHeight;
+	return currentAnimation->height;
 }
 
-int HitBoxedDrawable::getWidthBoundary()
+int AnimatedDrawable::getCurrentFrame()
 {
-	return hitBoxWidth;
+	return currentAnimation->currentFrame;
+}
+
+float AnimatedDrawable::getPosX()
+{
+	return posX + posXCorrection;
+
+}
+
+float AnimatedDrawable::getPosY()
+{
+	return posY + posYCorrection;
+}
+
+//Change the animation to display
+int AnimatedDrawable::updateAnimationFrame()
+{
+	//41 ms ~= 24 FPS
+	//33 ms ~= 30 FPS
+	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
+	if (updateTime < ProgramTimer)
+	{
+		//shift one sprite to the right; if we are at the end then go back to the beginning
+		currentAnimation->nextFrame();
+		//setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
+		lastTimeUpdated = ProgramTimer;
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+void AnimatedDrawable::setAnimation(string aName)
+{
+	currentAnimation = animations.at(aName);
+	currentAnimation->currentFrame = 0;
+	texture = currentAnimation->texture;
+	oglTexture = currentAnimation->oglTexture;
+	posXCorrection = width / 2 - currentAnimation->width / 2;
+	posYCorrection = height / 2 - currentAnimation->height / 2;
+}
+
+void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
+{
+	name = aDrawable->name;
+	width = aDrawable->width;
+	height = aDrawable->height;
+	for (std::map<string, Animation *>::const_iterator anElement = aDrawable->animations.begin(); anElement != aDrawable->animations.end(); ++anElement)
+	{
+		Animation * aNewAnim = new Animation((*anElement).second);
+		aNewAnim->drawable = this;
+		animations.insert(make_pair((*anElement).first, aNewAnim));
+	}
+
+	texture = aDrawable->texture;
+	oglTexture = aDrawable->oglTexture;
+	textures = aDrawable->textures;
+	oglTextures = aDrawable->oglTextures;
+	setAnimation("static");
+}
+
+
+void AnimatedDrawable::parseAnimationState(string aConf)
+{
+	istringstream aConfStream(aConf);
+	string aState;
+	animations.clear();
+
+	while(getline(aConfStream, aState,'#'))
+	{
+		if(aState.size()!=0){
+			istringstream nbFrame(aState);
+			string aName;
+			string aNumber;
+			getline(nbFrame, aName, '$');
+			//Get the second element (the one we are interested in)
+			getline(nbFrame, aNumber, '$');
+
+			Animation * anAnim = new Animation(this);
+			anAnim->name = aName;
+			anAnim->numberOfFrames = atoi(aNumber.c_str());
+
+			if (currentAnimation == NULL)
+			{
+				currentAnimation = anAnim;
+			}
+
+			animations.insert(make_pair(anAnim->name, anAnim));
+		}
+	}
+}
+
+void AnimatedDrawable::loadFrom(string aConfString)
+{
+	istringstream aConfStream(aConfString);
+	string aLine;
+	string token;
+
+	getline(aConfStream, aLine);
+
+	istringstream myLine(aLine);
+	getline(myLine, token, ';');
+	name = token;
+
+	while(getline(myLine, token, ';'))
+	{
+		istringstream aParam(token);
+		string paramType;
+		string paramValue;
+		getline(aParam, paramType, ':');
+		getline(aParam, paramValue, ':');
+
+		switch(confParameters.at(paramType))
+		{
+			case pName:
+				name = paramValue;
+				cout<< name << endl;
+				break;
+
+			case pWidth:
+				width = atoi(paramValue.c_str());
+				break;
+
+			case pHeight:
+				height = atoi(paramValue.c_str());
+				break;
+
+			case pTexture:
+				loadTexture(paramValue.c_str());
+				break;
+
+			case pAnim:
+				break;
+
+			case pAnimations:
+				parseAnimationState(paramValue);
+				break;
+
+			default:
+				cerr << "Drawable loadFrom(): Unknown configuration parameter: " << paramType << endl;
+				break;
+		}
+	}
+
+	//If there are several animations
+	//Configure them
+	while(getline(aConfStream, aLine))
+	{
+		istringstream myLine(aLine);
+		getline(myLine, token, ';');
+		istringstream aParam(token);
+		string paramType;
+		string paramValue;
+		getline(aParam, paramType, ':');
+		getline(aParam, paramValue, ':');
+
+		if (!paramType.compare("anim"))
+		{
+			animations.at(paramValue)->setAnimationParameter(aLine);
+		}
+	}
+
+	if(animations.empty())
+	{
+		Animation * anAnim = new Animation(this);
+		anAnim->name = "static";
+		anAnim->numberOfFrames = 1;
+		animations.insert(make_pair(anAnim->name, anAnim));
+	}
+
+	for (std::map<string, Animation *>::const_iterator anElement = animations.begin(); anElement != animations.end(); ++anElement)
+	{
+		if((*anElement).second->texture == NULL)
+		{
+			(*anElement).second->texture = texture;
+			(*anElement).second->oglTexture = oglTexture;
+		}
+	}
 }
 
 /*
@@ -325,109 +546,4 @@ GLuint MultiTextureDrawable::getOpenGLTexture()
 void MultiTextureDrawable::setTextureState(string aState)
 {
 	textureState = name + aState;
-	currentFrame = 0;
-}
-
-/*
- * FrameDrawable functions
- */
-int FrameDrawable::updateAnimationFrame()
-{
-
-	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
-	if (updateTime < ProgramTimer)
-	{
-		//increment to the next frame or loop back to the beginning
-		//Textures are a grid of frame numbered from left to right and from top to bottom
-		//currentFrame = (currentFrame + 1) % nbFrames.at(state);
-		currentFrame = (currentFrame + 1) % nbFrames.at(state);
-		//Compute the position in the texture
-		setAnimY((currentFrame / (getTexture()->w/realWidth)) * height);
-		setAnimX((currentFrame % (getTexture()->w/realWidth)) * realWidth);
-		lastTimeUpdated = ProgramTimer;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-void FrameDrawable::setWidth(int aValue)
-{
-	width = aValue;
-	realWidth = width;
-	numberOfFrameInLine = getTexture()->w/width;
-	setAnimY(0);
-	setAnimX(0);
-}
-
-/*
- * MultiSizeTextureDrawable functions
- */
-void MultiSizeTextureDrawable::addTexture(string aName, vector<string> * aConf)
-{
-	textures.insert(make_pair(aName, ge->textures.at(aName)));
-	if(texture==NULL)
-	{
-		texture = ge->textures.at(aName);
-	}
-	textureState = aName;
-	textureSizes.insert(make_pair(aName, (make_pair(atoi(aConf->at(0).c_str()), atoi(aConf->at(1).c_str())))));
-#if USE_OPENGL
-	oglTextures.insert(make_pair(aName, ge->openGLTextures.at(textures.at(aName))));
-	setAnimX(getAnimX());
-	setAnimY(getAnimY());
-#endif
-}
-
-int MultiSizeTextureDrawable::updateAnimationFrame()
-{
-	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
-
-	if (updateTime < ProgramTimer)
-	{
-		//Increment to the next frame or loop back to the beginning
-		//Textures are a grid of frame numbered from left to right and from top to bottom
-		//currentFrame = (currentFrame + 1) % nbFrames.at(state);
-		currentFrame = (currentFrame + 1) % numberOfFrames.at(textureState);
-
-		//Compute the position in the texture
-		setAnimY((currentFrame / (getTexture()->w/currentWidth)) * currentHeight);
-		setAnimX((currentFrame % (getTexture()->w/currentWidth)) * currentWidth);
-		lastTimeUpdated = ProgramTimer;
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-void MultiSizeTextureDrawable::setTextureState(string aState)
-{
-	textureState = name + aState;
-	currentWidth = textureSizes.at(textureState).first;
-	currentHeight = textureSizes.at(textureState).second;
-	posXCorrection = width / 2 - currentWidth / 2;
-	posYCorrection = height / 2 - currentHeight / 2;
-	currentFrame = 0;
-}
-
-float MultiSizeTextureDrawable::getPosX()
-{
-	return posX + posXCorrection;
-
-}
-
-float MultiSizeTextureDrawable::getPosY()
-{
-	return posY + posYCorrection;
-}
-
-
-float MultiSizeTextureDrawable::getWidth()
-{
-	return currentWidth;
-}
-
-float MultiSizeTextureDrawable::getHeight()
-{
-	return currentHeight;
 }

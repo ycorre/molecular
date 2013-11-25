@@ -16,12 +16,6 @@ void Level::loadLevel(Hero * aHero)
 
 }
 
-void Level::loadObject()
-{
-	loadBackGround();
-	loadTextures();
-}
-
 //Load all textures used for the level at the beginning
 //Texture and objects are specified in the level configuration file
 void Level::loadTextures()
@@ -52,26 +46,28 @@ void Level::loadBackGround()
 
 #endif
 	background.toMerge.clear();
+	bkg_near = *loadedObjects.at("bkg_near");
 	bkg_near.width = SCREEN_WIDTH;
 	bkg_near.height = SCREEN_HEIGHT;
-	bkg_near.addTexture("bkg_near");
+	//bkg_near.addTexture("bkg_near");
 	bkg_near.posX = 0;
 	bkg_near.posY = 0;
 	bkg_near.state = 0;
 	bkg_near.setAnimX(0);
 	bkg_near.setAnimY(0);
 
+	bkg_mid = *loadedObjects.at("bkg_mid");
 	bkg_mid.width = SCREEN_WIDTH;
 	bkg_mid.height = SCREEN_HEIGHT;
-	bkg_mid.addTexture("bkg_mid");
+	//bkg_mid.addTexture("bkg_mid");
 	bkg_mid.posX = 0;
 	bkg_mid.posY = 0;
 	bkg_mid.state = 0;
 	bkg_mid.setAnimX(0);
 	bkg_mid.setAnimY(0);
 
-
-	bkg_distant.addTexture("bkg_distant");
+	bkg_distant = *loadedObjects.at("bkg_distant");
+	//bkg_distant.addTexture("bkg_distant");
 	bkg_distant.width = SCREEN_WIDTH;
 	bkg_distant.height = SCREEN_HEIGHT;
 	bkg_distant.posX = 0;
@@ -191,7 +187,7 @@ void Level::createBonus(int x, int y, int type)
 
 //Load all the configuration elements from a text file
 //Format: elementName;width;height;listOfAnimationStatus$nbOfFramesInAnAnimation;pathToTextureFile
-void Level::loadConf()
+/*void Level::loadConf()
 {
 	ifstream file;
 	string line;
@@ -227,6 +223,46 @@ void Level::loadConf()
 	bkg_nearSpeed = atof(confElements.at(2).c_str());
 
 	configurationElements.erase("bkg_conf");
+}*/
+
+void Level::loadConf()
+{
+	ifstream file;
+	string fileName = "conf/l1.conf";
+	string token;
+
+	file.open(fileName.c_str());
+
+	string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
+	vector<string> elems;
+
+	size_t position = 0;
+	while ((position = fileString.find("@")) != string::npos)
+	{
+		token = fileString.substr(0, position);
+		objectConfiguration.push_back(token);
+		fileString.erase(0, position + 1);
+	}
+	objectConfiguration.push_back(fileString);
+}
+
+void Level::loadObjects()
+{
+
+	for (vector<string>::iterator aConfString = objectConfiguration.begin() +1; aConfString != objectConfiguration.end(); ++aConfString)
+	{
+		AnimatedDrawable * aNewDrawable = new AnimatedDrawable();
+		aNewDrawable->loadFrom(*aConfString);
+
+		loadedObjects.insert(make_pair(aNewDrawable->name, aNewDrawable));
+	}
+}
+
+
+void Level::createEffect(int x, int y, string name)
+{
+	loadedEffects.at(name)->startEffect(x, y);
+	activeEffects.push_back(loadedEffects.at(name));
 }
 
 void Level::heroLoseLife()
@@ -259,6 +295,29 @@ void Level::endLevel()
 void Level::finishLevel()
 {
 
+}
+
+void Level::loadEffects()
+{
+	//effectsConfigurationElements.clear();
+	ifstream file;
+	string fileName = "conf/effectL1.conf";
+	string token;
+
+	file.open(fileName.c_str());
+
+	string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
+	vector<string> elems;
+
+	size_t position = 0;
+	while ((position = fileString.find("@")) != string::npos)
+	{
+		token = fileString.substr(0, position);
+		effectConfigurationElements.push_back(token);
+		fileString.erase(0, position + 1);
+	}
+
+	effectConfigurationElements.push_back(fileString);
 }
 
 //Generate a random set of stars

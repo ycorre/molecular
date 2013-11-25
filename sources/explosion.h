@@ -4,7 +4,7 @@
 #include "graphicEngine.h"
 #include "level.h"
 
-class Explosion: public Drawable
+class Explosion: public AnimatedDrawable
 {
 	public:
 		int type;
