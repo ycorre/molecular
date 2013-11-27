@@ -55,7 +55,6 @@ void Level4::loadBackGround()
 	bigStars.height = SCREEN_HEIGHT;
 	bigStars.posX = -SCREEN_WIDTH/2.0;
 	bigStars.posY = SCREEN_HEIGHT/2.0;
-	bigStars.state = 0;
 	bigStars.setAnimX(0);
 	bigStars.setAnimY(0);
 	//activeElements.push_back(&bigStars);

@@ -107,7 +107,7 @@ Music::Music(string aPath, string aName)
 	isPlaying = FALSE;
 	volume = 0;
 	looped = TRUE;
-	numberOfLoops = 0;
+	numberOfLoops = -1;
 }
 
 void Music::load(string aPath)
@@ -139,6 +139,7 @@ void Music::stop()
 	{
 		soundEngine->stopMusic(this);
 	}
+	isPlaying = FALSE;
 }
 
 void Music::fadeOut(int aTime)

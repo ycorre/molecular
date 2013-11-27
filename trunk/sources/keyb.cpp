@@ -75,8 +75,14 @@ void Keyboard::processKeyInGame(Hero* hero)
 		if(keyStates[LEFT_KEY])
 			hero->moveLeft();
 
-		if(keyStates[FIRE_KEY])
+		if(keyStates[TELEPORT_KEY])
 			hero->teleport();
+
+		if(keyStates[PHOTON_KEY])
+			hero->setWeapon("photonGun");
+
+		if(keyStates[ELECTRON_KEY])
+			hero->setWeapon("electronGun");
 	}
 
     return;
@@ -96,10 +102,11 @@ void Keyboard::processeMouseInGame(Hero * hero)
 		{
 			hero->fire();
 		}
-		else if (!keyStates[FIRE_KEY])
+		else
 		{
 			hero->isFiring = FALSE;
 		}
+
 	}
 
     return;
@@ -116,10 +123,6 @@ void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
 			
 		case DOWN_KEY:
 			hero->heroMovingUpOrDown = 0;
-			break;
-
-		case FIRE_KEY:
-			hero->isFiring = FALSE;
 			break;
 
 		case SDLK_b:

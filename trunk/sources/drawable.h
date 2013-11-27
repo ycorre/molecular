@@ -12,6 +12,7 @@
 #include <SDL_ttf.h>
 #include "common.h"
 #include "graphicEngine.h"
+#include "animation.h"
 
 class GraphicEngine;
 class Level;
@@ -24,7 +25,11 @@ enum ParamValues { undefinedValue,
 				  pTexture,
 				  pAnimations,
 				  pAnim,
-				  pNumberOfFrames};
+				  pNumberOfFrames,
+				  pBlending,
+			 	  pOpacity,
+				  pMoveTexture,
+				  pScale};
 
 class Drawable
 {
@@ -44,7 +49,8 @@ class Drawable
 	  float scaleY;
 	  float rotX;
 	  float rotY;
-	  int state;
+	  float rotZ;
+	  float rotationAngle;
 	  map<int, float> scalingEffect;
 	  map<int, float> opacityEffect;
 	  int display; //Boolean: should the object be display
@@ -73,7 +79,7 @@ class Drawable
 	  map<string, GLuint> oglTextures;
 
 	  Drawable();
-	  ~Drawable();
+	 // ~Drawable();
 	  virtual void animate();
 	  virtual void blink();
 	  void processDisplay();
@@ -170,34 +176,6 @@ class MultiTextureDrawable: virtual public Drawable
 	  virtual SDL_Surface * getTexture();
 	  virtual GLuint getOpenGLTexture();
 	  virtual void setTextureState(string aState);
-};
-
-class Animation
-{
-	public:
-	  string name;
-	  int width;
-	  int height;
-	  float texturePosX;
-	  float texturePosY;
-	  int numberOfFrames;
-	  int currentFrame;
-	  int loop;
-	  SDL_Surface * texture;
-	  GLuint oglTexture;
-	  //How often we update the frame in the animation
-	  //41 ms ~= 24 FPS
-	  //33 ms ~= 30 FPS
-	  int animationUpdateFrequency;
-	  Drawable * drawable;
-	  int hasEnded;
-
-	  Animation();
-	  Animation(Animation * anAnim);
-	  Animation(Drawable * aDrawable);
-	  int nextFrame();
-	  void setAnimationParameter(string aConf);
-	  void loadTexture(string path);
 };
 
 

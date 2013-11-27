@@ -12,7 +12,6 @@ Drawable::Drawable()
 {
 	lastTimeUpdated = 0;
 	texture = NULL;
-	state = 0;
 	posX = 0;
 	posY = 0;
 	posZ = 0;
@@ -32,6 +31,8 @@ Drawable::Drawable()
 	scaleY = 1.0f;
 	rotX = 0;
 	rotY = 0;
+	rotZ = 0;
+	rotationAngle = 0;
 
 	//confParameters = {("name", pName), ("width", pWidth), ("height", pHeight), ("texture", pTexture), ("anim", pAnim), ("animations", pAnimations)};
 	confParameters["name"] = pName;
@@ -40,12 +41,16 @@ Drawable::Drawable()
 	confParameters["texture"] = pTexture;
 	confParameters["anim"] = pAnim;
 	confParameters["animations"] = pAnimations;
+	confParameters["blending"] = pBlending;
+	confParameters["opacity"] = pOpacity;
+	confParameters["moveTexture"] = pMoveTexture;
+	confParameters["scale"] = pScale;
 }
 
-Drawable::~Drawable()
+/*Drawable::~Drawable()
 {
 
-}
+}*/
 
 void Drawable::animate()
 {
@@ -61,24 +66,6 @@ void Drawable::processCollisionWith(Drawable* aDrawable)
 {
 
 }
-
-/*
-int Drawable::updateAnimationFrame()
-{
-	//41 ms ~= 24 FPS
-	//33 ms ~= 30 FPS
-	/*unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
-	if (updateTime < ProgramTimer)
-	{
-		//shift one sprite to the right; if we are at the end then go back to the beginning
-		currentAnimation->nextFrame();
-		//setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
-		lastTimeUpdated = ProgramTimer;
-		return TRUE;
-	}
-
-	return FALSE;
-}*/
 
 void Drawable::loadFrom(string aConfString)
 {
@@ -117,6 +104,11 @@ void Drawable::loadFrom(string aConfString)
 
 			case pTexture:
 				loadTexture(paramValue.c_str());
+				break;
+
+			case pBlending:
+				if(!paramValue.compare("true"))
+					toBlend = TRUE;
 				break;
 
 			default:
@@ -246,12 +238,12 @@ void Drawable::copyFrom(Drawable * aDrawable)
 
 int Drawable::getXBoundary()
 {
-	return posX;
+	return posX; //+ (posXCorrection * scaleX);
 }
 
 int Drawable::getYBoundary()
 {
-	return posY;
+	return posY; //+ (posYCorrection * scaleY);
 }
 
 int Drawable::getWidthBoundary()
@@ -293,7 +285,17 @@ float Drawable::getPosY()
 {
 	return posY;
 }
+/*
+float Drawable::getUnscaledPosX()
+{
+	return posX;
+}
 
+float Drawable::getUnscaledPosY()
+{
+	return posY;
+}
+*/
 float Drawable::getWidth()
 {
 	return width;
@@ -314,7 +316,6 @@ AnimatedDrawable::AnimatedDrawable()
 	currentAnimation = NULL;
 }
 
-
 float AnimatedDrawable::getWidth()
 {
 	return currentAnimation->width;
@@ -332,13 +333,12 @@ int AnimatedDrawable::getCurrentFrame()
 
 float AnimatedDrawable::getPosX()
 {
-	return posX + posXCorrection;
-
+	return posX + (posXCorrection * scaleX);
 }
 
 float AnimatedDrawable::getPosY()
 {
-	return posY + posYCorrection;
+	return posY + (posYCorrection * scaleY);
 }
 
 //Change the animation to display
@@ -349,9 +349,7 @@ int AnimatedDrawable::updateAnimationFrame()
 	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
 	if (updateTime < ProgramTimer)
 	{
-		//shift one sprite to the right; if we are at the end then go back to the beginning
 		currentAnimation->nextFrame();
-		//setAnimX((float)(((int)animX + width) % (nbFrames.at(state)*width)));
 		lastTimeUpdated = ProgramTimer;
 		return TRUE;
 	}
@@ -381,11 +379,15 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 		animations.insert(make_pair((*anElement).first, aNewAnim));
 	}
 
+	toBlend = aDrawable->toBlend;
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
 	textures = aDrawable->textures;
 	oglTextures = aDrawable->oglTextures;
+	animationUpdateFrequency = aDrawable->animationUpdateFrequency;
 	setAnimation("static");
+	posXCorrection = aDrawable->posXCorrection;
+	posYCorrection = aDrawable->posYCorrection;
 }
 
 
@@ -437,7 +439,15 @@ void AnimatedDrawable::loadFrom(string aConfString)
 		string paramType;
 		string paramValue;
 		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
+		if(!paramType.compare("anim"))
+		{
+			getline(aParam, paramValue);
+		}
+		else
+		{
+			getline(aParam, paramValue, ':');
+		}
+
 
 		switch(confParameters.at(paramType))
 		{
@@ -459,10 +469,16 @@ void AnimatedDrawable::loadFrom(string aConfString)
 				break;
 
 			case pAnim:
+				animations.at("static")->setAdditionalAnimationParameter(paramValue);
 				break;
 
 			case pAnimations:
 				parseAnimationState(paramValue);
+				break;
+
+			case pBlending:
+				if(!paramValue.compare("true"))
+					toBlend = TRUE;
 				break;
 
 			default:

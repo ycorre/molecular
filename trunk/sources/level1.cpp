@@ -18,6 +18,8 @@ void Level1::loadLevel(Hero * aHero)
 	loadObject();
 	instantiateEnemies();
 
+	soundEngine->playMusic("l1Music");
+
 	hud = new HUD(ge);
 	cameraSpeed = 1;
 
@@ -26,8 +28,6 @@ void Level1::loadLevel(Hero * aHero)
 
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = FALSE;
-
-	soundEngine->playSound("start_ambient");
 }
 
 void Level1::loadObject()
@@ -54,11 +54,18 @@ void Level1::loadBackGround()
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
 	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
 	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
-	soundEngine->addSound("sound/tie_hit.wav", "tie_hit");
 	soundEngine->addSound("sound/Mitraille_attack.wav", "mitAttack");
 	soundEngine->addSound("sound/Mitraille_loop.wav", "mitLoop");
 	soundEngine->addSound("sound/EnnemiGun01.wav", "enemyGun");
 	soundEngine->addSound("sound/Mitraille_release.wav", "mitRelease");
+	soundEngine->addSound("sound/TeleportOn.wav", "TeleportOn");
+	soundEngine->addSound("sound/TeleportOff.wav", "TeleportOff");
+	soundEngine->addSound("sound/UpHealth.wav", "UpHealth");
+	soundEngine->addSound("sound/UpHealth100.wav", "UpHealth100");
+	soundEngine->addSound("sound/UpDiamond.wav", "UpDiamond");
+	soundEngine->addSound("sound/Alarme.wav", "AtomHit");
+	soundEngine->addMusic("sound/HybridQuarksLow.mp3", "l1Music");
+
 	soundEngine->sounds.at("mitLoop")->setLoop(-1);
 }
 
@@ -151,14 +158,14 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 		}
 	}
 
-	for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
+	hero->getLasers();
+	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		Laser * aL = *aLaser;
-		if(aL->display && pe->collisionDetection(aL, anElement))
+		if((*aLaser)->display && pe->collisionDetection(*aLaser, anElement))
 		{
-			anElement->processCollisionWith(aL);
-			aL->processCollisionWith(anElement);
-			aL->display = FALSE;
+			anElement->processCollisionWith(*aLaser);
+			(*aLaser)->processCollisionWith(anElement);
+			(*aLaser)->display = FALSE;
 			return TRUE;
 		}
 	}
@@ -244,7 +251,6 @@ void Level1::instantiateEnemies()
 		int pX = atoi((anEnemy->at(0)).c_str());
 		int pY = atoi((anEnemy->at(1)).c_str());
 		activeElements.push_back(new Enemy(pX, pY, sinWidth, sinHeight, speed));
-				//pX, pY, sinWidth, sinHeight, speed));
 	}
 }
 

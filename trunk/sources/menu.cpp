@@ -142,7 +142,6 @@ void Menu::loadMenu()
 	gameOver->posY = 60;
 
 	soundEngine->addSound("sound/game_over.wav", "game_over");
-	soundEngine->addSound("sound/start_ambient.wav", "start_ambient");
 	soundEngine->addSound("sound/FractalZeptoReal.wav", "fractal");
 	soundEngine->addMusic("sound/OptionsScreen.mp3", "musicMenu");
 

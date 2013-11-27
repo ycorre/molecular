@@ -6,25 +6,39 @@ Effect::Effect()
 	height = 0;
 	posX = 0;
 	posY = 0;
-	state = 0;
 	setAnimX(0);
 	setAnimY(0);
 }
 
-Effect::Effect(int x, int y, string typeEffect)
+Effect::Effect(int x, int y, string aName)
 {
 	Drawable();
-	typeEffect = "effect" + typeEffect;
-	this->addTexture(typeEffect);
-	width = atoi(((lev->configurationElements.at(typeEffect)).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at(typeEffect)).at(1)).c_str());
-	posX = x;
-	posY = y;
-	state = 0;
-	type = typeEffect;
-	setAnimX(0);
-	setAnimY(0);
-	parseAnimationState((lev->configurationElements.at(typeEffect)).at(2));
+	name = aName;
+	width = lev->loadedEffects.at(aName)->width;
+	height = lev->loadedEffects.at(aName)->height;
+	//copyFrom(lev->loadedEffects.at(aName));
+
+	for (map<string, AnimatedDrawable *>::iterator aLayer = lev->loadedEffects.at(aName)->effectLayers.begin(); aLayer != lev->loadedEffects.at(aName)->effectLayers.end(); ++aLayer)
+	{
+		AnimatedDrawable * anAnimatedDrawable = new AnimatedDrawable();
+		anAnimatedDrawable->copyFrom((*aLayer).second);
+		if(anAnimatedDrawable->name.compare(0,8, "effect_c") == 0)
+		{
+			anAnimatedDrawable->posX = x + 32;
+			anAnimatedDrawable->posY = y + 32;
+		}
+		else
+		{
+			anAnimatedDrawable->posX = x;
+			anAnimatedDrawable->posY = y;
+		}
+
+		anAnimatedDrawable->display = TRUE;
+	//	anAnimatedDrawable->animationUpdateFrequency = 400;
+		effectLayers.insert(make_pair(anAnimatedDrawable->name, anAnimatedDrawable));
+	}
+
+	frameCount = 0;
 }
 
 Effect::~Effect()
@@ -34,6 +48,7 @@ Effect::~Effect()
 
 int Effect::animateEffect()
 {
+
 	int isFinished = TRUE;
 	int isUpdated = FALSE;
 	for (map<string, AnimatedDrawable *>::iterator aLayer = effectLayers.begin(); aLayer != effectLayers.end(); ++aLayer)
@@ -41,6 +56,10 @@ int Effect::animateEffect()
 		if((*aLayer).second->updateAnimationFrame())
 		{
 			isUpdated = TRUE;
+			if((*aLayer).second->name.compare(0, 4, "load") == 0)
+			{
+				(*aLayer).second->posY--;
+			}
 		}
 		if((*aLayer).second->currentAnimation->hasEnded)
 		{
@@ -78,22 +97,12 @@ void Effect::loadConf(string aConfigString)
 		{
 			istringstream myLine(line);
 			AnimatedDrawable * aLayer = new AnimatedDrawable();
-			getline(myLine, token, ';');
-			aLayer->name = token;
-			getline(myLine, token, ';');
-			aLayer->width = atoi(token.c_str());
-			getline(myLine, token, ';');
-			aLayer->height = atoi(token.c_str());
-			getline(myLine, token, ';');
-			aLayer->parseAnimationState(token);
-			getline(myLine, token, ';');
-			aLayer->loadTexture(token);
-			aLayer->toBlend = TRUE;
+			aLayer->loadFrom(line);
+
 			aLayer->setWidth(aLayer->width);
 
 			aLayer->posXCorrection = width / 2 - aLayer->width / 2;
 			aLayer->posYCorrection = height / 2 - aLayer->height / 2;
-
 			effectLayers.insert(make_pair(aLayer->name, aLayer));
 		}
 	}
@@ -103,9 +112,10 @@ void Effect::startEffect(int x, int y)
 {
 	for (map<string, AnimatedDrawable *>::iterator aLayer = effectLayers.begin(); aLayer != effectLayers.end(); ++aLayer)
 	{
-		(*aLayer).second->posX = x + (*aLayer).second->posXCorrection;
-		(*aLayer).second->posY = y + (*aLayer).second->posYCorrection;
+		(*aLayer).second->posX = x;
+		(*aLayer).second->posY = y;
 		(*aLayer).second->display = TRUE;
-		frameCount = 0;
+		(*aLayer).second->animationUpdateFrequency = 400;
 	}
+	frameCount = 0;
 }

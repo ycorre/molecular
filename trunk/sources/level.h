@@ -74,6 +74,7 @@ class Level
 	virtual void cleanLevel();
 	virtual void endLevel();
 	virtual void finishLevel();
+	virtual void instantiateEffects();
 	void generateStarfield();
 	void displayStarField();
 	int isOnScreen(Drawable * aDrawable);

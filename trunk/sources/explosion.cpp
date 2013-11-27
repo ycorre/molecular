@@ -7,7 +7,6 @@ Explosion::Explosion()
 	height = texture->h;
 	posX = 0;
 	posY = 0;
-	state = 0;
 	setAnimX(0);
 	setAnimY(0);
 	type = XWING_EXPL;
@@ -22,7 +21,6 @@ Explosion::Explosion(int x, int y, int typeExpl)
 	posY = y;
 	type = typeExpl;
 	setAnimation("enemyExplode");
-	state = type;
 	setAnimX(0);
 	setAnimY(0);
 }

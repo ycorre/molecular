@@ -122,6 +122,8 @@ void SoundEngine::stopMusic(string aMusic)
 void SoundEngine::playMusic(Music * aMusic)
 {
 	//currentMusi = aMusic;
+	Mix_SetMusicPosition(0.0);
+
 	aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
 	if (aMusic->playingChannel!= -1)
 	{
@@ -129,7 +131,7 @@ void SoundEngine::playMusic(Music * aMusic)
 	}
 	else
 	{
-		cerr << "Error could not play sound" << aMusic->name << endl;
+		cerr << "Error could not play music" << aMusic->name << endl;
 	}
 }
 
@@ -141,12 +143,14 @@ void SoundEngine::playMusic()
 void SoundEngine::stopMusic(Music * aMusic)
 {
 	Mix_HaltMusic();
+	Mix_RewindMusic();
 	aMusic->isPlaying = FALSE;
 }
 
 void SoundEngine::stopMusic()
 {
 	Mix_HaltMusic();
+	Mix_RewindMusic();
 }
 
 void SoundEngine::addMusic(string pathToASound, string aMusicId)
