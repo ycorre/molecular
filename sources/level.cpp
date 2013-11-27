@@ -26,6 +26,19 @@ void Level::loadTextures()
 	}
 }
 
+void Level::instantiateEffects()
+{
+	string line;
+
+	for (vector<string>::iterator anEffect = effectConfigurationElements.begin(); anEffect != effectConfigurationElements.end(); ++anEffect)
+	{
+		Effect * aNewEffect = new Effect();
+		aNewEffect->loadConf((*anEffect));
+
+		loadedEffects.insert(make_pair(aNewEffect->name, aNewEffect));
+	}
+}
+
 void Level::loadBackGround()
 {
 #if 0 //USE_OPENGL
@@ -49,30 +62,24 @@ void Level::loadBackGround()
 	bkg_near = *loadedObjects.at("bkg_near");
 	bkg_near.width = SCREEN_WIDTH;
 	bkg_near.height = SCREEN_HEIGHT;
-	//bkg_near.addTexture("bkg_near");
 	bkg_near.posX = 0;
 	bkg_near.posY = 0;
-	bkg_near.state = 0;
 	bkg_near.setAnimX(0);
 	bkg_near.setAnimY(0);
 
 	bkg_mid = *loadedObjects.at("bkg_mid");
 	bkg_mid.width = SCREEN_WIDTH;
 	bkg_mid.height = SCREEN_HEIGHT;
-	//bkg_mid.addTexture("bkg_mid");
 	bkg_mid.posX = 0;
 	bkg_mid.posY = 0;
-	bkg_mid.state = 0;
 	bkg_mid.setAnimX(0);
 	bkg_mid.setAnimY(0);
 
 	bkg_distant = *loadedObjects.at("bkg_distant");
-	//bkg_distant.addTexture("bkg_distant");
 	bkg_distant.width = SCREEN_WIDTH;
 	bkg_distant.height = SCREEN_HEIGHT;
 	bkg_distant.posX = 0;
-	bkg_distant.posY =  0;
-	bkg_distant.state = 0;
+	bkg_distant.posY = 0;
 	bkg_distant.setAnimX(0);
 	bkg_distant.setAnimY(0);
 
@@ -261,8 +268,8 @@ void Level::loadObjects()
 
 void Level::createEffect(int x, int y, string name)
 {
-	loadedEffects.at(name)->startEffect(x, y);
-	activeEffects.push_back(loadedEffects.at(name));
+	//loadedEffects.at(name)->startEffect(x, y);
+	activeEffects.push_back(new Effect(x, y, name));//loadedEffects.at(name));
 }
 
 void Level::heroLoseLife()
@@ -280,9 +287,31 @@ void Level::cleanLevel()
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->clean();
+		//delete (*anElement);
 	}
-	activeElements.clear();
+//	activeElements.clear();
 
+	for (map<string, AnimatedDrawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
+	{
+		SDL_FreeSurface((*anElement).second->texture);
+	//	delete (*anElement).second;
+	}
+	loadedObjects.clear();
+
+	for (map<string, Effect *>::iterator anElement = loadedEffects.begin() ; anElement != loadedEffects.end(); ++anElement)
+	{
+
+		for (map<string, AnimatedDrawable *>::iterator aLayer = (*anElement).second->effectLayers.begin(); aLayer != (*anElement).second->effectLayers.end(); ++aLayer)
+		{
+			SDL_FreeSurface((*aLayer).second->texture);
+		}
+		SDL_FreeSurface((*anElement).second->texture);
+	}
+
+	activeElements.clear();
+	loadedEffects.clear();
+	activeEffects.clear();
+	soundEngine->stopMusic("l1Music");
 	soundEngine->stopAllSounds();
 }
 
@@ -310,7 +339,7 @@ void Level::loadEffects()
 	vector<string> elems;
 
 	size_t position = 0;
-	while ((position = fileString.find("@")) != string::npos)
+	while ((position = fileString.find("%")) != string::npos)
 	{
 		token = fileString.substr(0, position);
 		effectConfigurationElements.push_back(token);

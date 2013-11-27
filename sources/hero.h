@@ -25,7 +25,7 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  int nbLife;
 	  float regenMassPo;
 	  Weapon * currentWeapon;
-	  vector<Weapon*> ownedWeapons;
+	  map<string, Weapon*> ownedWeapons;
 
 	  //Should be reset from one level to the next
 	  int heroMovingUpOrDown;
@@ -36,8 +36,10 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  float massPotential;
 	  float radioactivePotential;
 	  float backOffSpeed;
+	  int state;
+	  list<Laser*> shoots;
 
-	  AnimatedDrawable * effect;
+	 // AnimatedDrawable * effect;
 	  string currentEffect;
 	  vector<Effect *> activeEffects;
 
@@ -60,11 +62,12 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  void animateLasers();
 	  void makeInvincible(int time);
 	  void checkInvicibility();
+	  void setWeapon(string aWeaponName);
 	  void loseLife();
 	  void resetHero();
 	  float hitBackoff();
 	  void teleport();
-	  void playEffect();
+	  //void playEffect();
 	  void startEffect(string anEffect);
 	  int endTeleport();
 	  list<Laser*> * getLasers();

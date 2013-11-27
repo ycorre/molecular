@@ -5,7 +5,6 @@ Enemy::Enemy()
 	Drawable();
 	posX = 0;
 	posY = 0;
-	state = 0;
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 0;
@@ -27,7 +26,6 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	height = atoi(((lev->configurationElements.at("enemy")).at(1)).c_str());
 	posX = x;
 	posY = y;
-	state = typeXW;
 	setAnimX(0);
 	setAnimY(typeXW * height);
 	direction = dir;
@@ -56,7 +54,6 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 
 	posX = x;
 	posY = y;
-	state = 0;
 	setAnimX(0);
 	setAnimY(0);
 	direction = RIGHT;
@@ -106,7 +103,7 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 	if (aDrawable->isLaser())
 	{
 		Laser * aLaser =  dynamic_cast<Laser*>(aDrawable);
-		life = life -50;// aLaser->power;
+		life = life - aLaser->power;
 		if (life<=0)
 		{
 			lev->soundEngine->playSound("xwing_explode");

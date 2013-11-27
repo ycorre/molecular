@@ -35,7 +35,9 @@ class Keyboard
 #define DOWN_KEY SDLK_DOWN
 #define LEFT_KEY SDLK_LEFT
 #define RIGHT_KEY SDLK_RIGHT
-#define FIRE_KEY SDLK_SPACE
+#define ELECTRON_KEY SDLK_c
+#define PHOTON_KEY SDLK_v
+#define TELEPORT_KEY SDLK_SPACE
 #define PAUSE_KEY SDLK_p
 #define STOP_MUSIC_KEY SDLK_m
 void quit(int returnCode);

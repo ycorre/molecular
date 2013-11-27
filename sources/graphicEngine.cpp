@@ -53,7 +53,7 @@ void GraphicEngine::drawFrame()
 	//Reset the view matrix
     glLoadIdentity();
     //Perform a translation so that we are starting our coordinates at point (0,0)
-	glTranslatef(-aspectRatio, -1  , -1);
+	glTranslatef(-aspectRatio, -1 , -1);
 #endif
 
 	if(!toDisplay.empty())
@@ -98,18 +98,37 @@ int GraphicEngine::draw(Drawable * sprite)
 		//If some scaling operations are required
 		if (sprite->scaleX != 1 || sprite->scaleY != 1)
 		{
-			float oX = (sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2)));
-			float oY = (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+			/*float oX = ((sprite->getPosX() + sprite->getWidth()/2) /(SCREEN_WIDTH/(aspectRatio*2)));
+			float oY = (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()/2))/(SCREEN_HEIGHT/2);
+
+			float dX =  ((sprite->getPosX() + (sprite->getWidth()*sprite->scaleX/2))/(SCREEN_WIDTH/(aspectRatio*2)));
+			float dY =  (SCREEN_HEIGHT - (sprite->getPosY() + (sprite->getHeight()*sprite->scaleY/2)))/(SCREEN_HEIGHT/2);
+*/
+			float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+			float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
 
 			//Translate back to 0,0 in order to perform the scaling
-			glTranslatef(oX, oY, 0.0);
+			glTranslatef(zX, zY, 0.0);
 			//Scale
 			glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
 			//Translate back to the normal position
-			glTranslatef(-oX, -oY, 0.0);
+			glTranslatef(-zX, -zY, 0.0);
 		}
 
-		//glRotatef(angle, sprite->rotX, sprite->rotY, 1.0);
+		//If some rotation operations are required
+		if (sprite->rotationAngle != 0)
+		{
+			float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+			float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+
+			//Translate back to 0,0 in order to perform the scaling
+			glTranslatef(zX, zY, 0.0);
+			//Rotate
+			glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
+			//Translate back to the normal position
+			glTranslatef(-zX, -zY, 0.0);
+		}
+
 		//Use the object texture
 		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
 
@@ -125,7 +144,6 @@ int GraphicEngine::draw(Drawable * sprite)
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
 			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
-
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
 			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);

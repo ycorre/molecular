@@ -17,7 +17,6 @@ Bullet::Bullet()
 	height = texture->h;
 	posX = 0;
 	posY = 0;
-	state = 0;
 	toBlend = TRUE;
 	setAnimX(0);
 	setAnimY(0);
@@ -37,7 +36,6 @@ Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 	speed = aSpeed;
 	posX = x;
 	posY = y;
-	state = 0;
 	toBlend = TRUE;
 	setAnimX(0);
 	setAnimY(0);

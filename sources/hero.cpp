@@ -24,7 +24,9 @@ Hero::Hero()
 	massPotential = 60;
 	radioactivePotential = 0;
 	toBlend = TRUE;
-	currentWeapon = new Weapon();
+	ownedWeapons.insert(make_pair("electronGun", (new Weapon("electronGun", 50, 50, WEAPON_ELECTRON))));
+	ownedWeapons.insert(make_pair("photonGun", (new Weapon("photonGun", 250, 750, WEAPON_PHOTON))));
+	currentWeapon = ownedWeapons.at("photonGun");
 	currentEffect = "";
 }
 
@@ -32,7 +34,7 @@ void Hero::setTexture(Drawable * levelHero)
 {
 	copyFrom(lev->loadedObjects.at("atom"));
 
-	effect = new AnimatedDrawable();
+	//effect = new AnimatedDrawable();
 
 	firingEffect = new AnimatedDrawable();
 	firingEffect->copyFrom(lev->loadedObjects.at("muzzl"));
@@ -81,7 +83,9 @@ void Hero::animate()
 				dontMove = TRUE;
 				makeInvincible(4000);
 				startEffect("Dispar");
-				setAnimation("Dispar");
+				currentAnimation->currentFrame = 0;
+				//setAnimation("Dispar");
+				lev->soundEngine->playSound("TeleportOff");
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -100,6 +104,7 @@ void Hero::animate()
 			case APPAR:
 				display = TRUE;
 				setAnimation("Appar");
+				lev->soundEngine->playSound("TeleportOn");
 				dontMove = TRUE;
 				makeInvincible(4000);
 				setAnimX(0);
@@ -164,18 +169,16 @@ void Hero::animate()
 					break;
 
 				case DISPAR:
-					if (!currentEffect.empty())
-					{
-						if(effect->currentAnimation->currentFrame == 0 || effect->currentAnimation->currentFrame == 2 || effect->currentAnimation->currentFrame == 4 || effect->currentAnimation->currentFrame == 6)
-							opacity = 0;
-						if(effect->currentAnimation->currentFrame == 1)
-							opacity = 1.0;
-						if(effect->currentAnimation->currentFrame == 3)
-							opacity = 0.75;
-						if(effect->currentAnimation->currentFrame == 5)
-							opacity = 0.5;
-					}
-					if (currentEffect.empty())
+					if(currentAnimation->currentFrame == 0 || currentAnimation->currentFrame == 2 || currentAnimation->currentFrame == 4 || currentAnimation->currentFrame == 6)
+						opacity = 0;
+					if(currentAnimation->currentFrame == 1)
+						opacity = 1.0;
+					if(currentAnimation->currentFrame == 3)
+						opacity = 0.75;
+					if(currentAnimation->currentFrame == 5)
+						opacity = 0.5;
+
+					if (currentAnimation->currentFrame == 14)
 					{
 						state = CURSOR;
 						heroChangedState = TRUE;
@@ -225,7 +228,6 @@ void Hero::animate()
 					if (currentAnimation->hasEnded)
 					{
 						loseLife();
-						//setTextureState("");
 					}
 					break;
 
@@ -252,8 +254,7 @@ void Hero::animate()
 	}
 
 	//We want the effect to stop on a weakly lighted frame
-	//So we play between condition
-	if(isFiring || firingEffect->display)
+	if((isFiring || firingEffect->display) && (!currentWeapon->name.compare("electronGun")))
 	{
 		//We started firing
 		if (isFiring && (!firingEffect->display))
@@ -268,9 +269,6 @@ void Hero::animate()
 		
 		lev->soundEngine->playSound("mitLoop");
 		int updated = firingEffect->updateAnimationFrame();
-
-		//if(firingEffect->getAnimX() == 0)
-		//	lev->soundEngine->playSound("mitLoop");
 
 		//We stopped firing and now we want to stop on a correct frame
 		//We stop when we are back to the strongest lighted
@@ -287,12 +285,7 @@ void Hero::animate()
 
 	massPotential = min(64.0f, massPotential + regenMassPo);
 
-	currentWeapon->animateLasers();
-
-	if (!currentEffect.empty())
-	{
-		playEffect();
-	}
+	animateLasers();
 
 	if(state!=DEAD)
 		checkInvicibility();
@@ -311,7 +304,14 @@ void Hero::fire()
 
 list<Laser*> * Hero::getLasers()
 {
-	return &currentWeapon->shoots;
+	shoots.clear();
+	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
+	{
+		shoots.insert(shoots.begin(), (*aWeapon).second->shoots.begin(), (*aWeapon).second->shoots.end());
+		 //shoots.merge((*aWeapon).second->shoots);
+	}
+
+	return &shoots;
 }
 
 
@@ -367,8 +367,10 @@ void Hero::move(int x, int y)
 
 void Hero::animateLasers()
 {
-	currentWeapon->animateLasers();
-
+	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
+	{
+		(*aWeapon).second->animateLasers();
+	}
 }
 
 void Hero::loseLife()
@@ -420,7 +422,7 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 			}
 			else
 			{
-				lev->soundEngine->playSound("tie_hit");
+				lev->soundEngine->playSound("AtomHit");
 				setState(HIT);
 				hitAngle = aLaser->angle;
 			}
@@ -433,13 +435,25 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 		Bonus * aBonus = dynamic_cast<Bonus*>(aDrawable);
 		if (aBonus->type == BONUS_LIFE)
 		{
+			startEffect("loadHealth");
+
 			if(health < maxHealth)
 			{
 				health++;
 			}
+			if (health >= maxHealth)
+			{
+				lev->soundEngine->playSound("UpHealth100");
+			}
+			else
+			{
+				lev->soundEngine->playSound("UpHealth");
+			}
 		}
 		if (aBonus->type == BONUS_FIRERATE)
 		{
+			startEffect("loadRadio");
+			lev->soundEngine->playSound("UpDiamond");
 			radioactivePotential = min(64.0f, radioactivePotential + 32);
 		}
 		return;
@@ -493,6 +507,18 @@ void Hero::setState(int aState)
 	heroChangedState = TRUE;
 }
 
+void Hero::setWeapon(string aWeaponName)
+{
+	currentWeapon = ownedWeapons.at(aWeaponName);
+
+	if(aWeaponName.compare("electronGun") && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
+	{
+		lev->soundEngine->stopSound("mitLoop");
+		lev->soundEngine->playSound("mitRelease");
+	}
+}
+
+
 void  Hero::teleport()
 {
 	if(massPotential == 64)
@@ -523,7 +549,7 @@ void Hero::startEffect(string anEffect)
 
 	//currentEffect = anEffect;
 }
-
+/*
 void Hero::playEffect()
 {
 	for(vector<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
@@ -540,4 +566,4 @@ void Hero::playEffect()
 	}
 
 	effect->processDisplay();
-}
+}*/

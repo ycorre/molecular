@@ -4,8 +4,9 @@
 
 #include "game.h"
 
-//TODO Enhance the loading config files system
+//TODO Finish enhancing the loading config files system (unique string of parameter for animations)
 //Handle memory release
+//Fix the music bug (repeating audio after music has been stop once (reload each time ?))
 
 //Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
@@ -265,7 +266,7 @@ int Game::initSDL()
     }
     
     //Init Audio
-    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)  == -1)
+    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)  == -1)
 	{
     	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
     	quit(1);
@@ -275,7 +276,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-   // SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);
