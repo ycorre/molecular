@@ -14,6 +14,7 @@ class Effect: public AnimatedDrawable
 		map<string, AnimatedDrawable *> effectLayers;
 		map<Drawable *, Drawable *> followedObjects;
 		int numberOfLoops;
+		int isMoving;
 
 		Effect();
 		Effect(int x, int y, string type);

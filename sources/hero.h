@@ -39,10 +39,6 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  int state;
 	  list<Laser*> shoots;
 
-	 // AnimatedDrawable * effect;
-	  string currentEffect;
-	  vector<Effect *> activeEffects;
-
 	  //Should be constant throughout the game
 	  int maxHealth;
 	  Uint32 invincibilityTime, startInvincibility;
@@ -54,6 +50,7 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  void setState(int aState);
 	  void setTexture(Drawable * aModel);
 	  void fire();
+	  void fireWeapon(string aWeaponName);
 	  void move(int x, int y);
 	  void moveUp();
 	  void moveDown();
@@ -67,7 +64,6 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  void resetHero();
 	  float hitBackoff();
 	  void teleport();
-	  //void playEffect();
 	  void startEffect(string anEffect);
 	  int endTeleport();
 	  list<Laser*> * getLasers();

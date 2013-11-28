@@ -16,7 +16,7 @@ Effect::Effect(int x, int y, string aName)
 	name = aName;
 	width = lev->loadedEffects.at(aName)->width;
 	height = lev->loadedEffects.at(aName)->height;
-	//copyFrom(lev->loadedEffects.at(aName));
+	isMoving = lev->loadedEffects.at(aName)->isMoving;
 
 	for (map<string, AnimatedDrawable *>::iterator aLayer = lev->loadedEffects.at(aName)->effectLayers.begin(); aLayer != lev->loadedEffects.at(aName)->effectLayers.end(); ++aLayer)
 	{
@@ -48,29 +48,37 @@ Effect::~Effect()
 
 int Effect::animateEffect()
 {
-
 	int isFinished = TRUE;
 	int isUpdated = FALSE;
+
 	for (map<string, AnimatedDrawable *>::iterator aLayer = effectLayers.begin(); aLayer != effectLayers.end(); ++aLayer)
 	{
-		if((*aLayer).second->updateAnimationFrame())
+		if((*aLayer).second->display)
 		{
-			isUpdated = TRUE;
-			if((*aLayer).second->name.compare(0, 4, "load") == 0)
+			if((*aLayer).second->updateAnimationFrame())
 			{
-				(*aLayer).second->posY--;
+				isUpdated = TRUE;
+				if((*aLayer).second->name.compare(0, 4, "load") == 0)
+				{
+					(*aLayer).second->posY--;
+				}
+			}
+
+			if(isMoving)
+				(*aLayer).second->posX--;
+
+			if((*aLayer).second->currentAnimation->hasEnded)
+			{
+				(*aLayer).second->display = FALSE;
+			}
+			else
+			{
+				(*aLayer).second->processDisplay();
+				isFinished = FALSE;
 			}
 		}
-		if((*aLayer).second->currentAnimation->hasEnded)
-		{
-			(*aLayer).second->display = FALSE;
-		}
-		else
-		{
-			(*aLayer).second->processDisplay();
-			isFinished = FALSE;
-		}
 	}
+
 	if(isUpdated)
 		frameCount++;
 
@@ -90,6 +98,15 @@ void Effect::loadConf(string aConfigString)
 	width = atoi(token.c_str());
 	getline(myLine, token, ';');
 	height = atoi(token.c_str());
+	getline(myLine, token, ';');
+	if(!token.compare("true"))
+	{
+		isMoving = TRUE;
+	}
+	else
+	{
+		isMoving = FALSE;
+	}
 
 	while(getline(aConf, line))
 	{

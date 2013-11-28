@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 #include <map>
+#include <sstream>
 #include <SDL.h>
 #include <SDL_audio.h>
 #include <SDL_mixer.h>
@@ -19,6 +20,14 @@
 #include "soundEngine.h"
 
 class SoundEngine;
+
+enum SoundParamValues{
+				  sName,
+				  sVolume,
+				  sLoop,
+				  sData};
+
+// = {{"name", sName}, {"volume", sVolume}, {"data", sData}, {"loop", sLoop}};
 
 class Sound
 {
@@ -32,13 +41,14 @@ class Sound
 		Mix_Chunk * soundData;
 
 		static SoundEngine * soundEngine;
+	    map<string, int> soundConfParameters;
 
 		Sound();
 		Sound(string aName);
 		Sound(string path, string name);
 		virtual void load(string aPath);
 		virtual void play();
-		//virtual void pause();
+		void loadASound(string confString);
 		virtual void stop();
 		void setLoop(int nTimes);
 };

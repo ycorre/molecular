@@ -9,8 +9,9 @@
 SoundEngine::SoundEngine()
 {
 	numberOfChannel = 24;
-	currentMusic = "";
-	pauseMusic = pauseSound = mute = FALSE;
+	currentMusic = NULL;
+	pauseMusic = pauseSound = mute = musicMuted = soundMuted = FALSE;
+	soundVolume = musicVolume = 100;
 }
 
 void SoundEngine::init()
@@ -33,14 +34,17 @@ void SoundEngine::stopSound(string aSound)
 
 void SoundEngine::playSound(Sound * aSound)
 {
-	aSound->playingChannel = Mix_PlayChannel(-1, aSound->soundData, aSound->numberOfLoops);
-	if (aSound->playingChannel!= -1)
+	if((!mute) && (!soundMuted))
 	{
-		aSound->isPlaying = TRUE;
-	}
-	else
-	{
-		cerr << "Error could not play sound" << aSound->name << endl;
+		aSound->playingChannel = Mix_PlayChannel(-1, aSound->soundData, aSound->numberOfLoops);
+		if (aSound->playingChannel!= -1)
+		{
+			aSound->isPlaying = TRUE;
+		}
+		else
+		{
+			cerr << "Error could not play sound" << aSound->name << endl;
+		}
 	}
 }
 
@@ -74,6 +78,19 @@ void SoundEngine::addSound(string pathToASound, string aSoundId)
 	}
 }
 
+void SoundEngine::addSound(Sound * aSound)
+{
+	//Check if the sound is already loaded
+	if(sounds.find(aSound->name) == sounds.end())
+	{
+		sounds.insert(make_pair(aSound->name, aSound));
+	}
+	else
+	{
+		cerr << "SoundEngine Error: The sound " << aSound->name << " has already been loaded " << endl;
+	}
+}
+
 int SoundEngine::loadSound(string pathToASound, Sound * aSound)
 {
 	aSound->soundData = Mix_LoadWAV(pathToASound.c_str());
@@ -87,6 +104,14 @@ int SoundEngine::loadSound(string pathToASound, Sound * aSound)
 	return 1;
 }
 
+void SoundEngine::setVolumeFor(Sound * aSound)
+{
+	//normalize value on 128 (which correspond to the max volume (MIX_MAX_VOLUME))
+	int aVolume = (int) (aSound->volume * 1.28);
+	Mix_VolumeChunk(aSound->soundData, aVolume);
+
+	cout<< aSound->name << ", " << aVolume << endl;
+}
 
 void SoundEngine::clearSounds()
 {
@@ -103,12 +128,17 @@ void channelDone(int channel)
   // cout<< "channel " << channel << " finished playback" << endl;
 }
 
+//Set the volume for all channel
+void SoundEngine::setSoundVolume(int aSoundVolume)
+{
+	soundVolume = (int)(aSoundVolume * 1.28);
+	Mix_Volume(-1, soundVolume);
+}
 
 
 /*
  * Music functions
  */
-
 void SoundEngine::playMusic(string aMusic)
 {
 	musics.at(aMusic)->play();
@@ -121,17 +151,20 @@ void SoundEngine::stopMusic(string aMusic)
 
 void SoundEngine::playMusic(Music * aMusic)
 {
-	//currentMusi = aMusic;
-	Mix_SetMusicPosition(0.0);
+	currentMusic = aMusic;
+	if(!mute && !musicMuted)
+	{
+		Mix_SetMusicPosition(0.0);
 
-	aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
-	if (aMusic->playingChannel!= -1)
-	{
-		aMusic->isPlaying = TRUE;
-	}
-	else
-	{
-		cerr << "Error could not play music" << aMusic->name << endl;
+		aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
+		if (aMusic->playingChannel!= -1)
+		{
+			aMusic->isPlaying = TRUE;
+		}
+		else
+		{
+			cerr << "Error could not play music" << aMusic->name << endl;
+		}
 	}
 }
 
@@ -179,6 +212,12 @@ void SoundEngine::fadeMusic(int ms)
 	Mix_FadeOutMusic(ms);
 }
 
+void SoundEngine::muteMusic()
+{
+	musicMuted = TRUE;
+	stopMusic();
+}
+
 int SoundEngine::loadMusic(string pathToASound, Music * aMusic)
 {
 	aMusic->musicData = Mix_LoadMUS(pathToASound.c_str());
@@ -190,4 +229,17 @@ int SoundEngine::loadMusic(string pathToASound, Music * aMusic)
 	}
 
 	return 1;
+}
+
+void SoundEngine::setMusicVolume(int aMusicVolume)
+{
+	musicVolume = (int)(aMusicVolume * 1.28);
+	Mix_VolumeMusic(musicVolume);
+}
+
+void SoundEngine::muteAll()
+{
+	mute = TRUE;
+	stopMusic();
+	stopAllSounds();
 }

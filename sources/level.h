@@ -59,6 +59,7 @@ class Level
 	virtual void loadConf();
 	void loadStarConf();
 	virtual void loadObjects();
+	virtual void loadSounds();
 	virtual void loadTextures();
 	virtual void loadBackGround();
 	virtual void moveBackGround();

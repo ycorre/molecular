@@ -103,7 +103,13 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 	if (aDrawable->isLaser())
 	{
 		Laser * aLaser =  dynamic_cast<Laser*>(aDrawable);
-		life = life - aLaser->power;
+		int lifeValue = life;
+		life = max(0, life - aLaser->power);
+		if(aLaser->isPhoton())
+		{
+			Photon * aPhoton =  dynamic_cast<Photon*>(aDrawable);
+			aPhoton->removeEnergy(lifeValue - life);
+		}
 		if (life<=0)
 		{
 			lev->soundEngine->playSound("xwing_explode");

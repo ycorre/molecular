@@ -33,6 +33,7 @@ void Level1::loadLevel(Hero * aHero)
 void Level1::loadObject()
 {
 	loadTextures();
+	loadSounds();
 	loadBackGround();
 }
 
@@ -50,7 +51,7 @@ void Level1::loadBackGround()
 {
 	Level::loadBackGround();
 	
-	soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
+	/*soundEngine->addSound("sound/xwing_explode.wav", "xwing_explode");
 	soundEngine->addSound("sound/xwing_fire.wav", "xwing_fire");
 	soundEngine->addSound("sound/tie_fire.wav", "tie_fire");
 	soundEngine->addSound("sound/tie_explode.wav", "tie_explode");
@@ -63,10 +64,10 @@ void Level1::loadBackGround()
 	soundEngine->addSound("sound/UpHealth.wav", "UpHealth");
 	soundEngine->addSound("sound/UpHealth100.wav", "UpHealth100");
 	soundEngine->addSound("sound/UpDiamond.wav", "UpDiamond");
-	soundEngine->addSound("sound/Alarme.wav", "AtomHit");
+	soundEngine->addSound("sound/Alarme.wav", "AtomHit");*/
 	soundEngine->addMusic("sound/HybridQuarksLow.mp3", "l1Music");
 
-	soundEngine->sounds.at("mitLoop")->setLoop(-1);
+	//soundEngine->sounds.at("mitLoop")->setLoop(-1);
 }
 
 void Level1::drawLevel()
@@ -165,7 +166,6 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(*aLaser);
 			(*aLaser)->processCollisionWith(anElement);
-			(*aLaser)->display = FALSE;
 			return TRUE;
 		}
 	}

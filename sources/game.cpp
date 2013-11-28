@@ -7,6 +7,7 @@
 //TODO Finish enhancing the loading config files system (unique string of parameter for animations)
 //Handle memory release
 //Fix the music bug (repeating audio after music has been stop once (reload each time ?))
+//Change menu configuration
 
 //Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
@@ -89,10 +90,10 @@ int Game::mainLoop()
 			    
 		    	case SDL_KEYUP:
 					//Handle key presses
-					if(gameState == INGAME || gameState == PAUSE)
-					{
-						keyboard->handleKeyUpHero(&event.key.keysym, currentLevel->hero);
-					}
+				//	if(gameState == INGAME || gameState == PAUSE)
+				//	{
+						keyboard->handleKeyUpHero(&event.key.keysym);
+				//	}
 					break;
 
 				case SDL_QUIT:
@@ -276,12 +277,13 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+   // SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);
     
     Drawable::ge = &graphicEngine;
+    Sound::soundEngine = &soundEngine;
     graphicEngine.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 
 #if USE_OPENGL
@@ -373,14 +375,28 @@ void Game::launchNextLevel()
 
 void Game::stopMusic()
 {
-	/*if(soundEngine.currentMusic->isPlaying)
+	if(!soundEngine.musicMuted)
 	{
-		soundEngine.stopMusic();
+		soundEngine.muteMusic();
 	}
 	else
 	{
+		soundEngine.musicMuted = FALSE;
 		soundEngine.playMusic();
-	}*/
+	}
+}
+
+void Game::muteAll()
+{
+	if(!soundEngine.mute)
+	{
+		soundEngine.muteAll();
+	}
+	else
+	{
+		soundEngine.mute = FALSE;
+		soundEngine.playMusic();
+	}
 }
 
 //Update Timers

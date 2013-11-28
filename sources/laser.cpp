@@ -42,7 +42,7 @@ Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 	scaleX = 0.5;
 	scaleY = 0.5;
 	rotZ = -1.0;
-	rotationAngle = -8 + (rand() % 16);
+	rotationAngle = -4 + (rand() % 8);
 	angle = rotationAngle * (PI / 180.0);
 	toBlend = TRUE;
 	setAnimX(0);
@@ -93,6 +93,7 @@ void Laser::animate()
 void Laser::processCollisionWith(Drawable* aDrawable)
 {
 	firingWeapon->createImpact(posX, posY - 80);
+	display = FALSE;
 
 	if (aDrawable->isHero())
 	{
@@ -177,4 +178,15 @@ void Photon::animate()
 void Photon::processCollisionWith(Drawable* aDrawable)
 {
 
+}
+
+void Photon::removeEnergy(int anEnergyValue)
+{
+	power = power - anEnergyValue;
+
+	if(power <= 0)
+	{
+		display = FALSE;
+		toRemove = TRUE;
+	}
 }
