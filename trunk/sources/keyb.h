@@ -22,7 +22,7 @@ class Keyboard
 		int p_pressed;
 
 		Keyboard();
-		void handleKeyUpHero(SDL_keysym *keysym, Hero  * hero);
+		void handleKeyUpHero(SDL_keysym * keysym);
 		void processKeyPress();
 		void processKeyState();
 		void processKeyInGame(Hero* hero);
@@ -39,7 +39,9 @@ class Keyboard
 #define PHOTON_KEY SDLK_v
 #define TELEPORT_KEY SDLK_SPACE
 #define PAUSE_KEY SDLK_p
-#define STOP_MUSIC_KEY SDLK_m
+#define MUTE_MUSIC_KEY SDLK_o
+#define MUTE_SOUND_KEY SDLK_i
+#define MUTE_ALL_KEY SDLK_m
 void quit(int returnCode);
 
 #endif

@@ -26,24 +26,35 @@ class SoundEngine
 	public:
 		map<string, Sound *> sounds;
 		map<string, Music *> musics;
-		Music * currentMusi;
-		string currentMusic;
+		Music * currentMusic;
+		//string currentMusic;
 		
 		int soundVolume;
 		int musicVolume;
 		int numberOfChannel;
 		int pauseMusic, pauseSound;
 		int mute;
+		int soundMuted, musicMuted;
 
 		SoundEngine();
 		void init();
+		void muteAll();
+		void clearSounds();
+		void stopAllSounds();
+
+		int loadSound(string pathToASound, Sound * aSound);
+		void addSound(string pathTotASound, string aSoundId);
+		void addSound(Sound * aSound);
 		void playSound(string aSound);
 		void playSound(Sound * aSound);
-		void stopSound(Sound * aSound);
-		int loadSound(string pathToASound, Sound * aSound);
-		int loadMusic(string pathToASound, Music * aMusic);
-		void playSoundLoop(string aSound, int loop);
 		void stopSound(string aSound);
+		void stopSound(Sound * aSound);
+		void playSoundLoop(string aSound, int loop);
+		void setSoundVolume(int soundVolume);
+		void setVolumeFor(Sound * aSound);
+
+		int loadMusic(string pathToASound, Music * aMusic);
+		void addMusic(string pathTotASound, string aSoundId);
 		void playMusic(string aMusic);
 		void playMusic(Music * aMusic);
 		void playMusic();
@@ -52,10 +63,8 @@ class SoundEngine
 		void stopMusic();
 		void fadeMusic(int timeMs);
 		void fadeMusic(string aMusic, int ms);
-		void addSound(string pathTotASound, string aSoundId);
-		void addMusic(string pathTotASound, string aSoundId);
-		void clearSounds();
-		void stopAllSounds();
+		void muteMusic();
+		void setMusicVolume(int musicVolume);
 };
 
 void channelDone(int channel);

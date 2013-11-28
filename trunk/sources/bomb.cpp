@@ -70,7 +70,16 @@ void Bomb::fire()
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 180* (PI / 180.0), 3));
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 225* (PI / 180.0), 3));
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 270* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14 , posY + 16, 315* (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 315* (PI / 180.0), 3));
+
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 22.5 * (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 67.5 * (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 112.5* (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 157.5* (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 202.5* (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 247.5* (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 292.5* (PI / 180.0), 3));
+		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 337.5* (PI / 180.0), 3));
 
 		canFire = FALSE;
 	}

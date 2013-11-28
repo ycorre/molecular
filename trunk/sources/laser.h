@@ -26,6 +26,7 @@ class Laser: public MaskedDrawable, public AnimatedDrawable
 	  Laser(int x, int y, int dir, int type, Weapon * aWeapon);
 	  virtual void animate();
 	  virtual int isLaser() {return TRUE;}
+	  virtual int isPhoton() {return FALSE;}
 	  virtual void processCollisionWith(Drawable* aDrawable);
 	  void createImpact(float x, float y);
 };
@@ -34,11 +35,13 @@ class Photon: public Laser
 {
    public:
 
-	Photon();
-	Photon(int x, int y, int dir, int type, Weapon * aWeapon);
+	  Photon();
+	  Photon(int x, int y, int dir, int type, Weapon * aWeapon);
 	  virtual void animate();
 	  virtual int isLaser() {return TRUE;}
+	  virtual int isPhoton() {return TRUE;}
 	  virtual void processCollisionWith(Drawable* aDrawable);
+	  void removeEnergy(int anEnergyValue);
 };
 
 #define RED_LASER 0

@@ -253,6 +253,30 @@ void Level::loadConf()
 	objectConfiguration.push_back(fileString);
 }
 
+void Level::loadSounds()
+{
+	ifstream file;
+	string fileName = "conf/soundL1.conf";
+	string token;
+	string line;
+	string type;
+	vector<string> confElements;
+	string confElement;
+
+	file.open(fileName.c_str());
+
+	while(getline(file, line))
+	{
+		if(!line.empty()) //Ignore empty lines
+		{
+			Sound * aSound = new Sound();
+			aSound->loadASound(line);
+
+			soundEngine->addSound(aSound);
+		}
+	}
+}
+
 void Level::loadObjects()
 {
 
@@ -287,14 +311,12 @@ void Level::cleanLevel()
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->clean();
-		//delete (*anElement);
 	}
-//	activeElements.clear();
+
 
 	for (map<string, AnimatedDrawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
 	{
 		SDL_FreeSurface((*anElement).second->texture);
-	//	delete (*anElement).second;
 	}
 	loadedObjects.clear();
 

@@ -24,17 +24,14 @@ Hero::Hero()
 	massPotential = 60;
 	radioactivePotential = 0;
 	toBlend = TRUE;
-	ownedWeapons.insert(make_pair("electronGun", (new Weapon("electronGun", 50, 50, WEAPON_ELECTRON))));
+	ownedWeapons.insert(make_pair("electronGun", (new Weapon("electronGun", 50, 40, WEAPON_ELECTRON))));
 	ownedWeapons.insert(make_pair("photonGun", (new Weapon("photonGun", 250, 750, WEAPON_PHOTON))));
 	currentWeapon = ownedWeapons.at("photonGun");
-	currentEffect = "";
 }
 
 void Hero::setTexture(Drawable * levelHero)
 {
 	copyFrom(lev->loadedObjects.at("atom"));
-
-	//effect = new AnimatedDrawable();
 
 	firingEffect = new AnimatedDrawable();
 	firingEffect->copyFrom(lev->loadedObjects.at("muzzl"));
@@ -62,7 +59,6 @@ void Hero::resetHero()
 	massPotential = 0;
 	radioactivePotential = 0;
 	isFiring = FALSE;
-	currentEffect = "";
 }
 
 void Hero::animate()
@@ -81,6 +77,7 @@ void Hero::animate()
 
 			case DISPAR:
 				dontMove = TRUE;
+				isFiring = FALSE;
 				makeInvincible(4000);
 				startEffect("Dispar");
 				currentAnimation->currentFrame = 0;
@@ -139,6 +136,7 @@ void Hero::animate()
 				makeInvincible(4000);
 				isBlinking = FALSE;
 				isFiring = FALSE;
+				display = FALSE;
 				setAnimation("Dead");
 				startEffect("Dead");
 				break;
@@ -228,6 +226,7 @@ void Hero::animate()
 					if (currentAnimation->hasEnded)
 					{
 						loseLife();
+						display = TRUE;
 					}
 					break;
 
@@ -302,13 +301,21 @@ void Hero::fire()
 	}
 }
 
+void Hero::fireWeapon(string aWeaponName)
+{
+	if(state!=CURSOR)
+	{
+		ownedWeapons.at(aWeaponName)->fire(this);	//currentWeapon->fire(this);
+		isFiring = ownedWeapons.at(aWeaponName)->isFiring;
+	}
+}
+
 list<Laser*> * Hero::getLasers()
 {
 	shoots.clear();
 	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
 	{
 		shoots.insert(shoots.begin(), (*aWeapon).second->shoots.begin(), (*aWeapon).second->shoots.end());
-		 //shoots.merge((*aWeapon).second->shoots);
 	}
 
 	return &shoots;
@@ -402,7 +409,6 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 		if(aDrawable->isEnemy())
 		{
 			lev->soundEngine->playSound("tie_explode");
-			//lev->createExplosion(this->posX-this->width/2, this->posY - this->height, TIE_EXPL);
 			this->toRemove = TRUE;
 			state = DEAD;
 			heroChangedState = TRUE;
@@ -415,7 +421,6 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 			health--;//= life - aLaser->power;
 			if (health<=0)
 			{
-				//lev->createExplosion(this->posX-this->width/2, this->posY - this->height, TIE_EXPL);
 				lev->soundEngine->playSound("tie_explode");
 				state = DEAD;
 				heroChangedState = TRUE;
@@ -542,28 +547,5 @@ int  Hero::endTeleport()
 void Hero::startEffect(string anEffect)
 {
 	lev->createEffect(posX, posY, anEffect);
-	//activeEffects.push_back(new Effect(posX, posY, anEffect));
-	//effect->setTextureState(anEffect);
-	//effect->posX = posX;
-	//effect->posY = posY;
-
-	//currentEffect = anEffect;
 }
-/*
-void Hero::playEffect()
-{
-	for(vector<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
-	{
-		(*anEffect)->animate();
-	}
-	effect->posX = posX;
-	effect->posY = posY;
 
-	if(effect->updateAnimationFrame() && effect->getAnimX() == 0)
-	{
-		currentEffect = "";
-		return;
-	}
-
-	effect->processDisplay();
-}*/

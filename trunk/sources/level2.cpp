@@ -32,6 +32,7 @@ void Level2::loadLevel(Hero * aHero)
 void Level2::loadObject()
 {
 	loadTextures();
+	loadSounds();
 	loadBackGround();
 }
 
@@ -174,7 +175,6 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(aL);
 			aL->processCollisionWith(anElement);
-			aL->display = FALSE;
 			return TRUE;
 		}
 	}

@@ -93,17 +93,12 @@ int GraphicEngine::draw(Drawable * sprite)
 		//Set the opacity
 		glColor4f(1.0, 1.0, 1.0, sprite->opacity);
 
+		//Load a new context in case we perform specific transformation for that object
 		glPushMatrix();
 
 		//If some scaling operations are required
 		if (sprite->scaleX != 1 || sprite->scaleY != 1)
 		{
-			/*float oX = ((sprite->getPosX() + sprite->getWidth()/2) /(SCREEN_WIDTH/(aspectRatio*2)));
-			float oY = (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()/2))/(SCREEN_HEIGHT/2);
-
-			float dX =  ((sprite->getPosX() + (sprite->getWidth()*sprite->scaleX/2))/(SCREEN_WIDTH/(aspectRatio*2)));
-			float dY =  (SCREEN_HEIGHT - (sprite->getPosY() + (sprite->getHeight()*sprite->scaleY/2)))/(SCREEN_HEIGHT/2);
-*/
 			float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
 			float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
 
@@ -150,6 +145,7 @@ int GraphicEngine::draw(Drawable * sprite)
 
 		glEnd();
 
+		//Discard the new context
 		glPopMatrix();
 
 		if(sprite->toBlend)

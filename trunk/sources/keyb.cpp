@@ -28,11 +28,20 @@ void Keyboard::processKeyPress()
 		}
 	}
 
-	if(keyStates[STOP_MUSIC_KEY])
+	if(keyStates[MUTE_MUSIC_KEY])
 	{
 		if (!p_pressed)
 		{
 			game->stopMusic();
+			p_pressed = TRUE;
+		}
+	}
+
+	if(keyStates[MUTE_ALL_KEY])
+	{
+		if (!p_pressed)
+		{
+			game->muteAll();
 			p_pressed = TRUE;
 		}
 	}
@@ -79,10 +88,16 @@ void Keyboard::processKeyInGame(Hero* hero)
 			hero->teleport();
 
 		if(keyStates[PHOTON_KEY])
+		{
 			hero->setWeapon("photonGun");
+			hero->fireWeapon("photonGun");
+		}
 
 		if(keyStates[ELECTRON_KEY])
+		{
 			hero->setWeapon("electronGun");
+			hero->fireWeapon("electronGun");
+		}
 	}
 
     return;
@@ -102,31 +117,31 @@ void Keyboard::processeMouseInGame(Hero * hero)
 		{
 			hero->fire();
 		}
-		else
+		else if (!keyStates[ELECTRON_KEY])
 		{
 			hero->isFiring = FALSE;
 		}
-
 	}
 
     return;
 }
 
 //Process in game key release
-void Keyboard::handleKeyUpHero(SDL_keysym *keysym, Hero *hero)
+void Keyboard::handleKeyUpHero(SDL_keysym * keysym)
 {
     switch (keysym->sym)
 	{
-		case UP_KEY:
+	/*	case UP_KEY:
 			hero->heroMovingUpOrDown = 0;
 			break;
 			
 		case DOWN_KEY:
 			hero->heroMovingUpOrDown = 0;
-			break;
+			break;*/
 
 		case SDLK_b:
-		case STOP_MUSIC_KEY:
+		case MUTE_MUSIC_KEY:
+		case MUTE_ALL_KEY:
 		case PAUSE_KEY:
 			p_pressed = FALSE;
 			break;
