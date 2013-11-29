@@ -34,7 +34,6 @@ Effect::Effect(int x, int y, string aName)
 		}
 
 		anAnimatedDrawable->display = TRUE;
-	//	anAnimatedDrawable->animationUpdateFrequency = 400;
 		effectLayers.insert(make_pair(anAnimatedDrawable->name, anAnimatedDrawable));
 	}
 

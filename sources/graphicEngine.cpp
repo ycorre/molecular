@@ -68,6 +68,20 @@ void GraphicEngine::drawFrame()
 		cout<<"Warning: GraphicEngine (drawFrame): The set of elements to display is empty\n";
 	}
 
+	for (list<ParticleEffect *>::iterator anEffect = particleEffects.begin() ; anEffect != particleEffects.end(); ++anEffect)
+	{
+		if((*anEffect)->currentFrame == (*anEffect)->animationLength)
+		{
+			delete (*anEffect);
+			particleEffects.remove(*anEffect++);
+		}
+		else
+		{
+			drawEffect(*anEffect);
+		}
+
+	}
+
 	//Check for effects to perform
 	if(isFading)
 	{
@@ -132,13 +146,13 @@ int GraphicEngine::draw(Drawable * sprite)
 			//Texture coordinates to display
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
 			//Coordinates of the quadrilateral
-			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT-(sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
 
 			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
 			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
@@ -189,6 +203,36 @@ int GraphicEngine::draw(Drawable * sprite)
 #endif
 
     return 1;
+}
+
+int GraphicEngine::drawEffect(ParticleEffect * anEffect)
+{
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINES);
+	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
+
+	for (list<LineEffect *>::iterator aLine = anEffect->lineEffects.begin(); aLine != anEffect->lineEffects.end(); ++aLine)
+	{
+		//Set the opacity
+		glLineWidth(2.5);
+		//glColor4f(1.0, 1.0, 1.0, 1);
+
+		//Create a temporary context in case we perform specific transformation for that object
+		glPushMatrix();
+
+		//Draw a Line
+
+			glVertex3f(((*aLine)->destX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->destY)/(SCREEN_HEIGHT/2), 0);
+			glVertex3f(((*aLine)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->posY)/(SCREEN_HEIGHT/2), 0);
+
+
+		//Discard the temporary context
+		glPopMatrix();
+	}
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+
+	anEffect->currentFrame++;
 }
 
 void GraphicEngine::displayFrame()
@@ -313,61 +357,3 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-
-//Merge several drawables which have a texture of 4 bits per pixel
-//Following the formula destPixel.component = 255 - ((productOf(255-drawables.i.component))/powerOf(255, sizeOfdrawables)
-//(cf. the "Screen" equation at this page : http://docs.gimp.org/en/gimp-concepts-layer-modes.html)
-//To be removed as it is not performant enough
-void GraphicEngine::mergeImages(vector <Drawable*> drawables, Drawable * destination)
-{
-	int x, y, i;
-	vector<Uint8 *> pixelPointers;
-	Uint32 pixelProd[4];
-	Uint32 divisionValue = pow(255, (drawables.size()-1));
-
-	for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
-	{
-		SDL_LockSurface((*aDrawable)->getTexture());
-	}
-
-	SDL_LockSurface(destination->getTexture());
-	Uint8 *pDest = (Uint8 *) destination->getTexture()->pixels;
-
-	for(y=0; y<destination->height; y++)
-	{
-		for(x=0; x<destination->width; x++)
-		{
-			for(i=0; i<4; i++)
-			{
-				pixelProd[i] = 1 ;
-			}
-
-			for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
-			{
-		/*		Uint8 * aPixelPointer =(Uint8 *)  (*aDrawable)->texture->pixels + (y * (*aDrawable)->texture->pitch) + (((*aDrawable)->animX + x) * 4);
-				pixelProd[0] *= (255 - aPixelPointer[0]); //min(255, pixelSum[0] + aPixelPointer[0]);
-				pixelProd[1] *= (255 - aPixelPointer[1]);
-				pixelProd[2] *= (255 - aPixelPointer[2]);*/
-
-				//Alpha layer values (ignored since we worked with drawables with no alpha channel)
-			//	pixelSum[3] *= (255 - aPixelPointer[3]);
-			}
-
-			pDest[0] = 255 - (pixelProd[0]/divisionValue);
-			pDest[1] = 255 - (pixelProd[1]/divisionValue);
-			pDest[2] = 255 - (pixelProd[2]/divisionValue);
-			pDest[3] = 0;// - (pixelSum[3]/255);
-
-			//Advance to the next pixel position to draw
-			pDest = pDest + 4;
-		}
-	}
-
-	//Unlock SDL surfaces
-	for(std::vector<Drawable *>::iterator aDrawable = drawables.begin() ; aDrawable != drawables.end(); ++aDrawable)
-	{
-		SDL_UnlockSurface((*aDrawable)->getTexture());
-	}
-
-	SDL_UnlockSurface(destination->getTexture());
-}

@@ -92,7 +92,7 @@ void Laser::animate()
 
 void Laser::processCollisionWith(Drawable* aDrawable)
 {
-	firingWeapon->createImpact(posX, posY - 80);
+	firingWeapon->createImpact(posX + 120, posY + 16);
 	display = FALSE;
 
 	if (aDrawable->isHero())

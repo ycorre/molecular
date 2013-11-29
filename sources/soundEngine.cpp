@@ -109,8 +109,6 @@ void SoundEngine::setVolumeFor(Sound * aSound)
 	//normalize value on 128 (which correspond to the max volume (MIX_MAX_VOLUME))
 	int aVolume = (int) (aSound->volume * 1.28);
 	Mix_VolumeChunk(aSound->soundData, aVolume);
-
-	cout<< aSound->name << ", " << aVolume << endl;
 }
 
 void SoundEngine::clearSounds()

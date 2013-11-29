@@ -90,10 +90,7 @@ int Game::mainLoop()
 			    
 		    	case SDL_KEYUP:
 					//Handle key presses
-				//	if(gameState == INGAME || gameState == PAUSE)
-				//	{
-						keyboard->handleKeyUpHero(&event.key.keysym);
-				//	}
+					keyboard->handleKeyUpHero(&event.key.keysym);
 					break;
 
 				case SDL_QUIT:
@@ -245,7 +242,6 @@ int Game::initSDL()
 #if USE_OPENGL
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    //SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 32);
     graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
 
 #else
@@ -277,7 +273,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-   // SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);

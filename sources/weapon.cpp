@@ -81,6 +81,7 @@ void Weapon::animateLasers()
 		(*aLaser)->animate();
 		if ((*aLaser)->toRemove)
 		{
+			delete (*aLaser);
 			shoots.erase(aLaser++);
 		}
 		else
@@ -104,15 +105,9 @@ void Weapon::animateLasers()
 
 void Weapon::createImpact(float x, float y)
 {
-	AnimatedDrawable * anImpact = new AnimatedDrawable();
-	anImpact->copyFrom(lev->loadedObjects.at("electronImpact"));
-
-	anImpact->toBlend = TRUE;
-	anImpact->posX = x;
-	anImpact->posY = y;
-	anImpact->setAnimX(0);
-	anImpact->setAnimY((rand() % 10)*anImpact->width);
-	impacts.push_back(anImpact);
+	ParticleEffect * aParticleEffect = new ParticleEffect();
+	aParticleEffect->createImpactFrom(x, y);
+	lev->ge->particleEffects.push_back(aParticleEffect);
 }
 
 void Weapon::upgrade()

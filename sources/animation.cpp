@@ -37,7 +37,7 @@ Animation::Animation(Animation * anAnim)
 	scalingValues = anAnim->scalingValues;
 
 	loop = anAnim->loop;
-	currentFrame = anAnim->currentFrame;
+	currentFrame = 0;
 	animationUpdateFrequency = anAnim->animationUpdateFrequency;
 	drawable = NULL;
 	hasEnded = FALSE;
@@ -212,26 +212,12 @@ void Animation::setAdditionalAnimationParameter(string aConfigString)
 void Animation::loadTexture(string path)
 {
 	texture = drawable->ge->loadTexture(path);
-	drawable->textures.insert(make_pair(name, texture));
 
 #if USE_OPENGL
 	oglTexture = drawable->ge->openGLTextures.at(texture);
-	drawable->oglTextures.insert(make_pair(name, drawable->ge->openGLTextures.at(texture)));
 	drawable->setAnimX(drawable->getAnimX());
 	drawable->setAnimY(drawable->getAnimY());
 #endif
-}
-
-void Animation::animate()
-{
-	currentFrame = (currentFrame + 1) % numberOfFrames;
-
-	hasEnded = FALSE;
-
-	if (currentFrame == numberOfFrames - 1 && !loop)
-	{
-		hasEnded = TRUE;
-	}
 }
 
 void Animation::configOpacity(string aConfigString)
@@ -245,7 +231,6 @@ void Animation::configOpacity(string aConfigString)
 	float currentOpacity;
 	float finishingOpacity;
 	float opacityModifyingFactor;
-
 	while(getline(aConf, aFrameNumber, ','))
 	{
 		string anOpacityValue;

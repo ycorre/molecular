@@ -13,6 +13,7 @@
 #include <SDL_image.h>
 #include <math.h>
 #include "drawable.h"
+#include "particleEffect.h"
 
 // screen width, height, and bit depth
 #define SCREEN_WIDTH  1200
@@ -21,12 +22,15 @@
 #define SCREEN_BPP     32
 
 class Drawable;
+class ParticleEffect;
+class LineEffect;
 
 class GraphicEngine
 {
 	public:
 	  SDL_Surface * screen;
 	  vector<Drawable *> toDisplay;
+	  list<ParticleEffect *> particleEffects;
 
 	  map<string, TTF_Font *> availableFonts;
 	  map<string, SDL_Color> availableColors;
@@ -46,6 +50,7 @@ class GraphicEngine
 	  void initGe();
 	  void displayFrame();
 	  int draw(Drawable * sprite);
+	  int drawEffect(ParticleEffect * anEffect);
 	  void drawFrame();
 	  void blitElement(SDL_Surface * anElement);
 	  void addFont(string aName, string path);

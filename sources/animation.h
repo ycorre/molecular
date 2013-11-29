@@ -54,7 +54,6 @@ class Animation
 	  void configOpacity(string aConf);
 	  void configScaling(string aConf);
 	  void loadTexture(string path);
-	  void animate();
 };
 
 

@@ -47,10 +47,10 @@ Drawable::Drawable()
 	confParameters["scale"] = pScale;
 }
 
-/*Drawable::~Drawable()
+Drawable::~Drawable()
 {
-
-}*/
+	cout<< name <<" deleted " << endl;
+}
 
 void Drawable::animate()
 {
@@ -232,8 +232,6 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	height = aDrawable->height;
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
-	textures = aDrawable->textures;
-	oglTextures = aDrawable->oglTextures;
 }
 
 int Drawable::getXBoundary()
@@ -382,8 +380,8 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	toBlend = aDrawable->toBlend;
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
-	textures = aDrawable->textures;
-	oglTextures = aDrawable->oglTextures;
+	//textures = aDrawable->textures;
+	//oglTextures = aDrawable->oglTextures;
 	animationUpdateFrequency = aDrawable->animationUpdateFrequency;
 	setAnimation("static");
 	posXCorrection = aDrawable->posXCorrection;
