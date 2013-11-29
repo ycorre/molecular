@@ -311,12 +311,15 @@ void Level::cleanLevel()
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->clean();
+		//delete (*anElement);
+		activeElements.remove(*anElement++);
 	}
 
 
 	for (map<string, AnimatedDrawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
 	{
 		SDL_FreeSurface((*anElement).second->texture);
+		delete (*anElement).second;
 	}
 	loadedObjects.clear();
 
@@ -330,7 +333,7 @@ void Level::cleanLevel()
 		SDL_FreeSurface((*anElement).second->texture);
 	}
 
-	activeElements.clear();
+	//activeElements.clear();
 	loadedEffects.clear();
 	activeEffects.clear();
 	soundEngine->stopMusic("l1Music");

@@ -75,11 +75,8 @@ class Drawable
 	  GLuint oglTexture;
 	  float textureXOrigin, textureYOrigin;
 
-	  map<string, SDL_Surface *> textures;
-	  map<string, GLuint> oglTextures;
-
 	  Drawable();
-	 // ~Drawable();
+	  ~Drawable();
 	  virtual void animate();
 	  virtual void blink();
 	  void processDisplay();
@@ -168,8 +165,8 @@ class CompositeDrawable: public Drawable
 class MultiTextureDrawable: virtual public Drawable
 {
 	public:
-	 // map<string, SDL_Surface *> textures;
-	 // map<string, GLuint> oglTextures;
+	  map<string, SDL_Surface *> textures;
+	  map<string, GLuint> oglTextures;
 	  string textureState;
 
 	  virtual void addTexture(string path);

@@ -128,13 +128,13 @@ void HUD::displayMassPotential(float massPo)
 {
 	static float i = 0.0;
 
-	if(i < massPo)
+	if(i < massPo - 1)
 	{
 		i = i + 0.3;
 	}
-	if (i > massPo)
+	else if (i > massPo)
 	{
-		i = i - 0.3;
+		i = massPo; //i - 0.3;
 	}
 	massLoad->setAnimY((int)(i) * massLoad->height);
 

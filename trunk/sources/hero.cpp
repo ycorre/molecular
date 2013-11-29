@@ -263,7 +263,7 @@ void Hero::animate()
 		}
 
 		//Update position to match with the one of the ship
-		firingEffect->posX = posX - 12;
+		firingEffect->posX = posX - 10;
 		firingEffect->posY = posY - 16;
 		
 		lev->soundEngine->playSound("mitLoop");

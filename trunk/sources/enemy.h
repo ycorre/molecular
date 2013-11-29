@@ -40,22 +40,6 @@ class Enemy: public MaskedDrawable, public AnimatedDrawable
 		virtual void checkFire();
 };
 
-
-class Mitrailleur: public Enemy
-{
-	public:
-		Mitrailleur();
-		Mitrailleur(int x, int y);
-		virtual void animate();
-		virtual void checkFire();
-};
-
-#define ASTER_NORMAL 0
-#define ASTER_DEMI 3
-#define ASTER_QUARTER 4
-#define ASTER_2THIRD 1
-#define ASTER_1THIRD 2
-
 class Bomb: public Enemy
 {
 	public:
@@ -66,6 +50,18 @@ class Bomb: public Enemy
 		Bomb(int sX, int sY, int speed, float angle);
 		virtual void animate();
 		void setAngleAndSpeed();
+		virtual void fire();
+};
+
+class Mitraille: virtual public Bomb
+{
+	public:
+		int posRafale;
+		int rafaleRate;
+
+		Mitraille();
+		Mitraille(int x, int y);
+		virtual void checkFire();
 		virtual void fire();
 };
 
