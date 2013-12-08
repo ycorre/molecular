@@ -59,11 +59,7 @@ void controlFPS();
 int initOpenGL();
 
 //Definition of the values for the gameState variable
-#define MENU 1
-#define INGAME 2
-#define GAMEOVER 3
-#define WIN 4
-#define PAUSE 5
+enum {GAME_MENU, GAME_INGAME, GAME_GAMEOVER, GAME_WIN, GAME_PAUSE, GAME_LOADMENU, GAME_LOADLEVEL};
 
 #endif
 

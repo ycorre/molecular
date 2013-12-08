@@ -23,6 +23,9 @@
 class Hero;
 class Pe;
 
+enum{confSound, confMusic, confDrawable, confEffect};
+enum{LEVEL_PLAYING, LEVEL_WON, LEVEL_LOST, LEVEL_FINISHING};
+
 class Level
 {
 	public:
@@ -50,23 +53,23 @@ class Level
 
 	vector<vector<float> > stars;
 	vector<vector<float> > starPoints;
-	vector<Drawable * > starDrawable;
+	vector<Drawable *> starDrawable;
 	int numberOfStarPoints, numberOfStars;
+	map<string, int> configCategories;
 	float maxDepth;
 
 	Level();
 	virtual void loadLevel(Hero * aHero);
-	virtual void loadConf();
-	void loadStarConf();
+	virtual void loadDrawableConf(string aConfString);
+	void loadFileConfiguration();
 	virtual void loadObjects();
-	virtual void loadSounds();
 	virtual void loadTextures();
 	virtual void loadBackGround();
 	virtual void moveBackGround();
 	virtual void drawLevel();
 	virtual void checkEvent();
 	virtual void heroLoseLife();
-	virtual void loadEffects();
+	virtual void loadEffects(string aConfString);
 	virtual void createEffect(int x, int y, string name);
 	virtual void createExplosion(int x, int y, int type);
 	virtual void createBonus(int x, int y, int type);
@@ -76,15 +79,11 @@ class Level
 	virtual void endLevel();
 	virtual void finishLevel();
 	virtual void instantiateEffects();
+	void loadStarConf();
 	void generateStarfield();
 	void displayStarField();
 	int isOnScreen(Drawable * aDrawable);
 };
-
-#define LEVEL_PLAYING 0
-#define LEVEL_WON 1
-#define LEVEL_LOST 2
-#define LEVEL_FINISHING 3
 
 #endif
 

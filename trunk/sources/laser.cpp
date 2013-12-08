@@ -7,31 +7,25 @@
 //80x34
 Laser::Laser()
 {
-	type = 0;
+	name = "laser";
 	power = 50;
-	direction = 0;
 	posX = 0;
 	posY = 0;
 	toBlend = TRUE;
+	angle = 0.0f;
 	setAnimX(0);
 	setAnimY(0);
 	collision = ge->loadTexture("res/ElectronMask.png");
 }
 
-Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
+Laser::Laser(int x, int y, Weapon * aWeapon)
 {
 	power = 50;
-	direction = dir;
-	type = aType;
 	firingWeapon = aWeapon;
-	if (type == GREEN_LASER)
-	{
-		copyFrom(lev->loadedObjects.at("electron"));
-		collision = ge->loadTexture("res/ElectronMask.png");
-
-		trail = new AnimatedDrawable();
-		trail->copyFrom(lev->loadedObjects.at("electronTrail"));
-	}
+	copyFrom(lev->loadedObjects.at("electron"));
+	collision = ge->loadTexture("res/ElectronMask.png");
+	trail = new AnimatedDrawable();
+	trail->copyFrom(lev->loadedObjects.at("electronTrail"));
 	trail->posX = x + width/2 - 30;
 	trail->posY = y + 10;
 	trail->toBlend = TRUE;
@@ -52,13 +46,13 @@ Laser::Laser(int x, int y, int dir, int aType, Weapon * aWeapon)
 
 void Laser::animate()
 {
+	cout<<"anilate laser"<<endl;
 
 	trail->currentAnimation->width = trail->width;
 	trail->updateAnimationFrame();
 
 	if (display)
 	{
-
 		//Compute the next movement vector
 		//Handle by the physic engine ?
 		float vx, vy;
@@ -77,6 +71,7 @@ void Laser::animate()
 			posX = posX - 5;
 		}*/
 	}
+
 	/*trail->currentAnimation->width = min(1200, (int)(this->posX - trail->posX + 124));
 	trail->setAnimX(trail->getAnimX());
 	trail->processDisplay();*/
@@ -87,10 +82,11 @@ void Laser::animate()
 		toRemove = TRUE;
 		trail->display = FALSE;
 		trail->toRemove = TRUE;
+		delete trail;
 	}
 }
 
-void Laser::processCollisionWith(Drawable* aDrawable)
+void Laser::processCollisionWith(Drawable * aDrawable)
 {
 	firingWeapon->createImpact(posX + 120, posY + 16);
 	display = FALSE;
@@ -107,22 +103,33 @@ void Laser::processCollisionWith(Drawable* aDrawable)
 
 
 /*
- * Photon function
+ * Photon functions
  */
-Photon::Photon(int x, int y, int dir, int aType, Weapon * aWeapon)
+
+Photon::Photon()
 {
-	direction = dir;
-	type = aType;
+	power = 50;//firingWeapon->power;
+	copyFrom(lev->loadedObjects.at("photon"));
+	collision = ge->loadTexture("res/ElectronMask.png");
+	trail = new AnimatedDrawable();
+	trail->copyFrom(lev->loadedObjects.at("photonTrail"));
+	trail->toBlend = TRUE;
+	trail->setAnimX(0);
+	trail->setAnimY(0);
+	toBlend = TRUE;
+	setAnimX(0);
+	setAnimY(0);
+	setAnimation("static");
+}
+
+Photon::Photon(int x, int y, Weapon * aWeapon)
+{
 	firingWeapon = aWeapon;
 	power = firingWeapon->power;
-	if (type == GREEN_LASER)
-	{
-		copyFrom(lev->loadedObjects.at("photon"));
-		collision = ge->loadTexture("res/ElectronMask.png");
-
-		trail = new AnimatedDrawable();
-		trail->copyFrom(lev->loadedObjects.at("photonTrail"));
-	}
+	copyFrom(lev->loadedObjects.at("photon"));
+	collision = ge->loadTexture("res/ElectronMask.png");
+	trail = new AnimatedDrawable();
+	trail->copyFrom(lev->loadedObjects.at("photonTrail"));
 	trail->posX = x + 96;
 	trail->posY = y - 28;
 	trail->toBlend = TRUE;
@@ -136,8 +143,18 @@ Photon::Photon(int x, int y, int dir, int aType, Weapon * aWeapon)
 	setAnimation("static");
 }
 
+void Photon::setParam(int x, int y, Weapon * aWeapon)
+{
+	firingWeapon = aWeapon;
+	posX = x + 50;
+	posY = y - 50;
+	trail->posX = x + 96;
+	trail->posY = y - 28;
+}
+
 void Photon::animate()
 {
+	cout<<"anilate photon"<<endl;
 	float previousWidth = trail->currentAnimation->width;
 	trail->currentAnimation->width = trail->width;
 	trail->updateAnimationFrame();
@@ -149,21 +166,13 @@ void Photon::animate()
 		trail->currentAnimation->width = min(trail->width, (int)(this->posX - trail->posX + 124));
 	}
 
-
-
-
 	if(!display)
 	{
 		trail->currentAnimation->width = max(0.0, previousWidth - 8.5);
-
 		trail->posX = trail->posX + 8.5;
 	}
 
 	trail->setAnimX(trail->getAnimX());
-
-
-
-
 	trail->processDisplay();
 
 	if (trail->currentAnimation->hasEnded)
@@ -172,10 +181,11 @@ void Photon::animate()
 		toRemove = TRUE;
 		trail->display = FALSE;
 		trail->toRemove = TRUE;
+		delete trail;
 	}
 }
 
-void Photon::processCollisionWith(Drawable* aDrawable)
+void Photon::processCollisionWith(Drawable * aDrawable)
 {
 
 }

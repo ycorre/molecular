@@ -2,7 +2,6 @@
 
 Mitraille::Mitraille()
 {
-	Drawable();
 	copyFrom(lev->loadedObjects.at("mitraille"));
 	collision = ge->loadTexture("res/Bomb_Col.png");
 	setAnimX(0);
@@ -26,7 +25,6 @@ Mitraille::Mitraille()
 
 Mitraille::Mitraille(int x, int y)
 {
-	Drawable();
 	copyFrom(lev->loadedObjects.at("mitraille"));
 	posX = x;
 	posY = y;

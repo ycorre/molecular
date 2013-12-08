@@ -2,6 +2,7 @@
 
 Explosion::Explosion()
 {
+	name = "explosion";
 	this->loadTexture("res/expl2.png");
 	width = texture->w;
 	height = texture->h;
@@ -15,6 +16,7 @@ Explosion::Explosion()
 
 Explosion::Explosion(int x, int y, int typeExpl)
 {
+	name = "explosion";
 	Drawable();
 	copyFrom(lev->loadedObjects.at("explosion"));
 	posX = x;

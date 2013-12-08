@@ -37,7 +37,7 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  float radioactivePotential;
 	  float backOffSpeed;
 	  int state;
-	  list<Laser*> shoots;
+	  list<Laser> shoots;
 
 	  //Should be constant throughout the game
 	  int maxHealth;
@@ -66,7 +66,7 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  void teleport();
 	  void startEffect(string anEffect);
 	  int endTeleport();
-	  list<Laser*> * getLasers();
+	  list<Laser> * getLasers();
 	  virtual void animate();
 	  virtual int isHero() {return 1;}
 	  virtual void processCollisionWith(Drawable * aDrawable);

@@ -22,33 +22,33 @@ class Game;
 class Menu
 {
 	public:
-		Drawable * bkgTitle, * bkgOption, * bkgLevel, * highScoreBg;
+		Drawable bkgTitle, bkgOption, bkgLevel, highScoreBg;
 		GraphicEngine * ge;
 		Game * game;
 		SoundEngine * soundEngine;
-		Drawable * logo, *bbox;
-		Drawable * credit, * gameOver, * success;
-		CompositeDrawable * bubbles;
-		Drawable * title, * bubble1, *bubble2;
-		Drawable * optionTitle, * levelTitle;
+		Drawable logo;
+		Drawable credit, gameOver, success;
+		CompositeDrawable bubbles;
+		Drawable title, bubble1, bubble2;
+		Drawable optionTitle, levelTitle;
 		int startingGame;
 
-		MultiTextureDrawable * optionButton, * quitButton, *levelSelectButton;
+		MultiTextureDrawable optionButton, quitButton, levelSelectButton;
 
 		int introLength;
 		int selected, selectedLevel;
 		Uint32 startIntro, endIntro;
-		vector<MultiTextureDrawable *> menuElements;
-		vector<Drawable *> levelSelectElements;
-		vector<MultiTextureDrawable *> levelSelectHalo;
-		vector<Drawable *> levelLocks;
+		vector<MultiTextureDrawable> menuElements;
+		vector<Drawable> levelSelectElements;
+		vector<MultiTextureDrawable> levelSelectHalo;
+		vector<Drawable> levelLocks;
 		TTF_Font * menuFont;
 		SDL_Color menuColor;
 		string newName;
 		int newHighScoreRank;
 		int menuInTransition;
 
-		list<Drawable*> activeElements;
+		//list<Drawable*> activeElements;
 		map<string, vector<string> > configurationElements;
 
 		pair<string, unsigned int> ahighScores[5];
@@ -58,7 +58,7 @@ class Menu
 
 		Menu(GraphicEngine * aGe, SoundEngine * aSe);
 		void loadMenu();
-		void loadIntro();
+		void loadSelectedLevel();
 		void loadTextures();
 		void transition();
 		void updateLocks();
@@ -93,7 +93,7 @@ class Menu
 		void selectLevel();
 };
 
-bool sortElement(MultiTextureDrawable * a, MultiTextureDrawable * b);
+bool sortElement(MultiTextureDrawable a, MultiTextureDrawable b);
 bool sortScores(pair<string, int>  a, pair<string, int>  b);
 
 #define MENU_MAIN 0

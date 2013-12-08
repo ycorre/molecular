@@ -4,12 +4,11 @@
 
 #include "bonus.h"
 
-using namespace std;
 
 Bonus::Bonus()
 {
 	type = 0;
-	//this->loadTexture("res/laser_c.png");
+	name = "bonus";
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -22,6 +21,8 @@ Bonus::Bonus()
 Bonus::Bonus(int x, int y, int bType)
 {
 	type = bType;
+	name = "bonus";
+
 	if (bType == BONUS_LIFE)
 	{
 		copyFrom(lev->loadedObjects.at("bonusLife"));

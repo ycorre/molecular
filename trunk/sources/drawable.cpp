@@ -10,6 +10,7 @@ Level * Drawable::lev;
 
 Drawable::Drawable()
 {
+	name = "dfaut";
 	lastTimeUpdated = 0;
 	texture = NULL;
 	posX = 0;
@@ -165,9 +166,9 @@ void Drawable::createOGLTexture()
 void Drawable::clean()
 {
 #if USE_OPENGL
-	ge->openGLTextures.erase(this->texture);
+	//ge->openGLTextures.erase(this->texture);
 #endif
-	ge->textures.erase(this->name);
+	//ge->textures.erase(this->name);
 }
 
 void Drawable::blink()
@@ -309,7 +310,6 @@ float Drawable::getHeight()
  */
 AnimatedDrawable::AnimatedDrawable()
 {
-	Drawable();
 	animationUpdateFrequency = 40;
 	currentAnimation = NULL;
 }
@@ -380,8 +380,6 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	toBlend = aDrawable->toBlend;
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
-	//textures = aDrawable->textures;
-	//oglTextures = aDrawable->oglTextures;
 	animationUpdateFrequency = aDrawable->animationUpdateFrequency;
 	setAnimation("static");
 	posXCorrection = aDrawable->posXCorrection;
@@ -445,7 +443,6 @@ void AnimatedDrawable::loadFrom(string aConfString)
 		{
 			getline(aParam, paramValue, ':');
 		}
-
 
 		switch(confParameters.at(paramType))
 		{
@@ -515,6 +512,7 @@ void AnimatedDrawable::loadFrom(string aConfString)
 	{
 		if((*anElement).second->texture == NULL)
 		{
+			cout<< " end " <<name << ", " << (*anElement).second->name << endl;
 			(*anElement).second->texture = texture;
 			(*anElement).second->oglTexture = oglTexture;
 		}

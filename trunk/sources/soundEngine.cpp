@@ -87,6 +87,7 @@ void SoundEngine::addSound(Sound * aSound)
 	}
 	else
 	{
+		Mix_FreeChunk(aSound->soundData);
 		cerr << "SoundEngine Error: The sound " << aSound->name << " has already been loaded " << endl;
 	}
 }
@@ -119,6 +120,26 @@ void SoundEngine::clearSounds()
 void SoundEngine::stopAllSounds()
 {
 	Mix_HaltChannel(-1);
+}
+
+void SoundEngine::loadSoundFrom(string aConfString)
+{
+	istringstream aConfStream(aConfString);
+	string aLine;
+
+	//Remove the first line
+	getline(aConfStream, aLine);
+
+	while(getline(aConfStream, aLine))
+	{
+		if(!aLine.empty()) //Ignore empty lines
+		{
+			Sound * aSound = new Sound();
+			aSound->loadASound(aLine);
+
+			addSound(aSound);
+		}
+	}
 }
 
 void channelDone(int channel)
@@ -199,6 +220,20 @@ void SoundEngine::addMusic(string pathToASound, string aMusicId)
 	}
 }
 
+void SoundEngine::addMusic(Music * aMusic)
+{
+	//Check if the music is already loaded
+	if(musics.find(aMusic->name) == musics.end())
+	{
+		musics.insert(make_pair(aMusic->name, aMusic));
+	}
+	else
+	{
+		Mix_FreeChunk(aMusic->soundData);
+		cerr << "SoundEngine Error: The music " << aMusic->name << " has already been loaded " << endl;
+	}
+}
+
 void SoundEngine::fadeMusic(string aMusic, int ms)
 {
 	musics.at(aMusic)->fadeOut(ms);
@@ -240,4 +275,24 @@ void SoundEngine::muteAll()
 	mute = TRUE;
 	stopMusic();
 	stopAllSounds();
+}
+
+void SoundEngine::loadMusicFrom(string aConfString)
+{
+	istringstream aConfStream(aConfString);
+	string aLine;
+
+	//Remove the first line
+	getline(aConfStream, aLine);
+
+	while(getline(aConfStream, aLine))
+	{
+		if(!aLine.empty()) //Ignore empty lines
+		{
+			Music * aMusic = new Music();
+			aMusic->loadAMusic(aLine);
+
+			addMusic(aMusic);
+		}
+	}
 }

@@ -153,7 +153,7 @@ class MaskedDrawable: virtual public Drawable
 };
 
 //Class for objects that uses several textures that require blending to display
-class CompositeDrawable: public Drawable
+class CompositeDrawable: virtual public Drawable
 {
 	public:
 	  vector<Drawable *> toMerge;

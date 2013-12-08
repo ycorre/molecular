@@ -6,6 +6,7 @@
 
 Hero::Hero()
 {
+	name = "hero";
 	health = 4;
 	maxHealth = 8;
 	nbLife = 5;
@@ -81,7 +82,6 @@ void Hero::animate()
 				makeInvincible(4000);
 				startEffect("Dispar");
 				currentAnimation->currentFrame = 0;
-				//setAnimation("Dispar");
 				lev->soundEngine->playSound("TeleportOff");
 				setAnimX(0);
 				setAnimY(0);
@@ -310,7 +310,7 @@ void Hero::fireWeapon(string aWeaponName)
 	}
 }
 
-list<Laser*> * Hero::getLasers()
+list<Laser> * Hero::getLasers()
 {
 	shoots.clear();
 	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)

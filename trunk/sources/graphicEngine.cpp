@@ -11,7 +11,7 @@ GraphicEngine::GraphicEngine()
 	aspectRatio = 1.0;
 }
 
-void GraphicEngine::initGe()
+void GraphicEngine::init()
 {
 #if !USE_OPENGL
 	blackBox = new Drawable();
@@ -70,7 +70,7 @@ void GraphicEngine::drawFrame()
 
 	for (list<ParticleEffect *>::iterator anEffect = particleEffects.begin() ; anEffect != particleEffects.end(); ++anEffect)
 	{
-		if((*anEffect)->currentFrame == (*anEffect)->animationLength)
+		if((*anEffect)->currentFrame >= (*anEffect)->animationLength - 1 )
 		{
 			delete (*anEffect);
 			particleEffects.remove(*anEffect++);
@@ -78,6 +78,7 @@ void GraphicEngine::drawFrame()
 		else
 		{
 			drawEffect(*anEffect);
+			(*anEffect)->animate();
 		}
 
 	}
@@ -169,7 +170,7 @@ int GraphicEngine::draw(Drawable * sprite)
 	}
 	else
 	{
-		CompositeDrawable * aCDraw = static_cast<CompositeDrawable*> (sprite);
+		CompositeDrawable * aCDraw = dynamic_cast<CompositeDrawable*> (sprite);
 		//Set the blending parameters
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
@@ -209,22 +210,21 @@ int GraphicEngine::drawEffect(ParticleEffect * anEffect)
 {
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
+	//Set color values and opacity
 	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
 
 	for (list<LineEffect *>::iterator aLine = anEffect->lineEffects.begin(); aLine != anEffect->lineEffects.end(); ++aLine)
 	{
-		//Set the opacity
-		glLineWidth(2.5);
+		//Set the width for the lines
+		glLineWidth((*aLine)->lineWidth);
 		//glColor4f(1.0, 1.0, 1.0, 1);
 
 		//Create a temporary context in case we perform specific transformation for that object
 		glPushMatrix();
 
 		//Draw a Line
-
-			glVertex3f(((*aLine)->destX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->destY)/(SCREEN_HEIGHT/2), 0);
-			glVertex3f(((*aLine)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->posY)/(SCREEN_HEIGHT/2), 0);
-
+		glVertex3f(((*aLine)->destX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->destY)/(SCREEN_HEIGHT/2), 0);
+		glVertex3f(((*aLine)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->posY)/(SCREEN_HEIGHT/2), 0);
 
 		//Discard the temporary context
 		glPopMatrix();

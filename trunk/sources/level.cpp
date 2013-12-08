@@ -9,6 +9,11 @@ Level::Level()
 	bkg_nearSpeed = 0.4;
 	bkg_midSpeed = 0.2;
 	bkg_distantSpeed = 0.1;
+
+	configCategories["sound"] = confSound;
+	configCategories["music"] = confMusic;
+	configCategories["effect"] = confEffect;
+	configCategories["drawable"] = confDrawable;
 }
 
 void Level::loadLevel(Hero * aHero)
@@ -53,8 +58,8 @@ void Level::loadBackGround()
 	bkg_distant.setAnimX(0);
 	bkg_distant.setAnimY(0);
 
-	//loadStarConf();
-//	generateStarfield();
+	loadStarConf();
+	generateStarfield();
 #else
 
 #endif
@@ -83,12 +88,12 @@ void Level::loadBackGround()
 	bkg_distant.setAnimX(0);
 	bkg_distant.setAnimY(0);
 
+	background.name = "background";
 	background.toMerge.push_back(&bkg_distant);
 	background.toMerge.push_back(&bkg_mid);
 	background.toMerge.push_back(&bkg_near);
 	background.setAnimX(0.0);
 	activeElements.push_back(&background);
-
 }
 
 void Level::moveBackGround()
@@ -168,6 +173,7 @@ int Level::checkEnemyCollision(Drawable * anElement)
 			return 1;
 		}
 	}*/
+
 	return 0;
 }
 
@@ -193,78 +199,90 @@ void Level::createBonus(int x, int y, int type)
 }
 
 //Load all the configuration elements from a text file
-//Format: elementName;width;height;listOfAnimationStatus$nbOfFramesInAnAnimation;pathToTextureFile
-/*void Level::loadConf()
+void Level::loadDrawableConf(string aConfString)
+{
+	//ifstream file;
+	//string fileName = "conf/l1.conf";
+	string token;
+
+	//file.open(fileName.c_str());
+
+	//convert the file stream into one giant string
+	//string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
+	//vector<string> elems;
+
+	size_t position = 0;
+	//Parse with the arobase delimiter
+	while ((position = aConfString.find("&")) != string::npos)
+	{
+		token = aConfString.substr(0, position);
+		objectConfiguration.push_back(token);
+		aConfString.erase(0, position + 1);
+	}
+	objectConfiguration.push_back(aConfString);
+}
+
+void Level::loadFileConfiguration()
 {
 	ifstream file;
-	string line;
-	string fileName = "conf/l1.conf";
+	string fileName = "conf/Level1.conf";
 	string token;
+	string line;
 	string type;
 	vector<string> confElements;
 	string confElement;
 
 	file.open(fileName.c_str());
-	while(getline(file, line))
-	{
-		if(line.size()!=0) //Ignore empty lines
-		{
-			confElements.clear();
-			istringstream myLine(line);
-			getline(myLine, type, ';');
 
-			while(getline(myLine, token, ';'))
-			{
-				confElements.push_back(token);
-			}
-
-			configurationElements.insert(make_pair(type, confElements));
-		}
-	}
-
-	confElements.clear();
-	confElements = configurationElements.at("bkg_conf");
-
-	bkg_distantSpeed = atof(confElements.at(0).c_str());
-	bkg_midSpeed = atof(confElements.at(1).c_str());
-	bkg_nearSpeed = atof(confElements.at(2).c_str());
-
-	configurationElements.erase("bkg_conf");
-}*/
-
-void Level::loadConf()
-{
-	ifstream file;
-	string fileName = "conf/l1.conf";
-	string token;
-
-	file.open(fileName.c_str());
-
+	//convert the file stream into one giant string
 	string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
 	vector<string> elems;
 
 	size_t position = 0;
+	//Parse with the arobase delimiter
 	while ((position = fileString.find("@")) != string::npos)
 	{
 		token = fileString.substr(0, position);
-		objectConfiguration.push_back(token);
+		if (!token.empty())
+			confElements.push_back(token);
 		fileString.erase(0, position + 1);
 	}
-	objectConfiguration.push_back(fileString);
-}
 
-void Level::loadSounds()
-{
-	ifstream file;
-	string fileName = "conf/soundL1.conf";
-	string token;
-	string line;
-	string type;
-	vector<string> confElements;
-	string confElement;
+	//get the last section of the file
+	confElements.push_back(fileString);
 
-	file.open(fileName.c_str());
+	for(vector<string>::iterator aConf = confElements.begin(); aConf != confElements.end(); aConf++)
+	{
+		istringstream aConfStream(*aConf);
+		string aLine;
+		string token;
 
+		getline(aConfStream, aLine);
+
+		switch(configCategories.at(aLine))
+		{
+			case confSound:
+				soundEngine->loadSoundFrom(*aConf);
+				break;
+
+			case confMusic:
+				soundEngine->loadMusicFrom(*aConf);
+				break;
+
+			case confDrawable:
+				loadDrawableConf(*aConf);
+				break;
+
+			case confEffect:
+				loadEffects(*aConf);
+				break;
+
+			default:
+				cout << "Warning (Level loadFileConfiguration): unrecognized configuration category encountered: " << aLine << endl;
+				break;
+		}
+
+	}
 	while(getline(file, line))
 	{
 		if(!line.empty()) //Ignore empty lines
@@ -279,7 +297,6 @@ void Level::loadSounds()
 
 void Level::loadObjects()
 {
-
 	for (vector<string>::iterator aConfString = objectConfiguration.begin() +1; aConfString != objectConfiguration.end(); ++aConfString)
 	{
 		AnimatedDrawable * aNewDrawable = new AnimatedDrawable();
@@ -292,8 +309,7 @@ void Level::loadObjects()
 
 void Level::createEffect(int x, int y, string name)
 {
-	//loadedEffects.at(name)->startEffect(x, y);
-	activeEffects.push_back(new Effect(x, y, name));//loadedEffects.at(name));
+	activeEffects.push_back(new Effect(x, y, name));
 }
 
 void Level::heroLoseLife()
@@ -311,31 +327,44 @@ void Level::cleanLevel()
 	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->clean();
-		//delete (*anElement);
-		activeElements.remove(*anElement++);
+//		delete (*anElement);
+		activeElements.erase(anElement++);
 	}
 
-
+	map<SDL_Surface *, string> freedTextures;
 	for (map<string, AnimatedDrawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
 	{
-		SDL_FreeSurface((*anElement).second->texture);
+		for (map<string, Animation *>::iterator anAnim = (*anElement).second->animations.begin(); anAnim != (*anElement).second->animations.end(); ++anAnim)
+		{
+			if(freedTextures.find((*anAnim).second->texture) == freedTextures.end())
+				SDL_FreeSurface((*anAnim).second->texture);
+
+			freedTextures.insert(make_pair((*anAnim).second->texture, "toto"));
+		}
+		(*anElement).second->animations.clear();
 		delete (*anElement).second;
 	}
 	loadedObjects.clear();
 
 	for (map<string, Effect *>::iterator anElement = loadedEffects.begin() ; anElement != loadedEffects.end(); ++anElement)
 	{
-
 		for (map<string, AnimatedDrawable *>::iterator aLayer = (*anElement).second->effectLayers.begin(); aLayer != (*anElement).second->effectLayers.end(); ++aLayer)
 		{
 			SDL_FreeSurface((*aLayer).second->texture);
+			delete (*aLayer).second;
 		}
 		SDL_FreeSurface((*anElement).second->texture);
+		delete (*anElement).second;
 	}
 
 	//activeElements.clear();
 	loadedEffects.clear();
 	activeEffects.clear();
+	configurationElements.clear();
+	enemyConfigurationElements.clear();
+	effectConfigurationElements.clear();
+	objectConfiguration.clear();
+
 	soundEngine->stopMusic("l1Music");
 	soundEngine->stopAllSounds();
 }
@@ -351,27 +380,19 @@ void Level::finishLevel()
 
 }
 
-void Level::loadEffects()
+void Level::loadEffects(string aConfString)
 {
-	//effectsConfigurationElements.clear();
-	ifstream file;
-	string fileName = "conf/effectL1.conf";
 	string token;
 
-	file.open(fileName.c_str());
-
-	string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
-	vector<string> elems;
-
 	size_t position = 0;
-	while ((position = fileString.find("%")) != string::npos)
+	while ((position = aConfString.find("%")) != string::npos)
 	{
-		token = fileString.substr(0, position);
+		token = aConfString.substr(0, position);
 		effectConfigurationElements.push_back(token);
-		fileString.erase(0, position + 1);
+		aConfString.erase(0, position + 1);
 	}
 
-	effectConfigurationElements.push_back(fileString);
+	effectConfigurationElements.push_back(aConfString);
 }
 
 //Generate a random set of stars

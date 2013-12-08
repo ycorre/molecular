@@ -14,7 +14,7 @@ void Level4::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	toMerge.clear();
-	loadConf();
+	loadFileConfiguration();
 	loadObject();
 	hud = new HUD(ge);
 	hud->loadHUDElements("conf/hud.conf");
@@ -405,7 +405,7 @@ int Level4::checkEnemyCollision(Drawable * anElement)
 		}
 	}
 
-	for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
+	/*for (list<Laser*>::iterator aLaser = hero->getLasers()->begin(); aLaser != hero->getLasers()->end(); ++aLaser)
 	{
 		Laser * aL = *aLaser;
 		if(pe->collisionDetection(aL, anElement))
@@ -415,7 +415,7 @@ int Level4::checkEnemyCollision(Drawable * anElement)
 			hero->getLasers()->erase(aLaser++);
 			return 1;
 		}
-	}
+	}*/
 	return 0;
 }
 

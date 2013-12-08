@@ -12,7 +12,6 @@ Effect::Effect()
 
 Effect::Effect(int x, int y, string aName)
 {
-	Drawable();
 	name = aName;
 	width = lev->loadedEffects.at(aName)->width;
 	height = lev->loadedEffects.at(aName)->height;
