@@ -2,7 +2,7 @@
 
 Enemy::Enemy()
 {
-	Drawable();
+	name = "Enemy";
 	posX = 0;
 	posY = 0;
 	setAnimX(0);
@@ -20,7 +20,7 @@ Enemy::Enemy()
 
 Enemy::Enemy(int x, int y, int typeXW, int dir)
 {
-	Drawable();
+	name = "Enemy";
 	this->addTexture("enemy");
 	width = atoi(((lev->configurationElements.at("enemy")).at(0)).c_str());
 	height = atoi(((lev->configurationElements.at("enemy")).at(1)).c_str());
@@ -49,7 +49,6 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 
 Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 {
-	Drawable();
 	copyFrom(lev->loadedObjects.at("enemy"));
 
 	posX = x;
@@ -147,8 +146,8 @@ void Enemy::fire()
 
 		//Shoot toward the hero
 		//Compute the angle
-		float xDiff = lev->hero->posX - posX;
-		float yDiff = lev->hero->posY - posY;
+		float xDiff = (lev->hero->posX + lev->hero->width/2) - (posX + width/2);
+		float yDiff = (lev->hero->posY + lev->hero->height/2) - (posY+ height /2);
 		float angle = atan2(yDiff, xDiff);
 
 		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));

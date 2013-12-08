@@ -47,7 +47,7 @@ class GraphicEngine
 	  int isFading;
 
 	  GraphicEngine();
-	  void initGe();
+	  void init();
 	  void displayFrame();
 	  int draw(Drawable * sprite);
 	  int drawEffect(ParticleEffect * anEffect);

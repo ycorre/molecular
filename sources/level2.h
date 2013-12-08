@@ -23,7 +23,6 @@ class Level2:  public Level
 	Level2();
 	virtual void loadLevel(Hero * aHero);
 	void loadObject();
-	void loadTextures();
 	void loadBackGround();
 	virtual void drawLevel();
 	void checkEvent();

@@ -12,13 +12,15 @@ Level1::Level1()
 void Level1::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
-	loadConf();
+	loadFileConfiguration();
 	loadObjects();
 	loadEnemies();
-	loadObject();
+	instantiateEffects();
+	loadTextures();
+	loadBackGround();
 	instantiateEnemies();
 
-	soundEngine->playMusic("l1Music");
+	soundEngine->playMusic("hybridQuarks");
 
 	hud = new HUD(ge);
 	cameraSpeed = 1;
@@ -30,30 +32,6 @@ void Level1::loadLevel(Hero * aHero)
 	ending = fading = exiting = FALSE;
 }
 
-void Level1::loadObject()
-{
-	loadTextures();
-	loadSounds();
-	loadBackGround();
-}
-
-//Load all textures used for the level at the beginning
-//Texture and objects are specified in the level configuration file
-void Level1::loadTextures()
-{
-	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
-	{
-		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
-	}
-}
-
-void Level1::loadBackGround()
-{
-	Level::loadBackGround();
-	
-	soundEngine->addMusic("sound/HybridQuarksLow.mp3", "l1Music");
-}
-
 void Level1::drawLevel()
 {
 	checkEvent();
@@ -62,7 +40,7 @@ void Level1::drawLevel()
 	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
 
 	//Set the list of elements to display
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
 		(*anElement)->processDisplay();
@@ -101,11 +79,13 @@ void Level1::drawLevel()
 //function that handle the events (enemies apparitions, collision checks,  etc...)
 void Level1::checkEvent()
 {
-
 	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		if((*anElement)->toRemove)
 		{
+			cout << (*anElement)->name << endl;
+			//delete *anElement;
+
 			activeElements.remove(*anElement++);
 		}
 		else
@@ -144,12 +124,12 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 	}
 
 	hero->getLasers();
-	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
+	for (list<Laser>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		if((*aLaser)->display && pe->collisionDetection(*aLaser, anElement))
+		if((*aLaser).display && pe->collisionDetection(&*aLaser, anElement))
 		{
-			anElement->processCollisionWith(*aLaser);
-			(*aLaser)->processCollisionWith(anElement);
+			anElement->processCollisionWith(&*aLaser);
+			(*aLaser).processCollisionWith(anElement);
 			return TRUE;
 		}
 	}
@@ -169,19 +149,9 @@ int Level1::checkCollision(Drawable * anElement)
 		hero->processCollisionWith(anElement);
 		return TRUE;
 	}
+
 	return FALSE;
 }
-
-void Level1::createExplosion(int x, int y, int type)
-{
-	activeElements.push_back(new Explosion(x, y, type));
-}
-
-void Level1::createBonus(int x, int y, int type)
-{
-	activeElements.push_back(new Bonus(x, y, type));
-}
-
 
 //Load enemies from a configuration files
 //Format is on the first line:
@@ -206,7 +176,6 @@ void Level1::loadEnemies()
 		{
 			confElements.clear();
 			istringstream myLine(line);
-			//getline(myLine, type, ';');
 
 			while(getline(myLine, token, ';'))
 			{
@@ -215,10 +184,8 @@ void Level1::loadEnemies()
 			enemyConfigurationElements.push_back(confElements);
 		}
 	}
-	loadEffects();
-	instantiateEffects();
-}
 
+}
 
 void Level1::instantiateEnemies()
 {
@@ -238,21 +205,6 @@ void Level1::instantiateEnemies()
 	}
 }
 
-
-void Level1::instantiateEffects()
-{
-	string line;
-
-	for (vector<string>::iterator anEffect = effectConfigurationElements.begin(); anEffect != effectConfigurationElements.end(); ++anEffect)
-	{
-		Effect * aNewEffect = new Effect();
-		aNewEffect->loadConf((*anEffect));
-
-		loadedEffects.insert(make_pair(aNewEffect->name, aNewEffect));
-	}
-}
-
-
 void Level1::finishLevel()
 {
 	//First call: init
@@ -263,7 +215,7 @@ void Level1::finishLevel()
 		fading = FALSE;
 	}
 
-	//Play Victory sound
+	//Play Victory sound: TADA!!!
 
 
 	//Get hero out of the screen to the right

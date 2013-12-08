@@ -51,11 +51,13 @@ void Weapon::fire(Hero * aHero)
 		switch(type)
 		{
 			case WEAPON_ELECTRON:
-				shoots.push_back(new Laser(aHero->posX - 64, aHero->posY + 16, RIGHT, GREEN_LASER, this));
+				shoots.push_back(*new Laser(aHero->posX - 64, aHero->posY + 16, this));
 				break;
 
 			case WEAPON_PHOTON:
-				shoots.push_back(new Photon(aHero->posX - 64, aHero->posY + 16, RIGHT, GREEN_LASER, this));
+				Photon aP;
+				aP.setParam(aHero->posX - 64, aHero->posY + 16, this); //= new Photon(aHero->posX - 64, aHero->posY + 16, RIGHT, GREEN_LASER, this);
+				shoots.push_back(aP);
 				break;
 		}
 
@@ -76,17 +78,16 @@ void Weapon::checkFire()
 
 void Weapon::animateLasers()
 {
-	for (std::list<Laser *>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
+	for (std::list<Laser>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
 	{
-		(*aLaser)->animate();
-		if ((*aLaser)->toRemove)
+		(&(*aLaser))->animate();
+		if ((&(*aLaser))->toRemove)
 		{
-			delete (*aLaser);
 			shoots.erase(aLaser++);
 		}
 		else
 		{
-			(*aLaser)->processDisplay();
+			(&(*aLaser))->processDisplay();
 		}
 	}
 

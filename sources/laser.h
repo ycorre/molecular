@@ -14,46 +14,37 @@ class Weapon;
 class Laser: public MaskedDrawable, public AnimatedDrawable
 {
    public:
-
-	  int type;
 	  int power;
-	  int direction;
 	  float angle;
 	  Weapon * firingWeapon;
 	  AnimatedDrawable * trail;
 
 	  Laser();
-	  Laser(int x, int y, int dir, int type, Weapon * aWeapon);
+	  Laser(int x, int y, Weapon * aWeapon);
 	  virtual void animate();
 	  virtual int isLaser() {return TRUE;}
 	  virtual int isPhoton() {return FALSE;}
-	  virtual void processCollisionWith(Drawable* aDrawable);
+	  virtual void processCollisionWith(Drawable * aDrawable);
 	  void createImpact(float x, float y);
 };
 
 class Photon: public Laser
 {
    public:
-
 	  Photon();
-	  Photon(int x, int y, int dir, int type, Weapon * aWeapon);
+	  Photon(int x, int y, Weapon * aWeapon);
 	  virtual void animate();
 	  virtual int isLaser() {return TRUE;}
 	  virtual int isPhoton() {return TRUE;}
-	  virtual void processCollisionWith(Drawable* aDrawable);
+	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void setParam(int x, int y, Weapon * aWeapon);
 	  void removeEnergy(int anEnergyValue);
 };
-
-#define RED_LASER 0
-#define GREEN_LASER 1
 
 class Bullet: public MaskedDrawable,  public AnimatedDrawable
 {
    public:
-
-	  int type;
 	  int power;
-	  int direction;
 	  float angle;
 	  int speed;
 
@@ -64,9 +55,6 @@ class Bullet: public MaskedDrawable,  public AnimatedDrawable
 	  virtual int isLaser() {return TRUE;}
 	  virtual void processCollisionWith(Drawable* aDrawable);
 };
-
-#define BLUE_BULLET 0
-#define GUIDED_BULLET 1
 
 #endif
 

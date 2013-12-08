@@ -205,3 +205,42 @@ void Music::fadeOut(int aTime)
 	}
 	isPlaying = FALSE;
 }
+
+
+void Music::loadAMusic(string confString)
+{
+	string token;
+	istringstream aConf(confString);
+
+	while(getline(aConf, token, ';'))
+	{
+		istringstream aParam(token);
+		string paramType;
+		string paramValue;
+		getline(aParam, paramType, ':');
+		getline(aParam, paramValue, ':');
+
+		switch(soundConfParameters.at(paramType))
+		{
+			case sName:
+				name = paramValue;
+				break;
+
+			case sVolume:
+				volume = atoi(paramValue.c_str());
+				break;
+
+			case sLoop:
+				setLoop(atoi(paramValue.c_str()));
+				break;
+
+			case sData:
+				load(paramValue.c_str());
+				break;
+
+			default:
+				cerr << "Music loadFrom(): Unknown configuration parameter: " << paramType << endl;
+				break;
+		}
+	}
+}

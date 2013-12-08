@@ -2,7 +2,6 @@
 
 Bomb::Bomb()
 {
-	Drawable();
 	copyFrom(lev->loadedObjects.at("bomb"));
 	collision = ge->loadTexture("res/Bomb_Col.png");
 	setAnimX(0);
@@ -24,7 +23,6 @@ Bomb::Bomb()
 
 Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 {
-	Drawable();
 	copyFrom(lev->loadedObjects.at("bomb"));
 	posX = x;
 	posY = y;

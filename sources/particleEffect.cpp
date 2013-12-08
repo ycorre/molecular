@@ -1,6 +1,5 @@
 #include "particleEffect.h"
 
-
 ParticleEffect::ParticleEffect()
 {
 	type = "";
@@ -33,6 +32,34 @@ void ParticleEffect::createImpactFrom(float x, float y)
 	}
 	animationLength = 5;
 	currentFrame = 0;
+	setOpacityValues(1, 0.5);
+}
+
+void ParticleEffect::setOpacityValues(float startingOpacity, float finishingOpacity)
+{
+	int i;
+	float currentOpacity;
+	float opacityModifyingFactor;
+
+	opacityModifyingFactor = (finishingOpacity - startingOpacity) / animationLength;
+	currentOpacity = startingOpacity;
+
+	for (i = 0; i < animationLength; i++)
+	{
+		opacityValues.push_back(currentOpacity);
+		currentOpacity = currentOpacity + opacityModifyingFactor;
+	}
+}
+
+void ParticleEffect::animate()
+{
+	//if(currentFrame != animationLength-1)
+	if(!opacityValues.empty())
+	{
+		opacity = opacityValues.at(currentFrame);
+	}
+
+	currentFrame++;
 }
 
 LineEffect::LineEffect()
@@ -40,6 +67,7 @@ LineEffect::LineEffect()
 	length = 1;
 	destX = destY = 0;
 	center = make_pair(0,0);
+	lineWidth = 2.0f;
 }
 
 void LineEffect::createRandomLineFrom(float aPosX, float aPosY)
@@ -49,6 +77,7 @@ void LineEffect::createRandomLineFrom(float aPosX, float aPosY)
 	posY = aPosY;
 	destX = aPosX - (rand() % 70);
 	destY = aPosY + (- 35 + rand() % 70);
+	lineWidth = 2.0 + ((rand() % 40)/10.0);
 }
 
 CircleEffect::CircleEffect()

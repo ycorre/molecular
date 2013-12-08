@@ -8,6 +8,8 @@
 //Handle memory release
 //Fix the music bug (repeating audio after music has been stop once (reload each time ?))
 //Change menu configuration
+//Modify the menu so that it is unloaded and reloaded each time we go back there
+//Do a load level and a launch level method and separate both
 
 //Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
@@ -23,7 +25,7 @@ Game::Game()
 	initGame();
 }
 
-// Function to release/destroy the resources and restore to the desktop
+// Function to release/destroy the resources and go back to the desktop
 void quit(int code)
 {
     SDL_Quit();
@@ -66,7 +68,7 @@ int Game::mainLoop()
     ProgramTimer = 0;
     GameTimer = 0;
 
-    gameState = MENU;
+    gameState = GAME_MENU;
 
     //Main loop
     while (!done)
@@ -82,7 +84,7 @@ int Game::mainLoop()
 			{
 		    	case SDL_KEYDOWN:
 					//Handle key presses
-					if(gameState == MENU)
+					if(gameState == GAME_MENU)
 					{
 						keyboard->handleKeyPressMenu(&event.key.keysym, menu);
 					}
@@ -108,11 +110,19 @@ int Game::mainLoop()
 
 	    switch(gameState)
 	    {
-	    	case MENU:
+	    	case GAME_LOADMENU:
+	    		delete menu;
+	    		menu = new Menu(&graphicEngine, &soundEngine);
+	    	    menu->loadMenu();
+	    	    menu->game = this;
+	    		gameState = GAME_MENU;
+	    		break;
+
+	    	case GAME_MENU:
 	    		menu->displayMenu();
 	    		break;
 
-	    	case INGAME:
+	    	case GAME_INGAME:
 	    		keyboard->processKeyInGame(currentLevel->hero);
 	    		keyboard->processeMouseInGame(currentLevel->hero);
 				currentLevel->drawLevel();
@@ -125,13 +135,12 @@ int Game::mainLoop()
 					menu->nextMenu = MENU_GAMEOVER;
 					menu->menuInTransition = TRUE;
 					soundEngine.playSound("game_over");
-					gameState = MENU;
+					gameState = GAME_MENU;
 				}
 				break;
 
 	    	default:
 	    		break;
-
 	    }
 
 	    //Display the frame
@@ -141,7 +150,6 @@ int Game::mainLoop()
 		controlFPS();
 		updateTimers();
 	}
-
     //exit
     quit(0);
 
@@ -149,11 +157,11 @@ int Game::mainLoop()
     return 0;
 }
 
-//Initialization of the program
+//Initialization of the game
 int Game::initGame()
 {
 	loadConf();
-	graphicEngine.initGe();
+	graphicEngine.init();
 	graphicEngine.addFont("lCrystal", "res/LiquidCrystal.otf");
 	graphicEngine.addFont("arial", "res/Arial.ttf");
 	graphicEngine.initColors();
@@ -179,7 +187,7 @@ int Game::initGame()
     for(i = 1; i<10; i++)
     {
     	stringstream ss;
-    	ss<< "level" << i;
+    	ss << "level" << i;
     	lockedLevel.insert(make_pair(ss.str(), TRUE));
     }
 
@@ -273,7 +281,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    //SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);
@@ -292,12 +300,12 @@ int Game::initSDL()
 void Game::pause()
 {
 	//If we are not in pause
-	if (gameState != PAUSE)
+	if (gameState != GAME_PAUSE)
 	{
 		//Then save current game state
 		previousGameState = gameState;
 		//and pause
-		gameState = PAUSE;
+		gameState = GAME_PAUSE;
 	}
 	else
 	{
@@ -319,7 +327,7 @@ void Game::newGame()
     Score = 0;
 
 	currentLevel->loadLevel(hero);
-	gameState = INGAME;
+	gameState = GAME_INGAME;
 }
 
 //Used to launch a specific level
@@ -336,7 +344,7 @@ void Game::launchLevel(string aLevel)
 	Score = 0;
 
 	currentLevel->loadLevel(hero);
-	gameState = INGAME;
+	gameState = GAME_INGAME;
 }
 
 //Launch the next level after a level has ended
@@ -354,7 +362,7 @@ void Game::launchNextLevel()
 	{
 		cout<<"Game won!!!!!!!!!!!\n";
 		menu->currentMenu = MENU_SUCCESS;
-		gameState = MENU;
+		gameState = GAME_MENU;
 		return;
 	}
 
@@ -366,7 +374,7 @@ void Game::launchNextLevel()
 	Drawable::lev = currentLevel;
 
 	currentLevel->loadLevel(hero);
-	gameState = INGAME;
+	gameState = GAME_INGAME;
 }
 
 void Game::stopMusic()
@@ -400,7 +408,7 @@ void Game::updateTimers()
 {
 	ProgramTimer = ProgramTimer + Interval;
 
-	if (gameState == INGAME)
+	if (gameState == GAME_INGAME)
 		GameTimer = GameTimer + Interval;
 
 	return;
@@ -456,7 +464,7 @@ int initOpenGL()
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	// glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
+	//glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -465,7 +473,7 @@ int initOpenGL()
 
 	//Set the view
 	//90.0f since cotangent(45) = 1 which simplifies the coordinates computing on the y axis
-	//the x coordinates are too be multiply by the ratio
+	//the x coordinates are to be multiply by the ratio
 	gluPerspective(90.0f, ratio, 1.0f, 100.0f);
 
 	glMatrixMode(GL_MODELVIEW);

@@ -54,7 +54,7 @@ void Keyboard::processKeyInGame(Hero* hero)
 	if(keyStates[SDLK_ESCAPE])
 	{
 		game->currentLevel->cleanLevel();
-		game->gameState = MENU;
+		game->gameState = GAME_MENU;
 	}
 
 	if(keyStates[SDLK_b])

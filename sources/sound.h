@@ -63,7 +63,7 @@ class Music: public Sound
 		Music(string path, string name);
 		virtual void load(string aPath);
 		virtual void play();
-		//virtual void pause();
+		void loadAMusic(string confString);
 		virtual void stop();
 		virtual void fadeOut(int aTime);
 };

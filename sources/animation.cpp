@@ -6,7 +6,7 @@
 
 Animation::Animation()
 {
-	name = "";
+	name = "AnimDfault";
 	width = 1;
 	height = 1;
 	texturePosX = 0;
@@ -45,7 +45,7 @@ Animation::Animation(Animation * anAnim)
 
 Animation::Animation(Drawable * aDrawable)
 {
-	name = "";
+	name = "AnimDfault";
 	width = aDrawable->width;
 	height = aDrawable->height;
 	texturePosX = 0;
@@ -77,12 +77,14 @@ int Animation::nextFrame()
 		drawable->opacity = opacityValues.at(currentFrame);
 	}
 
+	//If the current frame has a scaling value set
 	if(!scalingValues.empty())
 	{
 		drawable->scaleX = scalingValues.at(currentFrame);
 		drawable->scaleY = scalingValues.at(currentFrame);
 	}
 
+	//If we are at the end of the animation, set the flag
 	if (currentFrame == numberOfFrames - 1 && !loop)
 	{
 		hasEnded = TRUE;
@@ -137,7 +139,7 @@ void Animation::setAnimationParameter(string aConfigString)
 				break;
 
 			case pNumberOfFrames:
-				numberOfFrames =  atoi(paramValue.c_str());
+				numberOfFrames = atoi(paramValue.c_str());
 				break;
 
 			default:

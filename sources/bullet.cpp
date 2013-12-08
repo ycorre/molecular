@@ -7,9 +7,8 @@
 //35x18
 Bullet::Bullet()
 {
-	type = 0;
+	name = "bullet";
 	power = 50;
-	direction = 0;
 	angle = 0;
 	speed = 1;
 	this->loadTexture("res/bullet.png");
@@ -24,10 +23,8 @@ Bullet::Bullet()
 
 Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 {
+	name = "bullet";
 	power = 50;
-	direction = 0;
-	type = 0;
-
 	copyFrom(lev->loadedObjects.at("shoot"));
 	collision = ge->loadTexture("res/Shoot_Col.png");
 
@@ -52,6 +49,11 @@ void Bullet::animate()
 
 	posX = posX + vx;
 	posY = posY + vy;
+
+	if(!lev->isOnScreen(this))
+	{
+		this->toRemove = TRUE;
+	}
 }
 
 void Bullet::processCollisionWith(Drawable* aDrawable)

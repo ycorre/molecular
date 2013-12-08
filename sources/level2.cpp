@@ -12,9 +12,12 @@ Level2::Level2()
 void Level2::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
-	loadConf();
+	loadFileConfiguration();
 	loadObjects();
-	loadObject();
+	loadTextures();
+	loadBackGround();
+	instantiateEffects();
+
 	hud = new HUD(ge);
 	cameraSpeed = 1;
 	bombGenerationRate = 1500;
@@ -24,26 +27,9 @@ void Level2::loadLevel(Hero * aHero)
 	hero = aHero;
 	hero->setTexture(loadedObjects.at("atom"));
 
-	soundEngine->playMusic("l1Music");
+	soundEngine->playMusic("hybridQuarks");
 
 	ending = fading = exiting = FALSE;
-}
-
-void Level2::loadObject()
-{
-	loadTextures();
-	loadSounds();
-	loadBackGround();
-}
-
-//Load all textures used for the level at the beginning
-//Texture and objects are specified in the level configuration file
-void Level2::loadTextures()
-{
-	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
-	{
-		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
-	}
 }
 
 void Level2::loadBackGround()
@@ -54,11 +40,6 @@ void Level2::loadBackGround()
 	background.height = SCREEN_HEIGHT;
 	background.posX = 0;
 	background.posY = 0;
-
-	soundEngine->addMusic("sound/HybridQuarksLow.mp3", "l1Music");
-
-	loadEffects();
-	instantiateEffects();
 }
 
 
@@ -153,9 +134,9 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 	}
 
 	hero->getLasers();
-	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
+	for (list<Laser>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		Laser * aL = *aLaser;
+		Laser * aL = &*aLaser;
 		if(aL->display && pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);

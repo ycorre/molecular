@@ -38,12 +38,14 @@ class SoundEngine
 
 		SoundEngine();
 		void init();
+		void loadSoundFrom(string confString);
+		void loadMusicFrom(string confString);
 		void muteAll();
 		void clearSounds();
 		void stopAllSounds();
 
 		int loadSound(string pathToASound, Sound * aSound);
-		void addSound(string pathTotASound, string aSoundId);
+		void addSound(string pathToASound, string aSoundId);
 		void addSound(Sound * aSound);
 		void playSound(string aSound);
 		void playSound(Sound * aSound);
@@ -55,6 +57,7 @@ class SoundEngine
 
 		int loadMusic(string pathToASound, Music * aMusic);
 		void addMusic(string pathTotASound, string aSoundId);
+		void addMusic(Music * aMusic);
 		void playMusic(string aMusic);
 		void playMusic(Music * aMusic);
 		void playMusic();

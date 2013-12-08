@@ -5,6 +5,7 @@
 
 class LineEffect;
 
+//Particle effect can be made of several types of effect (line, point, circle, etc.)
 class ParticleEffect
 {
 	public:
@@ -18,16 +19,21 @@ class ParticleEffect
 		int animationLength;
 		int currentFrame;
 		list<LineEffect *> lineEffects;
+		vector<float> opacityValues;
+
 
 		ParticleEffect();
 		~ParticleEffect();
 		void createImpactFrom(float posX, float posY);
+		void animate();
+		void setOpacityValues(float startingValue, float endingValue);
 };
 
 class LineEffect: public ParticleEffect
 {
 	public:
 		float length;
+		float lineWidth;
 		float destX, destY;
 		pair<float, float> center;
 

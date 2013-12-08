@@ -6,7 +6,7 @@
 
 Text::Text(SDL_Color aColor, TTF_Font * aFont)
 {
-	Drawable();
+	name = "txt";
 	color = aColor;
 	font = aFont;
 	content = "";
@@ -15,8 +15,8 @@ Text::Text(SDL_Color aColor, TTF_Font * aFont)
 
 Text::Text(SDL_Color aColor, TTF_Font * aFont, int Xpos, int Ypos, int aWidth, int aHeight)
 {
-	Drawable();
 	posX = Xpos;
+	name = "txt";
 	posY = Ypos;
 	width = aWidth;
 	height = aHeight;
