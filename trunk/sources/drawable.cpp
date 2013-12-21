@@ -10,8 +10,7 @@ Level * Drawable::lev;
 
 Drawable::Drawable()
 {
-	name = "dfaut";
-	lastTimeUpdated = 0;
+	name = "drawableDefaut";
 	texture = NULL;
 	posX = 0;
 	posY = 0;
@@ -34,18 +33,35 @@ Drawable::Drawable()
 	rotY = 0;
 	rotZ = 0;
 	rotationAngle = 0;
+	ogl_Xorigin = ogl_Xcorner = ogl_Ycorner = ogl_Yorigin = 0.0;
+	oglTexture = 0;
+}
 
-	//confParameters = {("name", pName), ("width", pWidth), ("height", pHeight), ("texture", pTexture), ("anim", pAnim), ("animations", pAnimations)};
-	confParameters["name"] = pName;
-	confParameters["width"] = pWidth;
-	confParameters["height"] = pHeight;
-	confParameters["texture"] = pTexture;
-	confParameters["anim"] = pAnim;
-	confParameters["animations"] = pAnimations;
-	confParameters["blending"] = pBlending;
-	confParameters["opacity"] = pOpacity;
-	confParameters["moveTexture"] = pMoveTexture;
-	confParameters["scale"] = pScale;
+Drawable::Drawable(Json::Value aConfig)
+{
+	name = aConfig.get("name", "drawableDefaut").asString();
+	width = aConfig.get("width", 1).asInt();
+	height = aConfig.get("height", 1).asInt();
+	posX = aConfig.get("posX", 0).asFloat();
+	posY = aConfig.get("posY", 0).asFloat();
+	posZ = aConfig.get("posZ", 0).asFloat();
+	animX = aConfig.get("animX", 0).asFloat();
+	animY = aConfig.get("animY", 0).asFloat();
+	display = aConfig.get("display", TRUE).asInt();
+	toRemove = aConfig.get("toRemove", FALSE).asInt();
+	isBlinking = aConfig.get("isBlinking", FALSE).asInt();
+	toBlend = aConfig.get("blend", FALSE).asInt();
+	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
+	posXCorrection = aConfig.get("posXCorrection", 0).asInt();
+	posYCorrection = aConfig.get("posYCorrection", 0).asInt();
+	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
+	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
+	opacity = aConfig.get("opacity", 1.0f).asFloat();
+	rotX = aConfig.get("rotX", 0.0f).asFloat();
+	rotY = aConfig.get("rotY", 0.0f).asFloat();
+	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
+	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
+	loadTexture(aConfig.get("dataPath", " ").asString());
 }
 
 Drawable::~Drawable()
@@ -66,57 +82,6 @@ void Drawable::processCollision()
 void Drawable::processCollisionWith(Drawable* aDrawable)
 {
 
-}
-
-void Drawable::loadFrom(string aConfString)
-{
-	istringstream aConfStream(aConfString);
-	string aLine;
-	string token;
-
-	getline(aConfStream, aLine);
-
-	istringstream myLine(aLine);
-	getline(myLine, token, ';');
-	name = token;
-
-	while(getline(myLine, token, ';'))
-	{
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
-
-		switch(confParameters.at(paramType))
-		{
-			case pName:
-				name = paramValue;
-				cout<< name << endl;
-				break;
-
-			case pWidth:
-				width = atoi(paramValue.c_str());
-				break;
-
-			case pHeight:
-				height = atoi(paramValue.c_str());
-				break;
-
-			case pTexture:
-				loadTexture(paramValue.c_str());
-				break;
-
-			case pBlending:
-				if(!paramValue.compare("true"))
-					toBlend = TRUE;
-				break;
-
-			default:
-				cerr << "Drawable loadFrom(): Unknown configuration parameter: " << paramType << endl;
-				break;
-		}
-	}
 }
 
 void Drawable::processDisplay()
@@ -231,18 +196,21 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	name = aDrawable->name;
 	width = aDrawable->width;
 	height = aDrawable->height;
+	posX = aDrawable->posX;
+	posY = aDrawable->posY;
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
+	toBlend = aDrawable->toBlend;
 }
 
 int Drawable::getXBoundary()
 {
-	return posX; //+ (posXCorrection * scaleX);
+	return posX;
 }
 
 int Drawable::getYBoundary()
 {
-	return posY; //+ (posYCorrection * scaleY);
+	return posY;
 }
 
 int Drawable::getWidthBoundary()
@@ -284,17 +252,7 @@ float Drawable::getPosY()
 {
 	return posY;
 }
-/*
-float Drawable::getUnscaledPosX()
-{
-	return posX;
-}
 
-float Drawable::getUnscaledPosY()
-{
-	return posY;
-}
-*/
 float Drawable::getWidth()
 {
 	return width;
@@ -311,7 +269,65 @@ float Drawable::getHeight()
 AnimatedDrawable::AnimatedDrawable()
 {
 	animationUpdateFrequency = 40;
+	lastTimeUpdated = 0;
 	currentAnimation = NULL;
+}
+
+
+AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
+{
+	name = aConfig.get("name", "drawableDefaut").asString();
+	width = aConfig.get("width", 1).asInt();
+	height = aConfig.get("height", 1).asInt();
+	posX = aConfig.get("posX", 0).asFloat();
+	posY = aConfig.get("posY", 0).asFloat();
+	posZ = aConfig.get("posZ", 0).asFloat();
+	setAnimX(aConfig.get("animX", 0).asFloat());
+	setAnimY(aConfig.get("animY", 0).asFloat());
+	display = aConfig.get("display", TRUE).asInt();
+	toRemove = aConfig.get("toRemove", FALSE).asInt();
+	isBlinking = aConfig.get("isBlinking", FALSE).asInt();
+	toBlend = aConfig.get("blend", FALSE).asInt();
+	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
+	posXCorrection = aConfig.get("posXCorrection", 0).asInt();
+	posYCorrection = aConfig.get("posYCorrection", 0).asInt();
+	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
+	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
+	opacity = aConfig.get("opacity", 1.0f).asFloat();
+	rotX = aConfig.get("rotX", 0.0f).asFloat();
+	rotY = aConfig.get("rotY", 0.0f).asFloat();
+	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
+	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
+	currentAnimation = NULL;
+
+	string texturePath = aConfig.get("dataPath", "").asString();
+	if(!texturePath.empty())
+	{
+		loadTexture(texturePath);
+	}
+	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
+
+	const Json::Value confAnimations = aConfig["animations"];
+	for (unsigned int i = 0; i < confAnimations.size(); i++)
+	{
+		Animation * anAnim = new Animation(confAnimations[i], this);
+		anAnim->drawable = this;
+		animations.insert(make_pair(anAnim->name, anAnim));
+		if(currentAnimation == NULL)
+			setAnimation(anAnim->name);
+	}
+
+	lastTimeUpdated = 0;
+}
+
+AnimatedDrawable::~AnimatedDrawable()
+{
+	cout<< "AD: " << name <<" deleted " << endl;
+}
+
+void AnimatedDrawable::clean()
+{
+	animations.clear();
 }
 
 float AnimatedDrawable::getWidth()
@@ -365,6 +381,11 @@ void AnimatedDrawable::setAnimation(string aName)
 	posYCorrection = height / 2 - currentAnimation->height / 2;
 }
 
+void AnimatedDrawable::copyFrom(Drawable * aDrawable)
+{
+	copyFrom(dynamic_cast<AnimatedDrawable *> (aDrawable));
+}
+
 void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 {
 	name = aDrawable->name;
@@ -381,142 +402,10 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
 	animationUpdateFrequency = aDrawable->animationUpdateFrequency;
-	setAnimation("static");
+	currentAnimation = aDrawable->currentAnimation;
+	setAnimation(currentAnimation->name);
 	posXCorrection = aDrawable->posXCorrection;
 	posYCorrection = aDrawable->posYCorrection;
-}
-
-
-void AnimatedDrawable::parseAnimationState(string aConf)
-{
-	istringstream aConfStream(aConf);
-	string aState;
-	animations.clear();
-
-	while(getline(aConfStream, aState,'#'))
-	{
-		if(aState.size()!=0){
-			istringstream nbFrame(aState);
-			string aName;
-			string aNumber;
-			getline(nbFrame, aName, '$');
-			//Get the second element (the one we are interested in)
-			getline(nbFrame, aNumber, '$');
-
-			Animation * anAnim = new Animation(this);
-			anAnim->name = aName;
-			anAnim->numberOfFrames = atoi(aNumber.c_str());
-
-			if (currentAnimation == NULL)
-			{
-				currentAnimation = anAnim;
-			}
-
-			animations.insert(make_pair(anAnim->name, anAnim));
-		}
-	}
-}
-
-void AnimatedDrawable::loadFrom(string aConfString)
-{
-	istringstream aConfStream(aConfString);
-	string aLine;
-	string token;
-
-	getline(aConfStream, aLine);
-
-	istringstream myLine(aLine);
-	getline(myLine, token, ';');
-	name = token;
-
-	while(getline(myLine, token, ';'))
-	{
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		if(!paramType.compare("anim"))
-		{
-			getline(aParam, paramValue);
-		}
-		else
-		{
-			getline(aParam, paramValue, ':');
-		}
-
-		switch(confParameters.at(paramType))
-		{
-			case pName:
-				name = paramValue;
-				cout<< name << endl;
-				break;
-
-			case pWidth:
-				width = atoi(paramValue.c_str());
-				break;
-
-			case pHeight:
-				height = atoi(paramValue.c_str());
-				break;
-
-			case pTexture:
-				loadTexture(paramValue.c_str());
-				break;
-
-			case pAnim:
-				animations.at("static")->setAdditionalAnimationParameter(paramValue);
-				break;
-
-			case pAnimations:
-				parseAnimationState(paramValue);
-				break;
-
-			case pBlending:
-				if(!paramValue.compare("true"))
-					toBlend = TRUE;
-				break;
-
-			default:
-				cerr << "Drawable loadFrom(): Unknown configuration parameter: " << paramType << endl;
-				break;
-		}
-	}
-
-	//If there are several animations
-	//Configure them
-	while(getline(aConfStream, aLine))
-	{
-		istringstream myLine(aLine);
-		getline(myLine, token, ';');
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
-
-		if (!paramType.compare("anim"))
-		{
-			animations.at(paramValue)->setAnimationParameter(aLine);
-		}
-	}
-
-	if(animations.empty())
-	{
-		Animation * anAnim = new Animation(this);
-		anAnim->name = "static";
-		anAnim->numberOfFrames = 1;
-		animations.insert(make_pair(anAnim->name, anAnim));
-	}
-
-	for (std::map<string, Animation *>::const_iterator anElement = animations.begin(); anElement != animations.end(); ++anElement)
-	{
-		if((*anElement).second->texture == NULL)
-		{
-			cout<< " end " <<name << ", " << (*anElement).second->name << endl;
-			(*anElement).second->texture = texture;
-			(*anElement).second->oglTexture = oglTexture;
-		}
-	}
 }
 
 /*
@@ -525,37 +414,4 @@ void AnimatedDrawable::loadFrom(string aConfString)
 SDL_Surface * MaskedDrawable::getCollisionTexture()
 {
 	return collision;
-}
-
-/*
- * Multi texture Drawable functions
- */
-void MultiTextureDrawable::addTexture(string aName)
-{
-	textures.insert(make_pair(aName, ge->textures.at(aName)));
-	if(texture==NULL)
-	{
-		texture = ge->textures.at(aName);
-	}
-	textureState = aName;
-#if USE_OPENGL
-	oglTextures.insert(make_pair(aName, ge->openGLTextures.at(textures.at(aName))));
-	setAnimX(getAnimX());
-	setAnimY(getAnimY());
-#endif
-}
-
-SDL_Surface * MultiTextureDrawable::getTexture()
-{
-	return textures.at(textureState);
-}
-
-GLuint MultiTextureDrawable::getOpenGLTexture()
-{
-	return oglTextures.at(textureState);
-}
-
-void MultiTextureDrawable::setTextureState(string aState)
-{
-	textureState = name + aState;
 }

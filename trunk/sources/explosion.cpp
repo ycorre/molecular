@@ -17,7 +17,6 @@ Explosion::Explosion()
 Explosion::Explosion(int x, int y, int typeExpl)
 {
 	name = "explosion";
-	Drawable();
 	copyFrom(lev->loadedObjects.at("explosion"));
 	posX = x;
 	posY = y;

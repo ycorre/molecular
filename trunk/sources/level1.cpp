@@ -6,17 +6,14 @@
 
 Level1::Level1()
 {
-
+	cameraSpeed = 1;
 }
 
 void Level1::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
-	loadFileConfiguration();
-	loadObjects();
+	loadLevelConfiguration("conf/Level1.json");
 	loadEnemies();
-	instantiateEffects();
-	loadTextures();
 	loadBackGround();
 	instantiateEnemies();
 
@@ -34,6 +31,8 @@ void Level1::loadLevel(Hero * aHero)
 
 void Level1::drawLevel()
 {
+	//Move the background
+	moveBackGround();
 	checkEvent();
 
 	//Make sure the hero stays on screen
@@ -47,27 +46,18 @@ void Level1::drawLevel()
 	}
 
 	//Display the HUD
-	hud->displayUI();
-	hud->displayHealth(hero->health);
-	hud->displayLife(hero->nbLife);
-	hud->displayMassPotential(hero->massPotential);
-	hud->displayRadioPotential(hero->radioactivePotential);
-	hud->displayScore(Score);
+	hud->displayUI(hero);
 
 	for (list<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
 	{
 		if((*anEffect)->animateEffect())
 		{
-			activeEffects.erase(anEffect++);
+			activeEffects.erase(anEffect--);
 		}
 	}
 
 	//Animate the hero
 	hero->animate();
-
-	//Move the background
-	moveBackGround();
-	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	//If we are in the finishing sequence
 	if(ending)
@@ -83,10 +73,8 @@ void Level1::checkEvent()
 	{
 		if((*anElement)->toRemove)
 		{
-			cout << (*anElement)->name << endl;
-			//delete *anElement;
-
-			activeElements.remove(*anElement++);
+			delete (*anElement);
+			anElement =	activeElements.erase(anElement);
 		}
 		else
 		{
@@ -104,11 +92,11 @@ void Level1::checkEvent()
 	}
 
 	//Winning conditions
-	if(background.getAnimX() >= 15800 - SCREEN_WIDTH && hero->state != DEAD)
+	/*if(background.getAnimX() >= 15800 - SCREEN_WIDTH && hero->state != DEAD)
 	{
 		//Level won
 		finishLevel();
-	}
+	}*/
 }
 
 int Level1::checkEnemyCollision(Drawable * anElement)
@@ -124,12 +112,12 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 	}
 
 	hero->getLasers();
-	for (list<Laser>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
+	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		if((*aLaser).display && pe->collisionDetection(&*aLaser, anElement))
+		if((*aLaser)->display && pe->collisionDetection(*aLaser, anElement))
 		{
-			anElement->processCollisionWith(&*aLaser);
-			(*aLaser).processCollisionWith(anElement);
+			anElement->processCollisionWith(*aLaser);
+			(*aLaser)->processCollisionWith(anElement);
 			return TRUE;
 		}
 	}

@@ -18,19 +18,6 @@ class GraphicEngine;
 class Level;
 class Animation;
 
-enum ParamValues { undefinedValue,
-				  pName,
-				  pWidth,
-				  pHeight,
-				  pTexture,
-				  pAnimations,
-				  pAnim,
-				  pNumberOfFrames,
-				  pBlending,
-			 	  pOpacity,
-				  pMoveTexture,
-				  pScale};
-
 class Drawable
 {
 	private:
@@ -67,24 +54,21 @@ class Drawable
 	  static GraphicEngine * ge;
 	  static Level * lev;
 
-	  //last timestamp where the animation was updated; useful to control the animation speed
-	  int lastTimeUpdated;
 	  SDL_Surface * texture;
 
 	  //OpenGL stuff
 	  GLuint oglTexture;
-	  float textureXOrigin, textureYOrigin;
 
 	  Drawable();
-	  ~Drawable();
+	  Drawable(Json::Value aConfig);
+	  virtual ~Drawable();
 	  virtual void animate();
 	  virtual void blink();
 	  void processDisplay();
 	  void loadTexture(string path);
 
-	  void clean();
-	  void loadFrom(string aConfString);
-	  void copyFrom(Drawable * aDrawable);
+	  virtual void clean();
+	  virtual void copyFrom(Drawable * aDrawable);
 
 	  void createOGLTexture();
 	  void computeOGLXValues();
@@ -95,7 +79,7 @@ class Drawable
 	  virtual int isLaser() {return FALSE;}
 	  virtual int isBonus() {return FALSE;}
 	  virtual int hasHitBox() {return FALSE;}
-	  virtual int isComposite() {return FALSE;}
+	  virtual int isText() {return FALSE;}
 
 	  virtual void addTexture(string name);
 	  virtual void processCollision();
@@ -129,18 +113,22 @@ class AnimatedDrawable: virtual public Drawable
 	  int animationUpdateFrequency;
 	  Animation * currentAnimation;
 	  map <string, Animation *> animations;
+	  //last timestamp where the animation was updated; useful to control the animation speed
+	  int lastTimeUpdated;
 
 	  AnimatedDrawable();
+	  AnimatedDrawable(Json::Value aConfig);
+	  virtual ~AnimatedDrawable();
+	  virtual void clean();
 	  virtual float getWidth();
 	  virtual float getHeight();
 	  virtual float getPosX();
 	  virtual float getPosY();
 	  virtual int getCurrentFrame();
-	  void parseAnimationState(string aConf);
 	  int updateAnimationFrame();
+	  virtual void copyFrom(Drawable * aDrawable);
 	  void copyFrom(AnimatedDrawable * aDrawable);
 	  void setAnimation(string anAnimationName);
-	  void loadFrom(string aConfString);
 };
 
 //Class for objects that use a mask for collision detection
@@ -151,29 +139,5 @@ class MaskedDrawable: virtual public Drawable
 
 	  virtual SDL_Surface * getCollisionTexture();
 };
-
-//Class for objects that uses several textures that require blending to display
-class CompositeDrawable: virtual public Drawable
-{
-	public:
-	  vector<Drawable *> toMerge;
-
-	  virtual int isComposite() {return TRUE;}
-};
-
-//Class for objects who have several images as texture
-class MultiTextureDrawable: virtual public Drawable
-{
-	public:
-	  map<string, SDL_Surface *> textures;
-	  map<string, GLuint> oglTextures;
-	  string textureState;
-
-	  virtual void addTexture(string path);
-	  virtual SDL_Surface * getTexture();
-	  virtual GLuint getOpenGLTexture();
-	  virtual void setTextureState(string aState);
-};
-
 
 #endif

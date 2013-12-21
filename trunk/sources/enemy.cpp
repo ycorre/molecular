@@ -16,6 +16,11 @@ Enemy::Enemy()
 	sinusWidth = 400;
 	sinusHeigth = 80;
 	life = 50;
+	canFire = FALSE;
+	lastTimeFired = 0;
+	minFireRate = 2000;
+	maxFireRate = 1000;
+	fireRate = minFireRate + (rand() % maxFireRate);
 }
 
 Enemy::Enemy(int x, int y, int typeXW, int dir)
@@ -38,8 +43,7 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 50 * (typeXW+1);
-	collision = ge->loadTexture("res/Ennemi_mask.png");
-	parseAnimationState((lev->configurationElements.at("enemy")).at(2));
+	collision = ge->loadTexture("res/action/characters/e001_mask.png");
 	speed = 2;
 
 	originY = y;
@@ -65,7 +69,7 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 50;
-	collision = ge->loadTexture("res/Ennemi_mask.png");
+	collision = ge->loadTexture("res/action/characters/e001_mask.png");
 	speed = aSpeed;
 
 	originY = y;
@@ -88,12 +92,12 @@ void Enemy::animate()
 	posY = originY + vy*sinusHeigth;
 }
 
-void Enemy::processCollisionWith(Drawable* aDrawable)
+void Enemy::processCollisionWith(Drawable * aDrawable)
 {
 	if(aDrawable->isHero())
 	{
 		lev->soundEngine->playSound("xwing_explode");
-		lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
+		lev->createExplosion(this->posX + this->width/2, this->posY + this->height/2);
 		dropBonus(this->posX, this->posY);
 		Score = Score + scoreValue * (type + 1);
 		this->toRemove = TRUE;
@@ -112,7 +116,7 @@ void Enemy::processCollisionWith(Drawable* aDrawable)
 		if (life<=0)
 		{
 			lev->soundEngine->playSound("xwing_explode");
-			lev->createExplosion(this->posX-this->width/2, this->posY - this->height/2, XWING_EXPL);
+			lev->createExplosion(this->posX + this->width/2, this->posY + this->height/2);
 			Score = Score + scoreValue * (type + 1);
 			this->toRemove = TRUE;
 			dropBonus(this->posX, this->posY);
@@ -147,7 +151,7 @@ void Enemy::fire()
 		//Shoot toward the hero
 		//Compute the angle
 		float xDiff = (lev->hero->posX + lev->hero->width/2) - (posX + width/2);
-		float yDiff = (lev->hero->posY + lev->hero->height/2) - (posY+ height /2);
+		float yDiff = (lev->hero->posY + lev->hero->height/2) - (posY + height/2);
 		float angle = atan2(yDiff, xDiff);
 
 		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));

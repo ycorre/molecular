@@ -134,7 +134,6 @@ int Game::mainLoop()
 				{
 					menu->nextMenu = MENU_GAMEOVER;
 					menu->menuInTransition = TRUE;
-					soundEngine.playSound("game_over");
 					gameState = GAME_MENU;
 				}
 				break;
@@ -162,8 +161,9 @@ int Game::initGame()
 {
 	loadConf();
 	graphicEngine.init();
-	graphicEngine.addFont("lCrystal", "res/LiquidCrystal.otf");
-	graphicEngine.addFont("arial", "res/Arial.ttf");
+	graphicEngine.addFont("lCrystal", "res/fonts/LiquidCrystal.otf", 18);
+	graphicEngine.addFont("lCrystal_16", "res/fonts/LiquidCrystal.otf", 16);
+	graphicEngine.addFont("arial", "res/fonts/Arial.ttf", 18);
 	graphicEngine.initColors();
 	keyboard = new Keyboard();
 	keyboard->game = this;
@@ -174,11 +174,9 @@ int Game::initGame()
 
     Level1 * l1 = new Level1();
     Level2 * l2 = new Level2();
-    Level4 * l4 = new Level4();
 
     l1->name = "level1";
     l2->name = "level2";
-    l4->name = "level4";
 
     levels.insert(make_pair("level1", l1));
     levels.insert(make_pair("level2", l2));
@@ -281,7 +279,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
+   // SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);

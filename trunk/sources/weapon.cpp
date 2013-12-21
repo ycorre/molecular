@@ -8,63 +8,20 @@
 Weapon::Weapon()
 {
 	power = 50;
-	this->loadTexture("res/Electron.png");
-	width = getTexture()->w;
-	height = getTexture()->h;
-	posX = 0;
-	posY = 0;
-	toBlend = TRUE;
 	lastTimeFired = 0;
 	fireRate = 80;
 	canFire = TRUE;
-	type = 0;
 	maxFireRate = 80;
-	setAnimX(0);
-	setAnimY(0);
-}
-
-Weapon::Weapon(string aName, int powerValue, int aFireRate, int aType)
-{
-	name = aName;
-	power = powerValue;
-	this->loadTexture("res/Electron.png");
-	width = getTexture()->w;
-	height = getTexture()->h;
-	posX = 0;
-	posY = 0;
-	toBlend = TRUE;
-	lastTimeFired = 0;
-	fireRate = aFireRate;
-	type = aType;
-	canFire = TRUE;
-	maxFireRate = 80;
-	setAnimX(0);
-	setAnimY(0);
+	load = -1;
+	loadable = FALSE;
+	isFiring = FALSE;
+	level = 0;
 }
 
 void Weapon::fire(Hero * aHero)
 {
-	isFiring = TRUE;
-	checkFire();
-	if (canFire)
-	{
-		switch(type)
-		{
-			case WEAPON_ELECTRON:
-				shoots.push_back(*new Laser(aHero->posX - 64, aHero->posY + 16, this));
-				break;
 
-			case WEAPON_PHOTON:
-				Photon aP;
-				aP.setParam(aHero->posX - 64, aHero->posY + 16, this); //= new Photon(aHero->posX - 64, aHero->posY + 16, RIGHT, GREEN_LASER, this);
-				shoots.push_back(aP);
-				break;
-		}
-
-		canFire = FALSE;
-	}
 }
-
 
 void Weapon::checkFire()
 {
@@ -78,40 +35,101 @@ void Weapon::checkFire()
 
 void Weapon::animateLasers()
 {
-	for (std::list<Laser>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
+	for (list<Laser*>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
 	{
-		(&(*aLaser))->animate();
-		if ((&(*aLaser))->toRemove)
+		Laser * aL = (*aLaser);
+		aL->animate();
+		if (aL->toRemove)
 		{
+			delete (*aLaser);
 			shoots.erase(aLaser++);
 		}
 		else
 		{
-			(&(*aLaser))->processDisplay();
-		}
-	}
-
-	for (std::list<AnimatedDrawable *>::iterator anImpact = impacts.begin(); anImpact != impacts.end(); ++anImpact)
-	{
-		if ((*anImpact)->updateAnimationFrame() && (*anImpact)->getAnimX()==0)
-		{
-			impacts.erase(anImpact++);
-		}
-		else
-		{
-			(*anImpact)->processDisplay();
+			aL->processDisplay();
 		}
 	}
 }
 
 void Weapon::createImpact(float x, float y)
 {
-	ParticleEffect * aParticleEffect = new ParticleEffect();
-	aParticleEffect->createImpactFrom(x, y);
-	lev->ge->particleEffects.push_back(aParticleEffect);
+        ParticleEffect * aParticleEffect = new ParticleEffect();
+        aParticleEffect->createImpactFrom(x, y);
+       // lev->ge->particleEffects.push_back(aParticleEffect);
 }
 
 void Weapon::upgrade()
 {
 
+}
+
+Electron::Electron()
+{
+	name = "electronGun";
+	power = 50;
+	lastTimeFired = 0;
+	fireRate = 40;
+	canFire = TRUE;
+	maxFireRate = 40;
+	load = -1;
+	loadable = FALSE;
+}
+
+void Electron::fire(Hero * aHero)
+{
+	isFiring = TRUE;
+	checkFire();
+	if (canFire)
+	{
+		shoots.push_back(new Laser(aHero->posX - 64, aHero->posY + 16, this));
+		canFire = FALSE;
+	}
+}
+
+Hadron::Hadron()
+{
+	name = "hadronGun";
+	power = 250;
+	lastTimeFired = 0;
+	fireRate = 750;
+	canFire = TRUE;
+	maxFireRate = 80;
+	load = 0;
+	loadable = TRUE;
+}
+
+void Hadron::fire(Hero * aHero)
+{
+	isFiring = TRUE;
+	checkFire();
+	if (canFire)
+	{
+		shoots.push_back(new Photon(aHero->posX - 64, aHero->posY + 16, this));
+		canFire = FALSE;
+	}
+}
+
+
+Baryon::Baryon()
+{
+	name = "baryonGun";
+	power = 50;
+	lastTimeFired = 0;
+	fireRate = 80;
+	canFire = TRUE;
+	maxFireRate = 80;
+	load = -1;
+	loadable = FALSE;
+}
+
+Plasma::Plasma()
+{
+	name = "plasmaGun";
+	power = 50;
+	lastTimeFired = 0;
+	fireRate = 80;
+	canFire = TRUE;
+	maxFireRate = 80;
+	load = 0;
+	loadable = TRUE;
 }

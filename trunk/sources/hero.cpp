@@ -7,9 +7,10 @@
 Hero::Hero()
 {
 	name = "hero";
-	health = 4;
-	maxHealth = 8;
-	nbLife = 5;
+	health = 10;
+	maxHealth = 10;
+	maxLife = 6;
+	nbLife = 3;
 	posX = SCREEN_WIDTH/3 - 64;
 	posY = GAMEZONE_HEIGHT/2 - 32;
 	state = ENTER;
@@ -17,7 +18,7 @@ Hero::Hero()
 	invincibilityTime = 1500;
 	heroChangedState = TRUE;
 	canFire = 1;
-	collision =  ge->loadTexture("res/Joueur_Col.png");
+	collision = ge->loadTexture("res/action/characters/jMask.png");
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	isFiring = FALSE;
@@ -25,9 +26,20 @@ Hero::Hero()
 	massPotential = 60;
 	radioactivePotential = 0;
 	toBlend = TRUE;
-	ownedWeapons.insert(make_pair("electronGun", (new Weapon("electronGun", 50, 40, WEAPON_ELECTRON))));
-	ownedWeapons.insert(make_pair("photonGun", (new Weapon("photonGun", 250, 750, WEAPON_PHOTON))));
-	currentWeapon = ownedWeapons.at("photonGun");
+	ownedWeapons.insert(make_pair("electronGun", (new Electron())));
+	ownedWeapons.insert(make_pair("hadronGun", (new Hadron())));
+	currentWeapon = ownedWeapons.at("electronGun");
+	backOffSpeed = 0;
+	startTeleporting = 0;
+	firingEffect = NULL;
+	startInvincibility = 0;
+	hitAngle = 0;
+	quarkLevels[QB] = 0;
+	quarkLevels[QT] = 0;
+	quarkLevels[QU] = 0;
+	quarkLevels[QD] = 0;
+	quarkLevels[QC] = 0;
+	quarkLevels[QS] = 0;
 }
 
 void Hero::setTexture(Drawable * levelHero)
@@ -45,9 +57,7 @@ void Hero::setTexture(Drawable * levelHero)
 
 void Hero::resetHero()
 {
-	if(health < 4)
-		health = 4;
-
+	health = 10;
 	posX = 0;
 	posY = GAMEZONE_HEIGHT/2 - width/2;
 	state = ENTER;
@@ -71,7 +81,7 @@ void Hero::animate()
 		switch(state)
 		{
 			case STATIC:
-				setAnimation("static");
+				setAnimation("animDefaut");
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -80,7 +90,7 @@ void Hero::animate()
 				dontMove = TRUE;
 				isFiring = FALSE;
 				makeInvincible(4000);
-				startEffect("Dispar");
+				startEffect("dispar");
 				currentAnimation->currentFrame = 0;
 				lev->soundEngine->playSound("TeleportOff");
 				setAnimX(0);
@@ -90,7 +100,7 @@ void Hero::animate()
 			case CURSOR:
 				opacity = 1.0;
 				display = FALSE;
-				setAnimation("Cursor");
+				setAnimation("cursor");
 				makeInvincible(3000);
 				startTeleporting = GameTimer;
 				dontMove = TRUE;
@@ -100,7 +110,7 @@ void Hero::animate()
 
 			case APPAR:
 				display = TRUE;
-				setAnimation("Appar");
+				setAnimation("appar");
 				lev->soundEngine->playSound("TeleportOn");
 				dontMove = TRUE;
 				makeInvincible(4000);
@@ -109,8 +119,8 @@ void Hero::animate()
 				break;
 
 			case HIT:
-				setAnimation("Hit");
-				startEffect("Hit");
+				setAnimation("hit");
+				startEffect("hit");
 				dontMove = TRUE;
 				backOffSpeed = 13.0;
 				makeInvincible(2000);
@@ -124,7 +134,7 @@ void Hero::animate()
 				display = TRUE;
 				isBlinking = FALSE;
 				makeInvincible(1500);
-				setAnimation("Enter");
+				setAnimation("enter");
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -137,16 +147,16 @@ void Hero::animate()
 				isBlinking = FALSE;
 				isFiring = FALSE;
 				display = FALSE;
-				setAnimation("Dead");
-				startEffect("Dead");
+				setAnimation("dead");
+				startEffect("dead");
 				break;
 
 			case EXITING:
 				setAnimX(0);
 				setAnimY(0);
 				dontMove = TRUE;
-				makeInvincible(100000);
-				setAnimation("Exiting");
+				makeInvincible(10000);
+				//setAnimation("exiting");
 				display = TRUE;
 				isFiring = FALSE;
 				isBlinking = FALSE;
@@ -198,7 +208,7 @@ void Hero::animate()
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
-						startEffect("Appar");
+						startEffect("appar");
 					}
 					break;
 
@@ -310,7 +320,7 @@ void Hero::fireWeapon(string aWeaponName)
 	}
 }
 
-list<Laser> * Hero::getLasers()
+list<Laser*> * Hero::getLasers()
 {
 	shoots.clear();
 	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
@@ -359,8 +369,8 @@ void Hero::move(int x, int y)
 	x = min(x, 30);
 	x = max(x, -30);
 
-	y = min(y, 16);
-	y = max(y, -16);
+	y = min(y, 30);
+	y = max(y, -30);
 
 	posX = posX + x;
 	posY = posY + y;
@@ -395,7 +405,7 @@ void Hero::loseLife()
 		state = ENTER;
 		heroChangedState = TRUE;
 		display = FALSE;
-		health = 4;
+		health = 10;
 		canFire = 1;
 		heroMovingUpOrDown = 0;
 		topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
@@ -440,7 +450,7 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 		Bonus * aBonus = dynamic_cast<Bonus*>(aDrawable);
 		if (aBonus->type == BONUS_LIFE)
 		{
-			startEffect("loadHealth");
+			lev->createTextEffect(posX, posY, "loadHe", "Charge: +30");
 
 			if(health < maxHealth)
 			{
@@ -457,8 +467,9 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 		}
 		if (aBonus->type == BONUS_FIRERATE)
 		{
-			startEffect("loadRadio");
+			lev->createTextEffect(posX, posY, "loadRA", "Radioactivite: +20");
 			lev->soundEngine->playSound("UpDiamond");
+			quarkLevels.at(QB) = quarkLevels.at(QB) + 5;
 			radioactivePotential = min(64.0f, radioactivePotential + 32);
 		}
 		return;
@@ -493,7 +504,6 @@ void Hero::makeInvincible(int aTime)
 	invincibilityTime = aTime;
 	startInvincibility = GameTimer;
 	invincible = TRUE;
-	//isBlinking = TRUE;
 }
 
 void Hero::checkInvicibility()
@@ -502,7 +512,6 @@ void Hero::checkInvicibility()
 	{
 		invincible = FALSE;
 		display = TRUE;
-		isBlinking = FALSE;
 	}
 }
 
@@ -529,7 +538,7 @@ void  Hero::teleport()
 	if(massPotential == 64)
 	{
 		setState(DISPAR);
-		startEffect("Dispar");
+		startEffect("dispar");
 		massPotential = 0;
 	}
 }

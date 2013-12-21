@@ -16,11 +16,6 @@ Sound::Sound()
 	looped = FALSE;
 	numberOfLoops = 0;
 	soundData = NULL;
-
-	soundConfParameters["name"] = sName;
-	soundConfParameters["volume"] = sVolume;
-	soundConfParameters["loop"] = sLoop;
-	soundConfParameters["sound"] = sData;
 }
 
 Sound::Sound(string aName)
@@ -44,6 +39,15 @@ Sound::Sound(string aPath, string aName)
 	volume = 100;
 	looped = FALSE;
 	numberOfLoops = 0;
+}
+
+Sound::Sound(Json::Value aConfig)
+{
+	name = aConfig.get("name", "soundDefaut").asString();
+	setLoop(aConfig.get("loop", 0).asInt());
+	volume = aConfig.get("volume", 100).asInt();
+	load(aConfig.get("dataPath", "").asString());
+	soundEngine->setVolumeFor(this);
 }
 
 void Sound::load(string aPath)
@@ -91,51 +95,9 @@ void Sound::setLoop(int nTimes)
 	}
 }
 
-void Sound::loadASound(string confString)
-{
-	string token;
-	istringstream aConf(confString);
-
-	while(getline(aConf, token, ';'))
-	{
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
-
-		switch(soundConfParameters.at(paramType))
-		{
-			case sName:
-				name = paramValue;
-				break;
-
-			case sVolume:
-				volume = atoi(paramValue.c_str());
-				if(soundData != NULL)
-					soundEngine->setVolumeFor(this);
-				break;
-
-			case sLoop:
-				setLoop(atoi(paramValue.c_str()));
-				break;
-
-			case sData:
-				load(paramValue.c_str());
-				soundEngine->setVolumeFor(this);
-				break;
-
-			default:
-				cerr << "Sound loadFrom(): Unknown configuration parameter: " << paramType << endl;
-				break;
-		}
-	}
-}
-
 /*
- * Music function
+ * Music functions
  */
-
 Music::Music()
 {
 	playingChannel = -1;
@@ -158,6 +120,14 @@ Music::Music(string aPath, string aName)
 	volume = 100;
 	looped = TRUE;
 	numberOfLoops = -1;
+}
+
+Music::Music(Json::Value aConfig)
+{
+	name = aConfig.get("name", "musicDefaut").asString();
+	setLoop(aConfig.get("loop", 0).asInt());
+	volume = aConfig.get("volume", 100).asInt();
+	load(aConfig.get("dataPath", " ").asString());
 }
 
 void Music::load(string aPath)
@@ -204,43 +174,4 @@ void Music::fadeOut(int aTime)
 		soundEngine->fadeMusic(aTime);
 	}
 	isPlaying = FALSE;
-}
-
-
-void Music::loadAMusic(string confString)
-{
-	string token;
-	istringstream aConf(confString);
-
-	while(getline(aConf, token, ';'))
-	{
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
-
-		switch(soundConfParameters.at(paramType))
-		{
-			case sName:
-				name = paramValue;
-				break;
-
-			case sVolume:
-				volume = atoi(paramValue.c_str());
-				break;
-
-			case sLoop:
-				setLoop(atoi(paramValue.c_str()));
-				break;
-
-			case sData:
-				load(paramValue.c_str());
-				break;
-
-			default:
-				cerr << "Music loadFrom(): Unknown configuration parameter: " << paramType << endl;
-				break;
-		}
-	}
 }

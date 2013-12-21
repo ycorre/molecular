@@ -27,7 +27,6 @@ class SoundEngine
 		map<string, Sound *> sounds;
 		map<string, Music *> musics;
 		Music * currentMusic;
-		//string currentMusic;
 		
 		int soundVolume;
 		int musicVolume;
@@ -38,8 +37,8 @@ class SoundEngine
 
 		SoundEngine();
 		void init();
-		void loadSoundFrom(string confString);
-		void loadMusicFrom(string confString);
+		void loadSoundFrom(Json::Value aConfig);
+		void loadMusicFrom(Json::Value aConfig);
 		void muteAll();
 		void clearSounds();
 		void stopAllSounds();

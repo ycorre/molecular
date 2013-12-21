@@ -9,6 +9,9 @@ GraphicEngine::GraphicEngine()
 {
 	alphaFading = 0;
 	aspectRatio = 1.0;
+	fadingSpeed = 1.0;
+	screen = NULL;
+	isFading = FALSE;
 }
 
 void GraphicEngine::init()
@@ -68,17 +71,15 @@ void GraphicEngine::drawFrame()
 		cout<<"Warning: GraphicEngine (drawFrame): The set of elements to display is empty\n";
 	}
 
-	for (list<ParticleEffect *>::iterator anEffect = particleEffects.begin() ; anEffect != particleEffects.end(); ++anEffect)
+	for (list<ParticleEffect *>::iterator anEffect = particleEffects.begin() ; anEffect != particleEffects.end(); anEffect++)
 	{
+		drawEffect(*anEffect);
+		(*anEffect)->animate();
+
 		if((*anEffect)->currentFrame >= (*anEffect)->animationLength - 1 )
 		{
 			delete (*anEffect);
-			particleEffects.remove(*anEffect++);
-		}
-		else
-		{
-			drawEffect(*anEffect);
-			(*anEffect)->animate();
+			particleEffects.remove(*anEffect--);
 		}
 
 	}
@@ -97,93 +98,74 @@ int GraphicEngine::draw(Drawable * sprite)
 {
 
 #if USE_OPENGL
-	if (!sprite->isComposite())
+	if(sprite->toBlend)
 	{
-
-		if(sprite->toBlend)
-		{
-			glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-		}
-
-		//Set the opacity
-		glColor4f(1.0, 1.0, 1.0, sprite->opacity);
-
-		//Load a new context in case we perform specific transformation for that object
-		glPushMatrix();
-
-		//If some scaling operations are required
-		if (sprite->scaleX != 1 || sprite->scaleY != 1)
-		{
-			float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-			float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
-
-			//Translate back to 0,0 in order to perform the scaling
-			glTranslatef(zX, zY, 0.0);
-			//Scale
-			glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
-			//Translate back to the normal position
-			glTranslatef(-zX, -zY, 0.0);
-		}
-
-		//If some rotation operations are required
-		if (sprite->rotationAngle != 0)
-		{
-			float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-			float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
-
-			//Translate back to 0,0 in order to perform the scaling
-			glTranslatef(zX, zY, 0.0);
-			//Rotate
-			glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
-			//Translate back to the normal position
-			glTranslatef(-zX, -zY, 0.0);
-		}
-
-		//Use the object texture
-		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
-
-		//Draw a quadrilateral
-		glBegin(GL_QUADS);
-			//Texture coordinates to display
-			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-			//Coordinates of the quadrilateral
-			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
-
-			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
-
-			glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-			glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
-
-			glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-			glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
-
-		glEnd();
-
-		//Discard the new context
-		glPopMatrix();
-
-		if(sprite->toBlend)
-		{
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		}
-	}
-	else
-	{
-		CompositeDrawable * aCDraw = dynamic_cast<CompositeDrawable*> (sprite);
-		//Set the blending parameters
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+	}
 
-		//Draw the textures
-		for (std::vector<Drawable *>::iterator aDrawable = aCDraw->toMerge.begin() ; aDrawable != aCDraw->toMerge.end(); ++aDrawable)
-		{
-			draw(*aDrawable);
-		}
+	//Set the opacity
+	glColor4f(1.0, 1.0, 1.0, sprite->opacity);
 
-		//Restore the default blending parameters
+	//Load a new context in case we perform specific transformation for that object
+	glPushMatrix();
+
+	//If some scaling operations are required
+	if (sprite->scaleX != 1 || sprite->scaleY != 1)
+	{
+		float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+		float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+
+		//Translate back to 0,0 in order to perform the scaling
+		glTranslatef(zX, zY, 0.0);
+		//Scale
+		glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
+		//Translate back to the normal position
+		glTranslatef(-zX, -zY, 0.0);
+	}
+
+	//If some rotation operations are required
+	if (sprite->rotationAngle != 0)
+	{
+		float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+		float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+
+		//Translate back to 0,0 in order to perform the rotation
+		glTranslatef(zX, zY, 0.0);
+		//Rotate
+		glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
+		//Translate back to the normal position
+		glTranslatef(-zX, -zY, 0.0);
+	}
+
+	//Use the object texture
+	glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
+
+	//Draw a quadrilateral
+	glBegin(GL_QUADS);
+		//Texture coordinates to display
+		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
+		//Coordinates of the quadrilateral
+		glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
+
+		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
+		glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
+
+		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
+		glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+
+		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
+		glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+
+	glEnd();
+
+	//Discard the new context
+	glPopMatrix();
+
+	if(sprite->toBlend)
+	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+
 #else
 		SDL_Rect src, dest;
 
@@ -206,9 +188,16 @@ int GraphicEngine::draw(Drawable * sprite)
     return 1;
 }
 
-int GraphicEngine::drawEffect(ParticleEffect * anEffect)
+void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 {
 	glDisable(GL_TEXTURE_2D);
+
+	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
+
+	//Set the width for the lines
+	//glLineWidth(25.5f);
+
+	//Draw Lines
 	glBegin(GL_LINES);
 	//Set color values and opacity
 	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
@@ -230,6 +219,26 @@ int GraphicEngine::drawEffect(ParticleEffect * anEffect)
 		glPopMatrix();
 	}
 	glEnd();
+
+	glPointSize(3.0);
+	glBegin(GL_POINTS);
+	//Set color values and opacity
+	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
+
+	for (list<PointEffect *>::iterator aPoint = anEffect->pointEffects.begin(); aPoint != anEffect->pointEffects.end(); ++aPoint)
+	{
+
+		//Create a temporary context in case we perform specific transformation for that object
+		glPushMatrix();
+		//Draw a point
+		glVertex3f(((*aPoint)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aPoint)->posY)/(SCREEN_HEIGHT/2), 0);
+
+		//Discard the temporary context
+		glPopMatrix();
+	}
+	glEnd();
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glEnable(GL_TEXTURE_2D);
 
 	anEffect->currentFrame++;
@@ -250,18 +259,17 @@ void GraphicEngine::blitElement(SDL_Surface * anElement)
 }
 
 
-void GraphicEngine::addFont(string aName, string path)
+int GraphicEngine::addFont(string aName, string path, int size)
 {
 	TTF_Font * font;
-	font = TTF_OpenFont(path.c_str(), 18);
+	font = TTF_OpenFont(path.c_str(), size);
 	if (font == NULL)
     {
         cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
-        TTF_Quit();
-        SDL_Quit();
-    	exit(1);
+        return 0;
     }
 	availableFonts.insert(make_pair(aName, font));
+	return 1;
 }
 
 void GraphicEngine::initColors()

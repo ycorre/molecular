@@ -27,6 +27,7 @@ class Game
 		Pe physicEngine;
 		Keyboard * keyboard;
 		Level * currentLevel;
+		Level * aLevel;
 		Menu * menu;
 		Hero * hero;
 		//List of levels

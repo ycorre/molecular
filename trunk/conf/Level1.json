@@ -1,0 +1,73 @@
+{
+	"drawable" : [
+			{"name" : "bkgDistant", "width" : 1024, "height" : 1024, "dataPath": "res/bkgDistant.png", "blend" : 1},
+			{"name" : "bkgMid", "width" : 1024, "height" : 1024, "dataPath": "res/bkgMid.png", "blend" : 1},
+			{"name" : "bkgNear", "width" : 1024, "height" : 1024, "dataPath": "res/bkgNear.png", "blend" : 1}
+	],
+
+	"animatedDrawable" : [
+		{"name" : "bonusLife", "width" : 24, "height" : 24, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/bonusLife.png"}]},
+		{"name" : "bonusDiamond", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 125, "dataPath": "res/bonusDiamant.png"}]},
+		{"name" : "electron", "width" : 288, "height" : 64, "animations" : [{"dataPath": "res/action/characters/j_eElectron.png"}], "blend" : 1},
+		{"name" : "atom", "width" : 64, "height" : 64, "blend" : 1, "animations" : [
+				{"width" : 64, "height" : 64, "numberOfFrames" : 99,  "dataPath": "res/action/characters/jSpStandby.png"},
+				{"name" : "hit", "width" : 72, "height" : 72, "numberOfFrames" : 25,  "dataPath": "res/action/characters/jSpHit.png"},
+				{"name" : "dead", "width" : 256, "height" : 256, "numberOfFrames" : 24, "dataPath": "res/action/characters/jSpExplode.png"},
+				{"name" : "enter", "width" : 96, "height" : 96, "numberOfFrames" : 21, "dataPath": "res/action/characters/jSpApparition.png"},
+				{"name" : "appar", "width" : 72, "height" : 72, "numberOfFrames" : 12,  "dataPath": "res/action/characters/jSpTeleAppar.png"},
+				{"name" : "dispar", "width" : 72, "height" : 72, "numberOfFrames" : 13,  "dataPath": "res/action/characters/jSpTeleDisp.png"},
+				{"name" : "cursor", "width" : 192, "height" : 192, "numberOfFrames" : 8,  "dataPath": "res/action/characters/JoueurPointeur.png"}
+				]
+		},
+		{"name" : "enemy", "width" : 96, "height" : 96, "animations" : [{"numberOfFrames" : 16, "dataPath": "res/action/characters/e001SpStandby.png"}]},
+		{"name" : "shoot", "width" : 64, "height" : 64,  "blend" : 1, "animations" : [{"numberOfFrames" : 8, "dataPath": "res/action/characters/e001_SpShoot.png"}]},
+		{"name" : "bomb", "width" : 96, "height" : 96, "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
+		{"name" : "mitraille", "width" : 96, "height" : 96, "animations" : [{"numberOfFrames" : 12, "dataPath": "res/Mitrailleur.png"}]},
+		{"name" : "muzzl", "width" : 96, "height" : 96,  "blend" : 1, "animations" : [{"numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzle.png"}]},
+		{"name" : "electronTrail", "width" : 1200, "height" : 12,  "blend" : 1, "animations" : [{"numberOfFrames" : 45, "dataPath": "res/action/characters/eQueue.png"}]},
+		{"name" : "photon", "width" : 128, "height" : 128,  "blend" : 1, "animations" : [{"numberOfFrames" : 25, "dataPath": "res/action/characters/j_pProton.png"}]},
+		{"name" : "photonTrail", "width" : 1176, "height" : 84,  "blend" : 1, "animations" : [{"numberOfFrames" : 88, "dataPath": "res/action/characters/PhotonTrail.png"}]}
+	],
+
+	"sounds" : [
+		{"name" : "AtomHit" , "loop" : 0, "volume" : 100, "dataPath": "sound/Alarme.wav"},
+		{"name" : "UpDiamond" , "loop" : 0, "volume" : 100, "dataPath": "sound/UpDiamond.wav"},
+		{"name" : "UpHealth" , "loop" : 0, "volume" : 100, "dataPath": "sound/UpHealth.wav"},
+		{"name" : "UpHealth100" , "loop" : 0, "volume" : 100, "dataPath": "sound/UpHealth100.wav"},
+		{"name" : "TeleportOff" , "loop" : 0, "volume" : 100, "dataPath": "sound/TeleportOff.wav"},
+		{"name" : "TeleportOn" , "loop" : 0, "volume" : 100, "dataPath": "sound/TeleportOn.wav"},
+		{"name" : "mitRelease" , "loop" : 0, "volume" : 100, "dataPath": "sound/Mitraille_release.wav"},
+		{"name" : "enemyGun" , "loop" : 0, "volume" : 100, "dataPath": "sound/EnnemiGun01.wav"},
+		{"name" : "mitLoop" , "loop" : -1, "volume" : 100, "dataPath": "sound/Mitraille_loop.wav"},
+		{"name" : "mitAttack" , "loop" : 0, "volume" : 100, "dataPath": "sound/Mitraille_attack.wav"},
+		{"name" : "xwing_explode" , "loop" : 0, "volume" : 100, "dataPath": "sound/xwing_explode.wav"},
+		{"name" : "tie_explode" , "loop" : 0, "volume" : 100, "dataPath": "sound/tie_explode.wav"}		
+	],
+
+	"music" : [
+		{"name" : "hybridQuarks" , "loop" : -1, "volume" : 100, "dataPath": "sound/HybridQuarksLow.mp3"}
+	],
+
+	"effect" : [
+		{"name" : "hit" , "width" : 64, "height" : 64, "move": 1, "effectLayer": [
+			{"name" : "effectHit", "width" : 256, "height" : 256, "blend" : 1, "animations" : [{"numberOfFrames" : 75, "dataPath": "res/action/characters/jSpHitFog.png"}]},
+			{"name" : "HitHalo", "width" : 320, "height" : 320, "blend" : 1, "animations" : [{"numberOfFrames" : 6, "dataPath": "res/action/characters/jOndeHit.png", "opacity" : "0,1,5,0", "scaling" : "0,0.16,5,0.6"}]},
+			{"name" : "HitBubble", "width" : 256, "height" : 256, "blend" : 1, "animations" : [{"numberOfFrames" : 12, "dataPath": "res/action/characters/jHaloHit.png", "opacity" : "0,1,2,0.35,12,0", "scaling" : "0,0.6,11,0.4"}]}
+			]
+		},
+		{"name" : "dead" , "width" : 64, "height" : 64, "move": 1, "effectLayer": [
+			{"name" : "effectDead", "width" : 256, "height" : 256, "blend" : 1, "animations" : [{"numberOfFrames" : 83, "dataPath": "res/action/characters/jSpExplode.png"}]},
+			{"name" : "DieBubble", "width" : 512, "height" : 512, "blend" : 1, "animations" : [{"numberOfFrames" : 16, "dataPath": "res/action/characters/jHaloDie.png", "opacity" : "0,1,15,0", "scaling" : "0,1,15,0.5"}]},
+			{"name" : "DieHalo", "width" : 1024, "height" : 1024, "blend" : 1, "animations" : [{"numberOfFrames" : 10, "dataPath": "res/action/characters/jOndeExplode.png", "opacity" : "0,1,10,0", "scaling" : "0,0.12,10,0.6"}]}
+			]
+		},
+		{"name" : "appar" , "width" : 64, "height" : 64, "effectLayer": 
+			[{"name" : "effectAppar", "width" : 72, "height" : 72, "blend" : 1, "animations" : [{"dataPath": "res/action/characters/jSpExplode.png"}]}]
+		},
+		{"name" : "dispar" , "width" : 64, "height" : 64, "effectLayer": 
+			[{"name" : "effectDispar", "width" : 72, "height" : 72, "blend" : 1, "animations" : [{"numberOfFrames" : 13, "dataPath": "res/action/characters/jSpTeleDisp.png"}]}]
+		}
+	]
+}
+
+

@@ -23,12 +23,10 @@ class Level2:  public Level
 	Level2();
 	virtual void loadLevel(Hero * aHero);
 	void loadObject();
-	void loadBackGround();
 	virtual void drawLevel();
 	void checkEvent();
 	void createWave1();
 	int checkCollision(Drawable * anEnemy);
-	void createExplosion(int x, int y, int type);
 	void createBonus(int x, int y, int type);
 	int checkEnemyCollision(Drawable * anElement);
 	int checkBonusCollision(Drawable * anElement);

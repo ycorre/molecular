@@ -6,17 +6,16 @@
 
 Level2::Level2()
 {
-
+	bombGenerationRate = 1500;
+	lastTimeBomb = 0;
 }
 
 void Level2::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
-	loadFileConfiguration();
-	loadObjects();
+	loadLevelConfiguration("conf/Level1.json");
 	loadTextures();
 	loadBackGround();
-	instantiateEffects();
 
 	hud = new HUD(ge);
 	cameraSpeed = 1;
@@ -32,48 +31,30 @@ void Level2::loadLevel(Hero * aHero)
 	ending = fading = exiting = FALSE;
 }
 
-void Level2::loadBackGround()
-{
-	Level::loadBackGround();
-
-	background.width = SCREEN_WIDTH;
-	background.height = SCREEN_HEIGHT;
-	background.posX = 0;
-	background.posY = 0;
-}
-
-
 void Level2::drawLevel()
 {
+	moveBackGround();
 	checkEvent();
 
 	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
 
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
 		(*anElement)->processDisplay();
 	}
 
-	hud->displayUI();
-	hud->displayHealth(hero->health);
-	hud->displayLife(hero->nbLife);
-	hud->displayScore(Score);
-	hud->displayMassPotential(hero->massPotential);
-	hud->displayRadioPotential(hero->radioactivePotential);
+	hud->displayUI(hero);
 
 	for (list<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
 	{
 		if((*anEffect)->animateEffect())
 		{
-			activeEffects.erase(anEffect++);
+			activeEffects.erase(anEffect--);
 		}
 	}
 
 	hero->animate();
-
-	moveBackGround();
-	background.setAnimX(background.getAnimX() + cameraSpeed);
 
 	if(ending)
 	{
@@ -84,11 +65,12 @@ void Level2::drawLevel()
 //function that handle the events (enemies apparitions, collision checks,  etc...)
 void Level2::checkEvent()
 {
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		if((*anElement)->toRemove)
 		{
-			activeElements.erase(anElement++);
+			delete (*anElement);
+			anElement =	activeElements.erase(anElement);
 		}
 		else
 		{
@@ -113,11 +95,11 @@ void Level2::checkEvent()
 	}
 
 	//Winning conditions
-	if(background.getAnimX() >= 6900 - SCREEN_WIDTH && hero->state != DEAD)
+	/*if(background.getAnimX() >= 6900 - SCREEN_WIDTH && hero->state != DEAD)
 	{
 		//Level won
 		finishLevel();
-	}
+	}*/
 }
 
 
@@ -134,9 +116,9 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 	}
 
 	hero->getLasers();
-	for (list<Laser>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
+	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		Laser * aL = &*aLaser;
+		Laser * aL = *aLaser;
 		if(aL->display && pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
@@ -162,11 +144,6 @@ int Level2::checkCollision(Drawable * anElement)
 	}
 
 	return FALSE;
-}
-
-void Level2::createExplosion(int x, int y, int type)
-{
-	activeElements.push_back(new Explosion(x, y, type));
 }
 
 //We only generate better weapons since health are useless here

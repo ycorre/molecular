@@ -18,7 +18,7 @@
 // screen width, height, and bit depth
 #define SCREEN_WIDTH  1200
 #define SCREEN_HEIGHT 800
-#define GAMEZONE_HEIGHT 682
+#define GAMEZONE_HEIGHT 720
 #define SCREEN_BPP     32
 
 class Drawable;
@@ -40,8 +40,6 @@ class GraphicEngine
 
 	  float aspectRatio;
 
-	  //Black rectangle used for the fading effects
-	  Drawable * blackBox;
 	  int alphaFading;
 	  int fadingSpeed;
 	  int isFading;
@@ -50,10 +48,10 @@ class GraphicEngine
 	  void init();
 	  void displayFrame();
 	  int draw(Drawable * sprite);
-	  int drawEffect(ParticleEffect * anEffect);
+	  void drawEffect(ParticleEffect * anEffect);
 	  void drawFrame();
 	  void blitElement(SDL_Surface * anElement);
-	  void addFont(string aName, string path);
+	  int addFont(string aName, string path, int size);
 	  void initColors();
 	  void fadeIn();
 	  void mergeImages(vector <Drawable*> drawables , Drawable * destination);

@@ -4,6 +4,16 @@
 
 #include "text.h"
 
+Text::Text()
+{
+	name = "aText";
+	content = "";
+	oglTexture = 0;
+	width = 300;
+	height = 300;
+	font = NULL;
+}
+
 Text::Text(SDL_Color aColor, TTF_Font * aFont)
 {
 	name = "txt";
@@ -11,6 +21,8 @@ Text::Text(SDL_Color aColor, TTF_Font * aFont)
 	font = aFont;
 	content = "";
 	oglTexture = 0;
+	width = 300;
+	height = 300;
 }
 
 Text::Text(SDL_Color aColor, TTF_Font * aFont, int Xpos, int Ypos, int aWidth, int aHeight)
@@ -29,7 +41,7 @@ Text::Text(SDL_Color aColor, TTF_Font * aFont, int Xpos, int Ypos, int aWidth, i
 //Specify the text to be display by the Text element
 void Text::write(string aText)
 {
-	//Protection from crash when writing an empty string;
+	//Protection from crash when writing an empty string
 	if(aText.empty())
 	{
 		cout<< "Warning: Attempting to write an empty string" << endl;
@@ -41,13 +53,10 @@ void Text::write(string aText)
 	if (getTexture() == NULL)
 	{
 		cerr << "TTF_RenderUTF8_Blended() Failed: " << TTF_GetError() << endl;
-		TTF_Quit();
-		SDL_Quit();
-		exit(1);
 	}
 
-	this->width = this->getTexture()->w;
-	this->height = this->getTexture()->h;
+	width = getTexture()->w;
+	height = getTexture()->h;
 
 #if USE_OPENGL
 	if(getOpenGLTexture() == 0)
@@ -84,3 +93,26 @@ void Text::setFont(TTF_Font * aFont)
 	font = aFont;
 	update();
 }
+
+AnimatedText::AnimatedText()
+{
+
+}
+/*
+AnimatedText::AnimatedText(int x, int y, string aName, string aText)
+{
+	color = ge->availableColors.at("WHITE");
+	font = ge->availableFonts.at("lCrystal");
+
+	name = aName;
+	width = 300;
+	height = 300;
+
+	posX = x;
+	posY = y;
+	display = TRUE;
+
+	//anAnimatedDrawable->copyFrom((*aLayer).second);
+
+	write(aText);
+}*/

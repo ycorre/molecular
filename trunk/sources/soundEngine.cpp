@@ -122,24 +122,10 @@ void SoundEngine::stopAllSounds()
 	Mix_HaltChannel(-1);
 }
 
-void SoundEngine::loadSoundFrom(string aConfString)
+void SoundEngine::loadSoundFrom(Json::Value aConfig)
 {
-	istringstream aConfStream(aConfString);
-	string aLine;
-
-	//Remove the first line
-	getline(aConfStream, aLine);
-
-	while(getline(aConfStream, aLine))
-	{
-		if(!aLine.empty()) //Ignore empty lines
-		{
-			Sound * aSound = new Sound();
-			aSound->loadASound(aLine);
-
-			addSound(aSound);
-		}
-	}
+	Sound * aSound = new Sound(aConfig);
+	addSound(aSound);
 }
 
 void channelDone(int channel)
@@ -277,22 +263,8 @@ void SoundEngine::muteAll()
 	stopAllSounds();
 }
 
-void SoundEngine::loadMusicFrom(string aConfString)
+void SoundEngine::loadMusicFrom(Json::Value aConfig)
 {
-	istringstream aConfStream(aConfString);
-	string aLine;
-
-	//Remove the first line
-	getline(aConfStream, aLine);
-
-	while(getline(aConfStream, aLine))
-	{
-		if(!aLine.empty()) //Ignore empty lines
-		{
-			Music * aMusic = new Music();
-			aMusic->loadAMusic(aLine);
-
-			addMusic(aMusic);
-		}
-	}
+	Music * aMusic = new Music(aConfig);
+	addMusic(aMusic);
 }
