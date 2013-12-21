@@ -11,7 +11,7 @@ Bullet::Bullet()
 	power = 50;
 	angle = 0;
 	speed = 1;
-	this->loadTexture("res/bullet.png");
+	this->loadTexture("res/action/characters/e001_ShootMask.png");
 	width = texture->w;
 	height = texture->h;
 	posX = 0;
@@ -23,10 +23,9 @@ Bullet::Bullet()
 
 Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 {
-	name = "bullet";
 	power = 50;
 	copyFrom(lev->loadedObjects.at("shoot"));
-	collision = ge->loadTexture("res/Shoot_Col.png");
+	collision = ge->loadTexture("res/action/characters/e001_ShootMask.png");
 
 	//Conversion from degree to radian
 	angle = anAngle; //180 * (PI / 180.0);
@@ -36,6 +35,7 @@ Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 	toBlend = TRUE;
 	setAnimX(0);
 	setAnimY(0);
+	setAnimation("animDefaut");
 }
 
 void Bullet::animate()

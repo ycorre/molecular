@@ -28,19 +28,18 @@ class Menu
 		SoundEngine * soundEngine;
 		Drawable logo;
 		Drawable credit, gameOver, success;
-		CompositeDrawable bubbles;
 		Drawable title, bubble1, bubble2;
 		Drawable optionTitle, levelTitle;
 		int startingGame;
 
-		MultiTextureDrawable optionButton, quitButton, levelSelectButton;
+		AnimatedDrawable optionButton, quitButton, levelSelectButton;
 
 		int introLength;
 		int selected, selectedLevel;
 		Uint32 startIntro, endIntro;
-		vector<MultiTextureDrawable> menuElements;
-		vector<Drawable> levelSelectElements;
-		vector<MultiTextureDrawable> levelSelectHalo;
+		vector<AnimatedDrawable> menuElements;
+		list<Drawable> levelSelectElements;
+		vector<AnimatedDrawable> levelSelectHalo;
 		vector<Drawable> levelLocks;
 		TTF_Font * menuFont;
 		SDL_Color menuColor;
@@ -48,12 +47,14 @@ class Menu
 		int newHighScoreRank;
 		int menuInTransition;
 
-		//list<Drawable*> activeElements;
+		map<string, Drawable> loadedMenuElements;
+		map<string, AnimatedDrawable> loadedAnimMenuElements;
+
 		map<string, vector<string> > configurationElements;
 
 		pair<string, unsigned int> ahighScores[5];
 		vector<pair<string, unsigned int> > highScores;
-		vector<Text *> highScoreElements;
+		list<Text *> highScoreElements;
 		int currentMenu, nextMenu;
 
 		Menu(GraphicEngine * aGe, SoundEngine * aSe);
@@ -93,9 +94,11 @@ class Menu
 		void selectLevel();
 };
 
-bool sortElement(MultiTextureDrawable a, MultiTextureDrawable b);
+bool sortElement(AnimatedDrawable a, AnimatedDrawable b);
 bool sortScores(pair<string, int>  a, pair<string, int>  b);
 
+enum {MENU_MAIN, MENU_HIGHSCORE, MENU_NEWHIGHSCORE, MENU_CREDIT, MENU_GAMEOVER, MENU_SUCCESS, MENU_INTRO, MENU_LEVELSELECT};
+/*
 #define MENU_MAIN 0
 #define MENU_HIGHSCORE 1
 #define MENU_NEWHIGHSCORE 2
@@ -104,6 +107,6 @@ bool sortScores(pair<string, int>  a, pair<string, int>  b);
 #define MENU_SUCCESS 5
 #define MENU_INTRO 6
 #define MENU_LEVELSELECT 7
-
+*/
 #endif
 

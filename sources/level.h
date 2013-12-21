@@ -22,14 +22,13 @@
 
 class Hero;
 class Pe;
+class HUD;
 
-enum{confSound, confMusic, confDrawable, confEffect};
 enum{LEVEL_PLAYING, LEVEL_WON, LEVEL_LOST, LEVEL_FINISHING};
 
 class Level
 {
 	public:
-	CompositeDrawable background;
 	GraphicEngine * ge;
 	Pe * pe;
 	Hero * hero;
@@ -42,7 +41,7 @@ class Level
 	list<vector<string> > enemyConfigurationElements;
 	vector<string> effectConfigurationElements;
 	vector<string> objectConfiguration;
-	map<string, AnimatedDrawable *> loadedObjects;
+	map<string, Drawable *> loadedObjects;
 	string name;
 	int levelState;
 	int cameraSpeed;
@@ -59,26 +58,25 @@ class Level
 	float maxDepth;
 
 	Level();
-	virtual void loadLevel(Hero * aHero);
-	virtual void loadDrawableConf(string aConfString);
-	void loadFileConfiguration();
-	virtual void loadObjects();
+	Level * launchLevel(string aLevel);
+	virtual void loadLevel(Hero * anHero);
+	void loadLevelConfiguration(string path);
 	virtual void loadTextures();
 	virtual void loadBackGround();
 	virtual void moveBackGround();
 	virtual void drawLevel();
 	virtual void checkEvent();
 	virtual void heroLoseLife();
-	virtual void loadEffects(string aConfString);
 	virtual void createEffect(int x, int y, string name);
-	virtual void createExplosion(int x, int y, int type);
+	virtual void createTextEffect(int x, int y, string name, string aText);
+	virtual void createExplosion(int x, int y);
 	virtual void createBonus(int x, int y, int type);
 	virtual int checkCollision(Drawable * anEnemy);
 	virtual int checkEnemyCollision(Drawable * anElement);
 	virtual void cleanLevel();
 	virtual void endLevel();
 	virtual void finishLevel();
-	virtual void instantiateEffects();
+
 	void loadStarConf();
 	void generateStarfield();
 	void displayStarField();

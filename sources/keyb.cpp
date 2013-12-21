@@ -8,6 +8,8 @@
 Keyboard::Keyboard()
 {
 	p_pressed = FALSE;
+	keyStates = NULL;
+	game = NULL;
 }
 
 //Update the key states
@@ -89,8 +91,8 @@ void Keyboard::processKeyInGame(Hero* hero)
 
 		if(keyStates[PHOTON_KEY])
 		{
-			hero->setWeapon("photonGun");
-			hero->fireWeapon("photonGun");
+			hero->setWeapon("hadronGun");
+			hero->fireWeapon("hadronGun");
 		}
 
 		if(keyStates[ELECTRON_KEY])

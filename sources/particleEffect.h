@@ -4,6 +4,8 @@
 #include "graphicEngine.h"
 
 class LineEffect;
+class PointEffect;
+class Emitter;
 
 //Particle effect can be made of several types of effect (line, point, circle, etc.)
 class ParticleEffect
@@ -16,17 +18,26 @@ class ParticleEffect
 		float colorR, colorG, colorB;
 		float angle;
 		float posX, posY;
-		int animationLength;
+		int animationLength; //
+		int animationUpdateFrequency, lastTimeUpdated;
+		int lifeTime;
+		int numberOfParticle;
+		float speed;
+		Emitter * particleEmitter;
+		//decroissance de la vitesse
+
 		int currentFrame;
 		list<LineEffect *> lineEffects;
+		list<PointEffect *> pointEffects;
 		vector<float> opacityValues;
-
 
 		ParticleEffect();
 		~ParticleEffect();
-		void createImpactFrom(float posX, float posY);
-		void animate();
+		virtual void animate();
 		void setOpacityValues(float startingValue, float endingValue);
+
+		void createImpactFrom(float posX, float posY);
+		void createExplosionFrom(float x, float y);
 };
 
 class LineEffect: public ParticleEffect
@@ -49,6 +60,47 @@ class CircleEffect: public ParticleEffect
 		pair<float, float> center;
 
 		CircleEffect();
+};
+
+class PointEffect: public ParticleEffect
+{
+	public:
+
+		PointEffect();
+		virtual void animate();
+		void createRandomPointFrom(float aPosX, float aPosY);
+};
+
+class Emitter
+{
+	public:
+		float posX, posY;
+
+		Emitter();
+		Emitter(float x, float y);
+		virtual pair<float, float> getParticlePosition();
+		virtual list<pair<float, float> > getParticlePosition(int numberOfParticles);
+};
+
+class SquareEmitter: Emitter
+{
+	public:
+		float destX, destY;
+
+		SquareEmitter(float originX, float originY, float cornerX, float cornerY);
+		virtual pair<float, float> getParticlePosition();
+		//virtual list<float, float> getParticlePosition(int numberOfParticles);
+};
+
+
+class CircleEmitter: Emitter
+{
+	public:
+		float radius;
+
+		CircleEmitter(float centerX, float centerY, float radius);
+		virtual pair<float, float> getParticlePosition();
+		//virtual list<float, float> getParticlePosition(int numberOfParticles);
 };
 
 #endif

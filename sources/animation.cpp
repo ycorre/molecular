@@ -6,7 +6,7 @@
 
 Animation::Animation()
 {
-	name = "AnimDfault";
+	name = "animDefaut";
 	width = 1;
 	height = 1;
 	texturePosX = 0;
@@ -45,7 +45,7 @@ Animation::Animation(Animation * anAnim)
 
 Animation::Animation(Drawable * aDrawable)
 {
-	name = "AnimDfault";
+	name = "animDefaut";
 	width = aDrawable->width;
 	height = aDrawable->height;
 	texturePosX = 0;
@@ -59,6 +59,51 @@ Animation::Animation(Drawable * aDrawable)
 	hasEnded = FALSE;
 	moveTexture = TRUE;
 	oglTexture = 0;
+}
+
+Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
+{
+	name = aConfig.get("name", "animDefaut").asString();
+	width = aConfig.get("width", 0).asInt();
+	if (width == 0)
+		width = aDrawable-> width;
+
+	height = aConfig.get("height", 0).asInt();
+	if (height == 0)
+		height = aDrawable-> height;
+
+	texturePosX = aConfig.get("texturePosX", 0).asFloat();
+	texturePosY = aConfig.get("texturePosY", 0).asFloat();
+	numberOfFrames = aConfig.get("numberOfFrames", 1).asInt();
+	loop = aConfig.get("loop", FALSE).asInt();
+
+	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
+	moveTexture = aConfig.get("moveTexture", FALSE).asInt();
+
+	texture = NULL;
+	oglTexture = 0;
+	drawable = aDrawable;
+
+	string texturePath = aConfig.get("dataPath", "").asString();
+	if(!texturePath.empty())
+	{
+		loadTexture(texturePath);
+	}
+
+	string opacityConfig = aConfig.get("opacity", "").asString();
+	if(!opacityConfig.empty())
+	{
+		configOpacity(opacityConfig);
+	}
+
+	string scalingConfig = aConfig.get("scaling", "").asString();
+	if(!scalingConfig.empty())
+	{
+		configScaling(scalingConfig);
+	}
+
+	currentFrame = 0;
+	hasEnded = FALSE;
 }
 
 int Animation::nextFrame()
@@ -92,124 +137,6 @@ int Animation::nextFrame()
 
 	return currentFrame;
 }
-
-void Animation::setAnimationParameter(string aConfigString)
-{
-	string token;
-	istringstream aConf(aConfigString);
-
-	while(getline(aConf, token, ';'))
-	{
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
-
-		switch(drawable->confParameters.at(paramType))
-		{
-			case pName:
-				name = paramValue;
-				break;
-
-			case pWidth:
-				width = atoi(paramValue.c_str());
-				break;
-
-			case pHeight:
-				height = atoi(paramValue.c_str());
-				break;
-
-			case pTexture:
-				loadTexture(paramValue.c_str());
-				break;
-
-			case pAnim:
-				break;
-
-			case pAnimations:
-				break;
-
-			case pMoveTexture:
-				if(!paramValue.compare("false"))
-					moveTexture = FALSE;
-				break;
-
-			case pOpacity:
-				break;
-
-			case pNumberOfFrames:
-				numberOfFrames = atoi(paramValue.c_str());
-				break;
-
-			default:
-				cerr << "Animation loadFrom(): Unknown configuration parameter: " << paramType << endl;
-				break;
-		}
-	}
-}
-
-void Animation::setAdditionalAnimationParameter(string aConfigString)
-{
-	string token;
-	istringstream aConf(aConfigString);
-
-	while(getline(aConf, token, '/'))
-	{
-		istringstream aParam(token);
-		string paramType;
-		string paramValue;
-		getline(aParam, paramType, ':');
-		getline(aParam, paramValue, ':');
-
-		switch(drawable->confParameters.at(paramType))
-		{
-			case pName:
-				name = paramValue;
-				break;
-
-			case pWidth:
-				width = atoi(paramValue.c_str());
-				break;
-
-			case pHeight:
-				height = atoi(paramValue.c_str());
-				break;
-
-			case pTexture:
-				loadTexture(paramValue.c_str());
-				break;
-
-			case pAnim:
-				break;
-
-			case pAnimations:
-				break;
-
-			case pMoveTexture:
-				if(!paramValue.compare("false"))
-					moveTexture = FALSE;
-				break;
-
-			case pOpacity:
-				configOpacity(paramValue);
-				break;
-
-			case pScale:
-				configScaling(paramValue);
-				break;
-
-			case pNumberOfFrames:
-				numberOfFrames =  atoi(paramValue.c_str());
-				break;
-
-			default:
-				cerr << "Animation loadFrom(): Unknown configuration parameter: " << paramType << endl;
-				break;
-		}
-	}
-}
-
 
 void Animation::loadTexture(string path)
 {

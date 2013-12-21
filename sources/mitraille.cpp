@@ -11,11 +11,11 @@ Mitraille::Mitraille()
 	type = 0;
 	bonusProbability = 10;
 	canFire = FALSE;
-	fireRate = 250;
+	fireRate = 150;
 	lastTimeFired = GameTimer;
 	life = 350;
 	posRafale = 0;
-	rafaleRate = 1500;
+	rafaleRate = 500;
 	setAngleAndSpeed();
 
 	minFireRate = 2000;
@@ -37,6 +37,8 @@ Mitraille::Mitraille(int x, int y)
 	canFire = FALSE;
 	fireRate = 250;
 	lastTimeFired = 0;
+	rafaleRate = 1500;
+	posRafale = 0;
 	life = 500;
 	collision = ge->loadTexture("res/Bomb_Col.png");
 }
@@ -47,10 +49,9 @@ void Mitraille::checkFire()
 	if (lev->isOnScreen(this))
 	{
 		unsigned int nextFireTime;
-		if (posRafale == 10)
+		if (posRafale == 9)
 		{
 			nextFireTime = lastTimeFired + rafaleRate;
-			posRafale == 0;
 		}
 		else
 		{
@@ -60,7 +61,7 @@ void Mitraille::checkFire()
 		if (nextFireTime < GameTimer)
 		{
 			canFire = TRUE;
-			posRafale ++;
+			posRafale = (posRafale + 1) % 10;
 			lastTimeFired = GameTimer;
 		}
 	}
@@ -68,18 +69,26 @@ void Mitraille::checkFire()
 
 void Mitraille::fire()
 {
+	static float angle = 220;
 	checkFire();
 	if (canFire)
 	{
 		lev->soundEngine->playSound("enemyGun");
 
+		if (posRafale == 9)
+		{
+			angle = 220;
+		}
+
 		//Shoot toward the hero
 		//Compute the angle
-		float xDiff = lev->hero->posX - posX;
-		float yDiff = lev->hero->posY - posY;
-		float angle = atan2(yDiff, xDiff);
+		//float xDiff = lev->hero->posX - posX;
+		//float yDiff = lev->hero->posY - posY;
+		//float angle = atan2(yDiff, xDiff);=
 
-		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));
+		angle = angle - 5;
+		float radAngle = angle * (PI / 180.0);
+		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, radAngle, 3));
 		canFire = FALSE;
 	}
 }

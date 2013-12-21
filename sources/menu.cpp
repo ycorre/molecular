@@ -15,91 +15,30 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	selected = 0;
 	menuInTransition = FALSE;
 	startingGame = FALSE;
+	endIntro = 0;
+	introLength = 0;
+	game = NULL;
+	selectedLevel = 0;
 }
 
 void Menu::loadMenu()
 {
-	loadMenuElements("conf/menu.conf");
-	loadTextures();
+	loadMenuElements("conf/menus.json");
 	readHighScore("conf/highscore");
 
-	bkgTitle.width = 1200;
-	bkgTitle.height = 800;
-	bkgTitle.addTexture("bkgTitle");
+	bkgTitle = loadedMenuElements.at("bkgTitle");
+	bkgLevel = loadedMenuElements.at("bkgLevel");
+	bkgOption = loadedMenuElements.at("bkgOption");
+	logo = loadedMenuElements.at("logo");
+	title  = loadedMenuElements.at("title");
+	optionTitle = loadedMenuElements.at("optionTitle");
+	levelTitle = loadedMenuElements.at("levelTitle");
+	bubble1 = loadedMenuElements.at("bubble1");
+	bubble2 = loadedMenuElements.at("bubble2");
 
-	bkgLevel.width = 1200;
-	bkgLevel.height = 800;
-	bkgLevel.addTexture("bkgLevel");
-
-	bkgOption.width = 1200;
-	bkgOption.height = 800;
-	bkgOption.addTexture("bkgOption");
-
-	logo.width = 1200;
- 	logo.height = 800;
-	logo.addTexture("logo");
-
-	title.width = 926;
-	title.height = 152;
-	title.addTexture("title");
-	title.posX = 137;
-	title.posY = 100;
-
-	optionTitle.width = 1110;
-	optionTitle.height = 70;
-	optionTitle.addTexture("optionTitle");
-	optionTitle.posX = 45;
-	optionTitle.posY = 100;
-
-	levelTitle.width = 892;
-	levelTitle.height = 60;
-	levelTitle.addTexture("levelTitle");
-	levelTitle.posX = 154;
-	levelTitle.posY = 100;
-
-	bubble1.width = 1200;
-	bubble1.height = 800;
-	bubble1.addTexture("bubble1");
-
-	bubble2.width = 1200;
-	bubble2.height = 800;
-	bubble2.addTexture("bubble2");
-
-	bubbles.width = 1200;
-	bubbles.height = 800;
-	bubbles.toMerge.push_back(&bubble1);
-	bubbles.toMerge.push_back(&bubble2);
-	bubbles.toMerge.push_back(&bkgTitle);
-
-	optionButton.name = "option";
-	optionButton.width = 384;
-	optionButton.height = 64;
-	optionButton.posX = 427;
-	optionButton.posY = 450;
-	optionButton.addTexture("optionOn");
-	optionButton.addTexture("optionOff");
-	optionButton.addTexture("optionHl");
-	optionButton.textureState = "optionOff";
-
-	quitButton.name = "quit";
-	quitButton.width = 384;
-	quitButton.height = 64;
-	quitButton.posX = 427;
-	quitButton.posY = 600;
-	quitButton.addTexture("quitOn");
-	quitButton.addTexture("quitOff");
-	quitButton.addTexture("quitHl");
-	quitButton.textureState = "quitOff";
-
-	levelSelectButton.name = "level";
-	levelSelectButton.width = 384;
-	levelSelectButton.height = 64;
-	levelSelectButton.posX = 427;
-	levelSelectButton.posY = 300;
-	levelSelectButton.addTexture("levelOff");
-	levelSelectButton.addTexture("levelOn");
-	levelSelectButton.addTexture("levelHl");
-	levelSelectButton.textureState = "levelHl";
+	optionButton = loadedAnimMenuElements.at("btnOption");
+	quitButton = loadedAnimMenuElements.at("btnQuit");
+	levelSelectButton = loadedAnimMenuElements.at("btnLevel");
 
 	menuElements.push_back(levelSelectButton);
 	menuElements.push_back(quitButton);
@@ -109,31 +48,25 @@ void Menu::loadMenu()
 
 	credit.width = 640;
 	credit.height = 480;
-	credit.loadTexture("res/credits2.gif");
+	credit.loadTexture("res/interface/credits2.gif");
 	credit.posX = 280;
 	credit.posY = 60;
 
 	success.width = 640;
 	success.height = 480;
-	success.loadTexture("res/end2.gif");
+	success.loadTexture("res/interface/end2.gif");
 	success.posX = 280;
 	success.posY = 60;
 
 	gameOver.width = 640;
 	gameOver.height = 480;
-	gameOver.loadTexture("res/gameover2.gif");
+	gameOver.loadTexture("res/interface/gameover2.gif");
 	gameOver.posX = 280;
 	gameOver.posY = 60;
 
-	soundEngine->addSound("sound/game_over.wav", "game_over");
-	soundEngine->addSound("sound/FractalZeptoReal.wav", "fractal");
-	soundEngine->addMusic("sound/CollisionParadise.mp3", "musicMenu");
-
-	soundEngine->addSound("sound/Valide.wav", "validated");
-	soundEngine->addSound("sound/Buzz.wav", "buzz");
-	soundEngine->addSound("sound/Vuit.wav", "selected");
-
  	soundEngine->playSound("fractal");
+
+ 	setMainSelection(0);
 
  	loadSelectedLevel();
 	setSelectedLevel(0);
@@ -144,7 +77,7 @@ void Menu::loadMenu()
 
 void Menu::loadSelectedLevel()
 {
-	string tmp= "Level";
+	string tmp = "Level";
 	int levelNumber = 0;
 	float stepY = 0;
 	float stepX = 200;
@@ -154,8 +87,8 @@ void Menu::loadSelectedLevel()
 		stringstream ss;
 		ss << levelNumber+1;
 		string numLevel = ss.str();
-		Drawable aLevelPic;// = new Drawable();
-		aLevelPic.loadTexture("res/Level"+ numLevel +".png");
+		Drawable aLevelPic;
+		aLevelPic.loadTexture("res/interface/Level"+ numLevel +".png");
 		aLevelPic.width = aLevelPic.getTexture()->w;
 		aLevelPic.height = aLevelPic.getTexture()->h;
 		stepX = stepX + 225;
@@ -172,27 +105,15 @@ void Menu::loadSelectedLevel()
 
 		levelSelectElements.push_back(aLevelPic);
 
-		MultiTextureDrawable levelHighlight;
-		levelHighlight.name = "levelHighligt";
-		levelHighlight.width = 192;
-		levelHighlight.height = 192;
+		AnimatedDrawable levelHighlight = loadedAnimMenuElements.at("levelHighlight");
 		levelHighlight.posX = stepX - 10;
 		levelHighlight.posY = stepY - 10;
-		levelHighlight.addTexture("levelHighligtOn");
-		levelHighlight.addTexture("levelHighligtOff");
-		levelHighlight.addTexture("levelHighligtHl");
-		levelHighlight.textureState = "levelHighligtOff";
 
 		levelSelectHalo.push_back(levelHighlight);
 
-		Drawable levelLocked;
-		levelLocked.name = "levelHighligt";
-		levelLocked.width = 176;
-		levelLocked.height = 176;
+		Drawable levelLocked = loadedMenuElements.at("levelLock");
 		levelLocked.posX = stepX - 2;
 		levelLocked.posY = stepY - 2;
-		levelLocked.display = TRUE;
-		levelLocked.addTexture("levelLock");
 
 		levelLocks.push_back(levelLocked);
 	}
@@ -255,17 +176,18 @@ void Menu::displayMenu()
 
 void Menu::displayMainMenu()
 {
-	ge->toDisplay.push_back(&bubbles);
-	ge->toDisplay.push_back(&title);
+	bkgTitle.processDisplay();
+	bubble1.processDisplay();
+	bubble2.processDisplay();
+	title.processDisplay();
 
-	bubble1.setAnimX(bubble1.getAnimX()+0.3);
-	bubble2.setAnimX(bubble2.getAnimX()+0.1);
+	bubble1.setAnimX(bubble1.getAnimX() + 0.3);
+	bubble2.setAnimX(bubble2.getAnimX() + 0.1);
 
 	soundEngine->playMusic("musicMenu");
 
-	for (std::vector<MultiTextureDrawable>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
+	for (vector<AnimatedDrawable>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
 	{
-		(*anElement).animate();
 		(*anElement).processDisplay();
 	}
 }
@@ -286,22 +208,22 @@ void Menu::displayIntro()
 
 void Menu::displayLevelSelection()
 {
-	ge->toDisplay.push_back(&bkgLevel);
-	ge->toDisplay.push_back(&levelTitle);
+	bkgLevel.processDisplay();
+	levelTitle.processDisplay();
 
-	for (std::vector<MultiTextureDrawable>::iterator anElement = levelSelectHalo.begin() ; anElement != levelSelectHalo.end(); ++anElement)
+	for (vector<AnimatedDrawable>::iterator anElement = levelSelectHalo.begin() ; anElement != levelSelectHalo.end(); ++anElement)
 	{
 		(*anElement).animate();
 		(*anElement).processDisplay();
 	}
 
-	for (std::vector<Drawable>::iterator anElement = levelSelectElements.begin() ; anElement != levelSelectElements.end(); ++anElement)
+	for (list<Drawable>::iterator anElement = levelSelectElements.begin() ; anElement != levelSelectElements.end(); ++anElement)
 	{
 		(*anElement).animate();
 		(*anElement).processDisplay();
 	}
 
-	for (std::vector<Drawable>::iterator anElement = levelLocks.begin() ; anElement != levelLocks.end(); ++anElement)
+	for (vector<Drawable>::iterator anElement = levelLocks.begin() ; anElement != levelLocks.end(); ++anElement)
 	{
 		(*anElement).animate();
 		(*anElement).processDisplay();
@@ -310,10 +232,10 @@ void Menu::displayLevelSelection()
 
 void Menu::displayHighScore()
 {
-	ge->toDisplay.push_back(&bkgOption);
-	ge->toDisplay.push_back(&optionTitle);
+	bkgOption.processDisplay();
+	optionTitle.processDisplay();
 
-	for (std::vector<Text *>::iterator anElement = highScoreElements.begin() ; anElement != highScoreElements.end(); ++anElement)
+	for (list<Text *>::iterator anElement = highScoreElements.begin() ; anElement != highScoreElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
 		if((*anElement)->display)
@@ -325,17 +247,17 @@ void Menu::displayHighScore()
 
 void Menu::displayCredit()
 {
-	ge->toDisplay.push_back(&credit);
+	credit.processDisplay();
 }
 
 void Menu::displayGameOver()
 {
-	ge->toDisplay.push_back(&gameOver);
+	gameOver.processDisplay();
 }
 
 void Menu::displaySuccess()
 {
-	ge->toDisplay.push_back(&success);
+	success.processDisplay();
 }
 
 //State the transitions between the menus
@@ -361,7 +283,7 @@ void Menu::transition()
 		case MENU_LEVELSELECT:
 			{
 				nextMenu = MENU_MAIN;
-				menuElements.at(selected).setTextureState("Hl");
+				menuElements.at(selected).setAnimation("hl");
 			}
 			break;
 
@@ -383,7 +305,7 @@ void Menu::transition()
 
 		case MENU_HIGHSCORE:
 			nextMenu = MENU_MAIN;
-			menuElements.at(selected).setTextureState("Hl");
+			menuElements.at(selected).setAnimation("hl");
 			break;
 
 		case MENU_NEWHIGHSCORE:
@@ -400,49 +322,77 @@ void Menu::transition()
 	return;
 }
 
-//Load the menu from the configuration file
 void Menu::loadMenuElements(string path)
 {
+	unsigned int index;
+
 	//parse the configuration file
 	ifstream file;
-	string line;
-	string token;
-	string type;
-	vector<string> confElements;
-	string confElement;
+	Json::Value root;
+	Json::Reader reader;
 
 	file.open(path.c_str());
-	while(getline(file, line))
+	int parsingSuccessful = reader.parse(file, root);
+	if (!parsingSuccessful)
 	{
-		if(line.size()!=0) //Ignore empty lines
-		{
-			confElements.clear();
-			istringstream myLine(line);
-			getline(myLine, type, ';');
-
-			while(getline(myLine, token, ';'))
-			{
-				confElements.push_back(token);
-			}
-			configurationElements.insert(make_pair(type, confElements));
-		}
+		//report to the user the failure and their locations in the document.
+		cout << "Failed to parse configuration:" << endl << reader.getFormattedErrorMessages();
 	}
 
-	//Instantiate the corresponding drawable elements
-/*	for (std::map<string, vector<string> >::iterator anElement = configurationElements.begin() ; anElement != configurationElements.end(); ++anElement)
+	//instantiate the corresponding drawable elements
+	const Json::Value mainMenu = root["mainMenu"];
+	const Json::Value drawable = mainMenu["drawable"];
+
+	for (index = 0; index < drawable.size(); ++index)
 	{
-		Text * tmp = new Text(menuColor, menuFont);
-
-		tmp->width = 300;
-		tmp->height = 300;
-		tmp->posX = atoi(((configurationElements.at(anElement->first)).at(0)).c_str());
-		tmp->posY = atoi(((configurationElements.at(anElement->first)).at(1)).c_str());
-		tmp->write(anElement->first);
-
-		menuElements.push_back(tmp);
+		Drawable tmp = Drawable(drawable[index]);
+		loadedMenuElements.insert(make_pair(tmp.name, tmp));
 	}
 
-	sort(menuElements.begin(), menuElements.end(), sortElement);*/
+	const Json::Value animDrawable = mainMenu["animatedDrawable"];
+	for (index = 0; index < animDrawable.size(); ++index)
+	{
+		AnimatedDrawable tmp = AnimatedDrawable(animDrawable[index]);
+		loadedAnimMenuElements.insert(make_pair(tmp.name, tmp));
+	}
+
+	const Json::Value options = root["options"];
+	const Json::Value optionDrawable = options["drawable"];
+	for (index = 0; index < optionDrawable.size(); ++index)
+	{
+		Drawable tmp = Drawable(optionDrawable[index]);
+		loadedMenuElements.insert(make_pair(tmp.name, tmp));
+	}
+
+	const Json::Value levelSelect = root["levelSelect"];
+	const Json::Value  levelDrawable = levelSelect["drawable"];
+	for (index = 0; index < levelDrawable.size(); ++index)
+	{
+		Drawable tmp = Drawable(levelDrawable[index]);
+		loadedMenuElements.insert(make_pair(tmp.name, tmp));
+	}
+
+	const Json::Value lsAnimDrawable = levelSelect["animatedDrawable"];
+	for (index = 0; index < lsAnimDrawable.size(); ++index)
+	{
+		AnimatedDrawable tmp = AnimatedDrawable(lsAnimDrawable[index]);
+		loadedAnimMenuElements.insert(make_pair(tmp.name, tmp));
+	}
+
+	//Load Sounds
+	const Json::Value sounds = root["sounds"];;
+	for (index = 0; index < sounds.size(); ++index)
+	{
+		soundEngine->loadSoundFrom(sounds[index]);
+	}
+
+	//Load Music
+	const Json::Value music = root["music"];;
+	for (index = 0; index < music.size(); ++index)
+	{
+		soundEngine->loadMusicFrom(music[index]);
+	}
+
 }
 
 void Menu::selectionMove(int direction)
@@ -482,9 +432,9 @@ void Menu::mainSelectionMove(int direction)
 
 void  Menu::setMainSelection(int aValue)
 {
-	menuElements.at(selected).setTextureState("Off");
+	menuElements.at(selected).setAnimation("off");
 	selected = aValue;
-	menuElements.at(selected).setTextureState("Hl");
+	menuElements.at(selected).setAnimation("hl");
 }
 
 
@@ -515,9 +465,9 @@ void Menu::levelSelectionMove(int direction)
 
 void Menu::setSelectedLevel(int aValue)
 {
-	levelSelectHalo.at(selectedLevel).setTextureState("Off");
+	levelSelectHalo.at(selectedLevel).setAnimation("off");
 	selectedLevel = aValue;
-	levelSelectHalo.at(selectedLevel).setTextureState("Hl");
+	levelSelectHalo.at(selectedLevel).setAnimation("hl");
 }
 
 void Menu::select()
@@ -539,7 +489,7 @@ void Menu::select()
 
 void Menu::selectMainMenu()
 {
-	menuElements.at(selected).setTextureState("On");
+	menuElements.at(selected).setAnimation("on");
 	if(selected == 0)
 	{
 		soundEngine->playSound("validated");
@@ -578,10 +528,10 @@ void Menu::updateLocks()
 
 void Menu::selectLevel()
 {
-	levelSelectHalo.at(selectedLevel).textureState = levelSelectHalo.at(selectedLevel).name + "On";
+	levelSelectHalo.at(selectedLevel).setAnimation("on");
 
 	stringstream ss;
-    ss<< "level" << selectedLevel + 1;
+    ss << "level" << selectedLevel + 1;
 	if(game->lockedLevel.at(ss.str()))
 	{
 		soundEngine->playSound("buzz");
@@ -606,7 +556,6 @@ void Menu::loadTextures()
 /*
  * High Scores related functions
  */
-
 //Load the menu from the configuration file
 void Menu::readHighScore(string path)
 {
@@ -627,7 +576,6 @@ void Menu::readHighScore(string path)
 			confElements.clear();
 			istringstream myLine(line);
 			getline(myLine, type, ';');
-
 
 			while(getline(myLine, token, ';'))
 			{
@@ -657,7 +605,7 @@ void Menu::updateHighScore()
 	highScoreElements.clear();
 
 	//Instantiate the scores as Text elements at position in accordance with their rank
-	for (std::vector<pair<string, unsigned int> >::iterator anElement = highScores.begin(); anElement != highScores.end(); ++anElement)
+	for (vector<pair<string, unsigned int> >::iterator anElement = highScores.begin(); anElement != highScores.end(); ++anElement)
 	{
 		Text * name = new Text(menuColor, menuFont, 350, ypos, 300, 300);
 		Text * score = new Text(menuColor, menuFont, 750, ypos, 300, 300);
@@ -680,7 +628,7 @@ void Menu::saveHighScore()
 	  ofstream myfile ("conf/highscore");
 	  if (myfile.is_open())
 	  {
-			for (std::vector<pair<string, unsigned int> >::iterator anElement = highScores.begin(); anElement != highScores.end(); ++anElement)
+			for (vector<pair<string, unsigned int> >::iterator anElement = highScores.begin(); anElement != highScores.end(); ++anElement)
 			{
 				myfile << anElement->first << ";" << anElement->second <<"\n";
 			}
@@ -702,7 +650,7 @@ void Menu::enterHighScore()
 	ge->toDisplay.push_back(youWon);
 	ge->toDisplay.push_back(instruction);
 
-	for (std::vector<Text *>::iterator anElement = highScoreElements.begin() ; anElement != highScoreElements.end(); ++anElement)
+	for (list<Text *>::iterator anElement = highScoreElements.begin() ; anElement != highScoreElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
 		if((*anElement)->display)
@@ -759,7 +707,7 @@ int Menu::checkForNewHighScore()
 {
 	newHighScoreRank = 0;
 
-	for (std::vector<pair<string, unsigned int> >::iterator anElement = highScores.begin(); anElement != highScores.end(); ++anElement)
+	for (vector<pair<string, unsigned int> >::iterator anElement = highScores.begin(); anElement != highScores.end(); ++anElement)
 	{
 		if(Score > anElement->second)
 		{
@@ -771,7 +719,7 @@ int Menu::checkForNewHighScore()
 
 			//Search for the position of the new high score
 			//Useful when multiple high score have the same score value
-			for (std::vector<pair<string, unsigned int> >::iterator anotherElement = highScores.begin(); anotherElement != highScores.end(); ++anotherElement)
+			for (vector<pair<string, unsigned int> >::iterator anotherElement = highScores.begin(); anotherElement != highScores.end(); ++anotherElement)
 			{
 				if(anotherElement->first == " ")
 				{
@@ -787,7 +735,6 @@ int Menu::checkForNewHighScore()
 			return TRUE;
 		}
 	}
-
 	return FALSE;
 }
 
@@ -804,8 +751,10 @@ void Menu::sortHighScores()
 	}
 }
 
-
-bool sortElement(MultiTextureDrawable a, MultiTextureDrawable b)
+/*
+ * Utility functions
+ */
+bool sortElement(AnimatedDrawable a, AnimatedDrawable b)
 {
 	return (a.posY < b.posY);
 }

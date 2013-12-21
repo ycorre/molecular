@@ -3,6 +3,8 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 #include <SDL_opengl.h>
+#include "json/json/reader.h"
+#include "json/json/value.h"
 //#include <minmax.h>
 
 using namespace std;

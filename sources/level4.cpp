@@ -14,8 +14,8 @@ void Level4::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	toMerge.clear();
-	loadFileConfiguration();
-	loadObject();
+	loadLevelConfiguration("conf/Level1.json");
+
 	hud = new HUD(ge);
 	hud->loadHUDElements("conf/hud.conf");
 	cameraSpeed = 1;
@@ -23,7 +23,6 @@ void Level4::loadLevel(Hero * aHero)
 	//hero->addTexture("tie", atomDead);
 	hero->width = atoi(((configurationElements.at("tie")).at(0)).c_str());
 	hero->height = atoi(((configurationElements.at("tie")).at(1)).c_str());
-	hero->parseAnimationState((configurationElements.at("tie")).at(2));
 	hero->resetHero();
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = FALSE;
@@ -141,15 +140,12 @@ void Level4::drawLevel()
 
 	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
 
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
 		(*anElement)->processDisplay();
 	}
-	hud->displayUI();
-	hud->displayHealth(hero->health);
-	hud->displayLife(hero->nbLife);
-	hud->displayScore(Score);
+	hud->displayUI(hero);
 
 	hero->animate();
 
@@ -369,7 +365,7 @@ void Level4::testBackGround()
 //function that handle the events (enemies apparitions, collision checks,  etc...)
 void Level4::checkEvent()
 {
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		if((*anElement)->toRemove)
 		{

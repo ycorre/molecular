@@ -21,14 +21,6 @@
 
 class SoundEngine;
 
-enum SoundParamValues{
-				  sName,
-				  sVolume,
-				  sLoop,
-				  sData};
-
-// = {{"name", sName}, {"volume", sVolume}, {"data", sData}, {"loop", sLoop}};
-
 class Sound
 {
 	public:
@@ -46,9 +38,9 @@ class Sound
 		Sound();
 		Sound(string aName);
 		Sound(string path, string name);
+		Sound(Json::Value aConfig);
 		virtual void load(string aPath);
 		virtual void play();
-		void loadASound(string confString);
 		virtual void stop();
 		void setLoop(int nTimes);
 };
@@ -56,14 +48,13 @@ class Sound
 class Music: public Sound
 {
 	public:
-
 		Mix_Music * musicData;
 
 		Music();
 		Music(string path, string name);
+		Music(Json::Value aConfig);
 		virtual void load(string aPath);
 		virtual void play();
-		void loadAMusic(string confString);
 		virtual void stop();
 		virtual void fadeOut(int aTime);
 };

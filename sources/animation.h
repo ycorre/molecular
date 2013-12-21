@@ -34,10 +34,6 @@ class Animation
 	  vector<float> scalingValues;
 	  int moveTexture;
 
-	  float startingScale;
-	  float finishingScale;
-	  float modifyingScaleFactor;
-
 	  //How often we update the frame in the animation
 	  //41 ms ~= 24 FPS
 	  //33 ms ~= 30 FPS
@@ -48,9 +44,8 @@ class Animation
 	  Animation();
 	  Animation(Animation * anAnim);
 	  Animation(Drawable * aDrawable);
+	  Animation(Json::Value aConf, Drawable * aDrawable);
 	  int nextFrame();
-	  void setAnimationParameter(string aConf);
-	  void setAdditionalAnimationParameter(string aConf);
 	  void configOpacity(string aConf);
 	  void configScaling(string aConf);
 	  void loadTexture(string path);

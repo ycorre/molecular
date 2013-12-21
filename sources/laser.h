@@ -17,7 +17,7 @@ class Laser: public MaskedDrawable, public AnimatedDrawable
 	  int power;
 	  float angle;
 	  Weapon * firingWeapon;
-	  AnimatedDrawable * trail;
+	  AnimatedDrawable trail;
 
 	  Laser();
 	  Laser(int x, int y, Weapon * aWeapon);
@@ -33,7 +33,7 @@ class Photon: public Laser
    public:
 	  Photon();
 	  Photon(int x, int y, Weapon * aWeapon);
-	  virtual void animate();
+	  void animate();
 	  virtual int isLaser() {return TRUE;}
 	  virtual int isPhoton() {return TRUE;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
@@ -53,7 +53,7 @@ class Bullet: public MaskedDrawable,  public AnimatedDrawable
 	  virtual void animate();
 	  virtual int isBullet() {return TRUE;}
 	  virtual int isLaser() {return TRUE;}
-	  virtual void processCollisionWith(Drawable* aDrawable);
+	  virtual void processCollisionWith(Drawable * aDrawable);
 };
 
 #endif

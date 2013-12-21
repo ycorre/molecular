@@ -9,16 +9,36 @@ Level::Level()
 	bkg_nearSpeed = 0.4;
 	bkg_midSpeed = 0.2;
 	bkg_distantSpeed = 0.1;
-
-	configCategories["sound"] = confSound;
-	configCategories["music"] = confMusic;
-	configCategories["effect"] = confEffect;
-	configCategories["drawable"] = confDrawable;
+	pe = NULL;
+	hud = NULL;
+	exiting = FALSE;
 }
 
-void Level::loadLevel(Hero * aHero)
+void Level::loadLevel(Hero * anHero)
 {
 
+}
+
+Level * Level::launchLevel(string aLevelName)
+{
+	int aLevel;
+	int last_index = aLevelName.find_last_not_of("0123456789");
+	aLevel = atoi(aLevelName.substr(last_index + 1).c_str());
+	switch(aLevel)
+	{
+		/*case 1:
+			return new Level1();
+			break;
+		case 2:
+			return new Level2();
+			break;*/
+
+		default:
+			cerr << "Trying to load unknown level " << aLevelName << endl;
+			return NULL;
+	}
+
+	return NULL;
 }
 
 //Load all textures used for the level at the beginning
@@ -28,19 +48,6 @@ void Level::loadTextures()
 	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
 	{
 		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
-	}
-}
-
-void Level::instantiateEffects()
-{
-	string line;
-
-	for (vector<string>::iterator anEffect = effectConfigurationElements.begin(); anEffect != effectConfigurationElements.end(); ++anEffect)
-	{
-		Effect * aNewEffect = new Effect();
-		aNewEffect->loadConf((*anEffect));
-
-		loadedEffects.insert(make_pair(aNewEffect->name, aNewEffect));
 	}
 }
 
@@ -63,37 +70,17 @@ void Level::loadBackGround()
 #else
 
 #endif
-	background.toMerge.clear();
-	bkg_near = *loadedObjects.at("bkg_near");
+	bkg_near = *loadedObjects.at("bkgNear");
 	bkg_near.width = SCREEN_WIDTH;
 	bkg_near.height = SCREEN_HEIGHT;
-	bkg_near.posX = 0;
-	bkg_near.posY = 0;
-	bkg_near.setAnimX(0);
-	bkg_near.setAnimY(0);
 
-	bkg_mid = *loadedObjects.at("bkg_mid");
+	bkg_mid = *loadedObjects.at("bkgMid");
 	bkg_mid.width = SCREEN_WIDTH;
 	bkg_mid.height = SCREEN_HEIGHT;
-	bkg_mid.posX = 0;
-	bkg_mid.posY = 0;
-	bkg_mid.setAnimX(0);
-	bkg_mid.setAnimY(0);
 
-	bkg_distant = *loadedObjects.at("bkg_distant");
+	bkg_distant = *loadedObjects.at("bkgDistant");
 	bkg_distant.width = SCREEN_WIDTH;
 	bkg_distant.height = SCREEN_HEIGHT;
-	bkg_distant.posX = 0;
-	bkg_distant.posY = 0;
-	bkg_distant.setAnimX(0);
-	bkg_distant.setAnimY(0);
-
-	background.name = "background";
-	background.toMerge.push_back(&bkg_distant);
-	background.toMerge.push_back(&bkg_mid);
-	background.toMerge.push_back(&bkg_near);
-	background.setAnimX(0.0);
-	activeElements.push_back(&background);
 }
 
 void Level::moveBackGround()
@@ -107,15 +94,18 @@ void Level::moveBackGround()
 	bkg_mid.setAnimX(bkg_mid.getAnimX() + bkg_midSpeed);
 	bkg_near.setAnimX(bkg_near.getAnimX() + bkg_nearSpeed);
 
+	bkg_distant.processDisplay();
+	bkg_mid.processDisplay();
+	bkg_near.processDisplay();
 }
 
 void Level::drawLevel()
 {
-	checkEvent();
+/*	checkEvent();
 
 	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
 
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		(*anElement)->animate();
 		if((*anElement)->display)
@@ -124,7 +114,7 @@ void Level::drawLevel()
 		}
 	}
 	hero->animate();
-	background.setAnimX(background.getAnimX() + cameraSpeed);
+	background.setAnimX(background.getAnimX() + cameraSpeed);*/
 }
 
 
@@ -132,7 +122,7 @@ void Level::drawLevel()
 void Level::checkEvent()
 {
 
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	/*for (vector<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
 		if((*anElement)->toRemove)
 		{
@@ -151,7 +141,7 @@ void Level::checkEvent()
 				checkCollision(*anElement);
 			}
 		}
-	}
+	}*/
 }
 
 int Level::checkEnemyCollision(Drawable * anElement)
@@ -188,9 +178,11 @@ int Level::checkCollision(Drawable * anElement)
 	return 0;
 }
 
-void Level::createExplosion(int x, int y, int type)
+void Level::createExplosion(int x, int y)
 {
-	activeElements.push_back(new Explosion(x, y, type));
+    ParticleEffect * aParticleEffect = new ParticleEffect();
+    aParticleEffect->createExplosionFrom(x, y);
+    ge->particleEffects.push_back(aParticleEffect);
 }
 
 void Level::createBonus(int x, int y, int type)
@@ -198,118 +190,65 @@ void Level::createBonus(int x, int y, int type)
 	activeElements.push_back(new Bonus(x, y, type));
 }
 
-//Load all the configuration elements from a text file
-void Level::loadDrawableConf(string aConfString)
+void Level::loadLevelConfiguration(string path)
 {
-	//ifstream file;
-	//string fileName = "conf/l1.conf";
-	string token;
-
-	//file.open(fileName.c_str());
-
-	//convert the file stream into one giant string
-	//string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
-	//vector<string> elems;
-
-	size_t position = 0;
-	//Parse with the arobase delimiter
-	while ((position = aConfString.find("&")) != string::npos)
-	{
-		token = aConfString.substr(0, position);
-		objectConfiguration.push_back(token);
-		aConfString.erase(0, position + 1);
-	}
-	objectConfiguration.push_back(aConfString);
-}
-
-void Level::loadFileConfiguration()
-{
+	Json::Value root;
+	Json::Reader reader;
 	ifstream file;
-	string fileName = "conf/Level1.conf";
-	string token;
-	string line;
-	string type;
-	vector<string> confElements;
-	string confElement;
+	file.open(path.c_str());
+	unsigned int index;
 
-	file.open(fileName.c_str());
-
-	//convert the file stream into one giant string
-	string fileString(istreambuf_iterator<char>(file), (istreambuf_iterator<char>()));
-	vector<string> elems;
-
-	size_t position = 0;
-	//Parse with the arobase delimiter
-	while ((position = fileString.find("@")) != string::npos)
+	int parsingSuccessful = reader.parse(file, root);
+	if (!parsingSuccessful)
 	{
-		token = fileString.substr(0, position);
-		if (!token.empty())
-			confElements.push_back(token);
-		fileString.erase(0, position + 1);
+		//report to the user the failure and their locations in the document.
+		cout << "Failed to parse configuration:" << endl << reader.getFormattedErrorMessages();
 	}
 
-	//get the last section of the file
-	confElements.push_back(fileString);
-
-	for(vector<string>::iterator aConf = confElements.begin(); aConf != confElements.end(); aConf++)
+	const Json::Value drawable = root["drawable"];
+	for (index = 0; index < drawable.size(); ++index)
 	{
-		istringstream aConfStream(*aConf);
-		string aLine;
-		string token;
-
-		getline(aConfStream, aLine);
-
-		switch(configCategories.at(aLine))
-		{
-			case confSound:
-				soundEngine->loadSoundFrom(*aConf);
-				break;
-
-			case confMusic:
-				soundEngine->loadMusicFrom(*aConf);
-				break;
-
-			case confDrawable:
-				loadDrawableConf(*aConf);
-				break;
-
-			case confEffect:
-				loadEffects(*aConf);
-				break;
-
-			default:
-				cout << "Warning (Level loadFileConfiguration): unrecognized configuration category encountered: " << aLine << endl;
-				break;
-		}
-
+		Drawable * tmp = new Drawable(drawable[index]);
+		loadedObjects.insert(make_pair(tmp->name, tmp));
 	}
-	while(getline(file, line))
-	{
-		if(!line.empty()) //Ignore empty lines
-		{
-			Sound * aSound = new Sound();
-			aSound->loadASound(line);
 
-			soundEngine->addSound(aSound);
-		}
+	const Json::Value animDrawable = root["animatedDrawable"];
+	for (index = 0; index < animDrawable.size(); ++index)
+	{
+		AnimatedDrawable * tmp = new AnimatedDrawable(animDrawable[index]);
+		loadedObjects.insert(make_pair(tmp->name, tmp));
+	}
+
+	const Json::Value effect = root["effect"];
+	for (index = 0; index < effect.size(); ++index)
+	{
+		Effect * tmp = new Effect(effect[index]);
+		loadedEffects.insert(make_pair(tmp->name, tmp));
+	}
+
+	//Load Sounds
+	const Json::Value sounds = root["sounds"];;
+	for (index = 0; index < sounds.size(); ++index)
+	{
+		soundEngine->loadSoundFrom(sounds[index]);
+	}
+
+	//Load Music
+	const Json::Value music = root["music"];;
+	for (index = 0; index < music.size(); ++index)
+	{
+		soundEngine->loadMusicFrom(music[index]);
 	}
 }
-
-void Level::loadObjects()
-{
-	for (vector<string>::iterator aConfString = objectConfiguration.begin() +1; aConfString != objectConfiguration.end(); ++aConfString)
-	{
-		AnimatedDrawable * aNewDrawable = new AnimatedDrawable();
-		aNewDrawable->loadFrom(*aConfString);
-
-		loadedObjects.insert(make_pair(aNewDrawable->name, aNewDrawable));
-	}
-}
-
 
 void Level::createEffect(int x, int y, string name)
 {
 	activeEffects.push_back(new Effect(x, y, name));
+}
+
+void Level::createTextEffect(int x, int y, string name, string aText)
+{
+	activeElements.push_back(new TextEffect(x, y, name, aText));
 }
 
 void Level::heroLoseLife()
@@ -324,24 +263,18 @@ int Level::isOnScreen(Drawable * aDrawable)
 
 void Level::cleanLevel()
 {
-	for (std::list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
+	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
-		(*anElement)->clean();
-//		delete (*anElement);
-		activeElements.erase(anElement++);
+		//(*anElement)->clean();
+		cout << (*anElement)->name << endl;
+		delete (*anElement);
+		//activeElements.erase(anElement++);
 	}
 
 	map<SDL_Surface *, string> freedTextures;
-	for (map<string, AnimatedDrawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
+	for (map<string, Drawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
 	{
-		for (map<string, Animation *>::iterator anAnim = (*anElement).second->animations.begin(); anAnim != (*anElement).second->animations.end(); ++anAnim)
-		{
-			if(freedTextures.find((*anAnim).second->texture) == freedTextures.end())
-				SDL_FreeSurface((*anAnim).second->texture);
-
-			freedTextures.insert(make_pair((*anAnim).second->texture, "toto"));
-		}
-		(*anElement).second->animations.clear();
+		(*anElement).second->clean();
 		delete (*anElement).second;
 	}
 	loadedObjects.clear();
@@ -365,7 +298,7 @@ void Level::cleanLevel()
 	effectConfigurationElements.clear();
 	objectConfiguration.clear();
 
-	soundEngine->stopMusic("l1Music");
+	soundEngine->stopMusic("hybridQuarks");
 	soundEngine->stopAllSounds();
 }
 
@@ -378,21 +311,6 @@ void Level::endLevel()
 void Level::finishLevel()
 {
 
-}
-
-void Level::loadEffects(string aConfString)
-{
-	string token;
-
-	size_t position = 0;
-	while ((position = aConfString.find("%")) != string::npos)
-	{
-		token = aConfString.substr(0, position);
-		effectConfigurationElements.push_back(token);
-		aConfString.erase(0, position + 1);
-	}
-
-	effectConfigurationElements.push_back(aConfString);
 }
 
 //Generate a random set of stars
