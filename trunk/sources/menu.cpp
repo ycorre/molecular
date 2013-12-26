@@ -64,12 +64,12 @@ void Menu::loadMenu()
 	gameOver.posX = 280;
 	gameOver.posY = 60;
 
- 	soundEngine->playSound("fractal");
-
  	setMainSelection(0);
 
  	loadSelectedLevel();
 	setSelectedLevel(0);
+
+ 	soundEngine->playSound("fractal");
 
  	startIntro = SDL_GetTicks();
  	endIntro = startIntro + introLength;
@@ -542,14 +542,6 @@ void Menu::selectLevel()
 		soundEngine->playSound("validated");
 		soundEngine->fadeMusic("musicMenu", 1500);
 		transition();
-	}
-}
-
-void Menu::loadTextures()
-{
-	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
-	{
-		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
 	}
 }
 

@@ -61,12 +61,12 @@ void Text::write(string aText)
 #if USE_OPENGL
 	if(getOpenGLTexture() == 0)
 	{
-		createOGLTexture();
+		ge->createOGLTexture(getTexture(), &oglTexture);
 	}
 	else
 	{
 		glDeleteTextures(1, &oglTexture);
-		createOGLTexture();
+		ge->createOGLTexture(getTexture(), &oglTexture);
 	}
 #endif
 }
@@ -78,7 +78,7 @@ void Text::update()
 	texture =  TTF_RenderUTF8_Blended(font, content.c_str(), color);
 #if USE_OPENGL
 	glDeleteTextures(1, &oglTexture);
-	createOGLTexture();
+	ge->createOGLTexture(getTexture(), &oglTexture);
 #endif
 }
 

@@ -37,7 +37,7 @@ void SoundEngine::playSound(Sound * aSound)
 	if((!mute) && (!soundMuted))
 	{
 		aSound->playingChannel = Mix_PlayChannel(-1, aSound->soundData, aSound->numberOfLoops);
-		if (aSound->playingChannel!= -1)
+		if (aSound->playingChannel > -1)
 		{
 			aSound->isPlaying = TRUE;
 		}
@@ -50,16 +50,19 @@ void SoundEngine::playSound(Sound * aSound)
 
 void SoundEngine::stopSound(Sound * aSound)
 {
-	Mix_HaltChannel(aSound->playingChannel);
+	if((!mute) && (!soundMuted))
+	{
+		Mix_HaltChannel(aSound->playingChannel);
 
-	if (aSound->playingChannel!= -1)
-	{
-		aSound->isPlaying = FALSE;
-	}
-	else
-	{
-		aSound->isPlaying = FALSE;
-		cerr << "Error could not play sound" << aSound->name << endl;
+		if (aSound->playingChannel!= -1)
+		{
+			aSound->isPlaying = FALSE;
+		}
+		else
+		{
+			aSound->isPlaying = FALSE;
+			cerr << "Error could not play sound" << aSound->name << endl;
+		}
 	}
 }
 

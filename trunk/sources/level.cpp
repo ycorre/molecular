@@ -41,16 +41,6 @@ Level * Level::launchLevel(string aLevelName)
 	return NULL;
 }
 
-//Load all textures used for the level at the beginning
-//Texture and objects are specified in the level configuration file
-void Level::loadTextures()
-{
-	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
-	{
-		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
-	}
-}
-
 void Level::loadBackGround()
 {
 #if 0 //USE_OPENGL
@@ -169,25 +159,43 @@ int Level::checkEnemyCollision(Drawable * anElement)
 
 int Level::checkCollision(Drawable * anElement)
 {
-	if(pe->collisionDetection(hero, anElement))
+	if(hero->shielded)
 	{
-		anElement->processCollisionWith(hero);
-		hero->processCollisionWith(anElement);
-		return 1;
+		if(pe->collisionDetection(hero->shield, anElement))
+		{
+			anElement->processCollisionWith(hero);
+			hero->processCollisionWith(anElement);
+			return 1;
+		}
+	}
+	else
+	{
+		if(pe->collisionDetection(hero, anElement))
+		{
+			anElement->processCollisionWith(hero);
+			hero->processCollisionWith(anElement);
+			return 1;
+		}
 	}
 	return 0;
 }
 
 void Level::createExplosion(int x, int y)
 {
-    ParticleEffect * aParticleEffect = new ParticleEffect();
+	activeElements.push_back(new Explosion(x, y));
+  /*  ParticleEffect * aParticleEffect = new ParticleEffect();
     aParticleEffect->createExplosionFrom(x, y);
-    ge->particleEffects.push_back(aParticleEffect);
+    ge->particleEffects.push_back(aParticleEffect);*/
 }
 
 void Level::createBonus(int x, int y, int type)
 {
-	activeElements.push_back(new Bonus(x, y, type));
+	activeElements.push_back(new Bonus(x, y, 0, 0, type));
+}
+
+void Level::createBonus(int x, int y, float aSpeed, float anAngle, int type)
+{
+	activeElements.push_back(new Bonus(x, y, aSpeed, anAngle, type));
 }
 
 void Level::loadLevelConfiguration(string path)
@@ -246,9 +254,9 @@ void Level::createEffect(int x, int y, string name)
 	activeEffects.push_back(new Effect(x, y, name));
 }
 
-void Level::createTextEffect(int x, int y, string name, string aText)
+void Level::createTextEffect(int x, int y, string aText)
 {
-	activeElements.push_back(new TextEffect(x, y, name, aText));
+	activeElements.push_back(new TextEffect(x, y, aText));
 }
 
 void Level::heroLoseLife()
@@ -279,17 +287,6 @@ void Level::cleanLevel()
 	}
 	loadedObjects.clear();
 
-	for (map<string, Effect *>::iterator anElement = loadedEffects.begin() ; anElement != loadedEffects.end(); ++anElement)
-	{
-		for (map<string, AnimatedDrawable *>::iterator aLayer = (*anElement).second->effectLayers.begin(); aLayer != (*anElement).second->effectLayers.end(); ++aLayer)
-		{
-			SDL_FreeSurface((*aLayer).second->texture);
-			delete (*aLayer).second;
-		}
-		SDL_FreeSurface((*anElement).second->texture);
-		delete (*anElement).second;
-	}
-
 	//activeElements.clear();
 	loadedEffects.clear();
 	activeEffects.clear();
@@ -300,6 +297,8 @@ void Level::cleanLevel()
 
 	soundEngine->stopMusic("hybridQuarks");
 	soundEngine->stopAllSounds();
+
+	ge->freeTextures();
 }
 
 void Level::endLevel()

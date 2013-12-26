@@ -26,7 +26,6 @@ class Level4:  public Level
 	virtual void loadLevel(Hero * aHero);
 	void loadConf();
 	void loadObject();
-	void loadTextures();
 	void loadBackGround();
 	virtual void drawLevel();
 	void checkEvent();

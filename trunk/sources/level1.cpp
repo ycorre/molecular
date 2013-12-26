@@ -45,8 +45,7 @@ void Level1::drawLevel()
 		(*anElement)->processDisplay();
 	}
 
-	//Display the HUD
-	hud->displayUI(hero);
+
 
 	for (list<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
 	{
@@ -58,6 +57,9 @@ void Level1::drawLevel()
 
 	//Animate the hero
 	hero->animate();
+
+	//Display the HUD
+	hud->displayUI(hero);
 
 	//If we are in the finishing sequence
 	if(ending)
@@ -112,7 +114,7 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 	}
 
 	hero->getLasers();
-	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
+	for (list<Shoot*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
 		if((*aLaser)->display && pe->collisionDetection(*aLaser, anElement))
 		{
@@ -189,7 +191,7 @@ void Level1::instantiateEnemies()
 	{
 		int pX = atoi((anEnemy->at(0)).c_str());
 		int pY = atoi((anEnemy->at(1)).c_str());
-		activeElements.push_back(new Enemy(pX, pY, sinWidth, sinHeight, speed));
+		activeElements.push_back(new Cadmium(pX, pY, sinWidth, sinHeight, speed));
 	}
 }
 

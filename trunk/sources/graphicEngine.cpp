@@ -30,6 +30,8 @@ void GraphicEngine::init()
 //Load a texture as an SDL_Surface
 SDL_Surface * GraphicEngine::loadTexture(string path)
 {
+	if(textures.find(path) == textures.end())
+	{
 		SDL_Surface * aSurface;
 		SDL_Surface * tmp = IMG_Load(path.c_str());
 		if (tmp == NULL) {
@@ -47,7 +49,13 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 		openGLTextures.insert(make_pair(aSurface, oglTex));
 #endif
 
+		textures.insert(make_pair(path, aSurface));
 		return aSurface;
+	}
+	else
+	{
+		return textures.at(path);
+	}
 }
 
 void GraphicEngine::drawFrame()
@@ -112,8 +120,8 @@ int GraphicEngine::draw(Drawable * sprite)
 	//If some scaling operations are required
 	if (sprite->scaleX != 1 || sprite->scaleY != 1)
 	{
-		float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-		float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+		float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+		float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
 
 		//Translate back to 0,0 in order to perform the scaling
 		glTranslatef(zX, zY, 0.0);
@@ -126,8 +134,8 @@ int GraphicEngine::draw(Drawable * sprite)
 	//If some rotation operations are required
 	if (sprite->rotationAngle != 0)
 	{
-		float zX =  sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-		float zY =  (SCREEN_HEIGHT- sprite->getPosY())/(SCREEN_HEIGHT/2);
+		float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+		float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
 
 		//Translate back to 0,0 in order to perform the rotation
 		glTranslatef(zX, zY, 0.0);
@@ -253,12 +261,6 @@ void GraphicEngine::displayFrame()
 #endif
 }
 
-void GraphicEngine::blitElement(SDL_Surface * anElement)
-{
-	SDL_BlitSurface(anElement, NULL, screen, NULL);
-}
-
-
 int GraphicEngine::addFont(string aName, string path, int size)
 {
 	TTF_Font * font;
@@ -363,5 +365,23 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
 	glTexImage2D(GL_TEXTURE_2D, 0, 4 , aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+void GraphicEngine::freeTextures()
+{
+	for (map<SDL_Surface *, GLuint>::iterator anOGLTexture = openGLTextures.begin() ; anOGLTexture != openGLTextures.end(); ++anOGLTexture)
+	{
+		glDeleteTextures(1, &((*anOGLTexture).second));
+	}
+	openGLTextures.clear();
+
+	for (map<string, SDL_Surface *>::iterator aTexture = textures.begin() ; aTexture != textures.end(); ++aTexture)
+	{
+		SDL_FreeSurface((*aTexture).second);
+	}
+
+	textures.clear();
 }
 

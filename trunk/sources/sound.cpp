@@ -33,7 +33,7 @@ Sound::Sound(string aPath, string aName)
 {
 	name = aName;
 	soundData = NULL;
-	this->load(aPath);
+	load(aPath);
 	playingChannel = -1;
 	isPlaying = FALSE;
 	volume = 100;
@@ -43,6 +43,9 @@ Sound::Sound(string aPath, string aName)
 
 Sound::Sound(Json::Value aConfig)
 {
+	soundData = NULL;
+	playingChannel = -1;
+	isPlaying = FALSE;
 	name = aConfig.get("name", "soundDefaut").asString();
 	setLoop(aConfig.get("loop", 0).asInt());
 	volume = aConfig.get("volume", 100).asInt();
@@ -114,7 +117,7 @@ Music::Music(string aPath, string aName)
 	name = aName;
 	soundData = NULL;
 	musicData = NULL;
-	this->load(aPath);
+	load(aPath);
 	playingChannel = -1;
 	isPlaying = FALSE;
 	volume = 100;
@@ -124,10 +127,15 @@ Music::Music(string aPath, string aName)
 
 Music::Music(Json::Value aConfig)
 {
+	soundData = NULL;
+	musicData = NULL;
+	playingChannel = -1;
 	name = aConfig.get("name", "musicDefaut").asString();
 	setLoop(aConfig.get("loop", 0).asInt());
 	volume = aConfig.get("volume", 100).asInt();
 	load(aConfig.get("dataPath", " ").asString());
+	isPlaying = FALSE;
+
 }
 
 void Music::load(string aPath)

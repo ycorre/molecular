@@ -51,12 +51,12 @@ void Keyboard::processKeyPress()
 }
 
 //Process in game keyboard events
-void Keyboard::processKeyInGame(Hero* hero)
+void Keyboard::processKeyInGame(Hero * hero)
 {
 	if(keyStates[SDLK_ESCAPE])
 	{
 		game->currentLevel->cleanLevel();
-		game->gameState = GAME_MENU;
+		game->gameState = GAME_LOADMENU;
 	}
 
 	if(keyStates[SDLK_b])

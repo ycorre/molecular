@@ -4,10 +4,10 @@
 
 #include "game.h"
 
-//TODO Finish enhancing the loading config files system (unique string of parameter for animations)
+//TODO Use JSON for configuring all types of object ?
 //Handle memory release
 //Fix the music bug (repeating audio after music has been stop once (reload each time ?))
-//Change menu configuration
+//Change menu & level loading methods:
 //Modify the menu so that it is unloaded and reloaded each time we go back there
 //Do a load level and a launch level method and separate both
 
@@ -115,6 +115,8 @@ int Game::mainLoop()
 	    		menu = new Menu(&graphicEngine, &soundEngine);
 	    	    menu->loadMenu();
 	    	    menu->game = this;
+	    	    menu->currentMenu = MENU_MAIN;
+	    	    menu->nextMenu = MENU_MAIN;
 	    		gameState = GAME_MENU;
 	    		break;
 
@@ -124,6 +126,9 @@ int Game::mainLoop()
 
 	    	case GAME_INGAME:
 	    		keyboard->processKeyInGame(currentLevel->hero);
+	    		if (gameState != GAME_INGAME)
+	    			break;
+
 	    		keyboard->processeMouseInGame(currentLevel->hero);
 				currentLevel->drawLevel();
 				if (currentLevel->levelState == LEVEL_WON)
@@ -132,9 +137,16 @@ int Game::mainLoop()
 				}
 				if (currentLevel->levelState == LEVEL_LOST)
 				{
-					menu->nextMenu = MENU_GAMEOVER;
+					currentLevel->cleanLevel();
+					delete menu;
+					menu = new Menu(&graphicEngine, &soundEngine);
+					menu->loadMenu();
+					menu->game = this;
+					menu->currentMenu = MENU_MAIN;
+				    menu->nextMenu = MENU_GAMEOVER;
 					menu->menuInTransition = TRUE;
 					gameState = GAME_MENU;
+					  graphicEngine.toDisplay.clear();
 				}
 				break;
 
@@ -279,7 +291,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-   // SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);

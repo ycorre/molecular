@@ -16,18 +16,17 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 	backGround.setAnimX(0);
 	backGround.setAnimY(0);
 
-	health = hudElements.at("hud_health");
-	quarkB = hudElements.at("abeSpQB");
-	quarkT = hudElements.at("abeSpQT");
-	quarkU = hudElements.at("abeSpQU");
-	quarkD = hudElements.at("abeSpQD");
-	quarkC = hudElements.at("abeSpQC");
-	quarkS = hudElements.at("abeSpQS");
+	health.copyFrom(&(hudAnimatedElements.at("abeSpVie")));
+	quarkB.copyFrom(&(hudAnimatedElements.at("abeSpQB")));
+	quarkT.copyFrom(&(hudAnimatedElements.at("abeSpQT")));
+	quarkU.copyFrom(&(hudAnimatedElements.at("abeSpQU")));
+	quarkD.copyFrom(&(hudAnimatedElements.at("abeSpQD")));
+	quarkC.copyFrom(&(hudAnimatedElements.at("abeSpQC")));
+	quarkS.copyFrom(&(hudAnimatedElements.at("abeSpQS")));
 
 	file = hudElements.at("abeDossiers");
 	brightDot = hudElements.at("abeTypeLed");
-
-	weaponLoad = hudElements.at("abeSpVumetre");
+	weaponLoad.copyFrom(&(hudAnimatedElements.at("abeSpVumetre")));
 
 	for(i = 0; i < 6; i++)
 	{
@@ -43,22 +42,29 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 		score.push_back(aScoreNumber);
 	}
 
-	quarkIndex[QB] = 0;
-	quarkIndex[QT] = 0;
-	quarkIndex[QU] = 0;
-	quarkIndex[QD] = 0;
-	quarkIndex[QC] = 0;
-	quarkIndex[QS] = 0;
+	quarks[QuarkB] = &quarkB;
+	quarks[QuarkT] = &quarkT;
+	quarks[QuarkU] = &quarkU;
+	quarks[QuarkD] = &quarkD;
+	quarks[QuarkC] = &quarkC;
+	quarks[QuarkS] = &quarkS;
+
+	quarkIndex[QuarkB] = 0;
+	quarkIndex[QuarkT] = 0;
+	quarkIndex[QuarkU] = 0;
+	quarkIndex[QuarkD] = 0;
+	quarkIndex[QuarkC] = 0;
+	quarkIndex[QuarkS] = 0;
 
 	electron = hudAnimatedElements.at("abeElectr");
 	hadron =  hudAnimatedElements.at("abeHadron");
 	baryon =  hudAnimatedElements.at("abeBaryon");
 	plasma =  hudAnimatedElements.at("abePlasma");
-
 }
 
 void HUD::loadHUDElements(string path)
 {
+	unsigned int index;
 	Json::Value root;
 	Json::Reader reader;
 	ifstream file;
@@ -73,7 +79,6 @@ void HUD::loadHUDElements(string path)
 
 	//instantiate the corresponding drawable elements
 	const Json::Value drawable = root["drawable"];
-	int index = 0;
 	for (index = 0; index < drawable.size(); ++index)
 	{
 		Drawable tmp = Drawable(drawable[index]);
@@ -115,8 +120,9 @@ void HUD::displayHealth(int healthValue)
 	{
 		i = i - 0.3;
 	}
-	health.setAnimX((int)(i) * health.width);
 
+	health.currentAnimation->setFrameTo((int)(i));
+	//setAnimX((int)(i) * health.width);
 	health.processDisplay();
 }
 
@@ -176,52 +182,22 @@ void HUD::displayQuarkLevels(map<int, int> quarkLevels)
 	for(map<int, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
 	{
 		int aQuarkName = (*aQuark).first;
-		switch(aQuarkName)
+		float anIndex  = quarkIndex.at(aQuarkName);
+		int aLevel = quarkLevels.at(aQuarkName);
+
+		if(anIndex < aLevel)
 		{
-			case QB:
-				displayAQuarkLevel(&quarkB, quarkIndex.at(aQuarkName), quarkLevels.at(aQuarkName), aQuarkName);
-				break;
-
-			case QT:
-				displayAQuarkLevel(&quarkT, quarkIndex.at(aQuarkName), quarkLevels.at(aQuarkName), aQuarkName);
-				break;
-
-			case QU:
-				displayAQuarkLevel(&quarkU, quarkIndex.at(aQuarkName), quarkLevels.at(aQuarkName), aQuarkName);
-				break;
-
-			case QD:
-				displayAQuarkLevel(&quarkD, quarkIndex.at(aQuarkName), quarkLevels.at(aQuarkName), aQuarkName);
-				break;
-
-			case QC:
-				displayAQuarkLevel(&quarkC, quarkIndex.at(aQuarkName), quarkLevels.at(aQuarkName), aQuarkName);
-				break;
-
-			case QS:
-				displayAQuarkLevel(&quarkS, quarkIndex.at(aQuarkName), quarkLevels.at(aQuarkName), aQuarkName);
-				break;
-
-			default:
-				break;
+			quarkIndex.at(aQuarkName) = anIndex + 0.3;
 		}
+		if (anIndex > aLevel)
+		{
+			quarkIndex.at(aQuarkName) = anIndex - 0.3;
+		}
+
+		quarks.at(aQuarkName)->currentAnimation->setFrameTo((int)(quarkIndex.at(aQuarkName)));
+		quarks.at(aQuarkName)->processDisplay();
 	}
 }
-
-void HUD::displayAQuarkLevel(Drawable * aQuark, float anIndex, int aLevel, int aQuarkName)
-{
-	if(anIndex < aLevel)
-	{
-		quarkIndex.at(aQuarkName) = anIndex + 0.3;
-	}
-	if (anIndex > aLevel)
-	{
-		quarkIndex.at(aQuarkName) = anIndex - 0.3;
-	}
-	aQuark->setAnimX((int)(quarkIndex.at(aQuarkName)) * aQuark->width);
-	aQuark->processDisplay();
-}
-
 
 void HUD::displayWeapons(Hero * hero)
 {
@@ -241,11 +217,11 @@ void HUD::displayWeapons(Hero * hero)
 	plasma.processDisplay();
 	if (hero->currentWeapon->load == -1)
 	{
-		weaponLoad.setAnimX(0);
+		weaponLoad.currentAnimation->setFrameTo(0);
 	}
 	else
 	{
-		weaponLoad.setAnimX(weaponLoad.width);
+		weaponLoad.currentAnimation->setFrameTo(1);
 	}
 	weaponLoad.processDisplay();
 }

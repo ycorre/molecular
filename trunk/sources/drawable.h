@@ -49,6 +49,7 @@ class Drawable
 	  int posXCorrection, posYCorrection;
 	  int toBlend;
 	  map<string, int> confParameters;
+	  SDL_Surface * collision;
 
 	  //static since the graphic engine is the same for all the objects
 	  static GraphicEngine * ge;
@@ -70,7 +71,6 @@ class Drawable
 	  virtual void clean();
 	  virtual void copyFrom(Drawable * aDrawable);
 
-	  void createOGLTexture();
 	  void computeOGLXValues();
 	  void computeOGLYValues();
 
@@ -81,7 +81,6 @@ class Drawable
 	  virtual int hasHitBox() {return FALSE;}
 	  virtual int isText() {return FALSE;}
 
-	  virtual void addTexture(string name);
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable* aDrawable);
 	  virtual int getXBoundary();
@@ -103,7 +102,6 @@ class Drawable
 	  virtual SDL_Surface * getCollisionTexture();
 };
 
-
 class AnimatedDrawable: virtual public Drawable
 {
 	public:
@@ -119,6 +117,7 @@ class AnimatedDrawable: virtual public Drawable
 	  AnimatedDrawable();
 	  AnimatedDrawable(Json::Value aConfig);
 	  virtual ~AnimatedDrawable();
+	  void setAnimationsPointer();
 	  virtual void clean();
 	  virtual float getWidth();
 	  virtual float getHeight();
@@ -129,15 +128,6 @@ class AnimatedDrawable: virtual public Drawable
 	  virtual void copyFrom(Drawable * aDrawable);
 	  void copyFrom(AnimatedDrawable * aDrawable);
 	  void setAnimation(string anAnimationName);
-};
-
-//Class for objects that use a mask for collision detection
-class MaskedDrawable: virtual public Drawable
-{
-	public:
-	  SDL_Surface * collision;
-
-	  virtual SDL_Surface * getCollisionTexture();
 };
 
 #endif

@@ -10,7 +10,7 @@
 #include "level.h"
 #include "laser.h"
 
-class Laser;
+class Shoot;
 class Hero;
 
 class Weapon
@@ -24,7 +24,7 @@ class Weapon
 	  int fireRate;
 	  int level;
 	  int maxFireRate;
-	  list<Laser *> shoots;
+	  list<Shoot *> shoots;
 	  int loadable;
 	  int load;
 

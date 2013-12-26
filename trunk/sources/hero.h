@@ -13,11 +13,12 @@
 #include "weapon.h"
 #include "effect.h"
 
-class Laser;
+class Shoot;
 class Weapon;
 class Effect;
+class Shield;
 
-class Hero: public MaskedDrawable , public AnimatedDrawable
+class Hero: public AnimatedDrawable
 {
 	public:
 	  //Values kept from one level to the next
@@ -25,7 +26,10 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  int nbLife;
 	  float regenMassPo;
 	  Weapon * currentWeapon;
-	  map<string, Weapon*> ownedWeapons;
+	  map<string, Weapon *> ownedWeapons;
+	  map<int, int> quarkLevels;
+	  int shielded;
+	  Shield * shield;
 
 	  //Should be reset from one level to the next
 	  int heroMovingUpOrDown;
@@ -37,13 +41,12 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  float radioactivePotential;
 	  float backOffSpeed;
 	  int state;
-	  list<Laser *> shoots;
+	  list<Shoot *> shoots;
 
 	  //Should be constant throughout the game
 	  int maxHealth, maxLife;
 	  Uint32 invincibilityTime, startInvincibility;
 	  Uint32 startTeleporting;
-	  map<int, int> quarkLevels;
 
 	  float hitAngle;
 
@@ -67,7 +70,8 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  void teleport();
 	  void startEffect(string anEffect);
 	  int endTeleport();
-	  list<Laser*> * getLasers();
+	  list<Shoot*> * getLasers();
+	  void spreadQuarks();
 	  virtual void animate();
 	  virtual int isHero() {return 1;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
@@ -77,17 +81,16 @@ class Hero: public MaskedDrawable , public AnimatedDrawable
 	  int heroChangedState;
 };
 
+class Shield: public AnimatedDrawable
+{
+public:
+	float energy;
+
+	Shield();
+	Shield(float x, float y);
+};
+
 enum heroState{STATIC, HIT, ENTER, DEAD, APPAR, DISPAR, EXITING, CURSOR};
-//enum quarksName{QB, QT, QU, QD, QC, QS};
-/*
-#define STATIC 0
-#define APPAR 4
-#define DISPAR 5
-#define HIT 1
-#define ENTER 2
-#define DEAD 3
-#define EXITING 6
-#define CURSOR 7*/
 
 #endif
 

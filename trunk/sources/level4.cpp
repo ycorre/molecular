@@ -30,19 +30,8 @@ void Level4::loadLevel(Hero * aHero)
 
 void Level4::loadObject()
 {
-	loadTextures();
 	loadBackGround();
 	generateStarfield();
-}
-
-//Load all textures used for the level at the beginning
-//Texture and objects are specified in the level configuration file
-void Level4::loadTextures()
-{
-	for (map<string, vector<string> >::iterator anElement = configurationElements.begin(); anElement != configurationElements.end(); ++anElement)
-	{
-		ge->textures.insert(make_pair(anElement->first, ge->loadTexture((anElement->second).back())));
-	}
 }
 
 void Level4::loadBackGround()
@@ -431,15 +420,6 @@ int Level4::checkCollision(Drawable * anElement)
 	return 0;
 }
 
-void Level4::createExplosion(int x, int y, int type)
-{
-	activeElements.push_back(new Explosion(x, y, type));
-}
-
-void Level4::createBonus(int x, int y, int type)
-{
-	activeElements.push_back(new Bonus(x, y, type));
-}
 
 void Level4::finishLevel()
 {

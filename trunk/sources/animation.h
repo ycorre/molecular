@@ -46,6 +46,7 @@ class Animation
 	  Animation(Drawable * aDrawable);
 	  Animation(Json::Value aConf, Drawable * aDrawable);
 	  int nextFrame();
+	  void setFrameTo(int aNumber);
 	  void configOpacity(string aConf);
 	  void configScaling(string aConf);
 	  void loadTexture(string path);

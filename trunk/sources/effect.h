@@ -30,7 +30,7 @@ class TextEffect: virtual public AnimatedText
 		int frameCount;
 		int isMoving;
 
-		TextEffect(int x, int y, string type, string aText);
+		TextEffect(int x, int y, string aText);
 		virtual void animate();
 };
 

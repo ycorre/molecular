@@ -3,7 +3,6 @@
 Bomb::Bomb()
 {
 	copyFrom(lev->loadedObjects.at("bomb"));
-	collision = ge->loadTexture("res/Bomb_Col.png");
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 500;
@@ -38,7 +37,6 @@ Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 	fireRate = minFireRate + (rand() % maxFireRate);
 	lastTimeFired = 0;
 	life = 250;
-	collision = ge->loadTexture("res/Ennemi_mask.png");
 
 	speed = aSpeed;
 	angle = anAngle * (PI / 180.0);
