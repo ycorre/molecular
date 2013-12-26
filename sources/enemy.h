@@ -7,11 +7,9 @@
 #include "level.h"
 #include "laser.h"
 
-#define XRED 0
-#define XBLUE 1
-#define XYELLOW 2
+class Cadmium;
 
-class Enemy: public MaskedDrawable, public AnimatedDrawable
+class Enemy: public AnimatedDrawable
 {
 	public:
 		int direction;
@@ -39,6 +37,19 @@ class Enemy: public MaskedDrawable, public AnimatedDrawable
 		virtual void fire();
 		virtual void checkFire();
 };
+
+class Cadmium: public Enemy
+{
+	public:
+		int posRafale;
+		int rafaleRate;
+		float angle;
+
+		Cadmium(int x, int y, float sinWidth, float sinHeigth, float aSpeed);
+		virtual void checkFire();
+		virtual void fire();
+};
+
 
 class Bomb: public Enemy
 {

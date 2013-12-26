@@ -183,7 +183,7 @@ list<pair<float, float> >  Emitter::getParticlePosition(int numberOfParticles)
 
 	for(i = 0; i < numberOfParticles; i++)
 	{
-		aList.push_back(this->getParticlePosition());
+		aList.push_back(getParticlePosition());
 	}
 
 	return aList;

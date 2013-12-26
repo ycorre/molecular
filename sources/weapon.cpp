@@ -35,9 +35,9 @@ void Weapon::checkFire()
 
 void Weapon::animateLasers()
 {
-	for (list<Laser*>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
+	for (list<Shoot*>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
 	{
-		Laser * aL = (*aLaser);
+		Shoot * aL = (*aLaser);
 		aL->animate();
 		if (aL->toRemove)
 		{
@@ -81,7 +81,7 @@ void Electron::fire(Hero * aHero)
 	checkFire();
 	if (canFire)
 	{
-		shoots.push_back(new Laser(aHero->posX - 64, aHero->posY + 16, this));
+		shoots.push_back(new ElectronAmmo(aHero->posX - 32, aHero->posY + 16, this));
 		canFire = FALSE;
 	}
 }

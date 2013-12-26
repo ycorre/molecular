@@ -50,7 +50,6 @@ class GraphicEngine
 	  int draw(Drawable * sprite);
 	  void drawEffect(ParticleEffect * anEffect);
 	  void drawFrame();
-	  void blitElement(SDL_Surface * anElement);
 	  int addFont(string aName, string path, int size);
 	  void initColors();
 	  void fadeIn();
@@ -58,6 +57,7 @@ class GraphicEngine
 	  SDL_Surface * loadTexture(string path);
 	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex);
 	  void startFadingOut(int aFadingSpeed);
+	  void freeTextures();
 
 	private:
 	  void fadeOut();

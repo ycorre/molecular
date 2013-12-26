@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include "level.h"
+#include "asteroid.h"
 
 class Level2:  public Level
 {
@@ -27,7 +28,6 @@ class Level2:  public Level
 	void checkEvent();
 	void createWave1();
 	int checkCollision(Drawable * anEnemy);
-	void createBonus(int x, int y, int type);
 	int checkEnemyCollision(Drawable * anElement);
 	int checkBonusCollision(Drawable * anElement);
 	int generateBomb();

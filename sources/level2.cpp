@@ -14,7 +14,6 @@ void Level2::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	loadLevelConfiguration("conf/Level1.json");
-	loadTextures();
 	loadBackGround();
 
 	hud = new HUD(ge);
@@ -44,8 +43,6 @@ void Level2::drawLevel()
 		(*anElement)->processDisplay();
 	}
 
-	hud->displayUI(hero);
-
 	for (list<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
 	{
 		if((*anEffect)->animateEffect())
@@ -55,6 +52,7 @@ void Level2::drawLevel()
 	}
 
 	hero->animate();
+	hud->displayUI(hero);
 
 	if(ending)
 	{
@@ -87,11 +85,11 @@ void Level2::checkEvent()
 		}
 	}
 
-	//Generate Bomb ?
+	//Generate Bomb
 	if(generateBomb())
 	{
 		activeElements.push_back(new Bomb());
-		activeElements.push_back(new Mitraille());
+		activeElements.push_back(new Asteroid(BIG_ASTEROID));
 	}
 
 	//Winning conditions
@@ -116,9 +114,9 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 	}
 
 	hero->getLasers();
-	for (list<Laser*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
+	for (list<Shoot*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		Laser * aL = *aLaser;
+		Shoot * aL = *aLaser;
 		if(aL->display && pe->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
@@ -144,12 +142,6 @@ int Level2::checkCollision(Drawable * anElement)
 	}
 
 	return FALSE;
-}
-
-//We only generate better weapons since health are useless here
-void Level2::createBonus(int x, int y, int type)
-{
-	activeElements.push_back(new Bonus(x, y, BONUS_FIRERATE));
 }
 
 int Level2::generateBomb()

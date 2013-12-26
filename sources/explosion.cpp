@@ -3,27 +3,29 @@
 Explosion::Explosion()
 {
 	name = "explosion";
-	this->loadTexture("res/expl2.png");
-	width = texture->w;
-	height = texture->h;
+	width = 1;
+	height = 1;
 	posX = 0;
 	posY = 0;
 	setAnimX(0);
 	setAnimY(0);
-	type = XWING_EXPL;
 }
 
 
-Explosion::Explosion(int x, int y, int typeExpl)
+Explosion::Explosion(int x, int y)
 {
 	name = "explosion";
-	copyFrom(lev->loadedObjects.at("explosion"));
-	posX = x;
-	posY = y;
-	type = typeExpl;
-	setAnimation("enemyExplode");
+	copyFrom(lev->loadedObjects.at("expl001Sp_Fire"));
+	posX = x - width/2;
+	posY = y - height / 2;
 	setAnimX(0);
 	setAnimY(0);
+
+	smoke.copyFrom(lev->loadedObjects.at("expl001Sp_Smoke"));
+	smoke.posX = x - width/2;;
+	smoke.posY = y - height/2;;
+	smoke.setAnimX(0);
+	smoke.setAnimY(0);
 }
 
 Explosion::~Explosion()
@@ -34,14 +36,16 @@ Explosion::~Explosion()
 void Explosion::animate()
 {
 	updateAnimationFrame();
-	if (getAnimX() == 0)
+	if (currentAnimation->hasEnded)
 	{
 		display = FALSE;
-		toRemove = TRUE;
-		if(type == TIE_EXPL)
-		{
-			lev->heroLoseLife();
-		}
 	}
-	posX = posX - lev->cameraSpeed;
+
+	smoke.updateAnimationFrame();
+	if (smoke.currentAnimation->hasEnded)
+	{
+		toRemove = TRUE;
+		smoke.toRemove = TRUE;
+	}
+	smoke.processDisplay();
 }

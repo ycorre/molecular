@@ -138,6 +138,12 @@ int Animation::nextFrame()
 	return currentFrame;
 }
 
+void Animation::setFrameTo(int aNumber)
+{
+	drawable->setAnimY((aNumber / (drawable->texture->w/width)) * height);
+	drawable->setAnimX((aNumber % (drawable->texture->w/width)) * width);
+}
+
 void Animation::loadTexture(string path)
 {
 	texture = drawable->ge->loadTexture(path);

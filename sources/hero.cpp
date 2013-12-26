@@ -18,7 +18,6 @@ Hero::Hero()
 	invincibilityTime = 1500;
 	heroChangedState = TRUE;
 	canFire = 1;
-	collision = ge->loadTexture("res/action/characters/jMask.png");
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	isFiring = FALSE;
@@ -34,20 +33,24 @@ Hero::Hero()
 	firingEffect = NULL;
 	startInvincibility = 0;
 	hitAngle = 0;
-	quarkLevels[QB] = 0;
-	quarkLevels[QT] = 0;
-	quarkLevels[QU] = 0;
-	quarkLevels[QD] = 0;
-	quarkLevels[QC] = 0;
-	quarkLevels[QS] = 0;
+	shielded = FALSE;
+
+	quarkLevels[QuarkB] = 0;
+	quarkLevels[QuarkT] = 0;
+	quarkLevels[QuarkU] = 0;
+	quarkLevels[QuarkD] = 0;
+	quarkLevels[QuarkC] = 0;
+	quarkLevels[QuarkS] = 0;
 }
 
 void Hero::setTexture(Drawable * levelHero)
 {
 	copyFrom(lev->loadedObjects.at("atom"));
+	posX = SCREEN_WIDTH/3 - 64;
+	posY = GAMEZONE_HEIGHT/2 - 32;
 
 	firingEffect = new AnimatedDrawable();
-	firingEffect->copyFrom(lev->loadedObjects.at("muzzl"));
+	firingEffect->copyFrom(lev->loadedObjects.at("muzzle"));
 	firingEffect->setAnimX(0);
 	firingEffect->setAnimY(0);
 	firingEffect->toBlend = TRUE;
@@ -147,6 +150,7 @@ void Hero::animate()
 				isBlinking = FALSE;
 				isFiring = FALSE;
 				display = FALSE;
+				spreadQuarks();
 				setAnimation("dead");
 				startEffect("dead");
 				break;
@@ -246,11 +250,11 @@ void Hero::animate()
 					posX = posX + 12;
 
 					//Make the ship go toward the middle of the screen
-					if(posY > GAMEZONE_HEIGHT/2 - this->height/2 - 3)
+					if(posY > GAMEZONE_HEIGHT/2 - height/2 - 3)
 					{
 						posY = posY - 4;
 					}
-					if(posY < GAMEZONE_HEIGHT/2 - this->height/2 + 3)
+					if(posY < GAMEZONE_HEIGHT/2 - height/2 + 3)
 					{
 						posY = posY + 4;
 					}
@@ -299,6 +303,18 @@ void Hero::animate()
 	if(state!=DEAD)
 		checkInvicibility();
 
+	if(shielded)
+	{
+		shield->updateAnimationFrame();
+		shield->posX = posX - 16;
+		shield->posY = posY - 16;
+		shield->processDisplay();
+		if(shield->energy == 1)
+		{
+			shield->display = rand() % 2;
+		}
+	}
+
 	processDisplay();
 }
 
@@ -311,6 +327,7 @@ void Hero::fire()
 	}
 }
 
+
 void Hero::fireWeapon(string aWeaponName)
 {
 	if(state!=CURSOR)
@@ -320,9 +337,10 @@ void Hero::fireWeapon(string aWeaponName)
 	}
 }
 
-list<Laser*> * Hero::getLasers()
+list<Shoot*> * Hero::getLasers()
 {
 	shoots.clear();
+	//Get all the currently active ammunitions from all the weapons
 	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
 	{
 		shoots.insert(shoots.begin(), (*aWeapon).second->shoots.begin(), (*aWeapon).second->shoots.end());
@@ -366,20 +384,22 @@ void Hero::moveRight()
 
 void Hero::move(int x, int y)
 {
+	//Bound the move by the maximum possible value
 	x = min(x, 30);
 	x = max(x, -30);
 
 	y = min(y, 30);
 	y = max(y, -30);
 
+	//And move
 	posX = posX + x;
 	posY = posY + y;
 
 	//Make sure we stay inside the game zone
-	posX = max((int)posX,0);
-	posY = max((int)posY,0);
-	posX = min((int)posX, SCREEN_WIDTH - this->width);
-	posY = min((int)posY, GAMEZONE_HEIGHT - this->height);
+	posX = max((int)posX, 0);
+	posY = max((int)posY, 0);
+	posX = min((int)posX, SCREEN_WIDTH - width);
+	posY = min((int)posY, GAMEZONE_HEIGHT - height);
 }
 
 void Hero::animateLasers()
@@ -412,34 +432,58 @@ void Hero::loseLife()
 	}
 }
 
-void Hero::processCollisionWith(Drawable* aDrawable)
+void Hero::processCollisionWith(Drawable * aDrawable)
 {
 	if(!invincible)
 	{
 		if(aDrawable->isEnemy())
 		{
-			lev->soundEngine->playSound("tie_explode");
-			this->toRemove = TRUE;
-			state = DEAD;
-			heroChangedState = TRUE;
-			return;
+			if (!shielded)
+			{
+				lev->soundEngine->playSound("tie_explode");
+				toRemove = TRUE;
+				state = DEAD;
+				heroChangedState = TRUE;
+				return;
+			}
+			else
+			{
+				shielded = FALSE;
+				delete shield;
+			}
 		}
 
 		if (aDrawable->isLaser())
 		{
-			Bullet * aLaser = dynamic_cast<Bullet*>(aDrawable);
-			health--;//= life - aLaser->power;
-			if (health<=0)
+			Shoot * aShoot = dynamic_cast<Shoot*>(aDrawable);
+			if (!shielded)
 			{
-				lev->soundEngine->playSound("tie_explode");
-				state = DEAD;
-				heroChangedState = TRUE;
+				health--;//= health - aLaser->power;
+				if (health<=0)
+				{
+					lev->soundEngine->playSound("tie_explode");
+					setState(DEAD);
+				}
+				else
+				{
+					lev->soundEngine->playSound("AtomHit");
+					setState(HIT);
+					hitAngle = aShoot->angle;
+				}
 			}
 			else
 			{
-				lev->soundEngine->playSound("AtomHit");
-				setState(HIT);
-				hitAngle = aLaser->angle;
+				shield->energy--;
+				makeInvincible(400);
+				if(shield->energy <= 0)
+				{
+					shielded = FALSE;
+					delete shield;
+				}
+				else
+				{
+					shield->opacity = 1.0f / (3.0f/shield->energy);
+				}
 			}
 			return;
 		}
@@ -448,28 +492,46 @@ void Hero::processCollisionWith(Drawable* aDrawable)
 	if (aDrawable->isBonus())
 	{
 		Bonus * aBonus = dynamic_cast<Bonus*>(aDrawable);
-		if (aBonus->type == BONUS_LIFE)
+		stringstream stringToDisplay;
+		switch(aBonus->type)
 		{
-			lev->createTextEffect(posX, posY, "loadHe", "Charge: +30");
+			case BONUS_LIFE_BIG:
+			case BONUS_LIFE_SMALL:
+			case BONUS_LIFE_MEDIUM:
+				stringToDisplay << "Sante : +" << aBonus->quantity;
+				lev->createTextEffect(posX, posY, stringToDisplay.str());
 
-			if(health < maxHealth)
-			{
-				health++;
-			}
-			if (health >= maxHealth)
-			{
-				lev->soundEngine->playSound("UpHealth100");
-			}
-			else
-			{
-				lev->soundEngine->playSound("UpHealth");
-			}
+				health = min(maxHealth, health + aBonus->quantity);
+
+				if (health >= maxHealth)
+				{
+					lev->soundEngine->playSound("UpHealth100");
+				}
+				else
+				{
+					lev->soundEngine->playSound("UpHealth");
+				}
+				break;
+
+			case BONUS_SHIELD:
+				lev->createTextEffect(posX, posY, "Bouclier!");
+				if(shielded)
+					delete shield;
+
+				shield = new Shield(posX, posY);
+				shielded = TRUE;
+				break;
+
+			default:
+				break;
 		}
-		if (aBonus->type == BONUS_FIRERATE)
+
+		if (aBonus->isQuarkBonus)
 		{
-			lev->createTextEffect(posX, posY, "loadRA", "Radioactivite: +20");
+			stringToDisplay <<  "Quark : +" << aBonus->quantity;
+			lev->createTextEffect(posX, posY,  stringToDisplay.str());
 			lev->soundEngine->playSound("UpDiamond");
-			quarkLevels.at(QB) = quarkLevels.at(QB) + 5;
+			quarkLevels.at(aBonus->quarkType) = min(34, quarkLevels.at(aBonus->quarkType) + aBonus->quantity);
 			radioactivePotential = min(64.0f, radioactivePotential + 32);
 		}
 		return;
@@ -483,8 +545,8 @@ float Hero::hitBackoff()
 {
 	float vx, vy;
 
-	vx = backOffSpeed*cos(hitAngle);
-	vy = backOffSpeed*sin(hitAngle);
+	vx = backOffSpeed * cos(hitAngle);
+	vy = backOffSpeed * sin(hitAngle);
 
 	posX = posX + vx;
 	posY = posY + vy;
@@ -493,8 +555,8 @@ float Hero::hitBackoff()
 	//Make sure we stay inside the game zone
 	posX = max((int)posX, 0);
 	posY = max((int)posY, 0);
-	posX = min((int)posX, SCREEN_WIDTH - this->width);
-	posY = min((int)posY, GAMEZONE_HEIGHT - this->height);
+	posX = min((int)posX, SCREEN_WIDTH - width);
+	posY = min((int)posY, GAMEZONE_HEIGHT - height);
 
 	return backOffSpeed;
 }
@@ -558,3 +620,50 @@ void Hero::startEffect(string anEffect)
 	lev->createEffect(posX, posY, anEffect);
 }
 
+void Hero::spreadQuarks()
+{
+	int numberOfGold, numberOfSilver;
+	float aSpeed, anAngle;
+	int i;
+
+	for(map<int, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
+	{
+		numberOfGold = ((*aQuark).second / 5);
+
+		for(i = 0; i < numberOfGold; i++)
+		{
+			aSpeed = 10.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
+			anAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f)) * (PI/180);
+			lev->createBonus(posX, posY, aSpeed, anAngle, ((*aQuark).first * 2) + 2);
+		}
+
+		numberOfSilver = ((*aQuark).second % 5);
+		for(i = 0; i < numberOfSilver; i++)
+		{
+			aSpeed = 10.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
+			anAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f)) * (PI/180);
+			lev->createBonus(posX, posY, aSpeed, anAngle, ((*aQuark).first * 2) + 1);
+		}
+
+		(*aQuark).second = 0;
+	}
+}
+
+/*
+ * Shield function
+ */
+Shield::Shield()
+{
+	energy = 3;
+	copyFrom(lev->loadedObjects.at("jSp_Bouclier"));
+}
+
+Shield::Shield(float x, float y)
+{
+	energy = 3;
+	copyFrom(lev->loadedObjects.at("jSp_Bouclier"));
+	posX = x - 16;
+	posY = y - 16;
+	setAnimX(0);
+	setAnimY(0);
+}

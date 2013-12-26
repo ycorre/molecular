@@ -35,10 +35,12 @@ Drawable::Drawable()
 	rotationAngle = 0;
 	ogl_Xorigin = ogl_Xcorner = ogl_Ycorner = ogl_Yorigin = 0.0;
 	oglTexture = 0;
+	collision = NULL;
 }
 
 Drawable::Drawable(Json::Value aConfig)
 {
+	collision = NULL;
 	name = aConfig.get("name", "drawableDefaut").asString();
 	width = aConfig.get("width", 1).asInt();
 	height = aConfig.get("height", 1).asInt();
@@ -61,7 +63,11 @@ Drawable::Drawable(Json::Value aConfig)
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
-	loadTexture(aConfig.get("dataPath", " ").asString());
+	loadTexture(aConfig.get("dataPath", "").asString());
+
+	string collisionPath = aConfig.get("collision", "").asString();
+	if (!collisionPath.empty())
+		collision = ge->loadTexture(collisionPath);
 }
 
 Drawable::~Drawable()
@@ -99,41 +105,17 @@ void Drawable::processDisplay()
 
 void Drawable::loadTexture(string path)
 {
-	this->texture = ge->loadTexture(path);
+	texture = ge->loadTexture(path);
 #if USE_OPENGL
-	createOGLTexture();
-#endif
-}
-
-void Drawable::addTexture(string aName)
-{
-	this->name = aName;
-	this->texture = ge->textures.at(this->name);
-#if USE_OPENGL
-	this->oglTexture = ge->openGLTextures.at(this->texture);
+	oglTexture = ge->openGLTextures.at(texture);
 	setAnimX(animX);
 	setAnimY(animY);
 #endif
-}
-
-void Drawable::createOGLTexture()
-{
-	glGenTextures(1, &this->oglTexture);
-	glBindTexture(GL_TEXTURE_2D, this->oglTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, this->texture->w, this->texture->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, this->texture->pixels);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	setAnimX(animX);
-	setAnimY(animY);
 }
 
 void Drawable::clean()
 {
-#if USE_OPENGL
-	//ge->openGLTextures.erase(this->texture);
-#endif
-	//ge->textures.erase(this->name);
+
 }
 
 void Drawable::blink()
@@ -143,7 +125,7 @@ void Drawable::blink()
 		//Blinking effect showing that we are invincible
 		display = (display + 1) % 2;
 	}
-	blinkingCounter = (blinkingCounter + 1) % 3;
+	blinkingCounter = (blinkingCounter + 1) % 4;
 }
 
 float Drawable::getAnimX()
@@ -151,9 +133,9 @@ float Drawable::getAnimX()
 	return animX;
 }
 
-void Drawable::setAnimX(float animX)
+void Drawable::setAnimX(float animXValue)
 {
-	this->animX = animX;
+	animX = animXValue;
 
 #if USE_OPENGL
 	if(texture!= NULL)
@@ -165,8 +147,8 @@ void Drawable::setAnimX(float animX)
 
 void Drawable::computeOGLXValues()
 {
-	ogl_Xorigin = this->animX/(float)this->getTexture()->w;
-	ogl_Xcorner = ogl_Xorigin + (float)this->getWidth()/(float)this->getTexture()->w;
+	ogl_Xorigin = animX/(float)getTexture()->w;
+	ogl_Xcorner = ogl_Xorigin + (float)getWidth()/(float)getTexture()->w;
 }
 
 float Drawable::getAnimY()
@@ -174,9 +156,9 @@ float Drawable::getAnimY()
 	return animY;
 }
 
-void Drawable::setAnimY(float animY)
+void Drawable::setAnimY(float animYValue)
 {
-	this->animY = animY;
+	animY = animYValue;
 #if USE_OPENGL
 	if(texture!= NULL)
 	{
@@ -187,8 +169,8 @@ void Drawable::setAnimY(float animY)
 
 void Drawable::computeOGLYValues()
 {
-	ogl_Yorigin = this->animY/(float)this->getTexture()->h;
-	ogl_Ycorner = ogl_Yorigin + (float)this->getHeight()/(float)this->getTexture()->h;
+	ogl_Yorigin = animY/(float)getTexture()->h;
+	ogl_Ycorner = ogl_Yorigin + (float)getHeight()/(float)getTexture()->h;
 }
 
 void Drawable::copyFrom(Drawable * aDrawable)
@@ -200,7 +182,9 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	posY = aDrawable->posY;
 	texture = aDrawable->texture;
 	oglTexture = aDrawable->oglTexture;
+	opacity = aDrawable->opacity;
 	toBlend = aDrawable->toBlend;
+	collision = aDrawable->collision;
 }
 
 int Drawable::getXBoundary()
@@ -225,6 +209,9 @@ int Drawable::getHeightBoundary()
 
 SDL_Surface * Drawable::getCollisionTexture()
 {
+	if(collision != NULL)
+		return collision;
+
 	return texture;
 }
 
@@ -317,6 +304,11 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 			setAnimation(anAnim->name);
 	}
 
+	collision = NULL;
+	string collisionPath = aConfig.get("collision", "").asString();
+	if (!collisionPath.empty())
+		collision = ge->loadTexture(collisionPath);
+
 	lastTimeUpdated = 0;
 }
 
@@ -367,8 +359,15 @@ int AnimatedDrawable::updateAnimationFrame()
 		lastTimeUpdated = ProgramTimer;
 		return TRUE;
 	}
-
 	return FALSE;
+}
+
+void AnimatedDrawable::setAnimationsPointer()
+{
+	for (std::map<string, Animation *>::const_iterator anElement = animations.begin(); anElement != animations.end(); ++anElement)
+	{
+		(*anElement).second->drawable = this;
+	}
 }
 
 void AnimatedDrawable::setAnimation(string aName)
@@ -400,18 +399,13 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 
 	toBlend = aDrawable->toBlend;
 	texture = aDrawable->texture;
+	posX = aDrawable->posX;
+	posY = aDrawable->posY;
 	oglTexture = aDrawable->oglTexture;
 	animationUpdateFrequency = aDrawable->animationUpdateFrequency;
 	currentAnimation = aDrawable->currentAnimation;
 	setAnimation(currentAnimation->name);
 	posXCorrection = aDrawable->posXCorrection;
 	posYCorrection = aDrawable->posYCorrection;
-}
-
-/*
- * Masked Drawable functions
- */
-SDL_Surface * MaskedDrawable::getCollisionTexture()
-{
-	return collision;
+	collision = aDrawable->collision;
 }

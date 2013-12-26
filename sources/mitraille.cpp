@@ -3,17 +3,16 @@
 Mitraille::Mitraille()
 {
 	copyFrom(lev->loadedObjects.at("mitraille"));
-	collision = ge->loadTexture("res/Bomb_Col.png");
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 500;
 	direction = UP;
 	type = 0;
-	bonusProbability = 10;
+	bonusProbability = 50;
 	canFire = FALSE;
 	fireRate = 150;
 	lastTimeFired = GameTimer;
-	life = 350;
+	life = 250;
 	posRafale = 0;
 	rafaleRate = 500;
 	setAngleAndSpeed();
@@ -40,7 +39,6 @@ Mitraille::Mitraille(int x, int y)
 	rafaleRate = 1500;
 	posRafale = 0;
 	life = 500;
-	collision = ge->loadTexture("res/Bomb_Col.png");
 }
 
 

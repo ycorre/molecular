@@ -119,12 +119,12 @@ int Effect::animateEffect()
 /*
  * TextEffect functions
  */
-TextEffect::TextEffect(int x, int y, string aName, string aText)
+TextEffect::TextEffect(int x, int y, string aText)
 {
 	color = ge->availableColors.at("WHITE");
 	font = ge->availableFonts.at("lCrystal_16");
 
-	name = aName;
+	name = aText;
 	width = 300;
 	height = 300;
 	isMoving = FALSE;
@@ -137,7 +137,7 @@ TextEffect::TextEffect(int x, int y, string aName, string aText)
 	aNewAnim->oglTexture = oglTexture;
 	aNewAnim->numberOfFrames = 36;
 	aNewAnim->configOpacity("0,1,24,1,36,0");
-	animations.insert(make_pair(aName, aNewAnim));
+	animations.insert(make_pair(name, aNewAnim));
 	currentAnimation = aNewAnim;
 
 	write(aText);

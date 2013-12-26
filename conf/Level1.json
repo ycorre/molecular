@@ -1,32 +1,67 @@
 {
 	"drawable" : [
-			{"name" : "bkgDistant", "width" : 1024, "height" : 1024, "dataPath": "res/bkgDistant.png", "blend" : 1},
-			{"name" : "bkgMid", "width" : 1024, "height" : 1024, "dataPath": "res/bkgMid.png", "blend" : 1},
-			{"name" : "bkgNear", "width" : 1024, "height" : 1024, "dataPath": "res/bkgNear.png", "blend" : 1}
+			{"name" : "bkgDistant", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgDistant.png", "blend" : 1},
+			{"name" : "bkgMid", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgMid.png", "blend" : 1},
+			{"name" : "bkgNear", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgNear.png", "blend" : 1},
+			{"name" : "electron", "width" : 153, "height" : 64, "collision" : "res/action/characters/j_eMask.png", "dataPath": "res/action/characters/j_eElectron.png", "blend" : 1},
+			{"name" : "e_Cadmium_Shoot", "width" : 66, "height" : 66, "collision": "res/action/characters/e_Cadmium_ShootMask.png", "dataPath": "res/action/characters/e_Cadmium_Shoot.png"},
+			{"name" : "e_Cadmium_ShootHalo", "width" : 66, "height" : 66, "dataPath": "res/action/characters/e_Cadmium_ShootHalo.png", "opacity" : 0.6, "blend" : 1}
 	],
 
 	"animatedDrawable" : [
-		{"name" : "bonusLife", "width" : 24, "height" : 24, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/bonusLife.png"}]},
 		{"name" : "bonusDiamond", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 125, "dataPath": "res/bonusDiamant.png"}]},
-		{"name" : "electron", "width" : 288, "height" : 64, "animations" : [{"dataPath": "res/action/characters/j_eElectron.png"}], "blend" : 1},
-		{"name" : "atom", "width" : 64, "height" : 64, "blend" : 1, "animations" : [
+		{"name" : "qSp_ba", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ba.png"}]},
+		{"name" : "qSp_bg", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_bg.png"}]},
+		{"name" : "qSp_ca", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ca.png"}]},
+		{"name" : "qSp_cg", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_cg.png"}]},
+		{"name" : "qSp_ta", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ta.png"}]},
+		{"name" : "qSp_tg", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_tg.png"}]},
+		{"name" : "qSp_sa", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_sa.png"}]},
+		{"name" : "qSp_sg", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_sg.png"}]},
+		{"name" : "qSp_ua", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ua.png"}]},
+		{"name" : "qSp_ug", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ug.png"}]},
+		{"name" : "qSp_da", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_da.png"}]},
+		{"name" : "qSp_dg", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_dg.png"}]},	
+		{"name" : "qSp_Capsule", "width" : 50, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_Capsule.png"}]},
+		{"name" : "bSp_W", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/bSp_W.png"}]},
+		{"name" : "bSp_Z", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/bSp_Z.png"}]},
+		{"name" : "bSp_Y", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/bSp_Y.png"}]},
+		{"name" : "qSp_Sign", "width" : 96, "height" : 96, "blend" : 1, "animations" : [{"numberOfFrames" : 75, "dataPath": "res/qSp_Sign.png"}]},	
+		
+		{"name" : "atom", "width" : 64, "height" : 64, "blend" : 1, "collision" : "res/action/characters/jMask.png", "animations" : [
 				{"width" : 64, "height" : 64, "numberOfFrames" : 99,  "dataPath": "res/action/characters/jSpStandby.png"},
 				{"name" : "hit", "width" : 72, "height" : 72, "numberOfFrames" : 25,  "dataPath": "res/action/characters/jSpHit.png"},
-				{"name" : "dead", "width" : 256, "height" : 256, "numberOfFrames" : 24, "dataPath": "res/action/characters/jSpExplode.png"},
+				{"name" : "dead", "width" : 256, "height" : 256, "numberOfFrames" : 12, "dataPath": "res/action/characters/jSpExplode.png"},
 				{"name" : "enter", "width" : 96, "height" : 96, "numberOfFrames" : 21, "dataPath": "res/action/characters/jSpApparition.png"},
 				{"name" : "appar", "width" : 72, "height" : 72, "numberOfFrames" : 12,  "dataPath": "res/action/characters/jSpTeleAppar.png"},
 				{"name" : "dispar", "width" : 72, "height" : 72, "numberOfFrames" : 13,  "dataPath": "res/action/characters/jSpTeleDisp.png"},
 				{"name" : "cursor", "width" : 192, "height" : 192, "numberOfFrames" : 8,  "dataPath": "res/action/characters/JoueurPointeur.png"}
 				]
 		},
-		{"name" : "enemy", "width" : 96, "height" : 96, "animations" : [{"numberOfFrames" : 16, "dataPath": "res/action/characters/e001SpStandby.png"}]},
-		{"name" : "shoot", "width" : 64, "height" : 64,  "blend" : 1, "animations" : [{"numberOfFrames" : 8, "dataPath": "res/action/characters/e001_SpShoot.png"}]},
-		{"name" : "bomb", "width" : 96, "height" : 96, "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
-		{"name" : "mitraille", "width" : 96, "height" : 96, "animations" : [{"numberOfFrames" : 12, "dataPath": "res/Mitrailleur.png"}]},
-		{"name" : "muzzl", "width" : 96, "height" : 96,  "blend" : 1, "animations" : [{"numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzle.png"}]},
+		
+		{"name" : "jSp_Bouclier", "width" : 96, "height" : 96, "blend" : 1, "collision" : "res/action/characters/jMask_Bouclier.png", "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/jSp_Bouclier.png"}]},	
+		{"name" : "enemy", "width" : 96, "height" : 96, "collision" : "res/action/characters/e001_mask.png", "animations" : [{"numberOfFrames" : 16, "dataPath": "res/action/characters/e001SpStandby.png"}]},
+		{"name" : "shoot", "width" : 64, "height" : 64,  "collision" : "res/action/characters/e001_ShootMask.png", "blend" : 1, "animations" : [{"numberOfFrames" : 8, "dataPath": "res/action/characters/e001_SpShoot.png"}]},
+		{"name" : "bomb", "width" : 96, "height" : 96, "collsions" : "res/Bomb_Col.png", "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
+		{"name" : "eSp_Cadmium", "width" : 50, "height" : 50, "collision" : "res/action/characters/eMask_Cadmium.png", "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/eSp_Cadmium.png"}]},
+		
+		{"name" : "bigAsteroid", "width" : 102, "height" : 102, "animations" : [{"name" : "type1", "numberOfFrames" : 100, "dataPath": "res/action/characters/o001Sp.png"}, {"name" : "type2", "numberOfFrames" : 100, "dataPath": "res/action/characters/o002Sp.png"}]},
+		{"name" : "smallAsteroid", "width" : 50, "height" : 50, "animations" : [{"name" : "type1", "numberOfFrames" : 60, "dataPath": "res/action/characters/o003Sp.png"}, {"name" : "type2", "numberOfFrames" : 60, "dataPath": "res/action/characters/o004Sp.png"}]},
+		
+		
+		{"name" : "expl001Sp_Fire", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl001Sp_Fire.png"}], "blend" : 1},
+		{"name" : "expl001Sp_Smoke", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 97, "dataPath": "res/action/characters/expl001Sp_Smoke.png"}]},
+		
+		{"name" : "muzzle", "width" : 96, "height" : 96,  "blend" : 1, "animations" : [{"numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzle.png"}]},
 		{"name" : "electronTrail", "width" : 1200, "height" : 12,  "blend" : 1, "animations" : [{"numberOfFrames" : 45, "dataPath": "res/action/characters/eQueue.png"}]},
+		
 		{"name" : "photon", "width" : 128, "height" : 128,  "blend" : 1, "animations" : [{"numberOfFrames" : 25, "dataPath": "res/action/characters/j_pProton.png"}]},
-		{"name" : "photonTrail", "width" : 1176, "height" : 84,  "blend" : 1, "animations" : [{"numberOfFrames" : 88, "dataPath": "res/action/characters/PhotonTrail.png"}]}
+		{"name" : "photonTrail", "width" : 1176, "height" : 84,  "blend" : 1, "animations" : [{"numberOfFrames" : 88, "dataPath": "res/action/characters/PhotonTrail.png"}]},
+		
+		{"name" : "baryonAttack", "width" : 95, "height" : 95,  "blend" : 1, "animations" : [{"name" : "l1", "dataPath": "res/action/characters/j_bA_Attack.png"}]},
+		{"name" : "baryonRelease", "width" : 95, "height" : 95,  "blend" : 1, "animations" : [{"name" : "l1", "dataPath": "res/action/characters/j_bA_Release.png"}]},
+		{"name" : "baryonSustain", "width" : 95, "height" : 95,  "blend" : 1, "animations" : [{"name" : "l1", "dataPath": "res/action/characters/j_bA_Sustain.png"}]},
+		{"name" : "baryonHalo", "width" : 128, "height" : 128,  "blend" : 1, "animations" : [{"dataPath": "res/action/characters/j_bHaloA.png"}]}
 	],
 
 	"sounds" : [
@@ -66,6 +101,44 @@
 		},
 		{"name" : "dispar" , "width" : 64, "height" : 64, "effectLayer": 
 			[{"name" : "effectDispar", "width" : 72, "height" : 72, "blend" : 1, "animations" : [{"numberOfFrames" : 13, "dataPath": "res/action/characters/jSpTeleDisp.png"}]}]
+		}
+	],
+	
+	"Ennemy" : [
+		{"name" : "ennemis001" , "sinusWidth" : 400, "sinusHeight" : 80, "speed": 2.2, "positions" : [
+			{"posX" : 1340, "posY" : 150},
+			{"posX" : 1440, "posY" : 150},
+			{"posX" : 1540, "posY" : 150},
+			{"posX" : 1640, "posY" : 150},
+			{"posX" : 1740, "posY" : 150},
+			{"posX" : 1840, "posY" : 150},
+			{"posX" : 1940, "posY" : 150},
+			{"posX" : 2040, "posY" : 150},
+			
+			{"posX" : 2540, "posY" : 280},
+			{"posX" : 2640, "posY" : 280},
+			{"posX" : 2740, "posY" : 280},
+			{"posX" : 2840, "posY" : 280},
+			{"posX" : 2940, "posY" : 280},
+			{"posX" : 3040, "posY" : 280},
+			{"posX" : 3140, "posY" : 280},
+			{"posX" : 3240, "posY" : 280},
+			
+			{"posX" : 3640, "posY" : 230},
+			{"posX" : 3740, "posY" : 230},
+			{"posX" : 3840, "posY" : 230},
+			{"posX" : 3940, "posY" : 230},
+			
+			{"posX" : 3840, "posY" : 100},
+			{"posX" : 3940, "posY" : 100},
+			{"posX" : 4040, "posY" : 100},
+			{"posX" : 4140, "posY" : 100},
+			
+			{"posX" : 3840, "posY" : 350},
+			{"posX" : 3940, "posY" : 350},
+			{"posX" : 4040, "posY" : 350},
+			{"posX" : 4140, "posY" : 350}
+			]
 		}
 	]
 }
