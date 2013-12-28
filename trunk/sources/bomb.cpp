@@ -6,7 +6,6 @@ Bomb::Bomb()
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 500;
-	direction = UP;
 	type = 0;
 	bonusProbability = 10;
 	canFire = FALSE;
@@ -27,7 +26,6 @@ Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 	posY = y;
 	setAnimX(0);
 	setAnimY(0);
-	direction = RIGHT;
 	type = 0;
 	scoreValue = 200;
 	bonusProbability = 10;
@@ -51,6 +49,9 @@ void Bomb::animate()
 	vy = (speed) * sin(angle);
 	posX = posX + vx;
 	posY = posY + vy;
+
+	if(!lev->isOnScreen(this))
+		toRemove = TRUE;
 }
 
 

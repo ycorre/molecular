@@ -36,6 +36,7 @@ Drawable::Drawable()
 	ogl_Xorigin = ogl_Xcorner = ogl_Ycorner = ogl_Yorigin = 0.0;
 	oglTexture = 0;
 	collision = NULL;
+	virtualDepth = 1;
 }
 
 Drawable::Drawable(Json::Value aConfig)
@@ -62,6 +63,7 @@ Drawable::Drawable(Json::Value aConfig)
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
+	virtualDepth = aConfig.get("virtualDepth", 1).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	loadTexture(aConfig.get("dataPath", "").asString());
 
@@ -287,11 +289,6 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	currentAnimation = NULL;
 
-	string texturePath = aConfig.get("dataPath", "").asString();
-	if(!texturePath.empty())
-	{
-		loadTexture(texturePath);
-	}
 	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
 
 	const Json::Value confAnimations = aConfig["animations"];
@@ -302,6 +299,20 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 		animations.insert(make_pair(anAnim->name, anAnim));
 		if(currentAnimation == NULL)
 			setAnimation(anAnim->name);
+	}
+	//The animation array was empty
+	if(currentAnimation == NULL)
+	{
+		Animation * anAnim = new Animation(this);
+		anAnim->drawable = this;
+		animations.insert(make_pair(anAnim->name, anAnim));
+		setAnimation(anAnim->name);
+	}
+
+	string texturePath = aConfig.get("dataPath", "").asString();
+	if(!texturePath.empty())
+	{
+		loadTexture(texturePath);
 	}
 
 	collision = NULL;

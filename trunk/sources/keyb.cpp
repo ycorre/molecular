@@ -55,7 +55,7 @@ void Keyboard::processKeyInGame(Hero * hero)
 {
 	if(keyStates[SDLK_ESCAPE])
 	{
-		game->currentLevel->cleanLevel();
+		CurrentLevel->cleanLevel();
 		game->gameState = GAME_LOADMENU;
 	}
 
@@ -63,7 +63,7 @@ void Keyboard::processKeyInGame(Hero * hero)
 	{
 		if (!p_pressed)
 		{
-			game->currentLevel->displayBackGround = (game->currentLevel->displayBackGround + 1) % 2;
+			CurrentLevel->displayBackGround = (CurrentLevel->displayBackGround + 1) % 2;
 			p_pressed = TRUE;
 		}
 	}
@@ -89,6 +89,15 @@ void Keyboard::processKeyInGame(Hero * hero)
 		if(keyStates[TELEPORT_KEY])
 			hero->teleport();
 
+		if(keyStates[SDLK_KP1])
+			hero->upgradeWeaponTo(0);
+
+		if(keyStates[SDLK_KP2])
+			hero->upgradeWeaponTo(1);
+
+		if(keyStates[SDLK_KP3])
+			hero->upgradeWeaponTo(2);
+
 		if(keyStates[PHOTON_KEY])
 		{
 			hero->setWeapon("hadronGun");
@@ -99,6 +108,18 @@ void Keyboard::processKeyInGame(Hero * hero)
 		{
 			hero->setWeapon("electronGun");
 			hero->fireWeapon("electronGun");
+		}
+
+		if(keyStates[BARYON_KEY])
+		{
+			hero->setWeapon("baryonGun");
+			hero->fireWeapon("baryonGun");
+		}
+
+		if(keyStates[PLASMA_KEY])
+		{
+			hero->setWeapon("plasmaGun");
+			hero->fireWeapon("plasmaGun");
 		}
 	}
 
@@ -122,6 +143,7 @@ void Keyboard::processeMouseInGame(Hero * hero)
 		else if (!keyStates[ELECTRON_KEY])
 		{
 			hero->isFiring = FALSE;
+			hero->currentWeapon->isFiring = FALSE;
 		}
 	}
 

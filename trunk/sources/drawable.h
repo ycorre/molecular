@@ -38,6 +38,7 @@ class Drawable
 	  float rotY;
 	  float rotZ;
 	  float rotationAngle;
+	  int virtualDepth;
 	  map<int, float> scalingEffect;
 	  map<int, float> opacityEffect;
 	  int display; //Boolean: should the object be display
@@ -78,7 +79,7 @@ class Drawable
 	  virtual int isHero() {return FALSE;}
 	  virtual int isLaser() {return FALSE;}
 	  virtual int isBonus() {return FALSE;}
-	  virtual int hasHitBox() {return FALSE;}
+	 // virtual int hasHitBox() {return FALSE;}
 	  virtual int isText() {return FALSE;}
 
 	  virtual void processCollision();

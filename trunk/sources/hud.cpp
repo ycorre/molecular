@@ -99,7 +99,6 @@ void HUD::displayUI(Hero * anHero)
 {
 	backGround.processDisplay();
 	file.processDisplay();
-	brightDot.processDisplay();
 	displayHealth(anHero->health);
 	displayLife(anHero->nbLife);
 	displayQuarkLevels(anHero->quarkLevels);
@@ -114,14 +113,14 @@ void HUD::displayHealth(int healthValue)
 
 	if(i < healthValue * 3.6)
 	{
-		i = i + 0.3;
+		i = i + 0.25;
 	}
 	if (i > healthValue * 3.6)
 	{
-		i = i - 0.3;
+		i = i - 0.25;
 	}
 
-	health.currentAnimation->setFrameTo((int)(i));
+	health.currentAnimation->setFrameTo((int)(i-1));
 	//setAnimX((int)(i) * health.width);
 	health.processDisplay();
 }
@@ -187,11 +186,11 @@ void HUD::displayQuarkLevels(map<int, int> quarkLevels)
 
 		if(anIndex < aLevel)
 		{
-			quarkIndex.at(aQuarkName) = anIndex + 0.3;
+			quarkIndex.at(aQuarkName) = anIndex + 0.25;
 		}
 		if (anIndex > aLevel)
 		{
-			quarkIndex.at(aQuarkName) = anIndex - 0.3;
+			quarkIndex.at(aQuarkName) = anIndex - 0.25;
 		}
 
 		quarks.at(aQuarkName)->currentAnimation->setFrameTo((int)(quarkIndex.at(aQuarkName)));
@@ -201,20 +200,27 @@ void HUD::displayQuarkLevels(map<int, int> quarkLevels)
 
 void HUD::displayWeapons(Hero * hero)
 {
-	//hero->ownedWeapons.at("electron");
 	electron.setAnimation("l1");
 	if(hero->currentWeapon->name.compare("electronGun") == 0)
 		electron.setAnimation("l2");
-
 	electron.processDisplay();
-	hadron.setAnimation("l1");
 
+	hadron.setAnimation("l1");
 	if(hero->currentWeapon->name.compare("hadronGun") == 0)
 		hadron.setAnimation("l2");
-
-	baryon.processDisplay();
 	hadron.processDisplay();
+
+	baryon.setAnimation("l1");
+	if(hero->currentWeapon->name.compare("baryonGun") == 0)
+		baryon.setAnimation("l2");
+	baryon.processDisplay();
+
+
+	plasma.setAnimation("l1");
+	if(hero->currentWeapon->name.compare("plasmaGun") == 0)
+		plasma.setAnimation("l2");
 	plasma.processDisplay();
+
 	if (hero->currentWeapon->load == -1)
 	{
 		weaponLoad.currentAnimation->setFrameTo(0);
@@ -224,6 +230,26 @@ void HUD::displayWeapons(Hero * hero)
 		weaponLoad.currentAnimation->setFrameTo(1);
 	}
 	weaponLoad.processDisplay();
+
+	switch(hero->currentWeapon->powerLevel)
+	{
+		case WEAPON_STANDARD:
+			brightDot.posY = 50 + GAMEZONE_HEIGHT;
+			break;
+
+		case WEAPON_SUPERIOR:
+			brightDot.posY = 38 + GAMEZONE_HEIGHT;
+			break;
+
+		case WEAPON_FURIOUS:
+			brightDot.posY = 26 + GAMEZONE_HEIGHT;
+			break;
+
+		default:
+			break;
+	}
+
+	brightDot.processDisplay();
 }
 
 void HUD::displayLife(int nbLife)

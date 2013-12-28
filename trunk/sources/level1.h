@@ -19,7 +19,6 @@ class Level1: public Level
 	int cameraSpeed;
 
 	Level1();
-	void loadEnemies();
 	void instantiateEnemies();
 	virtual void loadLevel(Hero * aHero);
 	virtual void drawLevel();

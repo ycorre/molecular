@@ -32,7 +32,7 @@ int Pe::boundingBox(Drawable *aDrawable, Drawable *anotherDrawable)
 	return TRUE;
 }
 
-//Check if the two object have at least one overlapping pixel
+//Check if the two objects have at least one overlapping pixel
 int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 {
 	pair<int, int> startingCoordinatesI, startingCoordinatesJ;
@@ -73,6 +73,8 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 			{
 				SDL_UnlockSurface(aDrawable->getTexture());
 				SDL_UnlockSurface(anotherDrawable->getTexture());
+				xImpactPos = startingCoordinatesI.first + x;
+				yImpactPos = startingCoordinatesI.second + y;
 				return TRUE;
 			}
 			y = y + 1;
@@ -122,16 +124,15 @@ Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 	if (x < 0 || y < 0)
 		cout<<"Warning: x: " << x <<",  y: " << y << endl;
 
-	if(aDrawable->hasHitBox())
+/*	if(aDrawable->hasHitBox())
 	{
 		return 1;
-	}
+	}*/
 
 	int textureX, textureY;
 	textureX = ((int) aDrawable->getAnimX() + x) % aDrawable->getCollisionTexture()->w;
 	textureY = ((int) aDrawable->getAnimY() + y) % aDrawable->getCollisionTexture()->h;
 
-	//cout<< textureX << ", " << textureY << endl;
 	return getpixel(aDrawable->getCollisionTexture(), textureX, textureY);
 }
 

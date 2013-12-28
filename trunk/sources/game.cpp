@@ -19,6 +19,8 @@ Uint32 GameTimer;
 Uint32 NextLoop, Interval, FPS = 60;
 Uint32 Score = 0;
 
+Level * CurrentLevel;
+
 Game::Game()
 {
 	initSDL();
@@ -37,6 +39,7 @@ void quit(int code)
 int main(int argc, char **argv)
 {
     Game * game = new Game();
+   // CurrentGame = game;
 
     //set the random generator seed
     srand(time(NULL));
@@ -125,19 +128,19 @@ int Game::mainLoop()
 	    		break;
 
 	    	case GAME_INGAME:
-	    		keyboard->processKeyInGame(currentLevel->hero);
+	    		keyboard->processKeyInGame(CurrentLevel->hero);
 	    		if (gameState != GAME_INGAME)
 	    			break;
 
-	    		keyboard->processeMouseInGame(currentLevel->hero);
-				currentLevel->drawLevel();
-				if (currentLevel->levelState == LEVEL_WON)
+	    		keyboard->processeMouseInGame(CurrentLevel->hero);
+				CurrentLevel->drawLevel();
+				if (CurrentLevel->levelState == LEVEL_WON)
 				{
 					launchNextLevel();
 				}
-				if (currentLevel->levelState == LEVEL_LOST)
+				if (CurrentLevel->levelState == LEVEL_LOST)
 				{
-					currentLevel->cleanLevel();
+					CurrentLevel->cleanLevel();
 					delete menu;
 					menu = new Menu(&graphicEngine, &soundEngine);
 					menu->loadMenu();
@@ -171,7 +174,6 @@ int Game::mainLoop()
 //Initialization of the game
 int Game::initGame()
 {
-	loadConf();
 	graphicEngine.init();
 	graphicEngine.addFont("lCrystal", "res/fonts/LiquidCrystal.otf", 18);
 	graphicEngine.addFont("lCrystal_16", "res/fonts/LiquidCrystal.otf", 16);
@@ -291,7 +293,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    //SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);
@@ -327,16 +329,16 @@ void Game::pause()
 //Start a new game (beginning with level 1)
 void Game::newGame()
 {
-	currentLevel = levels.at("level1");
-	currentLevel->ge = &graphicEngine;
-	currentLevel->pe = &physicEngine;
-	currentLevel->soundEngine = &soundEngine;
-	Drawable::lev = currentLevel;
+	CurrentLevel = levels.at("level1");
+	CurrentLevel->ge = &graphicEngine;
+	CurrentLevel->pe = &physicEngine;
+	CurrentLevel->soundEngine = &soundEngine;
+	Drawable::lev = CurrentLevel;
 	hero = new Hero();
     GameTimer = 0;
     Score = 0;
 
-	currentLevel->loadLevel(hero);
+	CurrentLevel->loadLevel(hero);
 	gameState = GAME_INGAME;
 }
 
@@ -344,16 +346,16 @@ void Game::newGame()
 //Should be used only in debug
 void Game::launchLevel(string aLevel)
 {
-	currentLevel = levels.at(aLevel);
-	currentLevel->ge = &graphicEngine;
-	currentLevel->pe = &physicEngine;
-	currentLevel->soundEngine = &soundEngine;
-	Drawable::lev = currentLevel;
+	CurrentLevel = levels.at(aLevel);
+	CurrentLevel->ge = &graphicEngine;
+	CurrentLevel->pe = &physicEngine;
+	CurrentLevel->soundEngine = &soundEngine;
+	Drawable::lev = CurrentLevel;
 	hero = new Hero();
 	GameTimer = 0;
 	Score = 0;
 
-	currentLevel->loadLevel(hero);
+	CurrentLevel->loadLevel(hero);
 	gameState = GAME_INGAME;
 }
 
@@ -361,10 +363,10 @@ void Game::launchLevel(string aLevel)
 void Game::launchNextLevel()
 {
 	unsigned int newLevel = 0;
-	for (vector<string>::iterator aLevel = levelOrder.begin(); aLevel != levelOrder.end(); ++aLevel)
+
+	for(newLevel = 0; newLevel < levelOrder.size(); newLevel ++)
 	{
-		newLevel++;
-		if (currentLevel->name == *aLevel)
+		if (CurrentLevel->name == levelOrder.at(newLevel))
 			break;
 	}
 
@@ -376,14 +378,14 @@ void Game::launchNextLevel()
 		return;
 	}
 
-	currentLevel = levels.at(levelOrder.at(newLevel));
+	CurrentLevel = levels.at(levelOrder.at(newLevel));
 
-	currentLevel->ge = &graphicEngine;
-	currentLevel->pe = &physicEngine;
-	currentLevel->soundEngine = &soundEngine;
-	Drawable::lev = currentLevel;
+	CurrentLevel->ge = &graphicEngine;
+	CurrentLevel->pe = &physicEngine;
+	CurrentLevel->soundEngine = &soundEngine;
+	Drawable::lev = CurrentLevel;
 
-	currentLevel->loadLevel(hero);
+	CurrentLevel->loadLevel(hero);
 	gameState = GAME_INGAME;
 }
 
@@ -434,33 +436,6 @@ void controlFPS()
 	NextLoop = SDL_GetTicks() + Interval ;
 
 	return;
-}
-
-//Load the game configuration file
-void Game::loadConf()
-{
-	ifstream file;
-	string line;
-	string fileName = "conf/game.conf";
-	string token;
-	string anElement;
-	vector<string> confElements;
-	string confElement;
-
-	file.open(fileName.c_str());
-	while(getline(file, line))
-	{
-		if(line.size()!=0) //Ignore empty lines
-		{
-			confElements.clear();
-			istringstream myLine(line);
-
-			while(getline(myLine, token, ';'))
-			{
-				levelOrder.push_back(token);
-			}
-		}
-	}
 }
 
 int initOpenGL()

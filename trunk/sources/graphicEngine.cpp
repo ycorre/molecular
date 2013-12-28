@@ -228,7 +228,7 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	}
 	glEnd();
 
-	glPointSize(3.0);
+	glPointSize(2.0);
 	glBegin(GL_POINTS);
 	//Set color values and opacity
 	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);

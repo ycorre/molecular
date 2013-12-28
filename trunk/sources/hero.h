@@ -55,6 +55,7 @@ class Hero: public AnimatedDrawable
 	  void setTexture(Drawable * aModel);
 	  void fire();
 	  void fireWeapon(string aWeaponName);
+	  void upgradeWeaponTo(int aLevel);
 	  void move(int x, int y);
 	  void moveUp();
 	  void moveDown();
@@ -70,14 +71,13 @@ class Hero: public AnimatedDrawable
 	  void teleport();
 	  void startEffect(string anEffect);
 	  int endTeleport();
-	  list<Shoot*> * getLasers();
+	  list<Shoot *> * getLasers();
 	  void spreadQuarks();
 	  virtual void animate();
 	  virtual int isHero() {return 1;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 
 	private:
-	  AnimatedDrawable * firingEffect;
 	  int heroChangedState;
 };
 

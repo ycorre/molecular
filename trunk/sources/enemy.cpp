@@ -10,7 +10,6 @@ Enemy::Enemy()
 	scoreValue = 0;
 	type = 0;
 	bonusProbability = 90;
-	direction = LEFT;
 	speed = 2;
 	originY = posY;
 	sinusWidth = 400;
@@ -23,7 +22,7 @@ Enemy::Enemy()
 	fireRate = minFireRate + (rand() % maxFireRate);
 }
 
-Enemy::Enemy(int x, int y, int typeXW, int dir)
+Enemy::Enemy(int x, int y, int typeXW)
 {
 	name = "Enemy";
 	width = atoi(((lev->configurationElements.at("enemy")).at(0)).c_str());
@@ -32,7 +31,6 @@ Enemy::Enemy(int x, int y, int typeXW, int dir)
 	posY = y;
 	setAnimX(0);
 	setAnimY(typeXW * height);
-	direction = dir;
 	type = typeXW;
 	scoreValue = 200;
 	bonusProbability = 50;
@@ -57,7 +55,6 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	posY = y;
 	setAnimX(0);
 	setAnimY(0);
-	direction = RIGHT;
 	type = 0;
 	scoreValue = 200;
 	bonusProbability = 50;
@@ -86,7 +83,7 @@ void Enemy::animate()
 
 	//Compute the movement on the Y axis
 	float vy = sin(vx);
-	posY = originY + vy*sinusHeigth;
+	posY = originY + vy * sinusHeigth;
 }
 
 void Enemy::processCollisionWith(Drawable * aDrawable)

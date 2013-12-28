@@ -15,7 +15,7 @@ Weapon::Weapon()
 	load = -1;
 	loadable = FALSE;
 	isFiring = FALSE;
-	level = 0;
+	powerLevel = WEAPON_STANDARD;
 }
 
 void Weapon::fire(Hero * aHero)
@@ -58,25 +58,45 @@ void Weapon::createImpact(float x, float y)
        // lev->ge->particleEffects.push_back(aParticleEffect);
 }
 
-void Weapon::upgrade()
+void Weapon::upgradeTo(int level)
 {
 
 }
 
+/*
+ * Electron functions
+ */
 Electron::Electron()
 {
 	name = "electronGun";
-	power = 50;
+	power = 30;
 	lastTimeFired = 0;
-	fireRate = 40;
+	fireRate = 50;
 	canFire = TRUE;
 	maxFireRate = 40;
 	load = -1;
 	loadable = FALSE;
+	powerLevel = WEAPON_STANDARD;
+
+	muzzle.copyFrom(CurrentLevel->loadedObjects.at("muzzle"));
+	muzzle.setAnimX(0);
+	muzzle.setAnimY(0);
 }
 
 void Electron::fire(Hero * aHero)
 {
+	//If we just started firing
+	if (!isFiring)
+	{
+		CurrentLevel->soundEngine->playSound("mitAttack");
+	}
+
+	//If we are in the middle of a rafale
+	if(!CurrentLevel->soundEngine->sounds.at("mitAttack")->isPlaying)
+	{
+		CurrentLevel->soundEngine->playSound("mitLoop");
+	}
+
 	isFiring = TRUE;
 	checkFire();
 	if (canFire)
@@ -84,8 +104,47 @@ void Electron::fire(Hero * aHero)
 		shoots.push_back(new ElectronAmmo(aHero->posX - 32, aHero->posY + 16, this));
 		canFire = FALSE;
 	}
+
+	//Display the firing effect
+	muzzle.posX = aHero->posX - 10;
+	muzzle.posY = aHero->posY - 16;
+	muzzle.updateAnimationFrame();
+	muzzle.processDisplay();
 }
 
+void Electron::upgradeTo(int aLevel)
+{
+	switch(aLevel)
+	{
+		case WEAPON_STANDARD:
+			powerLevel = WEAPON_STANDARD;
+			power = 30;
+			fireRate = 50;
+			muzzle.setAnimation("level1");
+			break;
+
+		case WEAPON_SUPERIOR:
+			powerLevel = WEAPON_SUPERIOR;
+			power = 50;
+			fireRate = 40;
+			muzzle.setAnimation("level1");
+			break;
+
+		case WEAPON_FURIOUS:
+			powerLevel = WEAPON_FURIOUS;
+			power = 70;
+			fireRate = 20;
+			muzzle.setAnimation("level3");
+			break;
+
+		default:
+			break;
+	}
+}
+
+/*
+ * Hadron functions
+ */
 Hadron::Hadron()
 {
 	name = "hadronGun";
@@ -96,6 +155,7 @@ Hadron::Hadron()
 	maxFireRate = 80;
 	load = 0;
 	loadable = TRUE;
+	powerLevel = WEAPON_STANDARD;
 }
 
 void Hadron::fire(Hero * aHero)
@@ -109,19 +169,129 @@ void Hadron::fire(Hero * aHero)
 	}
 }
 
-
+/*
+ * Baryon functions
+ */
 Baryon::Baryon()
 {
 	name = "baryonGun";
-	power = 50;
+	power = 5;
 	lastTimeFired = 0;
-	fireRate = 80;
+	fireRate = 0;
 	canFire = TRUE;
-	maxFireRate = 80;
+	maxFireRate = 0;
 	load = -1;
 	loadable = FALSE;
+	mahLazor = NULL;
+
+	haloA.copyFrom(CurrentLevel->loadedObjects.at("j_bHaloA"));
+	haloA.setAnimX(0);
+	haloA.setAnimY(0);
+	haloA.opacity = 0.6;
+
+	haloB.copyFrom(CurrentLevel->loadedObjects.at("j_bHaloB"));
+	haloB.setAnimX(0);
+	haloB.setAnimY(0);
+	haloB.display = FALSE;
+
+	hitEnnemy = NULL;
 }
 
+//"I’M A’ FIRIN’ MAH LAZOR!!!!!"
+void Baryon::fire(Hero * aHero)
+{
+	isFiring = TRUE;
+	if (!mahLazor)
+	{
+		mahLazor = new Lazer(aHero->posX, aHero->posY, this);
+	}
+
+	hitEnnemy = NULL;
+	mahLazor->width = 1200;
+	checkForCollision();
+
+	mahLazor->animate(aHero->posX, aHero->posY, hitEnnemy, xImpactPos, yImpactPos);
+	if(hitEnnemy)
+		hitEnnemy->processCollisionWith(mahLazor);
+
+	haloA.updateAnimationFrame();
+	haloA.posX = aHero->posX - 96;
+	haloA.posY = aHero->posY - 96;
+
+	haloB.updateAnimationFrame();
+	haloB.posX = aHero->posX - 96;
+	haloB.posY = aHero->posY - 96;
+
+	haloA.processDisplay();
+	haloB.processDisplay();
+}
+
+void Baryon::checkForCollision()
+{
+	for (list<Drawable *>::iterator anElement = CurrentLevel->activeElements.begin() ; anElement != CurrentLevel->activeElements.end(); ++anElement)
+	{
+		if((*anElement)->isEnemy())
+		{
+			if(CurrentLevel->pe->collisionDetection(mahLazor, *anElement))
+			{
+				if (hitEnnemy)
+				{
+					if(xImpactPos > CurrentLevel->pe->xImpactPos)
+					{
+						hitEnnemy = dynamic_cast<Enemy *>(*anElement);
+						xImpactPos = CurrentLevel->pe->xImpactPos;
+						yImpactPos = CurrentLevel->pe->yImpactPos;
+					}
+				}
+				else
+				{
+					hitEnnemy = dynamic_cast<Enemy *>(*anElement);
+					xImpactPos = CurrentLevel->pe->xImpactPos;
+					yImpactPos = CurrentLevel->pe->yImpactPos;
+				}
+			}
+		}
+	}
+}
+
+void Baryon::upgradeTo(int aLevel)
+{
+	switch(aLevel)
+	{
+		case WEAPON_STANDARD:
+			powerLevel = WEAPON_STANDARD;
+			power = 5;
+			haloA.setAnimation("level1");
+			haloB.display = FALSE;
+			break;
+
+		case WEAPON_SUPERIOR:
+			powerLevel = WEAPON_SUPERIOR;
+			power = 10;
+			mahLazor->power = power;
+			haloA.setAnimation("level2");
+			haloB.display = TRUE;
+			break;
+
+		case WEAPON_FURIOUS:
+			powerLevel = WEAPON_FURIOUS;
+			power = 15;
+			mahLazor->power = power;
+			haloA.setAnimation("level2");
+			haloB.display = TRUE;
+			break;
+
+		default:
+			break;
+	}
+
+	if(mahLazor)
+		mahLazor->upgrade(aLevel);
+}
+
+/*
+ * Plasma functions
+ */
 Plasma::Plasma()
 {
 	name = "plasmaGun";
@@ -132,4 +302,11 @@ Plasma::Plasma()
 	maxFireRate = 80;
 	load = 0;
 	loadable = TRUE;
+	powerLevel = WEAPON_STANDARD;
+}
+
+void Plasma::fire(Hero * aHero)
+{
+	isFiring = TRUE;
+	shoots.push_back(new Photon(aHero->posX - 64, aHero->posY + 16, this));
 }

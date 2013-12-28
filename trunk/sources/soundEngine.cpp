@@ -6,6 +6,8 @@
  */
 #include "soundEngine.h"
 
+static SoundEngine * aSe;
+
 SoundEngine::SoundEngine()
 {
 	numberOfChannel = 24;
@@ -20,6 +22,8 @@ void SoundEngine::init()
     Mix_AllocateChannels(numberOfChannel);
     Mix_Init(MIX_INIT_MP3);
 	Mix_ChannelFinished(channelDone);
+	playingSounds.resize(numberOfChannel);
+	aSe = this;
 }
 
 void SoundEngine::playSound(string aSound)
@@ -40,6 +44,7 @@ void SoundEngine::playSound(Sound * aSound)
 		if (aSound->playingChannel > -1)
 		{
 			aSound->isPlaying = TRUE;
+			playingSounds.at(aSound->playingChannel) = aSound;
 		}
 		else
 		{
@@ -131,9 +136,17 @@ void SoundEngine::loadSoundFrom(Json::Value aConfig)
 	addSound(aSound);
 }
 
+//Call when a channel has finished playing a sound
 void channelDone(int channel)
 {
-  // cout<< "channel " << channel << " finished playback" << endl;
+	aSe->finishedPlaying(channel);
+}
+
+
+void SoundEngine::finishedPlaying(int aChannel)
+{
+	//Set the playing flag back to false
+	playingSounds.at(aChannel)->isPlaying = FALSE;
 }
 
 //Set the volume for all channel
