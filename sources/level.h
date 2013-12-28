@@ -50,12 +50,7 @@ class Level
 	float bkg_nearSpeed, bkg_midSpeed, bkg_distantSpeed;
 	int displayBackGround;
 
-	vector<vector<float> > stars;
-	vector<vector<float> > starPoints;
-	vector<Drawable *> starDrawable;
-	int numberOfStarPoints, numberOfStars;
-	map<string, int> configCategories;
-	float maxDepth;
+	map<string, Json::Value> configurations;
 
 	Level();
 	Level * launchLevel(string aLevel);
@@ -77,9 +72,6 @@ class Level
 	virtual void endLevel();
 	virtual void finishLevel();
 
-	void loadStarConf();
-	void generateStarfield();
-	void displayStarField();
 	int isOnScreen(Drawable * aDrawable);
 };
 

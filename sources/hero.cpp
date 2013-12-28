@@ -25,12 +25,8 @@ Hero::Hero()
 	massPotential = 60;
 	radioactivePotential = 0;
 	toBlend = TRUE;
-	ownedWeapons.insert(make_pair("electronGun", (new Electron())));
-	ownedWeapons.insert(make_pair("hadronGun", (new Hadron())));
-	currentWeapon = ownedWeapons.at("electronGun");
 	backOffSpeed = 0;
 	startTeleporting = 0;
-	firingEffect = NULL;
 	startInvincibility = 0;
 	hitAngle = 0;
 	shielded = FALSE;
@@ -48,13 +44,11 @@ void Hero::setTexture(Drawable * levelHero)
 	copyFrom(lev->loadedObjects.at("atom"));
 	posX = SCREEN_WIDTH/3 - 64;
 	posY = GAMEZONE_HEIGHT/2 - 32;
-
-	firingEffect = new AnimatedDrawable();
-	firingEffect->copyFrom(lev->loadedObjects.at("muzzle"));
-	firingEffect->setAnimX(0);
-	firingEffect->setAnimY(0);
-	firingEffect->toBlend = TRUE;
-	firingEffect->display = FALSE;
+	ownedWeapons.insert(make_pair("electronGun", new Electron()));
+	ownedWeapons.insert(make_pair("hadronGun", new Hadron()));
+	ownedWeapons.insert(make_pair("baryonGun", new Baryon()));
+	ownedWeapons.insert(make_pair("plasmaGun", new Plasma()));
+	currentWeapon = ownedWeapons.at("electronGun");
 }
 
 
@@ -266,34 +260,21 @@ void Hero::animate()
 		}
 	}
 
-	//We want the effect to stop on a weakly lighted frame
-	if((isFiring || firingEffect->display) && (!currentWeapon->name.compare("electronGun")))
+/*	if(isFiring && (!currentWeapon->name.compare("electronGun")))
 	{
 		//We started firing
-		if (isFiring && (!firingEffect->display))
+		if (!lev->soundEngine->sounds.at("mitAttack")->isPlaying && !lev->soundEngine->sounds.at("mitLoop")->isPlaying)
 		{
-			firingEffect->display = TRUE;
 			lev->soundEngine->playSound("mitAttack");
 		}
-
-		//Update position to match with the one of the ship
-		firingEffect->posX = posX - 10;
-		firingEffect->posY = posY - 16;
 		
 		lev->soundEngine->playSound("mitLoop");
-		int updated = firingEffect->updateAnimationFrame();
+	}*/
 
-		//We stopped firing and now we want to stop on a correct frame
-		//We stop when we are back to the strongest lighted
-		//but not if this the current frame (hence the updated condition)
-		if ((!isFiring) && updated && (((int)(firingEffect->getAnimX()/firingEffect->width) % 3) == 0))
-		{
-			firingEffect->display = FALSE;
-			lev->soundEngine->stopSound("mitLoop");
-			lev->soundEngine->playSound("mitRelease");
-		}
-
-		firingEffect->processDisplay();
+	if (!isFiring && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
+	{
+		lev->soundEngine->stopSound("mitLoop");
+		lev->soundEngine->playSound("mitRelease");
 	}
 
 	massPotential = min(64.0f, massPotential + regenMassPo);
@@ -330,14 +311,19 @@ void Hero::fire()
 
 void Hero::fireWeapon(string aWeaponName)
 {
-	if(state!=CURSOR)
+	if(state != CURSOR && (ownedWeapons.find(aWeaponName) != ownedWeapons.end()))
 	{
 		ownedWeapons.at(aWeaponName)->fire(this);	//currentWeapon->fire(this);
 		isFiring = ownedWeapons.at(aWeaponName)->isFiring;
 	}
 }
 
-list<Shoot*> * Hero::getLasers()
+void Hero::upgradeWeaponTo(int aLevel)
+{
+	currentWeapon->upgradeTo(aLevel);
+}
+
+list<Shoot *> * Hero::getLasers()
 {
 	shoots.clear();
 	//Get all the currently active ammunitions from all the weapons
@@ -585,7 +571,8 @@ void Hero::setState(int aState)
 
 void Hero::setWeapon(string aWeaponName)
 {
-	currentWeapon = ownedWeapons.at(aWeaponName);
+	if (ownedWeapons.find(aWeaponName)!= ownedWeapons.end())
+		currentWeapon = ownedWeapons.at(aWeaponName);
 
 	if(aWeaponName.compare("electronGun") && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
 	{
@@ -595,7 +582,7 @@ void Hero::setWeapon(string aWeaponName)
 }
 
 
-void  Hero::teleport()
+void Hero::teleport()
 {
 	if(massPotential == 64)
 	{
@@ -605,7 +592,7 @@ void  Hero::teleport()
 	}
 }
 
-int  Hero::endTeleport()
+int Hero::endTeleport()
 {
 	unsigned int endTeleportTime = startTeleporting + 1000;
 	if (endTeleportTime < GameTimer)
@@ -622,7 +609,7 @@ void Hero::startEffect(string anEffect)
 
 void Hero::spreadQuarks()
 {
-	int numberOfGold, numberOfSilver;
+	int numberOfGold;
 	float aSpeed, anAngle;
 	int i;
 
@@ -637,13 +624,13 @@ void Hero::spreadQuarks()
 			lev->createBonus(posX, posY, aSpeed, anAngle, ((*aQuark).first * 2) + 2);
 		}
 
-		numberOfSilver = ((*aQuark).second % 5);
+		/*numberOfSilver = ((*aQuark).second % 5);
 		for(i = 0; i < numberOfSilver; i++)
 		{
 			aSpeed = 10.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
 			anAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f)) * (PI/180);
 			lev->createBonus(posX, posY, aSpeed, anAngle, ((*aQuark).first * 2) + 1);
-		}
+		}*/
 
 		(*aQuark).second = 0;
 	}

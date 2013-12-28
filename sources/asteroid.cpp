@@ -4,6 +4,9 @@ Asteroid::Asteroid()
 {
 	speed = 0;
 	angle = 0;
+	scoreValue = 500;
+	life = 250;
+	bonusProbability = 10;
 }
 
 //Asteroids appears randomly and have random trajectory
@@ -127,6 +130,9 @@ void Asteroid::animate()
 	vy = speed * sin(angle);
 	posX = posX + vx;
 	posY = posY + vy;
+
+	if(!lev->isOnScreen(this))
+		toRemove = TRUE;
 }
 
 void Asteroid::processCollisionWith(Drawable* aDrawable)
@@ -150,7 +156,7 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 
 	if (aDrawable->isLaser())
 	{
-		Shoot * aLaser =  static_cast<Shoot*>(aDrawable);
+		Shoot * aLaser =  dynamic_cast<Shoot*>(aDrawable);
 		life = life - aLaser->power;
 		if (life<=0)
 		{

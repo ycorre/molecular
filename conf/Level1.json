@@ -3,13 +3,10 @@
 			{"name" : "bkgDistant", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgDistant.png", "blend" : 1},
 			{"name" : "bkgMid", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgMid.png", "blend" : 1},
 			{"name" : "bkgNear", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgNear.png", "blend" : 1},
-			{"name" : "electron", "width" : 153, "height" : 64, "collision" : "res/action/characters/j_eMask.png", "dataPath": "res/action/characters/j_eElectron.png", "blend" : 1},
-			{"name" : "e_Cadmium_Shoot", "width" : 66, "height" : 66, "collision": "res/action/characters/e_Cadmium_ShootMask.png", "dataPath": "res/action/characters/e_Cadmium_Shoot.png"},
 			{"name" : "e_Cadmium_ShootHalo", "width" : 66, "height" : 66, "dataPath": "res/action/characters/e_Cadmium_ShootHalo.png", "opacity" : 0.6, "blend" : 1}
-	],
+			],
 
 	"animatedDrawable" : [
-		{"name" : "bonusDiamond", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 125, "dataPath": "res/bonusDiamant.png"}]},
 		{"name" : "qSp_ba", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ba.png"}]},
 		{"name" : "qSp_bg", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_bg.png"}]},
 		{"name" : "qSp_ca", "width" : 32, "height" : 32, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/qSp_ca.png"}]},
@@ -42,26 +39,45 @@
 		{"name" : "jSp_Bouclier", "width" : 96, "height" : 96, "blend" : 1, "collision" : "res/action/characters/jMask_Bouclier.png", "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/jSp_Bouclier.png"}]},	
 		{"name" : "enemy", "width" : 96, "height" : 96, "collision" : "res/action/characters/e001_mask.png", "animations" : [{"numberOfFrames" : 16, "dataPath": "res/action/characters/e001SpStandby.png"}]},
 		{"name" : "shoot", "width" : 64, "height" : 64,  "collision" : "res/action/characters/e001_ShootMask.png", "blend" : 1, "animations" : [{"numberOfFrames" : 8, "dataPath": "res/action/characters/e001_SpShoot.png"}]},
-		{"name" : "bomb", "width" : 96, "height" : 96, "collsions" : "res/Bomb_Col.png", "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
+		{"name" : "bomb", "width" : 96, "height" : 96, "collision" : "res/Bomb_Col.png", "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
 		{"name" : "eSp_Cadmium", "width" : 50, "height" : 50, "collision" : "res/action/characters/eMask_Cadmium.png", "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/eSp_Cadmium.png"}]},
+		{"name" : "e_Cadmium_Shoot", "width" : 66, "height" : 66, "collision": "res/action/characters/e_Cadmium_ShootMask.png", "animations" : [{"dataPath": "res/action/characters/e_Cadmium_Shoot.png"}]},
 		
 		{"name" : "bigAsteroid", "width" : 102, "height" : 102, "animations" : [{"name" : "type1", "numberOfFrames" : 100, "dataPath": "res/action/characters/o001Sp.png"}, {"name" : "type2", "numberOfFrames" : 100, "dataPath": "res/action/characters/o002Sp.png"}]},
 		{"name" : "smallAsteroid", "width" : 50, "height" : 50, "animations" : [{"name" : "type1", "numberOfFrames" : 60, "dataPath": "res/action/characters/o003Sp.png"}, {"name" : "type2", "numberOfFrames" : 60, "dataPath": "res/action/characters/o004Sp.png"}]},
 		
-		
 		{"name" : "expl001Sp_Fire", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl001Sp_Fire.png"}], "blend" : 1},
 		{"name" : "expl001Sp_Smoke", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 97, "dataPath": "res/action/characters/expl001Sp_Smoke.png"}]},
 		
-		{"name" : "muzzle", "width" : 96, "height" : 96,  "blend" : 1, "animations" : [{"numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzle.png"}]},
+		{"name" : "electron", "width" : 153, "height" : 64, "collision" : "res/action/characters/j_eMask.png", "animations":  [{"name" : "level1", "dataPath" : "res/action/characters/j_eElectron.png"}, {"name" : "level2", "dataPath" : "res/action/characters/j_eMuon.png"}, {"name" : "level3", "dataPath" : "res/action/characters/j_eTau.png"}], "blend" : 1},
+		{"name" : "muzzle", "width" : 96, "height" : 96,  "blend" : 1, "animations" : [{"name" : "level1", "numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzle.png"}, {"name" : "level3", "numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzleTau.png"}]},
 		{"name" : "electronTrail", "width" : 1200, "height" : 12,  "blend" : 1, "animations" : [{"numberOfFrames" : 45, "dataPath": "res/action/characters/eQueue.png"}]},
 		
 		{"name" : "photon", "width" : 128, "height" : 128,  "blend" : 1, "animations" : [{"numberOfFrames" : 25, "dataPath": "res/action/characters/j_pProton.png"}]},
 		{"name" : "photonTrail", "width" : 1176, "height" : 84,  "blend" : 1, "animations" : [{"numberOfFrames" : 88, "dataPath": "res/action/characters/PhotonTrail.png"}]},
 		
-		{"name" : "baryonAttack", "width" : 95, "height" : 95,  "blend" : 1, "animations" : [{"name" : "l1", "dataPath": "res/action/characters/j_bA_Attack.png"}]},
-		{"name" : "baryonRelease", "width" : 95, "height" : 95,  "blend" : 1, "animations" : [{"name" : "l1", "dataPath": "res/action/characters/j_bA_Release.png"}]},
-		{"name" : "baryonSustain", "width" : 95, "height" : 95,  "blend" : 1, "animations" : [{"name" : "l1", "dataPath": "res/action/characters/j_bA_Sustain.png"}]},
-		{"name" : "baryonHalo", "width" : 128, "height" : 128,  "blend" : 1, "animations" : [{"dataPath": "res/action/characters/j_bHaloA.png"}]}
+		{"name" : "j_bA_Attack", "width" : 95, "height" : 95,  "blend" : 1, "collision" : "res/action/characters/jMask_b_Attack.png", "animations" : [
+			{"name" : "level1", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bA_Attack.png", "opacity" : "0,0.8,12,0.5,23,0.8", "animatedTexture" : 0},
+			{"name" : "level2", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bA_Attack.png", "opacity" : "0,1,12,0.8,23,1", "animatedTexture" : 0},
+			{"name" : "level3", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bB_Attack.png", "opacity" : "0,1,12,0.8,23,1", "animatedTexture" : 0}
+			]},
+			
+		{"name" : "j_bA_Release", "width" : 95, "height" : 95,  "blend" : 1, "collision" : "res/action/characters/jMask_b_Release.png", "animations" : [
+			{"name" : "level1", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bA_Release.png", "opacity" : "0,0.8,12,0.5,23,0.8", "animatedTexture" : 0},
+			{"name" : "level2", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bA_Release.png", "opacity" : "0,1,12,0.8,23,1", "animatedTexture" : 0},
+			{"name" : "level3", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bB_Release.png", "opacity" : "0,1,12,0.8,23,1", "animatedTexture" : 0}
+			]},
+			
+		{"name" : "j_bA_Sustain", "width" : 95, "height" : 95,  "blend" : 1, "collision" : "res/action/characters/jMask_b_Sustain.png", "animations" : [
+			{"name" : "level1", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bA_Sustain.png", "opacity" : "0,0.8,12,0.5,23,0.8", "animatedTexture" : 0},
+			{"name" : "level2", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bA_Sustain.png", "opacity" : "0,1,12,0.8,23,1", "animatedTexture" : 0},
+			{"name" : "level3", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bB_Sustain.png", "opacity" : "0,1,12,0.8,23,1", "animatedTexture" : 0}
+			]},	
+			
+		{"name" : "jSp_bCrame", "width" : 256, "height" : 256,  "blend" : 1, "animations" : [{"numberOfFrames" : 12, "dataPath": "res/action/characters/jSp_bCrame.png"}]},
+		{"name" : "jSp_bEclair", "width" : 1200, "height" : 24,  "blend" : 1, "animations" : [{"numberOfFrames" : 40, "dataPath": "res/action/characters/jSp_bEclair.png"}]},
+		{"name" : "j_bHaloA", "width" : 256, "height" : 256, "blend" : 1, "animations" : [{"name" : "level1", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bHaloA.png", "opacity" : "0,0.8,12,0.4,23,0.8"}, {"name" : "level2", "numberOfFrames" : 24, "dataPath": "res/action/characters/j_bHaloA.png", "opacity" : "0,1,12,0.6,23,1"}]},
+		{"name" : "j_bHaloB", "width" : 256, "height" : 256, "blend" : 1, "animations" : [{"numberOfFrames" : 24, "dataPath": "res/action/characters/j_bHaloB.png", "opacity" : "0,1,12,0.4,23,1" }]}
 	],
 
 	"sounds" : [
@@ -104,7 +120,7 @@
 		}
 	],
 	
-	"Ennemy" : [
+	"enemies" : [
 		{"name" : "ennemis001" , "sinusWidth" : 400, "sinusHeight" : 80, "speed": 2.2, "positions" : [
 			{"posX" : 1340, "posY" : 150},
 			{"posX" : 1440, "posY" : 150},

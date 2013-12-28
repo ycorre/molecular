@@ -11,6 +11,7 @@
 #include "laser.h"
 
 class Shoot;
+class Lazer;
 class Hero;
 
 class Weapon
@@ -22,7 +23,7 @@ class Weapon
 	  int isFiring;
 	  int canFire;
 	  int fireRate;
-	  int level;
+	  int powerLevel;
 	  int maxFireRate;
 	  list<Shoot *> shoots;
 	  int loadable;
@@ -32,15 +33,18 @@ class Weapon
 	  virtual void fire(Hero * aHero);
 	  void animateLasers();
 	  void checkFire();
-	  void upgrade();
+	  virtual void upgradeTo(int aLevel);
 	  void createImpact(float x, float y);
 };
 
 class Electron: public Weapon
 {
    public:
+		AnimatedDrawable muzzle;
+
 	  Electron();
 	  virtual void fire(Hero * aHero);
+	  virtual void upgradeTo(int aLevel);
 };
 
 class Hadron: public Weapon
@@ -53,7 +57,15 @@ class Hadron: public Weapon
 class Baryon: public Weapon
 {
    public:
+	 Lazer * mahLazor;
+	 AnimatedDrawable haloA, haloB;
+	 Enemy * hitEnnemy;
+	 float xImpactPos, yImpactPos;
+
 	 Baryon();
+	 virtual void fire(Hero * aHero);
+	 virtual void upgradeTo(int aLevel);
+	 void checkForCollision();
 };
 
 
@@ -61,7 +73,10 @@ class Plasma: public Weapon
 {
    public:
 	 Plasma();
+	 virtual void fire(Hero * aHero);
 };
+
+enum {WEAPON_STANDARD, WEAPON_SUPERIOR, WEAPON_FURIOUS};
 
 #endif
 

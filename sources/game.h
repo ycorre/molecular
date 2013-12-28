@@ -26,7 +26,6 @@ class Game
 		SoundEngine soundEngine;
 		Pe physicEngine;
 		Keyboard * keyboard;
-		Level * currentLevel;
 		Level * aLevel;
 		Menu * menu;
 		Hero * hero;
@@ -44,7 +43,6 @@ class Game
 		int mainLoop();
 		int initSDL();
 		int initGame();
-		void loadConf();
 		void updateTimers();
 		void newGame();
 		void launchLevel(string lev);

@@ -6,7 +6,6 @@ Mitraille::Mitraille()
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 500;
-	direction = UP;
 	type = 0;
 	bonusProbability = 50;
 	canFire = FALSE;
@@ -29,7 +28,6 @@ Mitraille::Mitraille(int x, int y)
 	posY = y;
 	setAnimX(0);
 	setAnimY(0);
-	direction = RIGHT;
 	type = 0;
 	bonusProbability = 50;
 	scoreValue = 200;

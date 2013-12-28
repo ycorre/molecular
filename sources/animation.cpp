@@ -20,6 +20,7 @@ Animation::Animation()
 	oglTexture = 0;
 	hasEnded = FALSE;
 	moveTexture = TRUE;
+	hasAnimatedTexture = TRUE;
 }
 
 Animation::Animation(Animation * anAnim)
@@ -35,6 +36,7 @@ Animation::Animation(Animation * anAnim)
 	moveTexture = anAnim->moveTexture;
 	opacityValues = anAnim->opacityValues;
 	scalingValues = anAnim->scalingValues;
+	hasAnimatedTexture = anAnim->hasAnimatedTexture;
 
 	loop = anAnim->loop;
 	currentFrame = 0;
@@ -55,10 +57,11 @@ Animation::Animation(Drawable * aDrawable)
 	currentFrame = 0;
 	animationUpdateFrequency = 40;
 	drawable = aDrawable;
-	texture = NULL;
+	texture = aDrawable->texture;
 	hasEnded = FALSE;
 	moveTexture = TRUE;
-	oglTexture = 0;
+	hasAnimatedTexture = TRUE;
+	oglTexture = aDrawable->oglTexture;
 }
 
 Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
@@ -79,6 +82,7 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 
 	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
 	moveTexture = aConfig.get("moveTexture", FALSE).asInt();
+	hasAnimatedTexture = aConfig.get("animatedTexture", TRUE).asInt();
 
 	texture = NULL;
 	oglTexture = 0;
@@ -106,13 +110,22 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 	hasEnded = FALSE;
 }
 
-int Animation::nextFrame()
+void Animation::incrementCurrentFrame()
 {
 	currentFrame = (currentFrame + 1) % numberOfFrames;
+}
+
+int Animation::nextFrame()
+{
+
+	incrementCurrentFrame();
 
 	//Compute the position in the texture
-	drawable->setAnimY((currentFrame / (drawable->texture->w/width)) * height);
-	drawable->setAnimX((currentFrame % (drawable->texture->w/width)) * width);
+	if(hasAnimatedTexture)
+	{
+		drawable->setAnimY((currentFrame / (drawable->texture->w/width)) * height);
+		drawable->setAnimX((currentFrame % (drawable->texture->w/width)) * width);
+	}
 
 	hasEnded = FALSE;
 

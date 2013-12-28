@@ -27,7 +27,7 @@ Bonus::Bonus()
 Bonus::Bonus(int x, int y, float aSpeed, float anAngle, int bType)
 {
 	type = bType;
-	name = "bonus";
+	name = "bonus " + type;
 	isQuarkBonus = TRUE;
 	quantity = 0;
 	quarkType = -1;
@@ -155,8 +155,8 @@ void Bonus::animate()
 	if (speed != 0)
 	{
 		float vx, vy;
-		vx = (speed)*cos(angle);
-		vy = (speed)*sin(angle);
+		vx = speed * cos(angle);
+		vy = speed * sin(angle);
 
 		posX = posX + vx;
 		posY = posY + vy;
@@ -170,6 +170,11 @@ void Bonus::animate()
 	halo.posX = halo.posX - 2;
 	halo.updateAnimationFrame();
 	halo.processDisplay();
+
+	if(!lev->isOnScreen(this))
+	{
+		toRemove = TRUE;
+	}
 }
 
 void Bonus::processCollisionWith(Drawable* aDrawable)

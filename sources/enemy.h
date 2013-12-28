@@ -12,7 +12,6 @@ class Cadmium;
 class Enemy: public AnimatedDrawable
 {
 	public:
-		int direction;
 		int bonusProbability; //probability out of 100
 		int type;
 		int life;
@@ -28,7 +27,7 @@ class Enemy: public AnimatedDrawable
 		float sinusHeigth;
 
 		Enemy();
-		Enemy(int x, int y, int type, int dir);
+		Enemy(int x, int y, int type);
 		Enemy(int x, int y, float sinWidth, float sinHeigth, float speed);
 		void dropBonus(int x, int y);
 		virtual void animate();

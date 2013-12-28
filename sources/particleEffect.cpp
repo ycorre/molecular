@@ -84,10 +84,10 @@ void ParticleEffect::createImpactFrom(float x, float y)
 void ParticleEffect::createExplosionFrom(float x, float y)
 {
 	int i = 0;
-	colorR = 125.0/255.0;
-	colorG = 169.0/255.0;
-	colorB = 255.0/255.0;
-	for(i = 0; i < 1000; i++)
+	colorR = 223.0/255.0;
+	colorG = 45.0/255.0;
+	colorB = 92.0/255.0;
+	for(i = 0; i < 50; i++)
 	{
 		PointEffect * aPoint = new PointEffect();
 		aPoint->createRandomPointFrom(x, y);
@@ -95,7 +95,7 @@ void ParticleEffect::createExplosionFrom(float x, float y)
 	}
 	animationLength = 75;
 	currentFrame = 0;
-	setOpacityValues(1, 0.0);
+	setOpacityValues(1, 0.2);
 }
 
 LineEffect::LineEffect()

@@ -24,6 +24,8 @@ class Pe
 		int overLeft;
 		int overRight;
 		int overBottom;
+		float xImpactPos;
+		float yImpactPos;
 
 		int collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable);
 		int boundingBox(Drawable *aDrawable, Drawable* anotherDrawable);

@@ -13,7 +13,6 @@ void Level1::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
 	loadLevelConfiguration("conf/Level1.json");
-	loadEnemies();
 	loadBackGround();
 	instantiateEnemies();
 
@@ -44,8 +43,6 @@ void Level1::drawLevel()
 		(*anElement)->animate();
 		(*anElement)->processDisplay();
 	}
-
-
 
 	for (list<Effect *>::iterator anEffect = activeEffects.begin(); anEffect != activeEffects.end(); ++anEffect)
 	{
@@ -133,64 +130,41 @@ int Level1::checkCollision(Drawable * anElement)
 		return FALSE;
 	}
 
-	if(pe->collisionDetection(hero, anElement))
+	if(hero->shielded)
 	{
-		anElement->processCollisionWith(hero);
-		hero->processCollisionWith(anElement);
-		return TRUE;
+		if(pe->collisionDetection(hero->shield, anElement))
+		{
+			anElement->processCollisionWith(hero);
+			hero->processCollisionWith(anElement);
+			return 1;
+		}
+	}
+	else {
+		if(pe->collisionDetection(hero, anElement))
+		{
+			anElement->processCollisionWith(hero);
+			hero->processCollisionWith(anElement);
+			return TRUE;
+		}
 	}
 
 	return FALSE;
 }
 
-//Load enemies from a configuration files
-//Format is on the first line:
-//sinus wave width;sinus wave height;speed
-//The next lines: enemies position
-//x;y
-void Level1::loadEnemies()
-{
-	enemyConfigurationElements.clear();
-	ifstream file;
-	string line;
-	string fileName = "conf/enemyL1.conf";
-	string token;
-	string type;
-	vector<string> confElements;
-	string confElement;
-
-	file.open(fileName.c_str());
-	while(getline(file, line))
-	{
-		if(!line.empty()) //Ignore empty lines
-		{
-			confElements.clear();
-			istringstream myLine(line);
-
-			while(getline(myLine, token, ';'))
-			{
-				confElements.push_back(token);
-			}
-			enemyConfigurationElements.push_back(confElements);
-		}
-	}
-
-}
-
 void Level1::instantiateEnemies()
 {
-	vector<string> confCharacteristics = enemyConfigurationElements.front();
+	Json::Value enemyConf = configurations.at("enemies");
 
-	float sinWidth = atof(confCharacteristics.at(0).c_str());
-	float sinHeight = atof(confCharacteristics.at(1).c_str());
-	float speed = atof(confCharacteristics.at(2).c_str());
-	//Delete the first element
-	enemyConfigurationElements.pop_front();
+	float sinWidth = enemyConf[0].get("sinusWidth", 400).asFloat();
+	float sinHeight = enemyConf[0].get("sinusHeight", 80).asFloat();
+	float speed = enemyConf[0].get("speed", 2.2).asFloat();
 
-	for (list<vector<string> >::iterator anEnemy = enemyConfigurationElements.begin(); anEnemy != enemyConfigurationElements.end(); ++anEnemy)
+	unsigned int index;
+	const Json::Value positions = enemyConf[0]["positions"];
+	for (index = 0; index < positions.size(); ++index)
 	{
-		int pX = atoi((anEnemy->at(0)).c_str());
-		int pY = atoi((anEnemy->at(1)).c_str());
+		int pX = positions[index].get("posX", 0).asInt();
+		int pY = positions[index].get("posY", 0).asInt();
 		activeElements.push_back(new Cadmium(pX, pY, sinWidth, sinHeight, speed));
 	}
 }

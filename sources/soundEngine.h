@@ -27,6 +27,8 @@ class SoundEngine
 		map<string, Sound *> sounds;
 		map<string, Music *> musics;
 		Music * currentMusic;
+		//map <int, Sound *> playingSounds;
+		vector<Sound *> playingSounds;
 		
 		int soundVolume;
 		int musicVolume;
@@ -42,6 +44,7 @@ class SoundEngine
 		void muteAll();
 		void clearSounds();
 		void stopAllSounds();
+		void finishedPlaying(int aChannel);
 
 		int loadSound(string pathToASound, Sound * aSound);
 		void addSound(string pathToASound, string aSoundId);

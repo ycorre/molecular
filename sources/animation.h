@@ -40,12 +40,14 @@ class Animation
 	  int animationUpdateFrequency;
 	  Drawable * drawable;
 	  int hasEnded;
+	  int hasAnimatedTexture;
 
 	  Animation();
 	  Animation(Animation * anAnim);
 	  Animation(Drawable * aDrawable);
 	  Animation(Json::Value aConf, Drawable * aDrawable);
 	  int nextFrame();
+	  void incrementCurrentFrame();
 	  void setFrameTo(int aNumber);
 	  void configOpacity(string aConf);
 	  void configScaling(string aConf);

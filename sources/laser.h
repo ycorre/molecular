@@ -10,8 +10,9 @@
 #include "level.h"
 
 class Weapon;
+class Enemy;
 
-class Shoot: public Drawable
+class Shoot: public AnimatedDrawable
 {
    public:
 	  int power;
@@ -25,21 +26,6 @@ class Shoot: public Drawable
 	  virtual int isPhoton() {return FALSE;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 	  void createImpact(float x, float y);
-};
-
-class AnimatedShoot: public AnimatedDrawable
-{
-   public:
-	  int power;
-	  float angle;
-	  Weapon * firingWeapon;
-
-	  AnimatedShoot();
-	 // virtual void animate();
-	  virtual int isLaser() {return TRUE;}
-	  virtual int isPhoton() {return FALSE;}
-	  //virtual void processCollisionWith(Drawable * aDrawable);
-	 // void createImpact(float x, float y);*/
 };
 
 class ElectronAmmo: public Shoot
@@ -63,6 +49,19 @@ class Photon: public Shoot
 	  virtual void processCollisionWith(Drawable * aDrawable);
 	  void setParam(int x, int y, Weapon * aWeapon);
 	  void removeEnergy(int anEnergyValue);
+};
+
+class Lazer: public Shoot
+{
+	public:
+		AnimatedDrawable lightning, burningFlames;
+		AnimatedDrawable attack, release;
+
+		Lazer();
+		Lazer(int x, int y, Weapon * aWeapon);
+		virtual int isLazer() {return TRUE;}
+		void animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, float yImpactPos);
+		void upgrade(int aLevel);
 };
 
 class Bullet: public Shoot

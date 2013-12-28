@@ -8,6 +8,8 @@
 //#include <minmax.h>
 
 using namespace std;
+//class Game;
+class Level;
 
 //Do we use OpenGL rendering ?
 //TODO check that the SDL one is not broken
@@ -37,6 +39,8 @@ using namespace std;
 extern Uint32 ProgramTimer;
 extern Uint32 GameTimer;
 extern Uint32 Score;
+extern Level * CurrentLevel;
+//Game * CurrentGame;
 
 #endif
 

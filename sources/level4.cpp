@@ -31,7 +31,6 @@ void Level4::loadLevel(Hero * aHero)
 void Level4::loadObject()
 {
 	loadBackGround();
-	generateStarfield();
 }
 
 void Level4::loadBackGround()
@@ -157,7 +156,6 @@ void Level4::drawLevel()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glBlendEquation(GL_FUNC_ADD);*/
 
-	displayStarField();
 //	testBackGround();
 
 	if(ending)
@@ -169,97 +167,6 @@ void Level4::drawLevel()
 void Level4::testBackGround()
 {
 
-	//  glLoadIdentity( );
-   // glTranslatef( 0.0f, .0f, -5.5f );
-
-	glDisable(GL_TEXTURE_2D);
-	glColor4f(1., 1., 1., 1.0);
-
-	for (std::vector<vector<float> >::iterator aStar = stars.begin() ; aStar != stars.end(); ++aStar)
-	{
-		glBegin(GL_QUADS);
-			glVertex3f((*aStar).at(0), (*aStar).at(1), -(*aStar).at(2));
-			glVertex3f((*aStar).at(3), (*aStar).at(1), -(*aStar).at(2));
-			glVertex3f((*aStar).at(3), aStar->at(4),-(*aStar).at(2));
-			glVertex3f((*aStar).at(0), (*aStar).at(4), -(*aStar).at(2));
-		glEnd();
-
-		/*glBegin(GL_POINTS);
-			glVertex3f((*aStar).at(0), (*aStar).at(1), -(*aStar).at(2));
-
-		glEnd();*/
-
-		aStar->at(0)= aStar->at(0) - (1.0/1200.0);
-		aStar->at(3)= aStar->at(3) - (1.0/1200.0);
-	}
-
-	for (std::vector<vector<float> >::iterator aStar = starPoints.begin() ; aStar != starPoints.end(); ++aStar)
-	{
-		glBegin(GL_POINTS);
-			glVertex3f((*aStar).at(0), (*aStar).at(1), -(*aStar).at(2));
-		glEnd();
-
-		aStar->at(0)= aStar->at(0) - (1.0/1200.0);
-	}
-/*	float x0 = 0;
-	glColor4f(1., 0., 0., 1.0);
-	glBegin(GL_QUADS);
-		glVertex3f(0, SCREEN_HEIGHT/600.0, 0);
-		glVertex3f(SCREEN_WIDTH/2400.0, SCREEN_HEIGHT/600.0, 0.);
-		glVertex3f(SCREEN_WIDTH/2400.0, SCREEN_HEIGHT/1200.0,0.);
-		glVertex3f(0, SCREEN_HEIGHT/1200.0, 0.);
-	glEnd();
-
-	glColor4f(0., 0., 1., 1.0);
-	//glTranslatef(0.0f,0.0f,-2.0f);
-	glBegin(GL_QUADS);
-
-		glVertex3f(x0 , 0.0f, 0);
-		glVertex3f(SCREEN_WIDTH/2400.0 , 0.0f, 0.);
-		glVertex3f(SCREEN_WIDTH/2400.0 , SCREEN_HEIGHT/1200.0,0.);
-		glVertex3f(x0 , SCREEN_HEIGHT/1200.0, 0.);
-	glEnd();
-
-	glColor4f(0., 1., 0., 1.0);
-	//glTranslatef(0.0f,0.0f,-2.0f);
-	glBegin(GL_QUADS);
-		glVertex3f(SCREEN_WIDTH/1200 , 0.0f, -1);
-		glVertex3f(SCREEN_WIDTH/600 , 0.0f, -1.);
-		glVertex3f(SCREEN_WIDTH/600 , SCREEN_HEIGHT/600,-1.);
-		glVertex3f(SCREEN_WIDTH/1200 , SCREEN_HEIGHT/600, -1.);
-	glEnd();
-
-	glColor4f(1., 0., 1., 1.0);
-	//glTranslatef(0.0f,0.0f,-2.0f);
-	glBegin(GL_QUADS);
-		glVertex3f(SCREEN_WIDTH/1200 , SCREEN_HEIGHT/600, -2);
-		glVertex3f(SCREEN_WIDTH/600 , SCREEN_HEIGHT/600, -2.);
-		glVertex3f(SCREEN_WIDTH/600 , SCREEN_HEIGHT/300,-2.);
-		glVertex3f(SCREEN_WIDTH/1200 , SCREEN_HEIGHT/300, -2.);
-	glEnd();
-//
-//	glTranslatef( 0.0f, 0.0f, 0.5f );*/
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	glEnable(GL_TEXTURE_2D);
-	glTranslatef( 0.0f, 0.0f, -maxDepth );
-	glScalef(maxDepth, maxDepth, 1.0f);
-
-	glBindTexture(GL_TEXTURE_2D, bigStars.getOpenGLTexture());
-	glBegin(GL_QUADS);
-		glTexCoord2f(bigStars.ogl_Xorigin, bigStars.ogl_Yorigin);
-		glVertex3f((bigStars.posX)/1200.0, ((600- bigStars.posY))/600.0, 0);
-
-		glTexCoord2f(bigStars.ogl_Xcorner, bigStars.ogl_Yorigin);
-		glVertex3f(((bigStars.posX) + bigStars.width)/1200.0, ((600-bigStars.posY))/600, 0);
-
-		glTexCoord2f(bigStars.ogl_Xcorner, bigStars.ogl_Ycorner);
-		glVertex3f(((bigStars.posX ) + bigStars.width)/1200.0, ((600-(bigStars.posY + bigStars.height)))/600, 0);
-
-		glTexCoord2f(bigStars.ogl_Xorigin, bigStars.ogl_Ycorner);
-		glVertex3f((bigStars.posX)/1200.0, ((600-(bigStars.posY + bigStars.height)))/600, 0);
-	glEnd();
-
-		bigStars.setAnimX(bigStars.getAnimX() + 0.2);
 }
 
 #if 0
@@ -494,8 +401,6 @@ void Level4::loadConf()
 			configurationElements.insert(make_pair(type, confElements));
 		}
 	}
-
-loadStarConf();
 }
 
 
