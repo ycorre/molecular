@@ -9,6 +9,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <algorithm>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <math.h>
@@ -43,6 +44,9 @@ class GraphicEngine
 	  int alphaFading;
 	  int fadingSpeed;
 	  int isFading;
+	  int shakingEffect;
+	  int shakeCounter;
+	  vector<int> shakeValues;
 
 	  GraphicEngine();
 	  void init();
@@ -58,11 +62,13 @@ class GraphicEngine
 	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex);
 	  void startFadingOut(int aFadingSpeed);
 	  void freeTextures();
+	  void shakeCamera(int sense);
 
 	private:
 	  void fadeOut();
 };
 
+bool sortDisplayedElement(const Drawable * a, const Drawable * b);
 
 #endif
 

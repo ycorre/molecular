@@ -17,7 +17,7 @@ Hero::Hero()
 	invincible = FALSE;
 	invincibilityTime = 1500;
 	heroChangedState = TRUE;
-	canFire = 1;
+	canFire = FALSE;
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	isFiring = FALSE;
@@ -30,6 +30,8 @@ Hero::Hero()
 	startInvincibility = 0;
 	hitAngle = 0;
 	shielded = FALSE;
+	currentWeapon = NULL;
+	shield = NULL;
 
 	quarkLevels[QuarkB] = 0;
 	quarkLevels[QuarkT] = 0;
@@ -44,11 +46,11 @@ void Hero::setTexture(Drawable * levelHero)
 	copyFrom(lev->loadedObjects.at("atom"));
 	posX = SCREEN_WIDTH/3 - 64;
 	posY = GAMEZONE_HEIGHT/2 - 32;
-	ownedWeapons.insert(make_pair("electronGun", new Electron()));
-	ownedWeapons.insert(make_pair("hadronGun", new Hadron()));
-	ownedWeapons.insert(make_pair("baryonGun", new Baryon()));
-	ownedWeapons.insert(make_pair("plasmaGun", new Plasma()));
-	currentWeapon = ownedWeapons.at("electronGun");
+	ownedWeapons.insert(make_pair(ElectronGun, new Electron()));
+	ownedWeapons.insert(make_pair(HadronGun, new Hadron()));
+	ownedWeapons.insert(make_pair(BaryonGun, new Baryon()));
+	ownedWeapons.insert(make_pair(PlasmaGun, new Plasma()));
+	currentWeapon = ownedWeapons.at(ElectronGun);
 }
 
 
@@ -61,7 +63,7 @@ void Hero::resetHero()
 	invincible = FALSE;
 	invincibilityTime = 1250;
 	heroChangedState = TRUE;
-	canFire = 1;
+	canFire = FALSE;
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	massPotential = 0;
@@ -90,6 +92,8 @@ void Hero::animate()
 				startEffect("dispar");
 				currentAnimation->currentFrame = 0;
 				lev->soundEngine->playSound("TeleportOff");
+				if(shielded)
+					shield->display = FALSE;
 				setAnimX(0);
 				setAnimY(0);
 				break;
@@ -110,6 +114,9 @@ void Hero::animate()
 				setAnimation("appar");
 				lev->soundEngine->playSound("TeleportOn");
 				dontMove = TRUE;
+				isFiring = FALSE;
+				if(shielded)
+					shield->display = TRUE;
 				makeInvincible(4000);
 				setAnimX(0);
 				setAnimY(0);
@@ -120,6 +127,7 @@ void Hero::animate()
 				startEffect("hit");
 				dontMove = TRUE;
 				backOffSpeed = 13.0;
+				isFiring = FALSE;
 				makeInvincible(2000);
 				setAnimX(0);
 				setAnimY(0);
@@ -227,6 +235,7 @@ void Hero::animate()
 					{
 						state = STATIC;
 						heroChangedState = TRUE;
+						canFire = TRUE;
 					}
 					break;
 
@@ -259,17 +268,6 @@ void Hero::animate()
 			}
 		}
 	}
-
-/*	if(isFiring && (!currentWeapon->name.compare("electronGun")))
-	{
-		//We started firing
-		if (!lev->soundEngine->sounds.at("mitAttack")->isPlaying && !lev->soundEngine->sounds.at("mitLoop")->isPlaying)
-		{
-			lev->soundEngine->playSound("mitAttack");
-		}
-		
-		lev->soundEngine->playSound("mitLoop");
-	}*/
 
 	if (!isFiring && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
 	{
@@ -309,9 +307,9 @@ void Hero::fire()
 }
 
 
-void Hero::fireWeapon(string aWeaponName)
+void Hero::fireWeapon(weaponName aWeaponName)
 {
-	if(state != CURSOR && (ownedWeapons.find(aWeaponName) != ownedWeapons.end()))
+	if(state != CURSOR && (ownedWeapons.at(aWeaponName)->activated))
 	{
 		ownedWeapons.at(aWeaponName)->fire(this);	//currentWeapon->fire(this);
 		isFiring = ownedWeapons.at(aWeaponName)->isFiring;
@@ -327,7 +325,7 @@ list<Shoot *> * Hero::getLasers()
 {
 	shoots.clear();
 	//Get all the currently active ammunitions from all the weapons
-	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
+	for(map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
 	{
 		shoots.insert(shoots.begin(), (*aWeapon).second->shoots.begin(), (*aWeapon).second->shoots.end());
 	}
@@ -390,7 +388,7 @@ void Hero::move(int x, int y)
 
 void Hero::animateLasers()
 {
-	for(map<string, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
+	for(map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
 	{
 		(*aWeapon).second->animateLasers();
 	}
@@ -412,7 +410,7 @@ void Hero::loseLife()
 		heroChangedState = TRUE;
 		display = FALSE;
 		health = 10;
-		canFire = 1;
+		canFire = FALSE;
 		heroMovingUpOrDown = 0;
 		topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	}
@@ -426,10 +424,19 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 		{
 			if (!shielded)
 			{
-				lev->soundEngine->playSound("tie_explode");
-				toRemove = TRUE;
-				state = DEAD;
-				heroChangedState = TRUE;
+				Enemy * anEnemy = dynamic_cast<Enemy *>(aDrawable);
+				health = health - anEnemy->damage;
+				if (health<=0)
+				{
+					lev->soundEngine->playSound("tie_explode");
+					setState(DEAD);
+				}
+				else
+				{
+					lev->soundEngine->playSound("AtomHit");
+					setState(HIT);
+					hitAngle = PI;
+				}
 				return;
 			}
 			else
@@ -444,7 +451,7 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 			Shoot * aShoot = dynamic_cast<Shoot*>(aDrawable);
 			if (!shielded)
 			{
-				health--;//= health - aLaser->power;
+				health--;//= health - aShoot->power;
 				if (health<=0)
 				{
 					lev->soundEngine->playSound("tie_explode");
@@ -517,8 +524,10 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 			stringToDisplay <<  "Quark : +" << aBonus->quantity;
 			lev->createTextEffect(posX, posY,  stringToDisplay.str());
 			lev->soundEngine->playSound("UpDiamond");
-			quarkLevels.at(aBonus->quarkType) = min(34, quarkLevels.at(aBonus->quarkType) + aBonus->quantity);
-			radioactivePotential = min(64.0f, radioactivePotential + 32);
+			quarkLevels.at((QuarkType)aBonus->quarkType) = min(34, quarkLevels.at((QuarkType) aBonus->quarkType) + aBonus->quantity);
+			checkQuarkLevels();
+
+			//radioactivePotential = min(64.0f, radioactivePotential + 32);
 		}
 		return;
 	}
@@ -569,12 +578,12 @@ void Hero::setState(int aState)
 	heroChangedState = TRUE;
 }
 
-void Hero::setWeapon(string aWeaponName)
+void Hero::setWeapon(weaponName aWeaponName)
 {
-	if (ownedWeapons.find(aWeaponName)!= ownedWeapons.end())
+	if (ownedWeapons.at(aWeaponName)->activated)
 		currentWeapon = ownedWeapons.at(aWeaponName);
 
-	if(aWeaponName.compare("electronGun") && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
+	if(!aWeaponName == ElectronGun && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
 	{
 		lev->soundEngine->stopSound("mitLoop");
 		lev->soundEngine->playSound("mitRelease");
@@ -613,7 +622,7 @@ void Hero::spreadQuarks()
 	float aSpeed, anAngle;
 	int i;
 
-	for(map<int, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
+	for(map<QuarkType, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
 	{
 		numberOfGold = ((*aQuark).second / 5);
 
@@ -621,7 +630,7 @@ void Hero::spreadQuarks()
 		{
 			aSpeed = 10.5f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
 			anAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f)) * (PI/180);
-			lev->createBonus(posX, posY, aSpeed, anAngle, ((*aQuark).first * 2) + 2);
+			lev->createBonus(posX, posY, aSpeed, anAngle, (bonusType) (((*aQuark).first * 2) + 2));
 		}
 
 		/*numberOfSilver = ((*aQuark).second % 5);
@@ -633,6 +642,21 @@ void Hero::spreadQuarks()
 		}*/
 
 		(*aQuark).second = 0;
+	}
+	checkQuarkLevels();
+}
+
+void Hero::checkQuarkLevels()
+{
+	for(map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
+	{
+		(*aWeapon).second->checkActivation(this);
+	}
+
+	//If the currentWeapon is deactivated then we fall back on the electron
+	if(!currentWeapon->activated)
+	{
+		setWeapon(ElectronGun);
 	}
 }
 

@@ -25,7 +25,7 @@ ParticleEffect::~ParticleEffect()
 	pointEffects.clear();
 }
 
-//Set opacity in linear decreasing from the starting value to the finishing one
+//Set opacity values in linear decreasing from the starting value to the finishing one
 void ParticleEffect::setOpacityValues(float startingOpacity, float finishingOpacity)
 {
 	int i;
@@ -39,6 +39,29 @@ void ParticleEffect::setOpacityValues(float startingOpacity, float finishingOpac
 	{
 		opacityValues.push_back(currentOpacity);
 		currentOpacity = currentOpacity + opacityModifyingFactor;
+	}
+}
+
+//Set color values in linear decreasing from the starting value to the finishing one
+void ParticleEffect::setColorValues(vector<float> startingColorValue, vector<float> endingColorValue)
+{
+	int i, j;
+	vector<float> currentColor(3);
+	vector<float> colorModifyingFactor(3);
+
+	for (i = 0; i < 3; i++)
+	{
+		colorModifyingFactor.at(i) = (endingColorValue.at(i) - startingColorValue.at(i)) / animationLength;
+		currentColor.at(i) = startingColorValue.at(i);
+	}
+
+	for (i = 0; i < animationLength; i++)
+	{
+		colorValues.push_back(currentColor);
+		for (j = 0; j < 3; j++)
+		{
+			currentColor.at(j) = currentColor.at(j) + colorModifyingFactor.at(j);
+		}
 	}
 }
 
@@ -58,6 +81,13 @@ void ParticleEffect::animate()
 			opacity = opacityValues.at(currentFrame);
 		}
 
+		if(!colorValues.empty())
+		{
+			colorR = colorValues.at(currentFrame).at(0);
+			colorG = colorValues.at(currentFrame).at(1);
+			colorB = colorValues.at(currentFrame).at(2);
+		}
+
 		currentFrame++;
 		lastTimeUpdated = ProgramTimer;
 	}
@@ -70,6 +100,7 @@ void ParticleEffect::createImpactFrom(float x, float y)
 	colorR = 51.0/255.0;
 	colorG = 118.0/255.0;
 	colorB = 208.0/255.0;
+
 	for(i = 0; i < 3; i++)
 	{
 		LineEffect * aLine = new LineEffect();
@@ -84,10 +115,8 @@ void ParticleEffect::createImpactFrom(float x, float y)
 void ParticleEffect::createExplosionFrom(float x, float y)
 {
 	int i = 0;
-	colorR = 223.0/255.0;
-	colorG = 45.0/255.0;
-	colorB = 92.0/255.0;
-	for(i = 0; i < 50; i++)
+
+	for(i = 0; i < 40; i++)
 	{
 		PointEffect * aPoint = new PointEffect();
 		aPoint->createRandomPointFrom(x, y);
@@ -95,6 +124,48 @@ void ParticleEffect::createExplosionFrom(float x, float y)
 	}
 	animationLength = 75;
 	currentFrame = 0;
+
+	vector<float> startingValue;// = {(255.0/255.0), (233.0/255.0), (108.0/255.0)};
+	startingValue.push_back(1.0);
+	startingValue.push_back(233.0/255.0);
+	startingValue.push_back(108.0/255.0);
+
+	vector<float> endingValue;
+	endingValue.push_back(223.0/255.0);
+	endingValue.push_back(45.0/255.0);
+	endingValue.push_back(92.0/255.0);
+
+	setColorValues(startingValue, endingValue);
+
+	setOpacityValues(1, 0.2);
+}
+
+void ParticleEffect::createSparkFrom(float x, float y)
+{
+	int i = 0;
+	int nbParticles = rand() % 3;
+
+	for(i = 0; i < nbParticles; i++)
+	{
+		PointEffect * aPoint = new PointEffect();
+		aPoint->createRandomPointFrom(x, y, 170 ,240);
+		pointEffects.push_back(aPoint);
+	}
+	animationLength = 75;
+	currentFrame = 0;
+
+	vector<float> startingValue;// = {(255.0/255.0), (233.0/255.0), (108.0/255.0)};
+	startingValue.push_back(1.0);
+	startingValue.push_back(165.0/255.0);
+	startingValue.push_back(50.0/255.0);
+
+	vector<float> endingValue;
+	endingValue.push_back(223.0/255.0);
+	endingValue.push_back(45.0/255.0);
+	endingValue.push_back(92.0/255.0);
+
+	setColorValues(startingValue, endingValue);
+
 	setOpacityValues(1, 0.2);
 }
 
@@ -133,6 +204,15 @@ void PointEffect::createRandomPointFrom(float aPosX, float aPosY)
 	posX = aPosX;
 	posY = aPosY;
 	angle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f)) * (PI/180);
+	speed = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/20.0f));
+}
+
+void PointEffect::createRandomPointFrom(float aPosX, float aPosY, float anAngleLowBound, float anAngleHighBound)
+{
+	float amplitude = anAngleHighBound - anAngleLowBound;
+	posX = aPosX;
+	posY = aPosY;
+	angle = (anAngleLowBound + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/amplitude))) * (PI/180.0);
 	speed = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/20.0f));
 }
 

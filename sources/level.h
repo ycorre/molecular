@@ -19,12 +19,17 @@
 #include "hero.h"
 #include "hud.h"
 #include "effect.h"
+#include "enemyWave.h"
 
 class Hero;
 class Pe;
 class HUD;
+class EnemyWave;
 
-enum{LEVEL_PLAYING, LEVEL_WON, LEVEL_LOST, LEVEL_FINISHING};
+class LevelFactory
+{
+
+};
 
 class Level
 {
@@ -43,12 +48,14 @@ class Level
 	vector<string> objectConfiguration;
 	map<string, Drawable *> loadedObjects;
 	string name;
-	int levelState;
+	LevelState levelState;
 	int cameraSpeed;
 	int exiting, ending, fading;
 	Drawable bkg_mid, bkg_near, bkg_distant;
 	float bkg_nearSpeed, bkg_midSpeed, bkg_distantSpeed;
-	int displayBackGround;
+	int levelPosition;
+	map<int, vector<EnemyWave *> > enemyWaves;
+	list<EnemyWave *> activeWaves;
 
 	map<string, Json::Value> configurations;
 
@@ -64,8 +71,9 @@ class Level
 	void createEffect(int x, int y, string name);
 	void createTextEffect(int x, int y, string aText);
 	void createExplosion(int x, int y);
-	void createBonus(int x, int y, int type);
-	void createBonus(int x, int y, float aSpeed, float anAngle, int type);
+	void createBonus(int x, int y, bonusType type);
+	void createBonus(int x, int y, float aSpeed, float anAngle, bonusType type);
+	void startWave(int aNumber);
 	virtual int checkCollision(Drawable * anEnemy);
 	virtual int checkEnemyCollision(Drawable * anElement);
 	virtual void cleanLevel();

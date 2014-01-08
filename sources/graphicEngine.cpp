@@ -12,10 +12,21 @@ GraphicEngine::GraphicEngine()
 	fadingSpeed = 1.0;
 	screen = NULL;
 	isFading = FALSE;
+	shakingEffect = FALSE;
+	shakeCounter = 0;
 }
 
 void GraphicEngine::init()
 {
+	shakeValues.push_back(4);
+	shakeValues.push_back(-4);
+	shakeValues.push_back(4);
+	shakeValues.push_back(-4);
+	shakeValues.push_back(2);
+	shakeValues.push_back(-2);
+	shakeValues.push_back(1);
+	shakeValues.push_back(-1);
+
 #if !USE_OPENGL
 	blackBox = new Drawable();
 	blackBox->width = 1200;
@@ -30,6 +41,8 @@ void GraphicEngine::init()
 //Load a texture as an SDL_Surface
 SDL_Surface * GraphicEngine::loadTexture(string path)
 {
+
+	//Check if the texture is already loaded
 	if(textures.find(path) == textures.end())
 	{
 		SDL_Surface * aSurface;
@@ -49,6 +62,7 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 		openGLTextures.insert(make_pair(aSurface, oglTex));
 #endif
 
+		//Save texture for later reuse
 		textures.insert(make_pair(path, aSurface));
 		return aSurface;
 	}
@@ -67,8 +81,17 @@ void GraphicEngine::drawFrame()
 	glTranslatef(-aspectRatio, -1 , -1);
 #endif
 
+	//Shift the camera in one direction
+	if(shakingEffect)
+	{
+		shakeCamera(0);
+	}
+
 	if(!toDisplay.empty())
 	{
+		//Sort the toDisplay so that they are displayed from back to front
+		//sort(toDisplay.begin(), toDisplay.end(), sortDisplayedElement);
+
 		for (std::vector<Drawable *>::iterator aDrawable = toDisplay.begin() ; aDrawable != toDisplay.end(); ++aDrawable)
 		{
 			draw(*aDrawable);
@@ -89,13 +112,23 @@ void GraphicEngine::drawFrame()
 			delete (*anEffect);
 			particleEffects.remove(*anEffect--);
 		}
-
 	}
 
 	//Check for effects to perform
 	if(isFading)
 	{
 		fadeOut();
+	}
+
+	//Put the camera back in place to create the illusion of shaking
+	if(shakingEffect)
+	{
+		shakeCamera(1);
+		if(shakeCounter == 8)
+		{
+			shakingEffect = FALSE;
+			shakeCounter = 0;
+		}
 	}
 
 	displayFrame();
@@ -106,6 +139,7 @@ int GraphicEngine::draw(Drawable * sprite)
 {
 
 #if USE_OPENGL
+	//If we need blending
 	if(sprite->toBlend)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
@@ -169,6 +203,7 @@ int GraphicEngine::draw(Drawable * sprite)
 	//Discard the new context
 	glPopMatrix();
 
+	//Deactivate blending
 	if(sprite->toBlend)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -196,6 +231,7 @@ int GraphicEngine::draw(Drawable * sprite)
     return 1;
 }
 
+//Draw particle effects
 void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 {
 	glDisable(GL_TEXTURE_2D);
@@ -214,7 +250,6 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	{
 		//Set the width for the lines
 		glLineWidth((*aLine)->lineWidth);
-		//glColor4f(1.0, 1.0, 1.0, 1);
 
 		//Create a temporary context in case we perform specific transformation for that object
 		glPushMatrix();
@@ -229,15 +264,16 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	glEnd();
 
 	glPointSize(2.0);
+
+	//Draw points
 	glBegin(GL_POINTS);
 	//Set color values and opacity
 	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
-
 	for (list<PointEffect *>::iterator aPoint = anEffect->pointEffects.begin(); aPoint != anEffect->pointEffects.end(); ++aPoint)
 	{
-
 		//Create a temporary context in case we perform specific transformation for that object
 		glPushMatrix();
+
 		//Draw a point
 		glVertex3f(((*aPoint)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aPoint)->posY)/(SCREEN_HEIGHT/2), 0);
 
@@ -245,6 +281,8 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 		glPopMatrix();
 	}
 	glEnd();
+
+	//Restore default blending parameters
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_TEXTURE_2D);
@@ -261,6 +299,20 @@ void GraphicEngine::displayFrame()
 #endif
 }
 
+//Shake the camera
+void GraphicEngine::shakeCamera(int aSense)
+{
+	if(!aSense)
+	{
+		glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+	}
+	else {
+		glTranslatef(-shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+		shakeCounter++;
+	}
+}
+
+//Load a font and store it in available fonts
 int GraphicEngine::addFont(string aName, string path, int size)
 {
 	TTF_Font * font;
@@ -285,6 +337,7 @@ void GraphicEngine::initColors()
 	availableColors.insert(make_pair("BLUE", blue));
 }
 
+//Initialize fading out
 void GraphicEngine::startFadingOut(int aFadingSpeed)
 {
 	fadingSpeed = aFadingSpeed;
@@ -369,6 +422,7 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
+//Free all the loaded textures
 void GraphicEngine::freeTextures()
 {
 	for (map<SDL_Surface *, GLuint>::iterator anOGLTexture = openGLTextures.begin() ; anOGLTexture != openGLTextures.end(); ++anOGLTexture)
@@ -381,7 +435,11 @@ void GraphicEngine::freeTextures()
 	{
 		SDL_FreeSurface((*aTexture).second);
 	}
-
 	textures.clear();
+}
+
+bool sortDisplayedElement(const Drawable * a, const Drawable * b)
+{
+	return (a->virtualDepth > b->virtualDepth);
 }
 

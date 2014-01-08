@@ -55,7 +55,7 @@ class Menu
 		pair<string, unsigned int> ahighScores[5];
 		vector<pair<string, unsigned int> > highScores;
 		list<Text *> highScoreElements;
-		int currentMenu, nextMenu;
+		MenuState currentMenu, nextMenu;
 
 		Menu(GraphicEngine * aGe, SoundEngine * aSe);
 		void loadMenu();
@@ -97,16 +97,5 @@ class Menu
 bool sortElement(AnimatedDrawable a, AnimatedDrawable b);
 bool sortScores(pair<string, int>  a, pair<string, int>  b);
 
-enum {MENU_MAIN, MENU_HIGHSCORE, MENU_NEWHIGHSCORE, MENU_CREDIT, MENU_GAMEOVER, MENU_SUCCESS, MENU_INTRO, MENU_LEVELSELECT};
-/*
-#define MENU_MAIN 0
-#define MENU_HIGHSCORE 1
-#define MENU_NEWHIGHSCORE 2
-#define MENU_CREDIT 3
-#define MENU_GAMEOVER 4
-#define MENU_SUCCESS 5
-#define MENU_INTRO 6
-#define MENU_LEVELSELECT 7
-*/
 #endif
 

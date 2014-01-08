@@ -59,15 +59,6 @@ void Keyboard::processKeyInGame(Hero * hero)
 		game->gameState = GAME_LOADMENU;
 	}
 
-	if(keyStates[SDLK_b])
-	{
-		if (!p_pressed)
-		{
-			CurrentLevel->displayBackGround = (CurrentLevel->displayBackGround + 1) % 2;
-			p_pressed = TRUE;
-		}
-	}
-
 	//Cheat for those who find the game too hard
 	if(keyStates[SDLK_KP_PLUS]||keyStates[SDLK_PLUS])
 		hero->nbLife++;
@@ -100,26 +91,26 @@ void Keyboard::processKeyInGame(Hero * hero)
 
 		if(keyStates[PHOTON_KEY])
 		{
-			hero->setWeapon("hadronGun");
-			hero->fireWeapon("hadronGun");
+			hero->setWeapon(HadronGun);
+			hero->fireWeapon(HadronGun);
 		}
 
 		if(keyStates[ELECTRON_KEY])
 		{
-			hero->setWeapon("electronGun");
-			hero->fireWeapon("electronGun");
+			hero->setWeapon(ElectronGun);
+			hero->fireWeapon(ElectronGun);
 		}
 
 		if(keyStates[BARYON_KEY])
 		{
-			hero->setWeapon("baryonGun");
-			hero->fireWeapon("baryonGun");
+			hero->setWeapon(BaryonGun);
+			hero->fireWeapon(BaryonGun);
 		}
 
 		if(keyStates[PLASMA_KEY])
 		{
-			hero->setWeapon("plasmaGun");
-			hero->fireWeapon("plasmaGun");
+			hero->setWeapon(PlasmaGun);
+			hero->fireWeapon(PlasmaGun);
 		}
 	}
 
@@ -259,6 +250,7 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 
 		case SDLK_SPACE:
 		case SDLK_RETURN:
+		case SDLK_KP_ENTER:
 			menu->select();
 			break;
 

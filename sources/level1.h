@@ -13,6 +13,7 @@
 #include <sstream>
 #include "level.h"
 
+
 class Level1: public Level
 {
 	public:

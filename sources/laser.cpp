@@ -241,6 +241,7 @@ Lazer::Lazer(int x, int y, Weapon * aWeapon)
 	lightning.copyFrom(lev->loadedObjects.at("jSp_bEclair"));
 	lightning.setAnimX(0);
 	lightning.setAnimY(0);
+	lightning.display = FALSE;
 
 	burningFlames.copyFrom(lev->loadedObjects.at("jSp_bCrame"));
 	burningFlames.setAnimX(0);
@@ -338,6 +339,7 @@ void Lazer::upgrade(int aLevel)
 			attack.setAnimation("level1");
 			release.setAnimation("level1");
 			setAnimation("level1");
+			lightning.display = FALSE;
 			currentAnimation->width = width;
 			break;
 
@@ -345,6 +347,7 @@ void Lazer::upgrade(int aLevel)
 			attack.setAnimation("level2");
 			release.setAnimation("level2");
 			setAnimation("level2");
+			lightning.display = FALSE;
 			currentAnimation->width = width;
 			break;
 
@@ -352,6 +355,7 @@ void Lazer::upgrade(int aLevel)
 			attack.setAnimation("level3");
 			release.setAnimation("level3");
 			setAnimation("level3");
+			lightning.display = TRUE;
 			currentAnimation->width = width;
 			break;
 

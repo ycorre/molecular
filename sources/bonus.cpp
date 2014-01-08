@@ -7,7 +7,7 @@
 
 Bonus::Bonus()
 {
-	type = 0;
+	type = BONUS_SHIELD;
 	name = "bonus";
 	width = texture->w;
 	height = texture->h;
@@ -24,7 +24,7 @@ Bonus::Bonus()
 }
 
 
-Bonus::Bonus(int x, int y, float aSpeed, float anAngle, int bType)
+Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
 {
 	type = bType;
 	name = "bonus " + type;

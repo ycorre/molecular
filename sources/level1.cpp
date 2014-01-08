@@ -14,7 +14,6 @@ void Level1::loadLevel(Hero * aHero)
 	activeElements.clear();
 	loadLevelConfiguration("conf/Level1.json");
 	loadBackGround();
-	instantiateEnemies();
 
 	soundEngine->playMusic("hybridQuarks");
 
@@ -90,12 +89,39 @@ void Level1::checkEvent()
 		}
 	}
 
+	levelPosition++;
+
+	//Check if we are at a point where we should instantiate a new wave
+	if(enemyWaves.find(levelPosition) != enemyWaves.end())
+	{
+		for(vector<EnemyWave *>::iterator aWave = enemyWaves.at(levelPosition).begin(); aWave != enemyWaves.at(levelPosition).end(); ++aWave)
+		{
+			(*aWave)->launchWave();
+			activeWaves.push_back(*aWave);
+		}
+		//enemyWaves.at(levelPosition)->launchWave();
+		//activeWaves.push_back(enemyWaves.at(levelPosition));
+
+		enemyWaves.erase(levelPosition);
+	}
+
+	//Animate the elements of the active waves
+	for(list<EnemyWave *>::iterator aWave = activeWaves.begin(); aWave != activeWaves.end(); aWave++)
+	{
+		(*aWave)->animate();
+		if(!(*aWave)->active)
+		{
+			delete (*aWave);
+			aWave =	activeWaves.erase(aWave);
+		}
+	}
+
 	//Winning conditions
-	/*if(background.getAnimX() >= 15800 - SCREEN_WIDTH && hero->state != DEAD)
+	if(levelPosition >= 15800 && hero->state != DEAD)
 	{
 		//Level won
 		finishLevel();
-	}*/
+	}
 }
 
 int Level1::checkEnemyCollision(Drawable * anElement)
@@ -149,24 +175,6 @@ int Level1::checkCollision(Drawable * anElement)
 	}
 
 	return FALSE;
-}
-
-void Level1::instantiateEnemies()
-{
-	Json::Value enemyConf = configurations.at("enemies");
-
-	float sinWidth = enemyConf[0].get("sinusWidth", 400).asFloat();
-	float sinHeight = enemyConf[0].get("sinusHeight", 80).asFloat();
-	float speed = enemyConf[0].get("speed", 2.2).asFloat();
-
-	unsigned int index;
-	const Json::Value positions = enemyConf[0]["positions"];
-	for (index = 0; index < positions.size(); ++index)
-	{
-		int pX = positions[index].get("posX", 0).asInt();
-		int pY = positions[index].get("posY", 0).asInt();
-		activeElements.push_back(new Cadmium(pX, pY, sinWidth, sinHeight, speed));
-	}
 }
 
 void Level1::finishLevel()

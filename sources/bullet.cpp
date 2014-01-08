@@ -42,8 +42,8 @@ void Bullet::animate()
 	//Compute the next movement vector
 	//Handle by the physic engine ?
 	float vx, vy;
-	vx = (speed)*cos(angle);
-	vy = (speed)*sin(angle);
+	vx = speed * cos(angle);
+	vy = speed * sin(angle);
 
 	posX = posX + vx;
 	posY = posY + vy;
@@ -95,8 +95,8 @@ void CadmiumAmmo::animate()
 	//Compute the next movement vector
 	//Handle by the physic engine ?
 	float vx, vy;
-	vx = (speed) * cos(angle);
-	vy = (speed) * sin(angle);
+	vx = speed * cos(angle);
+	vy = speed * sin(angle);
 
 	posX = posX + vx;
 	posY = posY + vy;

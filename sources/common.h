@@ -5,10 +5,11 @@
 #include <SDL_opengl.h>
 #include "json/json/reader.h"
 #include "json/json/value.h"
+#include "types.h"
 //#include <minmax.h>
 
 using namespace std;
-//class Game;
+class Game;
 class Level;
 
 //Do we use OpenGL rendering ?
@@ -40,7 +41,7 @@ extern Uint32 ProgramTimer;
 extern Uint32 GameTimer;
 extern Uint32 Score;
 extern Level * CurrentLevel;
-//Game * CurrentGame;
+extern Game * CurrentGame;
 
 #endif
 

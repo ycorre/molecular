@@ -26,8 +26,8 @@ class Hero: public AnimatedDrawable
 	  int nbLife;
 	  float regenMassPo;
 	  Weapon * currentWeapon;
-	  map<string, Weapon *> ownedWeapons;
-	  map<int, int> quarkLevels;
+	  map<weaponName, Weapon *> ownedWeapons;
+	  map<QuarkType, int> quarkLevels;
 	  int shielded;
 	  Shield * shield;
 
@@ -54,7 +54,7 @@ class Hero: public AnimatedDrawable
 	  void setState(int aState);
 	  void setTexture(Drawable * aModel);
 	  void fire();
-	  void fireWeapon(string aWeaponName);
+	  void fireWeapon(weaponName aWeaponName);
 	  void upgradeWeaponTo(int aLevel);
 	  void move(int x, int y);
 	  void moveUp();
@@ -64,7 +64,7 @@ class Hero: public AnimatedDrawable
 	  void animateLasers();
 	  void makeInvincible(int time);
 	  void checkInvicibility();
-	  void setWeapon(string aWeaponName);
+	  void setWeapon(weaponName aWeaponName);
 	  void loseLife();
 	  void resetHero();
 	  float hitBackoff();
@@ -73,6 +73,7 @@ class Hero: public AnimatedDrawable
 	  int endTeleport();
 	  list<Shoot *> * getLasers();
 	  void spreadQuarks();
+	  void checkQuarkLevels();
 	  virtual void animate();
 	  virtual int isHero() {return 1;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
@@ -89,8 +90,6 @@ public:
 	Shield();
 	Shield(float x, float y);
 };
-
-enum heroState{STATIC, HIT, ENTER, DEAD, APPAR, DISPAR, EXITING, CURSOR};
 
 #endif
 
