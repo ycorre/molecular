@@ -30,14 +30,14 @@ class Game
 		Menu * menu;
 		Hero * hero;
 		//List of levels
-		map<string, Level*> levels;
+		//map<string, Level*> levels;
 		vector<string> levelOrder;
 		map<string, int>lockedLevel;
 		int score;
 
-		//Hold the current state of the game (cf. below for the state)
-		int gameState;
-		int previousGameState;
+		//Hold the current state of the game (cf. types.h for the states)
+		GameState gameState;
+		GameState previousGameState;
 
 		Game();
 		int mainLoop();
@@ -56,9 +56,6 @@ class Game
 
 void controlFPS();
 int initOpenGL();
-
-//Definition of the values for the gameState variable
-enum {GAME_MENU, GAME_INGAME, GAME_GAMEOVER, GAME_WIN, GAME_PAUSE, GAME_LOADMENU, GAME_LOADLEVEL};
 
 #endif
 

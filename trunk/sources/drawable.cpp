@@ -36,7 +36,7 @@ Drawable::Drawable()
 	ogl_Xorigin = ogl_Xcorner = ogl_Ycorner = ogl_Yorigin = 0.0;
 	oglTexture = 0;
 	collision = NULL;
-	virtualDepth = 1;
+	virtualDepth = 100;
 }
 
 Drawable::Drawable(Json::Value aConfig)
@@ -63,7 +63,7 @@ Drawable::Drawable(Json::Value aConfig)
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
-	virtualDepth = aConfig.get("virtualDepth", 1).asInt();
+	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	loadTexture(aConfig.get("dataPath", "").asString());
 
@@ -286,6 +286,7 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
+	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	currentAnimation = NULL;
 

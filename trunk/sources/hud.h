@@ -34,7 +34,8 @@ class HUD
 	AnimatedDrawable electron, hadron, baryon, plasma, weaponLoad;
 	vector<Drawable> lives;
 	vector<Drawable> score;
-	map<int, AnimatedDrawable *> quarks;
+	map<QuarkType, AnimatedDrawable *> quarks;
+	map<weaponName, AnimatedDrawable *> weapons;
 
 	HUD();
 	HUD(GraphicEngine * ge);
@@ -45,10 +46,9 @@ class HUD
 	void displayScore(int score);
 	//void displayMassPotential(float massPo);
 	//void displayRadioPotential(float radioPo);
-	void displayQuarkLevels(map<int, int> quarkLevels);
+	void displayQuarkLevels(map<QuarkType, int> quarkLevels);
 	void displayWeapons(Hero * hero);
 };
 
-enum {QuarkB, QuarkT, QuarkU, QuarkD, QuarkC, QuarkS};
 #endif
 

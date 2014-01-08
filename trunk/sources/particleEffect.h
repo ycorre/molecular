@@ -30,14 +30,17 @@ class ParticleEffect
 		list<LineEffect *> lineEffects;
 		list<PointEffect *> pointEffects;
 		vector<float> opacityValues;
+		vector<vector<float> > colorValues;
 
 		ParticleEffect();
 		~ParticleEffect();
 		virtual void animate();
 		void setOpacityValues(float startingValue, float endingValue);
+		void setColorValues(vector<float> startingColorValue, vector<float> endingColorValue);
 
 		void createImpactFrom(float posX, float posY);
 		void createExplosionFrom(float x, float y);
+		void createSparkFrom(float x, float y);
 };
 
 class LineEffect: public ParticleEffect
@@ -69,6 +72,7 @@ class PointEffect: public ParticleEffect
 		PointEffect();
 		virtual void animate();
 		void createRandomPointFrom(float aPosX, float aPosY);
+		void createRandomPointFrom(float aPosX, float aPosY, float anAngleLowBound, float anAngleHighBound);
 };
 
 class Emitter

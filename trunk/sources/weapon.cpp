@@ -16,6 +16,7 @@ Weapon::Weapon()
 	loadable = FALSE;
 	isFiring = FALSE;
 	powerLevel = WEAPON_STANDARD;
+	activated = FALSE;
 }
 
 void Weapon::fire(Hero * aHero)
@@ -63,12 +64,18 @@ void Weapon::upgradeTo(int level)
 
 }
 
+void Weapon::checkActivation(Hero * aHero)
+{
+
+}
+
 /*
  * Electron functions
  */
 Electron::Electron()
 {
 	name = "electronGun";
+	type = ElectronGun;
 	power = 30;
 	lastTimeFired = 0;
 	fireRate = 50;
@@ -77,6 +84,7 @@ Electron::Electron()
 	load = -1;
 	loadable = FALSE;
 	powerLevel = WEAPON_STANDARD;
+	activated = TRUE;
 
 	muzzle.copyFrom(CurrentLevel->loadedObjects.at("muzzle"));
 	muzzle.setAnimX(0);
@@ -148,6 +156,7 @@ void Electron::upgradeTo(int aLevel)
 Hadron::Hadron()
 {
 	name = "hadronGun";
+	type = HadronGun;
 	power = 250;
 	lastTimeFired = 0;
 	fireRate = 750;
@@ -169,12 +178,34 @@ void Hadron::fire(Hero * aHero)
 	}
 }
 
+void Hadron::checkActivation(Hero * aHero)
+{
+	activated = FALSE;
+	if(aHero->quarkLevels.at(QuarkU) > 0 && aHero->quarkLevels.at(QuarkD) > 0)
+	{
+		activated = TRUE;
+		if (aHero->quarkLevels.at(QuarkU) > 15 && aHero->quarkLevels.at(QuarkD) > 15)
+		{
+			if (aHero->quarkLevels.at(QuarkU) >= 34 && aHero->quarkLevels.at(QuarkD) >= 34)
+			{
+				upgradeTo(WEAPON_FURIOUS);
+				return;
+			}
+
+			upgradeTo(WEAPON_SUPERIOR);
+			return;
+		}
+		upgradeTo(WEAPON_STANDARD);
+	}
+}
+
 /*
  * Baryon functions
  */
 Baryon::Baryon()
 {
 	name = "baryonGun";
+	type = BaryonGun;
 	power = 5;
 	lastTimeFired = 0;
 	fireRate = 0;
@@ -183,6 +214,8 @@ Baryon::Baryon()
 	load = -1;
 	loadable = FALSE;
 	mahLazor = NULL;
+	xImpactPos = 0;
+	yImpactPos = 0;
 
 	haloA.copyFrom(CurrentLevel->loadedObjects.at("j_bHaloA"));
 	haloA.setAnimX(0);
@@ -212,7 +245,12 @@ void Baryon::fire(Hero * aHero)
 
 	mahLazor->animate(aHero->posX, aHero->posY, hitEnnemy, xImpactPos, yImpactPos);
 	if(hitEnnemy)
+	{
 		hitEnnemy->processCollisionWith(mahLazor);
+	    ParticleEffect * aParticleEffect = new ParticleEffect();
+	    aParticleEffect->createSparkFrom(aHero->posX + xImpactPos + 77, aHero->posY + 32);
+	    CurrentLevel->ge->particleEffects.push_back(aParticleEffect);
+	}
 
 	haloA.updateAnimationFrame();
 	haloA.posX = aHero->posX - 96;
@@ -289,12 +327,34 @@ void Baryon::upgradeTo(int aLevel)
 		mahLazor->upgrade(aLevel);
 }
 
+void Baryon::checkActivation(Hero * aHero)
+{
+	activated = FALSE;
+	if (aHero->quarkLevels.at(QuarkC) > 0 && aHero->quarkLevels.at(QuarkS) > 0)
+	{
+		activated = TRUE;
+		if (aHero->quarkLevels.at(QuarkC) > 15 && aHero->quarkLevels.at(QuarkS) > 15)
+		{
+			if (aHero->quarkLevels.at(QuarkC) >= 34 && aHero->quarkLevels.at(QuarkS) >= 34)
+			{
+				upgradeTo(WEAPON_FURIOUS);
+				return;
+			}
+
+			upgradeTo(WEAPON_SUPERIOR);
+			return;
+		}
+	 	upgradeTo(WEAPON_STANDARD);
+	}
+}
+
 /*
  * Plasma functions
  */
 Plasma::Plasma()
 {
 	name = "plasmaGun";
+	type = PlasmaGun;
 	power = 50;
 	lastTimeFired = 0;
 	fireRate = 80;
@@ -309,4 +369,27 @@ void Plasma::fire(Hero * aHero)
 {
 	isFiring = TRUE;
 	shoots.push_back(new Photon(aHero->posX - 64, aHero->posY + 16, this));
+}
+
+void Plasma::checkActivation(Hero * aHero)
+{
+	activated = FALSE;
+	 if (aHero->quarkLevels.at(QuarkC) > 0 && aHero->quarkLevels.at(QuarkS) > 0 &&
+		 aHero->quarkLevels.at(QuarkB) > 0 && aHero->quarkLevels.at(QuarkT) > 0 &&
+		 aHero->quarkLevels.at(QuarkD) > 0 && aHero->quarkLevels.at(QuarkU) > 0)
+	 {
+		 activated = TRUE;
+		 if (aHero->quarkLevels.at(QuarkC) > 15 && aHero->quarkLevels.at(QuarkS) > 15)
+		 {
+			 if (aHero->quarkLevels.at(QuarkC) >= 34 && aHero->quarkLevels.at(QuarkS) >= 34)
+			 {
+				 upgradeTo(WEAPON_FURIOUS);
+				 return;
+			 }
+
+			 upgradeTo(WEAPON_SUPERIOR);
+			 return;
+		 }
+		 upgradeTo(WEAPON_STANDARD);
+	 }
 }

@@ -47,6 +47,7 @@ class Keyboard
 #define MUTE_MUSIC_KEY SDLK_o
 #define MUTE_SOUND_KEY SDLK_i
 #define MUTE_ALL_KEY SDLK_m
+
 void quit(int returnCode);
 
 #endif

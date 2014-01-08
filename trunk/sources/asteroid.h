@@ -7,6 +7,8 @@
 #include "drawable.h"
 #include "enemy.h"
 
+enum asteroidType {BIG_ASTEROID, SMALL_ASTEROID};
+
 class Asteroid: public Enemy
 {
 	public:
@@ -27,6 +29,5 @@ class Asteroid: public Enemy
 		void setAngleAndSpeed();
 };
 
-enum {BIG_ASTEROID, SMALL_ASTEROID};
 
 #endif

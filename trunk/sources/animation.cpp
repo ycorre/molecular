@@ -68,6 +68,7 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 {
 	name = aConfig.get("name", "animDefaut").asString();
 	width = aConfig.get("width", 0).asInt();
+	//If no width was specified
 	if (width == 0)
 		width = aDrawable-> width;
 
@@ -120,9 +121,10 @@ int Animation::nextFrame()
 
 	incrementCurrentFrame();
 
-	//Compute the position in the texture
+	//If we have to move inside the texture
 	if(hasAnimatedTexture)
 	{
+		//Compute the coordinate of the texture to display
 		drawable->setAnimY((currentFrame / (drawable->texture->w/width)) * height);
 		drawable->setAnimX((currentFrame % (drawable->texture->w/width)) * width);
 	}
@@ -168,17 +170,26 @@ void Animation::loadTexture(string path)
 #endif
 }
 
+//Opacity values for an animation is given as a series of pairs of number (x, y)
+//*The x is the number of a key frame, where a specific value of opacity should be reached
+//*The y is the actual opacity value to be taken at frame x (value is between 0.0 and 1.0)
+//This is given in the configuration file as a string of numbers representing separated by comma
+//Given the key frames, the opacity values and the number of frame in the animation
+//we compute for each frame of the animation the opacity value, by computing the value for each frame between two key frames
+//assuming that the opacity is increasing (or decreasing) in a linear way
 void Animation::configOpacity(string aConfigString)
 {
 	string aFrameNumber;
 	istringstream aConf(aConfigString);
-	int i, j;
+	unsigned int i, j;
 	map<int, float> opacityTempValues;
 	vector<int> frameIndices;
 	float startingOpacity;
 	float currentOpacity;
 	float finishingOpacity;
 	float opacityModifyingFactor;
+
+	//Parse the configuration string to get pair of values
 	while(getline(aConf, aFrameNumber, ','))
 	{
 		string anOpacityValue;
@@ -194,6 +205,7 @@ void Animation::configOpacity(string aConfigString)
 	currentOpacity = startingOpacity;
 	j++;
 
+	//Compute all the opacity values to be taken for each frame
 	for (i = 0; i <numberOfFrames; i++)
 	{
 		opacityValues.push_back(currentOpacity);
@@ -217,6 +229,7 @@ void Animation::configOpacity(string aConfigString)
 	}
 }
 
+//Works similarly to configOpacity (see above), except that scaling value can go higher than 1.0
 void Animation::configScaling(string aConfString)
 {
 	string aFrameNumber;
@@ -229,6 +242,7 @@ void Animation::configScaling(string aConfString)
 	float finishingScale;
 	float scaleModifyingFactor;
 
+	//Parse the configuration string to get pair of values
 	while(getline(aConf, aFrameNumber, ','))
 	{
 		string anOpacityValue;
@@ -244,6 +258,7 @@ void Animation::configScaling(string aConfString)
 	currentScale = startingScale;
 	j++;
 
+	//Compute all the scaling values to be taken for each frame
 	for (i = 0; i <numberOfFrames; i++)
 	{
 		scalingValues.push_back(currentScale);

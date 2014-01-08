@@ -19,7 +19,9 @@ Uint32 GameTimer;
 Uint32 NextLoop, Interval, FPS = 60;
 Uint32 Score = 0;
 
+//Global variables
 Level * CurrentLevel;
+Game * CurrentGame;
 
 Game::Game()
 {
@@ -39,7 +41,7 @@ void quit(int code)
 int main(int argc, char **argv)
 {
     Game * game = new Game();
-   // CurrentGame = game;
+    CurrentGame = game;
 
     //set the random generator seed
     srand(time(NULL));
@@ -141,6 +143,7 @@ int Game::mainLoop()
 				if (CurrentLevel->levelState == LEVEL_LOST)
 				{
 					CurrentLevel->cleanLevel();
+					delete CurrentLevel;
 					delete menu;
 					menu = new Menu(&graphicEngine, &soundEngine);
 					menu->loadMenu();
@@ -149,7 +152,7 @@ int Game::mainLoop()
 				    menu->nextMenu = MENU_GAMEOVER;
 					menu->menuInTransition = TRUE;
 					gameState = GAME_MENU;
-					  graphicEngine.toDisplay.clear();
+					graphicEngine.toDisplay.clear();
 				}
 				break;
 
@@ -185,15 +188,6 @@ int Game::initGame()
 	soundEngine = *(new SoundEngine());
 	soundEngine.init();
 	menu = new Menu(&graphicEngine, &soundEngine);
-
-    Level1 * l1 = new Level1();
-    Level2 * l2 = new Level2();
-
-    l1->name = "level1";
-    l2->name = "level2";
-
-    levels.insert(make_pair("level1", l1));
-    levels.insert(make_pair("level2", l2));
 
     int i;
     for(i = 1; i<10; i++)
@@ -293,7 +287,7 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);
@@ -329,7 +323,7 @@ void Game::pause()
 //Start a new game (beginning with level 1)
 void Game::newGame()
 {
-	CurrentLevel = levels.at("level1");
+	CurrentLevel =  new Level1();
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
@@ -344,9 +338,24 @@ void Game::newGame()
 
 //Used to launch a specific level
 //Should be used only in debug
-void Game::launchLevel(string aLevel)
+void Game::launchLevel(string aLevelName)
 {
-	CurrentLevel = levels.at(aLevel);
+	int last_index = aLevelName.find_last_not_of("0123456789");
+	int aLevelIndex = atoi(aLevelName.substr(last_index + 1).c_str());
+	switch(aLevelIndex)
+	{
+		case 1:
+			CurrentLevel = new Level1();
+			break;
+
+		case 2:
+			CurrentLevel = new Level2();
+			break;
+
+		default:
+			cerr << "Trying to load unknown level " << aLevelName << endl;
+	}
+
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
@@ -378,7 +387,7 @@ void Game::launchNextLevel()
 		return;
 	}
 
-	CurrentLevel = levels.at(levelOrder.at(newLevel));
+	//CurrentLevel = levels.at(levelOrder.at(newLevel));
 
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;

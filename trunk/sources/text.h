@@ -1,6 +1,6 @@
 /*
- * Graphic Engine
- * Contains graphic-related functions (loading texture, drawing, etc.)
+ * Text
+ * Contains functions for displaying text
  */
 #ifndef TEXT_H
 #define TEXT_H

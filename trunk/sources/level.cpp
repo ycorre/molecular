@@ -9,36 +9,23 @@ Level::Level()
 	bkg_nearSpeed = 0.4;
 	bkg_midSpeed = 0.2;
 	bkg_distantSpeed = 0.1;
+	levelPosition = 0;
+	levelState = LEVEL_PLAYING;
+	fading = FALSE;
+	ending = FALSE;
+	cameraSpeed = 1;
+
+	ge = NULL;
 	pe = NULL;
+	hero = NULL;
 	hud = NULL;
+	soundEngine = NULL;
 	exiting = FALSE;
 }
 
 void Level::loadLevel(Hero * anHero)
 {
 
-}
-
-Level * Level::launchLevel(string aLevelName)
-{
-	int aLevel;
-	int last_index = aLevelName.find_last_not_of("0123456789");
-	aLevel = atoi(aLevelName.substr(last_index + 1).c_str());
-	switch(aLevel)
-	{
-		/*case 1:
-			return new Level1();
-			break;
-		case 2:
-			return new Level2();
-			break;*/
-
-		default:
-			cerr << "Trying to load unknown level " << aLevelName << endl;
-			return NULL;
-	}
-
-	return NULL;
 }
 
 void Level::loadBackGround()
@@ -165,14 +152,15 @@ void Level::createExplosion(int x, int y)
     ParticleEffect * aParticleEffect = new ParticleEffect();
     aParticleEffect->createExplosionFrom(x, y);
     ge->particleEffects.push_back(aParticleEffect);
+    ge->shakingEffect = TRUE;
 }
 
-void Level::createBonus(int x, int y, int type)
+void Level::createBonus(int x, int y, bonusType type)
 {
 	activeElements.push_back(new Bonus(x, y, 0, 0, type));
 }
 
-void Level::createBonus(int x, int y, float aSpeed, float anAngle, int type)
+void Level::createBonus(int x, int y, float aSpeed, float anAngle, bonusType type)
 {
 	activeElements.push_back(new Bonus(x, y, aSpeed, anAngle, type));
 }
@@ -228,9 +216,20 @@ void Level::loadLevelConfiguration(string path)
 		soundEngine->loadMusicFrom(music[index]);
 	}
 
-	const Json::Value e = root["enemies"];
-	//cout << "rrrrrrrrrrrrrrrrrrrrrrrrrrrrr " << e.get("sinusHeight", 80).asFloat() << endl;
-	configurations.insert(make_pair("enemies", e));
+	//Load enemy waves
+	Json::Value enemyWavesConfig = root["enemyWaves"];
+	for (index = 0; index < enemyWavesConfig.size(); ++index)
+	{
+		EnemyWave * aWave = new EnemyWave(enemyWavesConfig[index]);
+
+		//If this the first time we encountered
+		if(enemyWaves.find(aWave->startingDate) == enemyWaves.end())
+		{
+			enemyWaves.insert(make_pair(aWave->startingDate, vector<EnemyWave *>()));
+		}
+
+		enemyWaves.at(aWave->startingDate).push_back(aWave);
+	}
 }
 
 void Level::createEffect(int x, int y, string name)
@@ -278,6 +277,8 @@ void Level::cleanLevel()
 	enemyConfigurationElements.clear();
 	effectConfigurationElements.clear();
 	objectConfiguration.clear();
+	enemyWaves.clear();
+	activeWaves.clear();
 
 	soundEngine->stopMusic("hybridQuarks");
 	soundEngine->stopAllSounds();

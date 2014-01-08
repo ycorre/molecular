@@ -57,9 +57,14 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 	quarkIndex[QuarkS] = 0;
 
 	electron = hudAnimatedElements.at("abeElectr");
-	hadron =  hudAnimatedElements.at("abeHadron");
-	baryon =  hudAnimatedElements.at("abeBaryon");
-	plasma =  hudAnimatedElements.at("abePlasma");
+	hadron = hudAnimatedElements.at("abeHadron");
+	baryon = hudAnimatedElements.at("abeBaryon");
+	plasma = hudAnimatedElements.at("abePlasma");
+
+	weapons[ElectronGun] = &electron;
+	weapons[BaryonGun] = &baryon;
+	weapons[HadronGun] = &hadron;
+	weapons[PlasmaGun] = &plasma;
 }
 
 void HUD::loadHUDElements(string path)
@@ -119,9 +124,13 @@ void HUD::displayHealth(int healthValue)
 	{
 		i = i - 0.25;
 	}
+	if(healthValue <= 0)
+	{
+		i = 1;
+	}
 
 	health.currentAnimation->setFrameTo((int)(i-1));
-	//setAnimX((int)(i) * health.width);
+
 	health.processDisplay();
 }
 
@@ -176,11 +185,11 @@ void HUD::displayRadioPotential(float radioPo)
 }
 */
 
-void HUD::displayQuarkLevels(map<int, int> quarkLevels)
+void HUD::displayQuarkLevels(map<QuarkType, int> quarkLevels)
 {
-	for(map<int, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
+	for(map<QuarkType, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
 	{
-		int aQuarkName = (*aQuark).first;
+		QuarkType aQuarkName = (*aQuark).first;
 		float anIndex  = quarkIndex.at(aQuarkName);
 		int aLevel = quarkLevels.at(aQuarkName);
 
@@ -192,6 +201,10 @@ void HUD::displayQuarkLevels(map<int, int> quarkLevels)
 		{
 			quarkIndex.at(aQuarkName) = anIndex - 0.25;
 		}
+		if(aLevel <= 0)
+		{
+			quarkIndex.at(aQuarkName) = 0;
+		}
 
 		quarks.at(aQuarkName)->currentAnimation->setFrameTo((int)(quarkIndex.at(aQuarkName)));
 		quarks.at(aQuarkName)->processDisplay();
@@ -200,26 +213,20 @@ void HUD::displayQuarkLevels(map<int, int> quarkLevels)
 
 void HUD::displayWeapons(Hero * hero)
 {
-	electron.setAnimation("l1");
-	if(hero->currentWeapon->name.compare("electronGun") == 0)
-		electron.setAnimation("l2");
-	electron.processDisplay();
+	for(map<weaponName, Weapon *>::iterator aWeapon = hero->ownedWeapons.begin(); aWeapon != hero->ownedWeapons.end(); ++aWeapon)
+	{
+		if((*aWeapon).second->activated)
+		{
+			weapons.at((*aWeapon).first)->setAnimation("l1");
+		}
+		else
+		{
+			weapons.at((*aWeapon).first)->setAnimation("empty");
+		}
+		weapons.at((*aWeapon).first)->processDisplay();
+	}
 
-	hadron.setAnimation("l1");
-	if(hero->currentWeapon->name.compare("hadronGun") == 0)
-		hadron.setAnimation("l2");
-	hadron.processDisplay();
-
-	baryon.setAnimation("l1");
-	if(hero->currentWeapon->name.compare("baryonGun") == 0)
-		baryon.setAnimation("l2");
-	baryon.processDisplay();
-
-
-	plasma.setAnimation("l1");
-	if(hero->currentWeapon->name.compare("plasmaGun") == 0)
-		plasma.setAnimation("l2");
-	plasma.processDisplay();
+	weapons.at(hero->currentWeapon->type)->setAnimation("l2");
 
 	if (hero->currentWeapon->load == -1)
 	{
@@ -255,10 +262,12 @@ void HUD::displayWeapons(Hero * hero)
 void HUD::displayLife(int nbLife)
 {
 	int i;
+
 	if (nbLife > 6)
 	{
 		nbLife = 6;
 	}
+
 	for(i = 0; i < nbLife; i++)
 	{
 		lives.at(i).processDisplay();

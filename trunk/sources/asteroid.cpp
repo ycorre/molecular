@@ -141,10 +141,12 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 	{
 		if (type == BIG_ASTEROID)
 		{
+			lev->soundEngine->playSound("xwing_explode");
 			lev->createExplosion(posX + width/2, posY + height/2);
 		}
 		else if(type == SMALL_ASTEROID)
 		{
+			lev->soundEngine->playSound("xwing_explode");
 			lev->createExplosion(posX + width/2, posY + height/2);
 		}
 
@@ -162,10 +164,12 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 		{
 			if (type == BIG_ASTEROID)
 			{
+				lev->soundEngine->playSound("xwing_explode");
 				lev->createExplosion(posX + width/2, posY + height/2);
 			}
 			else if(type == SMALL_ASTEROID)
 			{
+				lev->soundEngine->playSound("xwing_explode");
 				lev->createExplosion(posX + width/2, posY + height/2);
 			}
 			Score = Score + scoreValue;
