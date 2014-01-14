@@ -15,7 +15,7 @@ class Enemy: public AnimatedDrawable
 		int bonusProbability; //probability out of 100
 		int type;
 		int life;
-		int canFire;
+		bool canFire;
 		int fireRate, minFireRate, maxFireRate;
 		int scoreValue;
 		float speed;
@@ -39,8 +39,9 @@ class Enemy: public AnimatedDrawable
 		virtual void animate();
 		virtual void checkPositions();
 		virtual void processCollisionWith(Drawable* aDrawable);
-		virtual int isEnemy() {return 1;}
+		virtual bool isEnemy() {return true;}
 		virtual void fire();
+		virtual void die();
 		virtual void checkFire();
 };
 
@@ -74,28 +75,52 @@ class Silicon: public Enemy
 	public:
 		Silicon(Json::Value aConfig);
 		virtual void animate();
+		virtual void die();
 };
 
+class CopperCannon;
 class Copper: public Enemy
 {
 	public:
+		vector<CopperCannon *> cannons;
 		int lifeTime;
 		int currentLifeTime;
 		float xLimit;
 		float yDestination;
 		int lifePhase;
 		float ySpeed;
-		int fireCounter;
-		int shootingAngle;
+		bool invincible;
+		int spinningAngle;
+		int spinningCounter;
+		int activeCannons;
 
 		Copper(Json::Value aConfig);
 		virtual void animate();
-		virtual void checkFire();
-		virtual void fire();
-		virtual void moveAndChosePattern();
+		void nextPhase();
+		virtual void move();
+		virtual void processCollisionWith(Drawable * aDrawable);
 };
+
 //Copper phase
-enum {COPPER_PATTERN_1, COPPER_PATTERN_2, COPPER_PATTERN_3, COPPER_ARRIVING, COPPER_STEADY, COPPER_LEAVING};
+enum {COPPER_FIRE, COPPER_SPIN, COPPER_STEADY, COPPER_ARRIVING, COPPER_LEAVING};
+
+class CopperCannon: public Enemy
+{
+	public:
+		int shootingAngle;
+		int startShootingAngle;
+		bool activated;
+		bool destroyed;
+		Copper * copper;
+		float shiftX, shiftY;
+		float copperAngle;
+		vector<int> cannonAngles;
+
+		CopperCannon(Copper * aCopper, float x, float y);
+		virtual void animate();
+		virtual void fire();
+		virtual void processCollisionWith(Drawable * aDrawable);
+};
 
 class Bomb: public Enemy
 {

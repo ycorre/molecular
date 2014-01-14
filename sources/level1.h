@@ -24,8 +24,8 @@ class Level1: public Level
 	virtual void loadLevel(Hero * aHero);
 	virtual void drawLevel();
 	virtual void checkEvent();
-	virtual int checkCollision(Drawable * anElement);
-	virtual int checkEnemyCollision(Drawable * anElement);
+	virtual bool checkCollision(Drawable * anElement);
+	virtual bool checkEnemyCollision(Drawable * anElement);
 	virtual void finishLevel();
 };
 void loadEffects();

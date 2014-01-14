@@ -12,15 +12,15 @@ Animation::Animation()
 	texturePosX = 0;
 	texturePosY = 0;
 	numberOfFrames = 1;
-	loop = FALSE;
+	loop = false;
 	currentFrame = 0;
 	animationUpdateFrequency = 40;
 	drawable = NULL;
 	texture = NULL;
 	oglTexture = 0;
-	hasEnded = FALSE;
-	moveTexture = TRUE;
-	hasAnimatedTexture = TRUE;
+	hasEnded = false;
+	moveTexture = true;
+	hasAnimatedTexture = true;
 }
 
 Animation::Animation(Animation * anAnim)
@@ -42,7 +42,7 @@ Animation::Animation(Animation * anAnim)
 	currentFrame = 0;
 	animationUpdateFrequency = anAnim->animationUpdateFrequency;
 	drawable = NULL;
-	hasEnded = FALSE;
+	hasEnded = false;
 }
 
 Animation::Animation(Drawable * aDrawable)
@@ -53,14 +53,14 @@ Animation::Animation(Drawable * aDrawable)
 	texturePosX = 0;
 	texturePosY = 0;
 	numberOfFrames = 1;
-	loop = FALSE;
+	loop = false;
 	currentFrame = 0;
 	animationUpdateFrequency = 40;
 	drawable = aDrawable;
 	texture = aDrawable->texture;
-	hasEnded = FALSE;
-	moveTexture = TRUE;
-	hasAnimatedTexture = TRUE;
+	hasEnded = false;
+	moveTexture = true;
+	hasAnimatedTexture = true;
 	oglTexture = aDrawable->oglTexture;
 }
 
@@ -79,11 +79,11 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 	texturePosX = aConfig.get("texturePosX", 0).asFloat();
 	texturePosY = aConfig.get("texturePosY", 0).asFloat();
 	numberOfFrames = aConfig.get("numberOfFrames", 1).asInt();
-	loop = aConfig.get("loop", FALSE).asInt();
+	loop = aConfig.get("loop", false).asBool();
 
 	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
-	moveTexture = aConfig.get("moveTexture", FALSE).asInt();
-	hasAnimatedTexture = aConfig.get("animatedTexture", TRUE).asInt();
+	moveTexture = aConfig.get("moveTexture", false).asBool();
+	hasAnimatedTexture = aConfig.get("animatedTexture", true).asBool();
 
 	texture = NULL;
 	oglTexture = 0;
@@ -108,7 +108,7 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 	}
 
 	currentFrame = 0;
-	hasEnded = FALSE;
+	hasEnded = false;
 }
 
 void Animation::incrementCurrentFrame()
@@ -129,7 +129,7 @@ int Animation::nextFrame()
 		drawable->setAnimX((currentFrame % (drawable->texture->w/width)) * width);
 	}
 
-	hasEnded = FALSE;
+	hasEnded = false;
 
 	//If the current frame has an opacity value set
 	if(!opacityValues.empty())
@@ -147,7 +147,7 @@ int Animation::nextFrame()
 	//If we are at the end of the animation, set the flag
 	if (currentFrame == numberOfFrames - 1 && !loop)
 	{
-		hasEnded = TRUE;
+		hasEnded = true;
 	}
 
 	return currentFrame;

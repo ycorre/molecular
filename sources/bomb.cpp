@@ -8,7 +8,7 @@ Bomb::Bomb()
 	scoreValue = 500;
 	type = 0;
 	bonusProbability = 10;
-	canFire = FALSE;
+	canFire = false;
 	fireRate = 2000;
 	lastTimeFired = GameTimer;
 	life = 250;
@@ -29,7 +29,7 @@ Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 	type = 0;
 	scoreValue = 200;
 	bonusProbability = 10;
-	canFire = FALSE;
+	canFire = false;
 	minFireRate = 2000;
 	maxFireRate = 1000;
 	fireRate = minFireRate + (rand() % maxFireRate);
@@ -51,7 +51,7 @@ void Bomb::animate()
 	posY = posY + vy;
 
 	if(!lev->isOnScreen(this))
-		toRemove = TRUE;
+		toRemove = true;
 }
 
 
@@ -78,7 +78,7 @@ void Bomb::fire()
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 292.5* (PI / 180.0), 3));
 		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 337.5* (PI / 180.0), 3));
 
-		canFire = FALSE;
+		canFire = false;
 	}
 }
 

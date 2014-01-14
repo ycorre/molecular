@@ -1,5 +1,7 @@
 #include "particleEffect.h"
 
+
+
 ParticleEffect::ParticleEffect()
 {
 	type = "";
@@ -16,7 +18,9 @@ ParticleEffect::ParticleEffect()
 	particleEmitter = NULL;
 	lifeTime = 1;
 	speed = 0;
-	numberOfParticle = 0;
+	particleTypes["point"] = PARTICLE_POINT;
+	particleTypes["line"] = PARTICLE_LINE;
+	particleTypes["disc"] = PARTICLE_DISC;
 }
 
 ParticleEffect::~ParticleEffect()
@@ -67,7 +71,6 @@ void ParticleEffect::setColorValues(vector<float> startingColorValue, vector<flo
 
 void ParticleEffect::animate()
 {
-	//if(currentFrame != animationLength-1)
 	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
 	if (updateTime < ProgramTimer)
 	{
@@ -93,80 +96,152 @@ void ParticleEffect::animate()
 	}
 }
 
-//Create impact from 3 lines
-void ParticleEffect::createImpactFrom(float x, float y)
+void ParticleEffect::instantiateEffects(Json::Value aConf, float x, float y)
 {
-	int i = 0;
-	colorR = 51.0/255.0;
-	colorG = 118.0/255.0;
-	colorB = 208.0/255.0;
+	Json::Value effectConfig = aConf["effectType"];
+	unsigned int i;
 
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < effectConfig.size(); i++)
+	{
+		string anEffectType = effectConfig[i].get("type", "").asString();
+
+		switch(particleTypes.at(anEffectType))
+		{
+			case PARTICLE_POINT:
+				instantiatePointEffects(effectConfig[i] , x, y);
+				break;
+
+			case PARTICLE_LINE:
+				instantiateLineEffects(effectConfig[i] , x, y);
+				break;
+
+			default:
+				cerr << "Warning: ParticleEffect::instantiateEffect unknown effect type: " << particleTypes.at(anEffectType) << endl;
+				break;
+		}
+	}
+
+}
+
+void ParticleEffect::instantiatePointEffects(Json::Value aConfig, float x, float y)
+{
+	unsigned int i;
+	int numberOfParticle = aConfig.get("number", 0).asInt();
+	bool randomized = aConfig.get("randomNumber", false).asBool();
+	animationLength = aConfig.get("lifetime", 0).asInt();
+	float lowBoundAngle = aConfig.get("lowBoundAngle", 0.0).asFloat();
+	float highBoundAngle = aConfig.get("highBoundAngle", 360.0).asFloat();
+
+	Json::Value sColor = aConfig["startingColor"];
+	vector<float> startingColor;
+	for(i = 0; i < sColor.size(); i++)
+		startingColor.push_back(sColor[i].asFloat());
+
+	Json::Value eColor = aConfig["endingColor"];
+	vector<float> endingColor;
+	for(i = 0; i < eColor.size(); i++)
+		endingColor.push_back(eColor[i].asFloat());
+
+	Json::Value opacity = aConfig["opacity"];
+	vector<float> opacityValue;
+	for(i = 0; i < opacity.size(); i++)
+		opacityValue.push_back(opacity[i].asFloat());
+
+
+	if (randomized)
+	{
+		numberOfParticle = rand() % numberOfParticle;
+	}
+
+	for(i = 0; i < numberOfParticle; i++)
+	{
+		PointEffect * aPoint = new PointEffect();
+		aPoint->createRandomPointFrom(x, y, lowBoundAngle, highBoundAngle);
+		pointEffects.push_back(aPoint);
+	}
+
+	currentFrame = 0;
+
+	if(endingColor.empty())
+	{
+		colorR = startingColor.at(0)/255.0;
+		colorG = startingColor.at(1)/255.0;
+		colorB = startingColor.at(2)/255.0;
+	}
+	else
+	{
+		//Normalize value on [0.0, 1.0]
+		for(i = 0; i < 3; i++)
+		{
+			startingColor.at(i) = startingColor.at(i)/255.0;
+			endingColor.at(i) = endingColor.at(i)/255.0;
+		}
+		setColorValues(startingColor, endingColor);
+	}
+
+	if(!opacityValue.empty())
+	{
+		setOpacityValues(opacityValue.at(1), opacityValue.at(3));
+	}
+}
+
+void ParticleEffect::instantiateLineEffects(Json::Value aConfig, float x, float y)
+{
+	unsigned int i;
+	int numberOfParticle = aConfig.get("number", 0).asInt();
+	bool randomized = aConfig.get("randomNumber", false).asBool();
+	animationLength = aConfig.get("lifetime", 0).asInt();
+
+	Json::Value sColor = aConfig["startingColor"];
+	vector<float> startingColor;
+	for(i = 0; i < sColor.size(); i++)
+		startingColor.push_back(sColor[i].asFloat());
+
+	Json::Value eColor = aConfig["endingColor"];
+	vector<float> endingColor;
+	for(i = 0; i < eColor.size(); i++)
+		endingColor.push_back(eColor[i].asFloat());
+
+	Json::Value opacity = aConfig["opacity"];
+	vector<float> opacityValue;
+	for(i = 0; i < opacity.size(); i++)
+		opacityValue.push_back(opacity[i].asFloat());
+
+	if (randomized)
+	{
+		numberOfParticle = rand() % numberOfParticle;
+	}
+
+	for(i = 0; i < numberOfParticle; i++)
 	{
 		LineEffect * aLine = new LineEffect();
 		aLine->createRandomLineFrom(x, y);
 		lineEffects.push_back(aLine);
 	}
-	animationLength = 3;
+
 	currentFrame = 0;
-	setOpacityValues(1, 0.5);
-}
 
-void ParticleEffect::createExplosionFrom(float x, float y)
-{
-	int i = 0;
-
-	for(i = 0; i < 40; i++)
+	if(endingColor.empty())
 	{
-		PointEffect * aPoint = new PointEffect();
-		aPoint->createRandomPointFrom(x, y);
-		pointEffects.push_back(aPoint);
+		colorR = startingColor.at(0)/255.0;
+		colorG = startingColor.at(1)/255.0;
+		colorB = startingColor.at(2)/255.0;
 	}
-	animationLength = 75;
-	currentFrame = 0;
-
-	vector<float> startingValue;// = {(255.0/255.0), (233.0/255.0), (108.0/255.0)};
-	startingValue.push_back(1.0);
-	startingValue.push_back(233.0/255.0);
-	startingValue.push_back(108.0/255.0);
-
-	vector<float> endingValue;
-	endingValue.push_back(223.0/255.0);
-	endingValue.push_back(45.0/255.0);
-	endingValue.push_back(92.0/255.0);
-
-	setColorValues(startingValue, endingValue);
-
-	setOpacityValues(1, 0.2);
-}
-
-void ParticleEffect::createSparkFrom(float x, float y)
-{
-	int i = 0;
-	int nbParticles = rand() % 3;
-
-	for(i = 0; i < nbParticles; i++)
+	else
 	{
-		PointEffect * aPoint = new PointEffect();
-		aPoint->createRandomPointFrom(x, y, 170 ,240);
-		pointEffects.push_back(aPoint);
+		//Normalize value on [0.0, 1.0]
+		for(i = 0; i < 3; i++)
+		{
+			startingColor.at(i) = startingColor.at(i)/255.0;
+			endingColor.at(i) = endingColor.at(i)/255.0;
+		}
+		setColorValues(startingColor, endingColor);
 	}
-	animationLength = 75;
-	currentFrame = 0;
 
-	vector<float> startingValue;// = {(255.0/255.0), (233.0/255.0), (108.0/255.0)};
-	startingValue.push_back(1.0);
-	startingValue.push_back(165.0/255.0);
-	startingValue.push_back(50.0/255.0);
-
-	vector<float> endingValue;
-	endingValue.push_back(223.0/255.0);
-	endingValue.push_back(45.0/255.0);
-	endingValue.push_back(92.0/255.0);
-
-	setColorValues(startingValue, endingValue);
-
-	setOpacityValues(1, 0.2);
+	if(!opacityValue.empty())
+	{
+		setOpacityValues(opacityValue.at(1), opacityValue.at(3));
+	}
 }
 
 LineEffect::LineEffect()

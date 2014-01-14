@@ -27,7 +27,7 @@ void Level2::loadLevel(Hero * aHero)
 
 	soundEngine->playMusic("hybridQuarks");
 
-	ending = fading = exiting = FALSE;
+	ending = fading = exiting = false;
 }
 
 void Level2::drawLevel()
@@ -88,7 +88,7 @@ void Level2::checkEvent()
 	//Generate Bomb
 	if(generateBomb())
 	{
-		activeElements.push_back(new Bomb());
+		//activeElements.push_back(new Bomb());
 		activeElements.push_back(new Asteroid(BIG_ASTEROID));
 	}
 
@@ -101,7 +101,7 @@ void Level2::checkEvent()
 }
 
 
-int Level2::checkEnemyCollision(Drawable * anElement)
+bool Level2::checkEnemyCollision(Drawable * anElement)
 {
 	if(pe->collisionDetection(hero, anElement))
 	{
@@ -109,7 +109,7 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -121,39 +121,39 @@ int Level2::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(aL);
 			aL->processCollisionWith(anElement);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-int Level2::checkCollision(Drawable * anElement)
+bool Level2::checkCollision(Drawable * anElement)
 {
 	if (hero->state == DEAD)
 	{
-		return FALSE;
+		return false;
 	}
 
 	if(pe->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
 		hero->processCollisionWith(anElement);
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
-int Level2::generateBomb()
+bool Level2::generateBomb()
 {
 	unsigned int nextBombTime = lastTimeBomb + bombGenerationRate;
 	if (nextBombTime < GameTimer)
 	{
 		lastTimeBomb = GameTimer;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
 
 void Level2::finishLevel()
@@ -161,9 +161,9 @@ void Level2::finishLevel()
 	//First call: init
 	if(!ending)
 	{
-		exiting = TRUE;
+		exiting = true;
 		hero->setState(EXITING);
-		fading = FALSE;
+		fading = false;
 		bombGenerationRate = 1000000;
 	}
 
@@ -177,21 +177,21 @@ void Level2::finishLevel()
 		if (hero->posX >= SCREEN_WIDTH - 300)
 		{
 			ge->startFadingOut(3);
-			fading = TRUE;
-			exiting=FALSE;
+			fading = true;
+			exiting = false;
 		}
 	}
 
 	//Fade out
 	if(fading)
 	{
-		if (ge->isFading == FALSE)
+		if (!ge->isFading)
 		{
-			fading = FALSE;
+			fading = false;
 		}
 	}
 
-	ending = TRUE;
+	ending = true;
 
 	//Make sure all the events have taken place
 	if(!fading && !exiting)

@@ -50,12 +50,13 @@ class Level
 	string name;
 	LevelState levelState;
 	int cameraSpeed;
-	int exiting, ending, fading;
+	bool exiting, ending, fading;
 	Drawable bkg_mid, bkg_near, bkg_distant;
 	float bkg_nearSpeed, bkg_midSpeed, bkg_distantSpeed;
 	int levelPosition;
 	map<int, vector<EnemyWave *> > enemyWaves;
 	list<EnemyWave *> activeWaves;
+	map<string, Json::Value> particleEffectConf;
 
 	map<string, Json::Value> configurations;
 
@@ -70,12 +71,13 @@ class Level
 	virtual void heroLoseLife();
 	void createEffect(int x, int y, string name);
 	void createTextEffect(int x, int y, string aText);
+	void createParticleEffect(int x, int y, string aName);
 	void createExplosion(int x, int y);
 	void createBonus(int x, int y, bonusType type);
 	void createBonus(int x, int y, float aSpeed, float anAngle, bonusType type);
 	void startWave(int aNumber);
-	virtual int checkCollision(Drawable * anEnemy);
-	virtual int checkEnemyCollision(Drawable * anElement);
+	virtual bool checkCollision(Drawable * anEnemy);
+	virtual bool checkEnemyCollision(Drawable * anElement);
 	virtual void cleanLevel();
 	virtual void endLevel();
 	virtual void finishLevel();

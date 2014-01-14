@@ -27,15 +27,15 @@ class SoundEngine
 		map<string, Sound *> sounds;
 		map<string, Music *> musics;
 		Music * currentMusic;
-		//map <int, Sound *> playingSounds;
 		vector<Sound *> playingSounds;
+		map<int, Sound *> playingLayers;
 		
 		int soundVolume;
 		int musicVolume;
 		int numberOfChannel;
-		int pauseMusic, pauseSound;
-		int mute;
-		int soundMuted, musicMuted;
+		bool pauseMusic, pauseSound;
+		bool mute;
+		bool soundMuted, musicMuted;
 
 		SoundEngine();
 		void init();

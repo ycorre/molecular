@@ -26,10 +26,11 @@ class Sound
 	public:
 		string name;
 		int playingChannel;
-		int isPlaying;
+		bool isPlaying;
 		int volume;
-		int looped;
+		bool looped;
 		int numberOfLoops;
+		int soundLayer;
 		Mix_Chunk * soundData;
 
 		static SoundEngine * soundEngine;

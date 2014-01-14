@@ -26,21 +26,21 @@ class Animation
 	  float texturePosY;
 	  int numberOfFrames;
 	  int currentFrame;
-	  int loop;
+	  bool loop;
 	  SDL_Surface * texture;
 	  GLuint oglTexture;
 
 	  vector<float> opacityValues;
 	  vector<float> scalingValues;
-	  int moveTexture;
+	  bool moveTexture;
 
 	  //How often we update the frame in the animation
 	  //41 ms ~= 24 FPS
 	  //33 ms ~= 30 FPS
 	  int animationUpdateFrequency;
 	  Drawable * drawable;
-	  int hasEnded;
-	  int hasAnimatedTexture;
+	  bool hasEnded;
+	  bool hasAnimatedTexture;
 
 	  Animation();
 	  Animation(Animation * anAnim);

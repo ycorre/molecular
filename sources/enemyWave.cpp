@@ -14,7 +14,6 @@ EnemyWave::EnemyWave(Json::Value aConfig)
 	scoreBonus = aConfig.get("scoreBonus", 0).asInt();
 
 	const Json::Value bonusReleased = aConfig["possibleBonus"];
-	//possibleBonus.assign(&bonusReleased, &bonusReleased + bonusReleased.size());
 	for (j = 0; j < bonusReleased.size(); j++)
 	{
 		possibleBonus.push_back((bonusType)(bonusReleased[j].asInt()));
@@ -51,7 +50,7 @@ void EnemyWave::animate()
 	{
 		if((*anEnemy)->toRemove)
 		{
-			//If we are deleting the last enemies
+			//If we are deleting the last enemy
 			if (enemies.size() == 1)
 			{
 				if(!possibleBonus.empty())

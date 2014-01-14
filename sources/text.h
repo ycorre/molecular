@@ -20,7 +20,7 @@ class Text: virtual public Drawable
 	void update();
 	void setColor(SDL_Color aColor);
 	void setFont(TTF_Font * aFont);
-	virtual int isText() {return TRUE;}
+	virtual bool isText() {return true;}
 };
 
 class AnimatedText: virtual public Text, virtual public AnimatedDrawable
@@ -28,7 +28,7 @@ class AnimatedText: virtual public Text, virtual public AnimatedDrawable
 	public:
 		//AnimatedText(SDL_Color aColor, TTF_Font * aFont);
 		AnimatedText();
-		virtual int isText() {return TRUE;}
+		virtual bool isText() {return true;}
 		//AnimatedText(int x, int y, string aName, string aText);
 };
 

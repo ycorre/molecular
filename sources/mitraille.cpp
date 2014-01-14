@@ -8,7 +8,7 @@ Mitraille::Mitraille()
 	scoreValue = 500;
 	type = 0;
 	bonusProbability = 50;
-	canFire = FALSE;
+	canFire = false;
 	fireRate = 150;
 	lastTimeFired = GameTimer;
 	life = 250;
@@ -31,7 +31,7 @@ Mitraille::Mitraille(int x, int y)
 	type = 0;
 	bonusProbability = 50;
 	scoreValue = 200;
-	canFire = FALSE;
+	canFire = false;
 	fireRate = 250;
 	lastTimeFired = 0;
 	rafaleRate = 1500;
@@ -56,7 +56,7 @@ void Mitraille::checkFire()
 
 		if (nextFireTime < GameTimer)
 		{
-			canFire = TRUE;
+			canFire = true;
 			posRafale = (posRafale + 1) % 10;
 			lastTimeFired = GameTimer;
 		}
@@ -85,6 +85,6 @@ void Mitraille::fire()
 		angle = angle - 5;
 		float radAngle = angle * (PI / 180.0);
 		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, radAngle, 3));
-		canFire = FALSE;
+		canFire = false;
 	}
 }

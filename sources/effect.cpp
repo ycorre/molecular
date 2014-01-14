@@ -9,9 +9,9 @@ Effect::Effect()
 	posY = 0;
 	movingSpeed = 0;
 	numberOfLoops = 0;
-	followsAnObject = FALSE;
+	followsAnObject = false;
 	frameCount = 0;
-	isMoving = FALSE;
+	isMoving = false;
 	setAnimX(0);
 	setAnimY(0);
 }
@@ -24,24 +24,17 @@ Effect::Effect(int x, int y, string aName)
 	isMoving = lev->loadedEffects.at(aName)->isMoving;
 	movingSpeed = 0.1;
 	numberOfLoops = 0;
-	followsAnObject = FALSE;
+	followsAnObject = false;
 
 	for (map<string, AnimatedDrawable *>::iterator aLayer = lev->loadedEffects.at(aName)->effectLayers.begin(); aLayer != lev->loadedEffects.at(aName)->effectLayers.end(); ++aLayer)
 	{
 		AnimatedDrawable * anAnimatedDrawable = new AnimatedDrawable();
 		anAnimatedDrawable->copyFrom((*aLayer).second);
-		if(anAnimatedDrawable->name.compare(0,8, "effect_c") == 0)
-		{
-			anAnimatedDrawable->posX = x + 32;
-			anAnimatedDrawable->posY = y + 32;
-		}
-		else
-		{
-			anAnimatedDrawable->posX = x;
-			anAnimatedDrawable->posY = y;
-		}
 
-		anAnimatedDrawable->display = TRUE;
+		anAnimatedDrawable->posX = x - width/2;
+		anAnimatedDrawable->posY = y - height/2;
+
+		anAnimatedDrawable->display = true;
 		effectLayers.insert(make_pair(anAnimatedDrawable->name, anAnimatedDrawable));
 	}
 
@@ -55,10 +48,10 @@ Effect::Effect(Json::Value aConfig)
 	name = aConfig.get("name", "effectDefaut").asString();
 	width = aConfig.get("width", 1).asInt();
 	height = aConfig.get("height", 1).asInt();
-	isMoving = aConfig.get("move", FALSE).asInt();
+	isMoving = aConfig.get("move", false).asBool();
 	movingSpeed = aConfig.get("speed", 0.1f).asFloat();
 	numberOfLoops = aConfig.get("loop", 0).asInt();
-	followsAnObject = aConfig.get("follows", FALSE).asInt();
+	followsAnObject = aConfig.get("follows", false).asBool();
 
 	Json::Value layers = aConfig["effectLayer"];
 	for (index = 0; index < layers.size(); ++index)
@@ -80,8 +73,8 @@ Effect::~Effect()
 
 int Effect::animateEffect()
 {
-	int isFinished = TRUE;
-	int isUpdated = FALSE;
+	bool isFinished = true;
+	bool isUpdated = false;
 
 	for (map<string, AnimatedDrawable *>::iterator aLayer = effectLayers.begin(); aLayer != effectLayers.end(); ++aLayer)
 	{
@@ -89,7 +82,7 @@ int Effect::animateEffect()
 		{
 			if((*aLayer).second->updateAnimationFrame())
 			{
-				isUpdated = TRUE;
+				isUpdated = true;
 			}
 
 			if(isMoving)
@@ -100,12 +93,12 @@ int Effect::animateEffect()
 
 			if((*aLayer).second->currentAnimation->hasEnded)
 			{
-				(*aLayer).second->display = FALSE;
+				(*aLayer).second->display = false;
 			}
 			else
 			{
 				(*aLayer).second->processDisplay();
-				isFinished = FALSE;
+				isFinished = false;
 			}
 		}
 	}
@@ -127,10 +120,10 @@ TextEffect::TextEffect(int x, int y, string aText)
 	name = aText;
 	width = 300;
 	height = 300;
-	isMoving = FALSE;
+	isMoving = false;
 	posX = x;
 	posY = y;
-	display = TRUE;
+	display = true;
 
 	Animation * aNewAnim = new Animation(this);
 	aNewAnim->texture = texture;
@@ -163,6 +156,6 @@ void TextEffect::animate()
 	}
 	else
 	{
-		toRemove = TRUE;
+		toRemove = true;
 	}
 }

@@ -30,7 +30,7 @@ class Menu
 		Drawable credit, gameOver, success;
 		Drawable title, bubble1, bubble2;
 		Drawable optionTitle, levelTitle;
-		int startingGame;
+		bool startingGame;
 
 		AnimatedDrawable optionButton, quitButton, levelSelectButton;
 
@@ -45,7 +45,7 @@ class Menu
 		SDL_Color menuColor;
 		string newName;
 		int newHighScoreRank;
-		int menuInTransition;
+		bool menuInTransition;
 
 		map<string, Drawable> loadedMenuElements;
 		map<string, AnimatedDrawable> loadedAnimMenuElements;
@@ -82,7 +82,7 @@ class Menu
 		void finishEnteringName();
 		void sortHighScores();
 		void updateHighScore();
-		int checkForNewHighScore();
+		bool checkForNewHighScore();
 
 		void selectionMove(int direction);
 		void mainSelectionMove(int direction);

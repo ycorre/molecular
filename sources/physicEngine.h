@@ -27,14 +27,14 @@ class Pe
 		float xImpactPos;
 		float yImpactPos;
 
-		int collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable);
-		int boundingBox(Drawable *aDrawable, Drawable* anotherDrawable);
-		int pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable);
+		bool collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable);
+		bool boundingBox(Drawable *aDrawable, Drawable* anotherDrawable);
+		bool pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable);
 		void overEdgesComputing(Drawable *aDrawable, Drawable *anotherDrawable);
 		pair<int,int> getStartOffsetForOverlapRectangle(Drawable *aDrawable);
 		Uint32 getPixel(int x, int y, Drawable * aDrawable);
 		void stayOnScreen(Hero * aHero, pair<int, int> aPoint);
-		int isOnScreen(Drawable *aDrawable);
+		bool isOnScreen(Drawable *aDrawable);
 };
 
 Uint32 getpixel(SDL_Surface *surface, int x, int y);

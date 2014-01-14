@@ -8,12 +8,12 @@
 class Effect: public AnimatedDrawable
 {
 	public:
-		int followsAnObject;
+		bool followsAnObject;
 		int frameCount;
 		map<string, AnimatedDrawable *> effectLayers;
 		map<Drawable *, Drawable *> followedObjects;
 		int numberOfLoops;
-		int isMoving;
+		bool isMoving;
 		float movingSpeed;
 
 		Effect();
@@ -28,7 +28,7 @@ class TextEffect: virtual public AnimatedText
 {
 	public:
 		int frameCount;
-		int isMoving;
+		bool isMoving;
 
 		TextEffect(int x, int y, string aText);
 		virtual void animate();

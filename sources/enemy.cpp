@@ -15,7 +15,7 @@ Enemy::Enemy()
 	sinusWidth = 400;
 	sinusHeigth = 80;
 	life = 50;
-	canFire = FALSE;
+	canFire = false;
 	lastTimeFired = 0;
 	minFireRate = 2000;
 	maxFireRate = 1000;
@@ -39,7 +39,7 @@ Enemy::Enemy(int x, int y, int typeXW)
 	type = typeXW;
 	scoreValue = 200;
 	bonusProbability = 50;
-	canFire = FALSE;
+	canFire = false;
 	minFireRate = 2000;
 	maxFireRate = 1000;
 	fireRate = minFireRate + (rand() % maxFireRate);
@@ -66,7 +66,7 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	type = 0;
 	scoreValue = 200;
 	bonusProbability = 50;
-	canFire = FALSE;
+	canFire = false;
 	minFireRate = 2000;
 	maxFireRate = 1000;
 	fireRate = minFireRate + (rand() % maxFireRate);
@@ -123,7 +123,7 @@ void Enemy::checkPositions()
 		//If we are at the last position given then delete the object
 		if (currentPosition >= eventPosition.size())
 		{
-			toRemove = TRUE;
+			toRemove = true;
 			return;
 		}
 
@@ -138,11 +138,7 @@ void Enemy::processCollisionWith(Drawable * aDrawable)
 {
 	if(aDrawable->isHero())
 	{
-		lev->soundEngine->playSound("xwing_explode");
-		lev->createExplosion(posX + width/2, posY + height/2);
-		dropBonus(posX, posY);
-		Score = Score + scoreValue * (type + 1);
-		toRemove = TRUE;
+		die();
 		return;
 	}
 
@@ -153,16 +149,12 @@ void Enemy::processCollisionWith(Drawable * aDrawable)
 		life = max(0, life - aLaser->power);
 		if(aLaser->isPhoton())
 		{
-			Photon * aPhoton =  dynamic_cast<Photon*>(aDrawable);
+			HadronAmmo * aPhoton =  dynamic_cast<HadronAmmo *>(aDrawable);
 			aPhoton->removeEnergy(lifeValue - life);
 		}
 		if (life<=0)
 		{
-			lev->soundEngine->playSound("xwing_explode");
-			lev->createExplosion(posX + width/2, posY + height/2);
-			Score = Score + scoreValue * (type + 1);
-			toRemove = TRUE;
-			dropBonus(posX, posY);
+			die();
 		}
 		return;
 	}
@@ -176,6 +168,15 @@ void Enemy::dropBonus(int x, int y)
 		bonusType aBonus = (bonusType) (rand () % BONUS_COUNT);
 		lev->createBonus(x, y, aBonus);
 	}
+}
+
+void Enemy::die()
+{
+	lev->soundEngine->playSound("xwing_explode");
+	lev->createExplosion(posX + width/2, posY + height/2);
+	dropBonus(posX, posY);
+	Score = Score + scoreValue * (type + 1);
+	toRemove = true;
 }
 
 void Enemy::fire()
@@ -192,7 +193,7 @@ void Enemy::fire()
 		float angle = atan2(yDiff, xDiff);
 
 		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));
-		canFire = FALSE;
+		canFire = false;
 	}
 }
 
@@ -203,7 +204,7 @@ void Enemy::checkFire()
 		unsigned int nextFireTime = lastTimeFired + fireRate;
 		if (nextFireTime < GameTimer)
 		{
-			canFire = TRUE;
+			canFire = true;
 			lastTimeFired = GameTimer;
 			fireRate = minFireRate + (rand() % maxFireRate);
 		}
@@ -223,7 +224,7 @@ Cadmium::Cadmium(int x, int y, float aSpeed, vector<int> moves)
 	setAnimY(0);
 	scoreValue = 200;
 	bonusProbability = 80;
-	canFire = FALSE;
+	canFire = false;
 	fireRate = 450;
 	lastTimeFired = 0;
 	life = 50;
@@ -280,7 +281,7 @@ Cadmium::Cadmium(Json::Value aConfig)
 		}
 	}
 
-	canFire = FALSE;
+	canFire = false;
 	lastTimeFired = GameTimer;
 	angle = 180.0 * (PI/180);
 	shootingAngle = 0;
@@ -312,7 +313,7 @@ void Cadmium::checkFire()
 
 		if (nextFireTime < GameTimer)
 		{
-			canFire = TRUE;
+			canFire = true;
 			posRafale = (posRafale + 1) % 3;
 			lastTimeFired = GameTimer;
 		}
@@ -331,10 +332,14 @@ void Cadmium::fire()
 		lev->soundEngine->playSound("enemyGun");
 
 		lev->activeElements.push_back(new CadmiumAmmo(posX, posY, shootingAngle, 4));
-		canFire = FALSE;
+		canFire = false;
 	}
 }
 
+
+//TODO The designer wants curvy movements
+//Make a movement engine that would compute all sort of trajectory (curve, line, other...)
+//and return the series of corresponding points
 void Cadmium::animate()
 {
 	updateAnimationFrame();
@@ -364,7 +369,7 @@ Iron::Iron(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1.0).asFloat();
 	if(posY == -1)
-		posY = 30 + rand() % (GAMEZONE_HEIGHT - 50);
+		posY = rand() % (GAMEZONE_HEIGHT - width);
 
 	scoreValue = aConfig.get("scoreValue", 100).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 100).asInt();
@@ -385,7 +390,7 @@ Iron::Iron(Json::Value aConfig)
 	setAnimX(0);
 	setAnimY(0);
 
-	canFire = FALSE;
+	canFire = false;
 	angle = 180.0 * (PI/180);
 }
 
@@ -393,7 +398,7 @@ void Iron::animate()
 {
 	updateAnimationFrame();
 
-	if (lev->isOnScreen(this))
+	/*if (lev->isOnScreen(this))
 	{
 		unsigned int nextShift = lastShift + nextDirectionShift;
 		if (nextShift < GameTimer)
@@ -402,7 +407,7 @@ void Iron::animate()
 			lastShift = GameTimer;
 			nextDirectionShift = minNextShift + (rand() % maxNextShift);
 		}
-	}
+	}*/
 
 	float vx, vy;
 	vx = speed * cos(angle);
@@ -431,7 +436,7 @@ void Iron::dropBonus(int x, int y)
  */
 Silicon::Silicon(Json::Value aConfig)
 {
-	copyFrom(lev->loadedObjects.at("shoot"));
+	copyFrom(lev->loadedObjects.at("e004Sp"));
 	int maxX = aConfig.get("spreadWidth", 500).asInt();
 
 	posX = aConfig.get("posX", -1.0).asFloat();
@@ -443,23 +448,29 @@ Silicon::Silicon(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1).asFloat();
 	if(posY == -1)
-		posY = 5 + rand() % (GAMEZONE_HEIGHT - 50);
+		posY = rand() % (GAMEZONE_HEIGHT - width);
 
 	scoreValue = aConfig.get("scoreValue", 10).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
 	life = aConfig.get("life", 20).asInt();
 	speed = aConfig.get("speed", 2.0).asFloat();
+	speed = 1.0 +  (static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f));
+
 	damage = aConfig.get("damage", 1).asInt();
+
+	currentAnimation->currentFrame = rand() % currentAnimation->numberOfFrames;
 
 	setAnimX(0);
 	setAnimY(0);
 
-	canFire = FALSE;
+	canFire = false;
 	angle = 180.0 * (PI/180);
 }
 
-void Silicon::animate( )
+void Silicon::animate()
 {
+	updateAnimationFrame();
+
 	float vx, vy;
 	vx = speed * cos(angle);
 	vy = speed * sin(angle);
@@ -468,180 +479,13 @@ void Silicon::animate( )
 	posY = posY + vy;
 }
 
-/*
- * Copper Functions
- */
-Copper::Copper(Json::Value aConfig)
+void Silicon::die()
 {
-	copyFrom(lev->loadedObjects.at("bomb"));
-
-	posX = aConfig.get("posX", -1.0).asFloat();
-	posX = posX + SCREEN_WIDTH;
-
-	posY = aConfig.get("posY", -1).asFloat();
-	if(posY == -1)
-		posY = 30 + rand() % (GAMEZONE_HEIGHT - 150);
-
-	scoreValue = aConfig.get("scoreValue", 2000).asInt();
-	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
-	life = aConfig.get("life", 2000).asInt();
-	speed = aConfig.get("speed", 2.0).asFloat();
-	damage = aConfig.get("damage", 3000).asInt();
-	lifeTime = aConfig.get("lifeTime", 1).asInt();
-	xLimit = aConfig.get("xLimit", SCREEN_WIDTH - 100).asFloat();
-	currentLifeTime = 0;
-	lifePhase = COPPER_ARRIVING;
-	canFire = FALSE;
-	fireRate = 800;
-	lastTimeFired = 0;
-	yDestination = -1;
-	ySpeed = 0;
-	fireCounter = 0;
-
-	setAnimX(0);
-	setAnimY(0);
-
-	canFire = FALSE;
-	angle = 180.0 * (PI/180);
+	lev->soundEngine->playSound("xwing_explode");
+	CurrentLevel->createParticleEffect(posX + width/2, posY + height/2, "siliconExplosion");
+	CurrentLevel->createEffect(posX + width/2, posY + height/2, "explosionSilicon");
+	dropBonus(posX, posY);
+	Score = Score + scoreValue * (type + 1);
+	toRemove = true;
 }
 
-void Copper::animate()
-{
-	currentLifeTime++;
-
-	switch(lifePhase)
-	{
-		case COPPER_ARRIVING:
-			if(lifePhase == COPPER_ARRIVING && posX <= xLimit)
-				lifePhase = COPPER_PATTERN_3;
-
-		case COPPER_LEAVING:
-			posX = posX - 3;
-			break;
-
-		case COPPER_PATTERN_1:
-		case COPPER_PATTERN_2:
-		case COPPER_PATTERN_3:
-			fire();
-			break;
-
-		case COPPER_STEADY:
-			moveAndChosePattern();
-			break;
-
-		default:
-			break;
-	}
-
-	if(currentLifeTime >= lifeTime)
-	{
-		lifePhase = COPPER_LEAVING;
-	}
-
-}
-
-void Copper::moveAndChosePattern()
-{
-	if(yDestination == -1)
-	{
-		do{
-			yDestination =  30 + rand() % (GAMEZONE_HEIGHT - 150);
-		} while(std::abs((int)(posY - yDestination)) < 75);
-
-		ySpeed = (posY - yDestination) / 50.0;
-	}
-	else
-	{
-		posY = posY - ySpeed;
-		if(std::abs((int)(posY - yDestination)) < std::abs((int)(ySpeed) + 1))
-		{
-			lifePhase = rand() % 3;
-			if(lifePhase == COPPER_PATTERN_1)
-			{
-				fireRate = 150;
-				shootingAngle = 135;
-			}
-			else
-			{
-				fireRate = 800;
-			}
-			yDestination = -1;
-		}
-	}
-}
-
-void Copper::checkFire()
-{
-	if (lev->isOnScreen(this))
-	{
-		unsigned int nextFireTime = lastTimeFired + fireRate;
-		if (nextFireTime < GameTimer)
-		{
-			canFire = TRUE;
-			lastTimeFired = GameTimer;
-		}
-	}
-}
-
-void Copper::fire()
-{
-	checkFire();
-	if (canFire)
-	{
-		switch(lifePhase)
-		{
-
-			case COPPER_PATTERN_1:
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, shootingAngle*(PI/180.0), 3));
-				shootingAngle = shootingAngle + 15;
-				if(shootingAngle == 240)
-					shootingAngle = 135;
-
-				fireCounter++;
-				if(fireCounter == 24)
-				{
-					lifePhase = COPPER_STEADY;
-					fireCounter = 0;
-				}
-				break;
-
-			case COPPER_PATTERN_2:
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 180*(PI/180.0), 3));
-				if(fireCounter % 2 == 0)
-				{
-					CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 215*(PI/180.0), 3));
-					CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 145*(PI/180.0), 3));
-				}
-
-				fireCounter++;
-				if(fireCounter == 4)
-				{
-					lifePhase = COPPER_STEADY;
-					fireCounter = 0;
-				}
-				break;
-
-			case COPPER_PATTERN_3:
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 225*(PI/180.0), 3));
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 210*(PI/180.0), 3));
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 195*(PI/180.0), 3));
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 180*(PI/180.0), 3));
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 165*(PI/180.0), 3));
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 150*(PI/180.0), 3));
-				CurrentLevel->activeElements.push_back(new Bullet(posX + 20, posY + 10, 135*(PI/180.0), 3));
-
-				fireCounter++;
-				if(fireCounter == 3)
-				{
-					lifePhase = COPPER_STEADY;
-					fireCounter = 0;
-				}
-				break;
-
-			default:
-				break;
-		}
-		canFire = FALSE;
-	}
-
-}

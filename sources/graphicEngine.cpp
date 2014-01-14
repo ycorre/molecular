@@ -11,13 +11,14 @@ GraphicEngine::GraphicEngine()
 	aspectRatio = 1.0;
 	fadingSpeed = 1.0;
 	screen = NULL;
-	isFading = FALSE;
-	shakingEffect = FALSE;
+	isFading = false;
+	shakingEffect = false;
 	shakeCounter = 0;
 }
 
 void GraphicEngine::init()
 {
+	initColors();
 	shakeValues.push_back(4);
 	shakeValues.push_back(-4);
 	shakeValues.push_back(4);
@@ -26,16 +27,6 @@ void GraphicEngine::init()
 	shakeValues.push_back(-2);
 	shakeValues.push_back(1);
 	shakeValues.push_back(-1);
-
-#if !USE_OPENGL
-	blackBox = new Drawable();
-	blackBox->width = 1200;
-	blackBox->height = 600;
-	blackBox->loadTexture("res/bbox.png");
-	blackBox->texture = SDL_DisplayFormat(blackBox->texture);
-	blackBox->setAnimX(0);
-	blackBox->setAnimY(0);
-#endif
 }
 
 //Load a texture as an SDL_Surface
@@ -55,12 +46,9 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 		aSurface = SDL_DisplayFormatAlpha(tmp);
 		SDL_FreeSurface(tmp);
 
-#if USE_OPENGL
 		GLuint oglTex;
 		createOGLTexture(aSurface, &oglTex);
-
 		openGLTextures.insert(make_pair(aSurface, oglTex));
-#endif
 
 		//Save texture for later reuse
 		textures.insert(make_pair(path, aSurface));
@@ -74,12 +62,11 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 
 void GraphicEngine::drawFrame()
 {
-#if USE_OPENGL
+
 	//Reset the view matrix
     glLoadIdentity();
     //Perform a translation so that we are starting our coordinates at point (0,0)
 	glTranslatef(-aspectRatio, -1 , -1);
-#endif
 
 	//Shift the camera in one direction
 	if(shakingEffect)
@@ -89,10 +76,10 @@ void GraphicEngine::drawFrame()
 
 	if(!toDisplay.empty())
 	{
-		//Sort the toDisplay so that they are displayed from back to front
-		//sort(toDisplay.begin(), toDisplay.end(), sortDisplayedElement);
+		//Sort toDisplay so that elements are displayed from back to front
+		sort(toDisplay.begin(), toDisplay.end(), sortDisplayedElement);
 
-		for (std::vector<Drawable *>::iterator aDrawable = toDisplay.begin() ; aDrawable != toDisplay.end(); ++aDrawable)
+		for (vector<Drawable *>::iterator aDrawable = toDisplay.begin() ; aDrawable != toDisplay.end(); ++aDrawable)
 		{
 			draw(*aDrawable);
 		}
@@ -107,7 +94,7 @@ void GraphicEngine::drawFrame()
 		drawEffect(*anEffect);
 		(*anEffect)->animate();
 
-		if((*anEffect)->currentFrame >= (*anEffect)->animationLength - 1 )
+		if((*anEffect)->currentFrame >= (*anEffect)->animationLength - 1)
 		{
 			delete (*anEffect);
 			particleEffects.remove(*anEffect--);
@@ -126,7 +113,7 @@ void GraphicEngine::drawFrame()
 		shakeCamera(1);
 		if(shakeCounter == 8)
 		{
-			shakingEffect = FALSE;
+			shakingEffect = false;
 			shakeCounter = 0;
 		}
 	}
@@ -137,8 +124,6 @@ void GraphicEngine::drawFrame()
 //Draw an object on the screen
 int GraphicEngine::draw(Drawable * sprite)
 {
-
-#if USE_OPENGL
 	//If we need blending
 	if(sprite->toBlend)
 	{
@@ -157,7 +142,7 @@ int GraphicEngine::draw(Drawable * sprite)
 		float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
 		float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
 
-		//Translate back to 0,0 in order to perform the scaling
+		//Translate to 0,0 in order to perform the scaling
 		glTranslatef(zX, zY, 0.0);
 		//Scale
 		glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
@@ -171,7 +156,7 @@ int GraphicEngine::draw(Drawable * sprite)
 		float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
 		float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
 
-		//Translate back to 0,0 in order to perform the rotation
+		//Translate to 0,0 in order to perform the rotation
 		glTranslatef(zX, zY, 0.0);
 		//Rotate
 		glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
@@ -181,6 +166,13 @@ int GraphicEngine::draw(Drawable * sprite)
 
 	//Use the object texture
 	glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
+
+	if(sprite->isBlinkingWhite)
+	{
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_COMBINE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_ADD);
+		glColor3f(sprite->brightness, sprite->brightness, sprite->brightness);
+	}
 
 	//Draw a quadrilateral
 	glBegin(GL_QUADS);
@@ -197,36 +189,21 @@ int GraphicEngine::draw(Drawable * sprite)
 
 		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
 		glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
-
 	glEnd();
 
 	//Discard the new context
 	glPopMatrix();
+
+	if(sprite->isBlinkingWhite)
+	{
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	}
 
 	//Deactivate blending
 	if(sprite->toBlend)
 	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-
-#else
-		SDL_Rect src, dest;
-
-		//Specify which part of the texture to display
-
-		src.x = sprite->animX;
-		src.y = sprite->animY;
-		src.w = sprite->width;
-		src.h = sprite->height;
-
-		//Specify where to display on the screen
-		dest.x = sprite->posX;
-		dest.y = sprite->posY;
-		dest.w = sprite->width;
-		dest.h = sprite->height;
-
-		SDL_BlitSurface(sprite->getTexture(), &src, screen, &dest);
-#endif
 
     return 1;
 }
@@ -292,11 +269,7 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 
 void GraphicEngine::displayFrame()
 {
-#if USE_OPENGL
 	SDL_GL_SwapBuffers();
-#else
-	SDL_Flip(screen);
-#endif
 }
 
 //Shake the camera
@@ -306,7 +279,8 @@ void GraphicEngine::shakeCamera(int aSense)
 	{
 		glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
 	}
-	else {
+	else
+	{
 		glTranslatef(-shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
 		shakeCounter++;
 	}
@@ -341,7 +315,7 @@ void GraphicEngine::initColors()
 void GraphicEngine::startFadingOut(int aFadingSpeed)
 {
 	fadingSpeed = aFadingSpeed;
-	isFading = TRUE;
+	isFading = true;
 	alphaFading = 0;
 }
 
@@ -349,8 +323,6 @@ void GraphicEngine::startFadingOut(int aFadingSpeed)
 void GraphicEngine::fadeOut()
 {
 	alphaFading = min(255, alphaFading + fadingSpeed);
-
-#if USE_OPENGL
 
 	float alphaGL = (float) alphaFading / 255.0;
 	glDisable(GL_TEXTURE_2D);
@@ -365,14 +337,11 @@ void GraphicEngine::fadeOut()
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glEnable(GL_TEXTURE_2D);
-#else
-	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
-	toDisplay.push_back(blackBox);
-#endif
+
 
 	if(alphaFading == 255)
 	{
-		isFading = FALSE;
+		isFading = false;
 	}
 }
 
@@ -380,13 +349,12 @@ void GraphicEngine::fadeIn()
 {
 	if(!isFading)
 	{
-		isFading = TRUE;
+		isFading = true;
 		alphaFading = 255;
 	}
 
 	alphaFading = max(0, alphaFading - 1);
 
-#if USE_OPENGL
 	float alphaGL = (float) alphaFading / 255.0;
 	glDisable(GL_TEXTURE_2D);
 	glColor4f(1., 1., 1., alphaGL);
@@ -400,14 +368,10 @@ void GraphicEngine::fadeIn()
 
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
-#else
-	SDL_SetAlpha(blackBox->texture, SDL_SRCALPHA, alphaFading);
-	toDisplay.push_back(blackBox);
-#endif
 
 	if(alphaFading <= 0)
 	{
-		isFading = FALSE;
+		isFading = false;
 	}
 }
 

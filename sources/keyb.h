@@ -19,7 +19,8 @@ class Keyboard
 	public:
 		Uint8 * keyStates;
 		Game * game;
-		int p_pressed;
+		bool p_pressed;
+		bool firing;
 
 		Keyboard();
 		void handleKeyUpHero(SDL_keysym * keysym);

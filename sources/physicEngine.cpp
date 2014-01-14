@@ -7,33 +7,33 @@
 #include "physicEngine.h"
 
 //Check if a collision between two objects
-int Pe::collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable)
+bool Pe::collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable)
 {
 	if (boundingBox(aDrawable, anotherDrawable) && isOnScreen(aDrawable) && isOnScreen(anotherDrawable))
 	{
 		if(pixelPerfect(aDrawable, anotherDrawable))
-			return TRUE;
+			return true;
 	}
-	return FALSE;
+	return false;
 }
 
 //Compute first if the two object boxes overlap
-int Pe::boundingBox(Drawable *aDrawable, Drawable *anotherDrawable)
+bool Pe::boundingBox(Drawable *aDrawable, Drawable *anotherDrawable)
 {
 	if (aDrawable->getXBoundary() + aDrawable->getWidthBoundary() < anotherDrawable->getXBoundary())
-		{return FALSE;}
+		{return false;}
 	if (aDrawable->getXBoundary() > anotherDrawable->getXBoundary() + anotherDrawable->getWidthBoundary())
-		{return FALSE;}
+		{return false;}
 	if (aDrawable->getYBoundary() + aDrawable->getHeightBoundary() < anotherDrawable->getYBoundary())
-		{return FALSE;}
+		{return false;}
 	if (aDrawable->getYBoundary() > anotherDrawable->getYBoundary() + anotherDrawable->getHeightBoundary())
-		{return FALSE;}
+		{return false;}
 
-	return TRUE;
+	return true;
 }
 
 //Check if the two objects have at least one overlapping pixel
-int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
+bool Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 {
 	pair<int, int> startingCoordinatesI, startingCoordinatesJ;
 	int overX, overY, x, y;
@@ -75,7 +75,7 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 				SDL_UnlockSurface(anotherDrawable->getTexture());
 				xImpactPos = startingCoordinatesI.first + x;
 				yImpactPos = startingCoordinatesI.second + y;
-				return TRUE;
+				return true;
 			}
 			y = y + 1;
 		}
@@ -84,7 +84,7 @@ int Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 	}
 	SDL_UnlockSurface(aDrawable->getTexture());
 	SDL_UnlockSurface(anotherDrawable->getTexture());
-	return FALSE;
+	return false;
 }
 
 void Pe::overEdgesComputing(Drawable *aDrawable, Drawable *anotherDrawable)
@@ -139,23 +139,23 @@ Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 //make sure that the hero stays within screen boundary (from (0,0) to aPoint coordinate)
 void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 {
-	aHero->leftFlag = TRUE;
-	aHero->rightFlag = TRUE;
-	aHero->topFlag = TRUE;
-	aHero->bottomFlag = TRUE;
+	aHero->leftFlag = true;
+	aHero->rightFlag = true;
+	aHero->topFlag = true;
+	aHero->bottomFlag = true;
 
 	if(aHero->posX <= 0)
-		{aHero->leftFlag = FALSE;}
+		{aHero->leftFlag = false;}
 	if(aHero->posY <= 0)
-		{aHero->topFlag = FALSE;}
+		{aHero->topFlag = false;}
 	if(aHero->posX + aHero->width >= aPoint.first)
-		{aHero->rightFlag = FALSE;}
+		{aHero->rightFlag = false;}
 	if(aHero->posY + aHero->height >= aPoint.second)
-		{aHero->bottomFlag = FALSE;}
+		{aHero->bottomFlag = false;}
 }
 
 //make sure that an item is on screen
-int Pe::isOnScreen(Drawable *aDrawable)
+bool Pe::isOnScreen(Drawable *aDrawable)
 {
 /*	if (aDrawable->posX + aDrawable->width < 0 ||
 		aDrawable->posY + aDrawable->height < 0 ||
@@ -166,9 +166,9 @@ int Pe::isOnScreen(Drawable *aDrawable)
 		aDrawable->posX > SCREEN_WIDTH ||
 		aDrawable->posY > GAMEZONE_HEIGHT)
 	{
-		return FALSE;
+		return false;
 	}
-	return TRUE;
+	return true;
 }
 
 Uint32 getpixel(SDL_Surface *surface, int x, int y)
