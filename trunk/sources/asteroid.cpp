@@ -132,7 +132,7 @@ void Asteroid::animate()
 	posY = posY + vy;
 
 	if(!lev->isOnScreen(this))
-		toRemove = TRUE;
+		toRemove = true;
 }
 
 void Asteroid::processCollisionWith(Drawable* aDrawable)
@@ -151,7 +151,7 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 		}
 
 		dropBonus(posX, posY);
-		toRemove = TRUE;
+		toRemove = true;
 		Score = Score + scoreValue;
 		return;
 	}
@@ -159,7 +159,13 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 	if (aDrawable->isLaser())
 	{
 		Shoot * aLaser =  dynamic_cast<Shoot*>(aDrawable);
-		life = life - aLaser->power;
+		int lifeValue = life;
+		life = max(0, life - aLaser->power);
+		if(aLaser->isPhoton())
+		{
+			HadronAmmo * aPhoton =  dynamic_cast<HadronAmmo *>(aDrawable);
+			aPhoton->removeEnergy(lifeValue - life);
+		}
 		if (life<=0)
 		{
 			if (type == BIG_ASTEROID)
@@ -178,7 +184,7 @@ void Asteroid::processCollisionWith(Drawable* aDrawable)
 				{createSmallerAsteroid(this);}
 
 			dropBonus(posX, posY);
-			toRemove = TRUE;
+			toRemove = true;
 		}
 	}
 	return;

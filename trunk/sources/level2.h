@@ -27,10 +27,10 @@ class Level2:  public Level
 	virtual void drawLevel();
 	void checkEvent();
 	void createWave1();
-	int checkCollision(Drawable * anEnemy);
-	int checkEnemyCollision(Drawable * anElement);
-	int checkBonusCollision(Drawable * anElement);
-	int generateBomb();
+	bool checkCollision(Drawable * anEnemy);
+	bool checkEnemyCollision(Drawable * anElement);
+	bool checkBonusCollision(Drawable * anElement);
+	bool generateBomb();
 	virtual void finishLevel();
 };
 

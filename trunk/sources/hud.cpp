@@ -149,48 +149,12 @@ void HUD::displayScore(int aScore)
 	}
 }
 
-/*
-void HUD::displayMassPotential(float massPo)
-{
-	static float i = 0.0;
-
-	if(i < massPo - 1)
-	{
-		i = i + 0.3;
-	}
-	else if (i > massPo)
-	{
-		i = massPo; //i - 0.3;
-	}
-	massLoad->setAnimX((int)(i) * massLoad->width);
-
-	massLoad->processDisplay();
-}
-
-void HUD::displayRadioPotential(float radioPo)
-{
-	static float i = 0.0;
-
-	if(i < radioPo)
-	{
-		i = i + 0.3;
-	}
-	if (i > radioPo)
-	{
-		i = i - 0.3;
-	}
-	radioLoad->setAnimX((int)(i) * radioLoad->width);
-
-	radioLoad->processDisplay();
-}
-*/
-
 void HUD::displayQuarkLevels(map<QuarkType, int> quarkLevels)
 {
 	for(map<QuarkType, int>::iterator aQuark = quarkLevels.begin(); aQuark != quarkLevels.end(); ++aQuark)
 	{
 		QuarkType aQuarkName = (*aQuark).first;
-		float anIndex  = quarkIndex.at(aQuarkName);
+		float anIndex = quarkIndex.at(aQuarkName);
 		int aLevel = quarkLevels.at(aQuarkName);
 
 		if(anIndex < aLevel)
@@ -234,7 +198,8 @@ void HUD::displayWeapons(Hero * hero)
 	}
 	else
 	{
-		weaponLoad.currentAnimation->setFrameTo(1);
+		float i = (hero->currentWeapon->load / hero->currentWeapon->maxPower * 35.0) + 1;
+		weaponLoad.currentAnimation->setFrameTo(i);
 	}
 	weaponLoad.processDisplay();
 

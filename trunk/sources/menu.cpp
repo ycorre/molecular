@@ -13,12 +13,14 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	currentMenu = MENU_INTRO;
 	nextMenu = MENU_INTRO;
 	selected = 0;
-	menuInTransition = FALSE;
-	startingGame = FALSE;
+	menuInTransition = false;
+	startingGame = false;
 	endIntro = 0;
 	introLength = 0;
 	game = NULL;
 	selectedLevel = 0;
+	newHighScoreRank = 0;
+	startIntro = 0;
 }
 
 void Menu::loadMenu()
@@ -102,18 +104,21 @@ void Menu::loadSelectedLevel()
 		aLevelPic.posY = stepY;
 		aLevelPic.setAnimX(0);
 		aLevelPic.setAnimY(0);
+		aLevelPic.virtualDepth = 50;
 
 		levelSelectElements.push_back(aLevelPic);
 
 		AnimatedDrawable levelHighlight = loadedAnimMenuElements.at("levelHighlight");
 		levelHighlight.posX = stepX - 10;
 		levelHighlight.posY = stepY - 10;
+		levelHighlight.virtualDepth = 51;
 
 		levelSelectHalo.push_back(levelHighlight);
 
 		Drawable levelLocked = loadedMenuElements.at("levelLock");
 		levelLocked.posX = stepX - 2;
 		levelLocked.posY = stepY - 2;
+		levelLocked.virtualDepth = 48;
 
 		levelLocks.push_back(levelLocked);
 	}
@@ -124,10 +129,10 @@ void Menu::displayMenu()
 	if(menuInTransition && !ge->isFading)
 	{
 		currentMenu = nextMenu;
-		menuInTransition = FALSE;
+		menuInTransition = false;
 		if(startingGame)
 		{
-			startingGame = FALSE;
+			startingGame = false;
 			stringstream ss;
 			ss << "level" << (selectedLevel) + 1;
 			game->launchLevel(ss.str());
@@ -202,7 +207,7 @@ void Menu::displayIntro()
 	{
 		ge->startFadingOut(6);
 		nextMenu = MENU_MAIN;
-		menuInTransition = TRUE;
+		menuInTransition = true;
 	}
 }
 
@@ -316,7 +321,7 @@ void Menu::transition()
 			break;
 	}
 
-	menuInTransition = TRUE;
+	menuInTransition = true;
 	ge->startFadingOut(6);
 
 	return;
@@ -538,7 +543,7 @@ void Menu::selectLevel()
 	}
 	else
 	{
-		startingGame = TRUE;
+		startingGame = true;
 		soundEngine->playSound("validated");
 		soundEngine->fadeMusic("musicMenu", 1500);
 		transition();
@@ -695,7 +700,7 @@ void Menu::finishEnteringName()
 }
 
 
-int Menu::checkForNewHighScore()
+bool Menu::checkForNewHighScore()
 {
 	newHighScoreRank = 0;
 
@@ -721,13 +726,13 @@ int Menu::checkForNewHighScore()
 			}
 			if (newHighScoreRank > 5)
 			{
-				return FALSE;
+				return false;
 			}
 			SDL_EnableUNICODE(SDL_ENABLE);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
 //Sort scores in decreasing order

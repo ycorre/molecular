@@ -16,7 +16,7 @@ Bonus::Bonus()
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 200;
-	isQuarkBonus = FALSE;
+	isQuarkBonus = false;
 	quantity = 0;
 	quarkType = -1;
 	speed = 0;
@@ -28,7 +28,7 @@ Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
 {
 	type = bType;
 	name = "bonus " + type;
-	isQuarkBonus = TRUE;
+	isQuarkBonus = true;
 	quantity = 0;
 	quarkType = -1;
 	speed = aSpeed;
@@ -110,25 +110,25 @@ Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
 
 		case BONUS_SHIELD:
 			copyFrom(lev->loadedObjects.at("qSp_Capsule"));
-			isQuarkBonus = FALSE;
+			isQuarkBonus = false;
 			break;
 
 		case BONUS_LIFE_SMALL:
 			copyFrom(lev->loadedObjects.at("bSp_W"));
 			quantity = 1;
-			isQuarkBonus = FALSE;
+			isQuarkBonus = false;
 			break;
 
 		case BONUS_LIFE_MEDIUM:
 			copyFrom(lev->loadedObjects.at("bSp_Z"));
 			quantity = 3;
-			isQuarkBonus = FALSE;
+			isQuarkBonus = false;
 			break;
 
 		case BONUS_LIFE_BIG:
 			copyFrom(lev->loadedObjects.at("bSp_Y"));
 			quantity = 5;
-			isQuarkBonus = FALSE;
+			isQuarkBonus = false;
 			break;
 
 		default:
@@ -173,7 +173,7 @@ void Bonus::animate()
 
 	if(!lev->isOnScreen(this))
 	{
-		toRemove = TRUE;
+		toRemove = true;
 	}
 }
 
@@ -182,6 +182,6 @@ void Bonus::processCollisionWith(Drawable* aDrawable)
 	if (aDrawable->isHero())
 	{
 		Score = Score + scoreValue;
-		toRemove = TRUE;
+		toRemove = true;
 	}
 }

@@ -28,15 +28,15 @@ class Hero: public AnimatedDrawable
 	  Weapon * currentWeapon;
 	  map<weaponName, Weapon *> ownedWeapons;
 	  map<QuarkType, int> quarkLevels;
-	  int shielded;
+	  bool shielded;
 	  Shield * shield;
 
 	  //Should be reset from one level to the next
-	  int heroMovingUpOrDown;
-	  int canFire;
-	  int invincible;
-	  int isFiring;
-	  int leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
+	  bool heroMovingUpOrDown;
+	  bool canFire;
+	  bool invincible;
+	  bool isFiring;
+	  bool leftFlag, rightFlag, topFlag, bottomFlag, dontMove; //last one used during automatic animations (e.g. the entrance one)
 	  float massPotential;
 	  float radioactivePotential;
 	  float backOffSpeed;
@@ -55,6 +55,7 @@ class Hero: public AnimatedDrawable
 	  void setTexture(Drawable * aModel);
 	  void fire();
 	  void fireWeapon(weaponName aWeaponName);
+	  void stopFiring();
 	  void upgradeWeaponTo(int aLevel);
 	  void move(int x, int y);
 	  void moveUp();
@@ -70,12 +71,12 @@ class Hero: public AnimatedDrawable
 	  float hitBackoff();
 	  void teleport();
 	  void startEffect(string anEffect);
-	  int endTeleport();
+	  bool endTeleport();
 	  list<Shoot *> * getLasers();
 	  void spreadQuarks();
 	  void checkQuarkLevels();
 	  virtual void animate();
-	  virtual int isHero() {return 1;}
+	  virtual bool isHero() {return true;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 
 	private:

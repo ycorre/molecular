@@ -16,22 +16,11 @@ class Level;
 //TODO check that the SDL one is not broken
 #define USE_OPENGL 1
 
-//Set up boolean values
-#define TRUE  1
-#define FALSE 0
-
 //Set up directions
 #define RIGHT 0
 #define LEFT 2
 #define UP 1
 #define DOWN 3
-
-//Debug trace
-#ifdef DEBUG
-    #define printd(x) printf x
-#else
-    #define printd(x)
-#endif
 
 //Constant
 #define PI 3.14159265

@@ -7,6 +7,19 @@ class LineEffect;
 class PointEffect;
 class Emitter;
 
+/*
+class ParticleEffectFactory
+{
+	public:
+		map<string, EnemyType> particleEffects;
+
+		ParticleEffectFactory(){};
+		static ParticleEffectFactory * instance();
+		ParticleEffect * createEnemy(string anEnemyName);
+		ParticleEffect * createEnemy(Json::Value anEnemyConf);
+};*/
+
+
 //Particle effect can be made of several types of effect (line, point, circle, etc.)
 class ParticleEffect
 {
@@ -21,7 +34,6 @@ class ParticleEffect
 		int animationLength; //
 		int animationUpdateFrequency, lastTimeUpdated;
 		int lifeTime;
-		int numberOfParticle;
 		float speed;
 		Emitter * particleEmitter;
 		//decroissance de la vitesse
@@ -32,15 +44,16 @@ class ParticleEffect
 		vector<float> opacityValues;
 		vector<vector<float> > colorValues;
 
+		map<string, particleType> particleTypes;
+
 		ParticleEffect();
 		~ParticleEffect();
 		virtual void animate();
+		void instantiateEffects(Json::Value aConfig, float x, float y);
+		void instantiatePointEffects(Json::Value aConfig, float x, float y);
+		void instantiateLineEffects(Json::Value aConfig, float x, float y);
 		void setOpacityValues(float startingValue, float endingValue);
 		void setColorValues(vector<float> startingColorValue, vector<float> endingColorValue);
-
-		void createImpactFrom(float posX, float posY);
-		void createExplosionFrom(float x, float y);
-		void createSparkFrom(float x, float y);
 };
 
 class LineEffect: public ParticleEffect

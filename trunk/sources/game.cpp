@@ -66,7 +66,7 @@ void Game::quitGame()
 
 int Game::mainLoop()
 {
-	int done = FALSE;
+	bool done = false;
 	SDL_Event event;
 
     //Init the program timer
@@ -102,7 +102,7 @@ int Game::mainLoop()
 
 				case SDL_QUIT:
 					//Handle quit requests
-					done = TRUE;
+					done = true;
 					break;
 
 				default:
@@ -150,7 +150,7 @@ int Game::mainLoop()
 					menu->game = this;
 					menu->currentMenu = MENU_MAIN;
 				    menu->nextMenu = MENU_GAMEOVER;
-					menu->menuInTransition = TRUE;
+					menu->menuInTransition = true;
 					gameState = GAME_MENU;
 					graphicEngine.toDisplay.clear();
 				}
@@ -194,11 +194,11 @@ int Game::initGame()
     {
     	stringstream ss;
     	ss << "level" << i;
-    	lockedLevel.insert(make_pair(ss.str(), TRUE));
+    	lockedLevel.insert(make_pair(ss.str(), true));
     }
 
-    lockedLevel.at("level1") = FALSE;
-    lockedLevel.at("level2") = FALSE;
+    lockedLevel.at("level1") = false;
+    lockedLevel.at("level2") = false;
 
     //Init the menu
     menu->introLength = 2500;
@@ -235,10 +235,8 @@ int Game::initSDL()
 
     //The flags to pass to SDL_SetVideoMode
     videoFlags = SDL_DOUBLEBUF; 	   // Enable double buffering
-#if USE_OPENGL
     videoFlags |= SDL_OPENGL;       // Store the palette in hardware
     videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
-#endif
     videoFlags |= SDL_HWPALETTE;
 
 
@@ -253,14 +251,8 @@ int Game::initSDL()
     	videoFlags |= SDL_HWACCEL;
 
     // get a SDL surface from screen
-#if USE_OPENGL
-
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
-
-#else
-    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
-#endif
 
     //Verify there is a surface
     if (!graphicEngine.screen)
@@ -296,9 +288,7 @@ int Game::initSDL()
     Sound::soundEngine = &soundEngine;
     graphicEngine.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 
-#if USE_OPENGL
     initOpenGL();
-#endif
 
     return 0;
 }
@@ -406,7 +396,7 @@ void Game::stopMusic()
 	}
 	else
 	{
-		soundEngine.musicMuted = FALSE;
+		soundEngine.musicMuted = false;
 		soundEngine.playMusic();
 	}
 }
@@ -419,7 +409,7 @@ void Game::muteAll()
 	}
 	else
 	{
-		soundEngine.mute = FALSE;
+		soundEngine.mute = false;
 		soundEngine.playMusic();
 	}
 }
@@ -447,7 +437,7 @@ void controlFPS()
 	return;
 }
 
-int initOpenGL()
+bool initOpenGL()
 {
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -482,8 +472,8 @@ int initOpenGL()
 	if(error != GL_NO_ERROR)
 	{
 		cerr << "Error initializing OpenGL! " << gluErrorString(error) << endl;
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }

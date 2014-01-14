@@ -24,7 +24,7 @@ void Level1::loadLevel(Hero * aHero)
 	hero->setTexture(loadedObjects.at("atom"));
 
 	levelState = LEVEL_PLAYING;
-	ending = fading = exiting = FALSE;
+	ending = fading = exiting = false;
 }
 
 void Level1::drawLevel()
@@ -99,8 +99,6 @@ void Level1::checkEvent()
 			(*aWave)->launchWave();
 			activeWaves.push_back(*aWave);
 		}
-		//enemyWaves.at(levelPosition)->launchWave();
-		//activeWaves.push_back(enemyWaves.at(levelPosition));
 
 		enemyWaves.erase(levelPosition);
 	}
@@ -112,7 +110,7 @@ void Level1::checkEvent()
 		if(!(*aWave)->active)
 		{
 			delete (*aWave);
-			aWave =	activeWaves.erase(aWave);
+			activeWaves.erase(aWave--);
 		}
 	}
 
@@ -124,7 +122,7 @@ void Level1::checkEvent()
 	}
 }
 
-int Level1::checkEnemyCollision(Drawable * anElement)
+bool Level1::checkEnemyCollision(Drawable * anElement)
 {
 	if(pe->collisionDetection(hero, anElement))
 	{
@@ -132,7 +130,7 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -143,17 +141,17 @@ int Level1::checkEnemyCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(*aLaser);
 			(*aLaser)->processCollisionWith(anElement);
-			return TRUE;
+			return true;
 		}
 	}
-	return FALSE;
+	return false;
 }
 
-int Level1::checkCollision(Drawable * anElement)
+bool Level1::checkCollision(Drawable * anElement)
 {
 	if (hero->state == DEAD)
 	{
-		return FALSE;
+		return false;
 	}
 
 	if(hero->shielded)
@@ -170,11 +168,11 @@ int Level1::checkCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void Level1::finishLevel()
@@ -182,9 +180,9 @@ void Level1::finishLevel()
 	//First call: init
 	if(!ending)
 	{
-		exiting = TRUE;
+		exiting = true;
 		hero->setState(EXITING);
-		fading = FALSE;
+		fading = false;
 	}
 
 	//Play Victory sound: TADA!!!
@@ -197,21 +195,21 @@ void Level1::finishLevel()
 		if (hero->posX >= SCREEN_WIDTH - 300)
 		{
 			ge->startFadingOut(3);
-			fading = TRUE;
-			exiting = FALSE;
+			fading = true;
+			exiting = false;
 		}
 	}
 
 	//Fade out
 	if(fading)
 	{
-		if (ge->isFading == FALSE)
+		if (ge->isFading == false)
 		{
-			fading = FALSE;
+			fading = false;
 		}
 	}
 
-	ending = TRUE;
+	ending = true;
 
 	//Make sure all the events have taken place
 	if(!fading && !exiting)

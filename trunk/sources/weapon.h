@@ -23,18 +23,20 @@ class Weapon
 	  weaponName type;
 	  float power;
 	  unsigned int lastTimeFired;
-	  int isFiring;
-	  int canFire;
+	  bool isFiring;
+	  bool canFire;
 	  int fireRate;
 	  weaponState powerLevel;
 	  int maxFireRate;
 	  list<Shoot *> shoots;
-	  int loadable;
-	  int load;
-	  int activated;
+	  bool loadable;
+	  float load;
+	  float maxPower;
+	  bool activated;
 
 	  Weapon();
 	  virtual void fire(Hero * aHero);
+	  virtual void releaseFire(Hero * aHero);
 	  virtual void checkActivation(Hero * aHero);
 	  void animateLasers();
 	  void checkFire();
@@ -45,7 +47,7 @@ class Weapon
 class Electron: public Weapon
 {
    public:
-		AnimatedDrawable muzzle;
+	  AnimatedDrawable muzzle;
 
 	  Electron();
 	  virtual void fire(Hero * aHero);
@@ -55,9 +57,13 @@ class Electron: public Weapon
 class Hadron: public Weapon
 {
    public:
-	 Hadron();
-	 virtual void fire(Hero * aHero);
-	 virtual void checkActivation(Hero * aHero);
+ 	  float loadFactor;
+
+	  Hadron();
+	  virtual void fire(Hero * aHero);
+	  virtual void releaseFire(Hero * aHero);
+	  virtual void checkActivation(Hero * aHero);
+	  virtual void upgradeTo(int aLevel);
 };
 
 class Baryon: public Weapon

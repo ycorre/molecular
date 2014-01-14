@@ -11,10 +11,11 @@ SoundEngine * Sound::soundEngine;
 Sound::Sound()
 {
 	playingChannel = -1;
-	isPlaying = FALSE;
+	isPlaying = false;
 	volume = 100;
-	looped = FALSE;
+	looped = false;
 	numberOfLoops = 0;
+	soundLayer = 0;
 	soundData = NULL;
 }
 
@@ -22,10 +23,11 @@ Sound::Sound(string aName)
 {
 	name = aName;
 	playingChannel = -1;
-	isPlaying = FALSE;
+	isPlaying = false;
 	volume = 100;
-	looped = FALSE;
+	looped = false;
 	numberOfLoops = 0;
+	soundLayer = 0;
 	soundData = NULL;
 }
 
@@ -35,9 +37,10 @@ Sound::Sound(string aPath, string aName)
 	soundData = NULL;
 	load(aPath);
 	playingChannel = -1;
-	isPlaying = FALSE;
+	isPlaying = false;
 	volume = 100;
-	looped = FALSE;
+	looped = false;
+	soundLayer = 0;
 	numberOfLoops = 0;
 }
 
@@ -45,10 +48,11 @@ Sound::Sound(Json::Value aConfig)
 {
 	soundData = NULL;
 	playingChannel = -1;
-	isPlaying = FALSE;
+	isPlaying = false;
 	name = aConfig.get("name", "soundDefaut").asString();
 	setLoop(aConfig.get("loop", 0).asInt());
 	volume = aConfig.get("volume", 100).asInt();
+	soundLayer = aConfig.get("soundLayer", 0).asInt();
 	load(aConfig.get("dataPath", "").asString());
 	soundEngine->setVolumeFor(this);
 }
@@ -90,11 +94,11 @@ void Sound::setLoop(int nTimes)
 	numberOfLoops = nTimes;
 	if(numberOfLoops != 0)
 	{
-		looped = TRUE;
+		looped = true;
 	}
 	else
 	{
-		looped = FALSE;
+		looped = false;
 	}
 }
 
@@ -104,9 +108,9 @@ void Sound::setLoop(int nTimes)
 Music::Music()
 {
 	playingChannel = -1;
-	isPlaying = FALSE;
+	isPlaying = false;
 	volume = 100;
-	looped = TRUE;
+	looped = true;
 	numberOfLoops = -1;
 	soundData = NULL;
 	musicData = NULL;
@@ -119,9 +123,9 @@ Music::Music(string aPath, string aName)
 	musicData = NULL;
 	load(aPath);
 	playingChannel = -1;
-	isPlaying = FALSE;
+	isPlaying = false;
 	volume = 100;
-	looped = TRUE;
+	looped = true;
 	numberOfLoops = -1;
 }
 
@@ -134,7 +138,7 @@ Music::Music(Json::Value aConfig)
 	setLoop(aConfig.get("loop", 0).asInt());
 	volume = aConfig.get("volume", 100).asInt();
 	load(aConfig.get("dataPath", " ").asString());
-	isPlaying = FALSE;
+	isPlaying = false;
 
 }
 
@@ -167,7 +171,7 @@ void Music::stop()
 	{
 		soundEngine->stopMusic(this);
 	}
-	isPlaying = FALSE;
+	isPlaying = false;
 }
 
 void Music::fadeOut(int aTime)
@@ -181,5 +185,5 @@ void Music::fadeOut(int aTime)
 	{
 		soundEngine->fadeMusic(aTime);
 	}
-	isPlaying = FALSE;
+	isPlaying = false;
 }

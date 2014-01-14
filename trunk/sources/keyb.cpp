@@ -7,7 +7,8 @@
 
 Keyboard::Keyboard()
 {
-	p_pressed = FALSE;
+	p_pressed = false;
+	firing = false;
 	keyStates = NULL;
 	game = NULL;
 }
@@ -26,7 +27,7 @@ void Keyboard::processKeyPress()
 		if (!p_pressed)
 		{
 			game->pause();
-			p_pressed = TRUE;
+			p_pressed = true;
 		}
 	}
 
@@ -35,7 +36,7 @@ void Keyboard::processKeyPress()
 		if (!p_pressed)
 		{
 			game->stopMusic();
-			p_pressed = TRUE;
+			p_pressed = true;
 		}
 	}
 
@@ -44,7 +45,7 @@ void Keyboard::processKeyPress()
 		if (!p_pressed)
 		{
 			game->muteAll();
-			p_pressed = TRUE;
+			p_pressed = true;
 		}
 	}
     return;
@@ -130,11 +131,17 @@ void Keyboard::processeMouseInGame(Hero * hero)
 		if(buttonMask & SDL_BUTTON(1))
 		{
 			hero->fire();
+			firing = true;
 		}
 		else if (!keyStates[ELECTRON_KEY])
 		{
-			hero->isFiring = FALSE;
-			hero->currentWeapon->isFiring = FALSE;
+			if(firing)
+			{
+				firing = false;
+				hero->stopFiring();
+			}
+			hero->isFiring = false;
+			hero->currentWeapon->isFiring = false;
 		}
 	}
 
@@ -158,7 +165,7 @@ void Keyboard::handleKeyUpHero(SDL_keysym * keysym)
 		case MUTE_MUSIC_KEY:
 		case MUTE_ALL_KEY:
 		case PAUSE_KEY:
-			p_pressed = FALSE;
+			p_pressed = false;
 			break;
 
 		default:
@@ -179,26 +186,26 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 	//If we are entering a new name for the high score
 	if(menu->currentMenu == MENU_NEWHIGHSCORE)
 	{
-		int validChar = FALSE;
+		int validChar = false;
 
 		if(keysym->unicode == (Uint16)' ')
 		{
-			validChar = TRUE;
+			validChar = true;
 		}
 		//input is a number
 		else if((keysym->unicode >= (Uint16)'0') && (keysym->unicode <= (Uint16)'9'))
 		{
-			validChar = TRUE;
+			validChar = true;
 		}
 		//input is a uppercase letter
 		else if((keysym->unicode >= (Uint16)'A') && (keysym->unicode <= (Uint16)'Z'))
 		{
-			validChar = TRUE;
+			validChar = true;
 		}
 		//input is a lowercase letter
 		else if((keysym->unicode >= (Uint16)'a') && (keysym->unicode <= (Uint16)'z'))
 		{
-			validChar = TRUE;
+			validChar = true;
 		}
 
 		if (validChar)

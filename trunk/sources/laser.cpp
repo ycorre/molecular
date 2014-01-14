@@ -11,7 +11,7 @@ Shoot::Shoot()
 	power = 50;
 	posX = 0;
 	posY = 0;
-	toBlend = TRUE;
+	toBlend = true;
 	angle = 0.0f;
 	setAnimX(0);
 	setAnimY(0);
@@ -32,7 +32,7 @@ Shoot::Shoot(int x, int y, Weapon * aWeapon)
 	rotZ = -1.0;
 	rotationAngle = -4.0f +	static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/8.0f));
 	angle = rotationAngle * (PI / 180.0);
-	toBlend = TRUE;
+	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
 }
@@ -53,26 +53,24 @@ void Shoot::animate()
 
 	if(!lev->isOnScreen(this))
 	{
-		display = FALSE;
-		toRemove = TRUE;
+		display = false;
+		toRemove = true;
 	}
 }
 
 void Shoot::processCollisionWith(Drawable * aDrawable)
 {
-    //firingWeapon->createImpact(posX + 120, posY + 16);
-    ParticleEffect * aParticleEffect = new ParticleEffect();
-    aParticleEffect->createImpactFrom(posX + 77, posY + 16);
-    lev->ge->particleEffects.push_back(aParticleEffect);
+	//CurrentLevel->createParticleEffect("electronImpact", posX + 77, posY + 16);
+	CurrentLevel->createParticleEffect(posX + 60, posY + 16, "electronSpark");
 
-	display = FALSE;
+	display = false;
 
 	if (aDrawable->isHero())
 	{
 		Hero * myHero = dynamic_cast<Hero*>(aDrawable);
 		if (!myHero->invincible)
 		{
-			toRemove = TRUE;
+			toRemove = true;
 		}
 	}
 }
@@ -93,7 +91,7 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 	rotZ = -1.0;
 	rotationAngle = -4.0f +	static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/8.0f));// -4 + (rand() % 8);
 	angle = rotationAngle * (PI / 180.0);
-	toBlend = TRUE;
+	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
 
@@ -119,6 +117,7 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 /*
  * Photon functions
  */
+/*
 Photon::Photon()
 {
 	power = 50;//firingWeapon->power;
@@ -206,6 +205,95 @@ void Photon::removeEnergy(int anEnergyValue)
 		display = FALSE;
 		toRemove = TRUE;
 	}
+}*/
+
+
+/*
+ * HadronAmmo functions
+ */
+
+HadronAmmo::HadronAmmo(int x, int y, Weapon * aWeapon)
+{
+	firingWeapon = aWeapon;
+	power = firingWeapon->load;
+	copyFrom(CurrentLevel->loadedObjects.at("hadron"));
+	setAnimation("level1");
+	speed = 15.0;
+	extraPhoton.name = "";
+
+	if(power < aWeapon->maxPower/4)
+	{
+		setAnimation("level1");
+	}
+	else if(power < aWeapon->maxPower/2)
+	{
+		setAnimation("level2");
+	}
+	else if(power < 3 *(aWeapon->maxPower/4))
+	{
+		setAnimation("level3");
+	}
+	else if(power < aWeapon->maxPower)
+	{
+		setAnimation("level4");
+	}
+	else if(power == aWeapon->maxPower)
+	{
+		setAnimation("level4");
+		extraPhoton.copyFrom(CurrentLevel->loadedObjects.at("hadron"));
+		extraPhoton.setAnimation("level1");
+		extraPhoton.toBlend = true;
+		extraPhoton.posX = x;
+		extraPhoton.posY = y;
+	}
+
+	posX = x;
+	posY = y;
+	toBlend = true;
+	setAnimX(0);
+	setAnimY(0);
+}
+
+void HadronAmmo::animate()
+{
+	updateAnimationFrame();
+	posX = posX + speed;
+	CurrentLevel->createParticleEffect(posX + width/2, posY + height/2, "hadronTrail");
+
+	if(!extraPhoton.name.empty())
+	{
+		extraPhoton.updateAnimationFrame();
+		extraPhoton.posX = posX + speed;
+	}
+
+	if (!CurrentLevel->isOnScreen(this))
+	{
+		display = false;
+		toRemove = true;
+		if(!extraPhoton.name.empty())
+		{
+			extraPhoton.display = false;
+			extraPhoton.toRemove = true;
+		}
+	}
+}
+
+void HadronAmmo::removeEnergy(int anEnergyValue)
+{
+	power = power - anEnergyValue;
+
+	if(power < 1.0)
+	{
+		display = false;
+		toRemove = true;
+	}
+}
+
+//Override the collision function with a collision that do nothing so that
+//it does remove the photon
+void HadronAmmo::processCollisionWith(Drawable * aDrawable)
+{
+
 }
 
 /*
@@ -225,7 +313,7 @@ Lazer::Lazer()
 	attack.copyFrom(lev->loadedObjects.at("j_bA_Attack"));
 	release.copyFrom(lev->loadedObjects.at("j_bA_Release"));
 
-	toBlend = TRUE;
+	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
 }
@@ -241,7 +329,7 @@ Lazer::Lazer(int x, int y, Weapon * aWeapon)
 	lightning.copyFrom(lev->loadedObjects.at("jSp_bEclair"));
 	lightning.setAnimX(0);
 	lightning.setAnimY(0);
-	lightning.display = FALSE;
+	lightning.display = false;
 
 	burningFlames.copyFrom(lev->loadedObjects.at("jSp_bCrame"));
 	burningFlames.setAnimX(0);
@@ -268,7 +356,7 @@ Lazer::Lazer(int x, int y, Weapon * aWeapon)
 
 	posX = x + 93;
 	posY = y - 16;
-	toBlend = TRUE;
+	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
 }
@@ -282,7 +370,7 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 		width = max(1.0f, xImpactPos);
 
 		//Display flames
-		burningFlames.posX = posX + xImpactPos - burningFlames.width/2;
+		burningFlames.posX = posX + xImpactPos - burningFlames.width/2 - 7;
 		burningFlames.posY = y + 32 - burningFlames.height/2;
 		burningFlames.updateAnimationFrame();
 		burningFlames.processDisplay();
@@ -339,7 +427,7 @@ void Lazer::upgrade(int aLevel)
 			attack.setAnimation("level1");
 			release.setAnimation("level1");
 			setAnimation("level1");
-			lightning.display = FALSE;
+			lightning.display = false;
 			currentAnimation->width = width;
 			break;
 
@@ -347,7 +435,7 @@ void Lazer::upgrade(int aLevel)
 			attack.setAnimation("level2");
 			release.setAnimation("level2");
 			setAnimation("level2");
-			lightning.display = FALSE;
+			lightning.display = false;
 			currentAnimation->width = width;
 			break;
 
@@ -355,7 +443,7 @@ void Lazer::upgrade(int aLevel)
 			attack.setAnimation("level3");
 			release.setAnimation("level3");
 			setAnimation("level3");
-			lightning.display = TRUE;
+			lightning.display = true;
 			currentAnimation->width = width;
 			break;
 

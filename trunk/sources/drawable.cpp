@@ -19,14 +19,17 @@ Drawable::Drawable()
 	animY = 0;
 	width = 1;
 	height = 1;
-	display = TRUE;
-	toRemove = FALSE;
-	toBlend = FALSE;
-	isBlinking = FALSE;
+	display = true;
+	toRemove = false;
+	toBlend = false;
+	isBlinking = false;
+	isBlinkingWhite = false;
 	blinkingCounter = 0;
 	posXCorrection = 0;
 	posYCorrection = 0;
 	opacity = 1.0f;
+	brightness = 0.0f;
+	brightnessDecreasingFactor = 0.0f;
 	scaleX = 1.0f;
 	scaleY = 1.0f;
 	rotX = 0;
@@ -50,16 +53,18 @@ Drawable::Drawable(Json::Value aConfig)
 	posZ = aConfig.get("posZ", 0).asFloat();
 	animX = aConfig.get("animX", 0).asFloat();
 	animY = aConfig.get("animY", 0).asFloat();
-	display = aConfig.get("display", TRUE).asInt();
-	toRemove = aConfig.get("toRemove", FALSE).asInt();
-	isBlinking = aConfig.get("isBlinking", FALSE).asInt();
-	toBlend = aConfig.get("blend", FALSE).asInt();
+	display = aConfig.get("display", true).asBool();
+	toRemove = aConfig.get("toRemove", false).asBool();
+	isBlinking = aConfig.get("isBlinking", false).asBool();
+	isBlinkingWhite = aConfig.get("isBlinkingWhite", false).asBool();
+	toBlend = aConfig.get("blend", false).asBool();
 	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
 	posXCorrection = aConfig.get("posXCorrection", 0).asInt();
 	posYCorrection = aConfig.get("posYCorrection", 0).asInt();
 	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
 	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
 	opacity = aConfig.get("opacity", 1.0f).asFloat();
+	brightness = aConfig.get("brightness", 0.0f).asFloat();
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
@@ -99,6 +104,11 @@ void Drawable::processDisplay()
 		blink();
 	}
 
+	if (isBlinkingWhite)
+	{
+		blinkWhite();
+	}
+
 	if(display)
 	{
 		ge->toDisplay.push_back(this);
@@ -108,11 +118,10 @@ void Drawable::processDisplay()
 void Drawable::loadTexture(string path)
 {
 	texture = ge->loadTexture(path);
-#if USE_OPENGL
+
 	oglTexture = ge->openGLTextures.at(texture);
 	setAnimX(animX);
 	setAnimY(animY);
-#endif
 }
 
 void Drawable::clean()
@@ -130,6 +139,27 @@ void Drawable::blink()
 	blinkingCounter = (blinkingCounter + 1) % 4;
 }
 
+void Drawable::startBlinkingWhite(int aNumberOfFrames)
+{
+	brightness = 0.75f;
+
+	brightnessDecreasingFactor = brightness / aNumberOfFrames;
+
+	isBlinkingWhite = true;
+}
+
+//Used to indicate an enemy has been hit
+void Drawable::blinkWhite()
+{
+
+	brightness = brightness - brightnessDecreasingFactor;
+
+	if(brightness <= 0.0f)
+	{
+		isBlinkingWhite = false;
+	}
+}
+
 float Drawable::getAnimX()
 {
 	return animX;
@@ -139,12 +169,10 @@ void Drawable::setAnimX(float animXValue)
 {
 	animX = animXValue;
 
-#if USE_OPENGL
 	if(texture!= NULL)
 	{
 		computeOGLXValues();
 	}
-#endif
 }
 
 void Drawable::computeOGLXValues()
@@ -161,12 +189,11 @@ float Drawable::getAnimY()
 void Drawable::setAnimY(float animYValue)
 {
 	animY = animYValue;
-#if USE_OPENGL
+
 	if(texture!= NULL)
 	{
 		computeOGLYValues();
 	}
-#endif
 }
 
 void Drawable::computeOGLYValues()
@@ -187,6 +214,7 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	opacity = aDrawable->opacity;
 	toBlend = aDrawable->toBlend;
 	collision = aDrawable->collision;
+	virtualDepth = aDrawable->virtualDepth;
 }
 
 int Drawable::getXBoundary()
@@ -273,16 +301,18 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	posZ = aConfig.get("posZ", 0).asFloat();
 	setAnimX(aConfig.get("animX", 0).asFloat());
 	setAnimY(aConfig.get("animY", 0).asFloat());
-	display = aConfig.get("display", TRUE).asInt();
-	toRemove = aConfig.get("toRemove", FALSE).asInt();
-	isBlinking = aConfig.get("isBlinking", FALSE).asInt();
-	toBlend = aConfig.get("blend", FALSE).asInt();
+	display = aConfig.get("display", true).asBool();
+	toRemove = aConfig.get("toRemove", false).asBool();
+	isBlinking = aConfig.get("isBlinking", false).asBool();
+	isBlinkingWhite = aConfig.get("isBlinkingWhite", false).asBool();
+	toBlend = aConfig.get("blend", false).asBool();
 	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
 	posXCorrection = aConfig.get("posXCorrection", 0).asInt();
 	posYCorrection = aConfig.get("posYCorrection", 0).asInt();
 	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
 	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
 	opacity = aConfig.get("opacity", 1.0f).asFloat();
+	brightness = aConfig.get("brightness", 0.0f).asFloat();
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
@@ -360,7 +390,7 @@ float AnimatedDrawable::getPosY()
 }
 
 //Change the animation to display
-int AnimatedDrawable::updateAnimationFrame()
+bool AnimatedDrawable::updateAnimationFrame()
 {
 	//41 ms ~= 24 FPS
 	//33 ms ~= 30 FPS
@@ -369,9 +399,9 @@ int AnimatedDrawable::updateAnimationFrame()
 	{
 		currentAnimation->nextFrame();
 		lastTimeUpdated = ProgramTimer;
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void AnimatedDrawable::setAnimationsPointer()
@@ -420,4 +450,5 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	posXCorrection = aDrawable->posXCorrection;
 	posYCorrection = aDrawable->posYCorrection;
 	collision = aDrawable->collision;
+	virtualDepth = aDrawable->virtualDepth;
 }

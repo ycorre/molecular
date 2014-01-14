@@ -11,8 +11,8 @@ Level::Level()
 	bkg_distantSpeed = 0.1;
 	levelPosition = 0;
 	levelState = LEVEL_PLAYING;
-	fading = FALSE;
-	ending = FALSE;
+	fading = false;
+	ending = false;
 	cameraSpeed = 1;
 
 	ge = NULL;
@@ -20,7 +20,7 @@ Level::Level()
 	hero = NULL;
 	hud = NULL;
 	soundEngine = NULL;
-	exiting = FALSE;
+	exiting = false;
 }
 
 void Level::loadLevel(Hero * anHero)
@@ -100,13 +100,13 @@ void Level::checkEvent()
 	}*/
 }
 
-int Level::checkEnemyCollision(Drawable * anElement)
+bool Level::checkEnemyCollision(Drawable * anElement)
 {
 	if(pe->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
 		hero->processCollisionWith(anElement);
-		return 1;
+		return true;
 	}
 
 /*	for (list<Laser*>::iterator aLaser = hero->lasers.begin(); aLaser != hero->lasers.end(); ++aLaser)
@@ -120,10 +120,10 @@ int Level::checkEnemyCollision(Drawable * anElement)
 		}
 	}*/
 
-	return 0;
+	return false;
 }
 
-int Level::checkCollision(Drawable * anElement)
+bool Level::checkCollision(Drawable * anElement)
 {
 	if(hero->shielded)
 	{
@@ -131,7 +131,7 @@ int Level::checkCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
-			return 1;
+			return true;
 		}
 	}
 	else
@@ -140,20 +140,27 @@ int Level::checkCollision(Drawable * anElement)
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
-			return 1;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 
 void Level::createExplosion(int x, int y)
 {
-	activeElements.push_back(new Explosion(x, y));
-    ParticleEffect * aParticleEffect = new ParticleEffect();
-    aParticleEffect->createExplosionFrom(x, y);
-    ge->particleEffects.push_back(aParticleEffect);
-    ge->shakingEffect = TRUE;
+	//activeElements.push_back(new Explosion(x, y));
+	createEffect(x, y, "explosionA");
+	createParticleEffect(x, y, "explosion");
+    ge->shakingEffect = true;
 }
+
+void Level::createParticleEffect(int x, int y, string aName)
+{
+    ParticleEffect * aParticleEffect = new ParticleEffect();
+    aParticleEffect->instantiateEffects(particleEffectConf.at(aName), x, y);
+    ge->particleEffects.push_back(aParticleEffect);
+}
+
 
 void Level::createBonus(int x, int y, bonusType type)
 {
@@ -214,6 +221,13 @@ void Level::loadLevelConfiguration(string path)
 	for (index = 0; index < music.size(); ++index)
 	{
 		soundEngine->loadMusicFrom(music[index]);
+	}
+
+	//Load particle effect configuration
+	const Json::Value particleEffect = root["particleEffect"];
+	for (index = 0; index < particleEffect.size(); ++index)
+	{
+		particleEffectConf.insert(make_pair(particleEffect[index].get("name", "error").asString(), particleEffect[index]));
 	}
 
 	//Load enemy waves

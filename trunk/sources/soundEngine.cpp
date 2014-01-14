@@ -12,17 +12,28 @@ SoundEngine::SoundEngine()
 {
 	numberOfChannel = 24;
 	currentMusic = NULL;
-	pauseMusic = pauseSound = mute = musicMuted = soundMuted = FALSE;
+	pauseMusic = pauseSound = mute = musicMuted = soundMuted = false;
 	soundVolume = musicVolume = 100;
 }
 
 void SoundEngine::init()
 {
+	int i;
+
     //Allocate more channels than the default parameter (8)
     Mix_AllocateChannels(numberOfChannel);
     Mix_Init(MIX_INIT_MP3);
+    Mix_Init(MIX_INIT_OGG|MIX_INIT_MOD);
+
 	Mix_ChannelFinished(channelDone);
 	playingSounds.resize(numberOfChannel);
+
+	//Init the layers (16 layers for now)
+	for (i= 0; i < 16; i++)
+	{
+		playingLayers[i] = NULL;
+	}
+
 	aSe = this;
 }
 
@@ -40,14 +51,31 @@ void SoundEngine::playSound(Sound * aSound)
 {
 	if((!mute) && (!soundMuted))
 	{
+		//if the sound layer !=0 then check the sound layer
+		if(aSound->soundLayer)
+		{
+			//If a sound of this layer is already playing
+			if(playingLayers.at(aSound->soundLayer))
+			{
+				//Interrupt the current sound
+				playingLayers.at(aSound->soundLayer)->stop();
+				playingLayers.at(aSound->soundLayer) = aSound;
+			}
+			else
+			{
+				playingLayers.at(aSound->soundLayer) = aSound;
+			}
+		}
+
 		aSound->playingChannel = Mix_PlayChannel(-1, aSound->soundData, aSound->numberOfLoops);
 		if (aSound->playingChannel > -1)
 		{
-			aSound->isPlaying = TRUE;
+			aSound->isPlaying = true;
 			playingSounds.at(aSound->playingChannel) = aSound;
 		}
 		else
 		{
+			playingLayers.at(aSound->soundLayer) = NULL;
 			cerr << "Error could not play sound" << aSound->name << endl;
 		}
 	}
@@ -61,11 +89,11 @@ void SoundEngine::stopSound(Sound * aSound)
 
 		if (aSound->playingChannel!= -1)
 		{
-			aSound->isPlaying = FALSE;
+			aSound->isPlaying = false;
 		}
 		else
 		{
-			aSound->isPlaying = FALSE;
+			aSound->isPlaying = false;
 			cerr << "Error could not play sound" << aSound->name << endl;
 		}
 	}
@@ -146,12 +174,16 @@ void channelDone(int channel)
 void SoundEngine::finishedPlaying(int aChannel)
 {
 	//Set the playing flag back to false
-	playingSounds.at(aChannel)->isPlaying = FALSE;
+	playingSounds.at(aChannel)->isPlaying = false;
+
+	//Free the sound layer
+	playingLayers.at(playingSounds.at(aChannel)->soundLayer) = NULL;
 }
 
 //Set the volume for all channel
 void SoundEngine::setSoundVolume(int aSoundVolume)
 {
+	//Sound volume goes up to 128 but we use value up to 100
 	soundVolume = (int)(aSoundVolume * 1.28);
 	Mix_Volume(-1, soundVolume);
 }
@@ -180,7 +212,7 @@ void SoundEngine::playMusic(Music * aMusic)
 		aMusic->playingChannel = Mix_PlayMusic(aMusic->musicData, aMusic->numberOfLoops);
 		if (aMusic->playingChannel!= -1)
 		{
-			aMusic->isPlaying = TRUE;
+			aMusic->isPlaying = true;
 		}
 		else
 		{
@@ -198,7 +230,7 @@ void SoundEngine::stopMusic(Music * aMusic)
 {
 	Mix_HaltMusic();
 	Mix_RewindMusic();
-	aMusic->isPlaying = FALSE;
+	aMusic->isPlaying = false;
 }
 
 void SoundEngine::stopMusic()
@@ -249,7 +281,7 @@ void SoundEngine::fadeMusic(int ms)
 
 void SoundEngine::muteMusic()
 {
-	musicMuted = TRUE;
+	musicMuted = true;
 	stopMusic();
 }
 
@@ -274,7 +306,7 @@ void SoundEngine::setMusicVolume(int aMusicVolume)
 
 void SoundEngine::muteAll()
 {
-	mute = TRUE;
+	mute = true;
 	stopMusic();
 	stopAllSounds();
 }

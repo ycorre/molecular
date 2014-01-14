@@ -54,14 +54,14 @@ void Explosion::animate()
 	updateAnimationFrame();
 	if (currentAnimation->hasEnded)
 	{
-		display = FALSE;
+		display = false;
 	}
 
 	smoke.updateAnimationFrame();
 	if (smoke.currentAnimation->hasEnded)
 	{
-		toRemove = TRUE;
-		smoke.toRemove = TRUE;
+		toRemove = true;
+		smoke.toRemove = true;
 	}
 	smoke.processDisplay();
 }

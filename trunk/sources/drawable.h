@@ -38,12 +38,15 @@ class Drawable
 	  float rotY;
 	  float rotZ;
 	  float rotationAngle;
+	  float brightness;
+	  float brightnessDecreasingFactor;
 	  int virtualDepth;
 	  map<int, float> scalingEffect;
 	  map<int, float> opacityEffect;
-	  int display; //Boolean: should the object be display
-	  int toRemove; //Boolean: should the object be destroyed
-	  int isBlinking; //Boolean: should the object be blinking
+	  bool display; //should the object be displayed
+	  bool toRemove; //should the object be destroyed
+	  bool isBlinking; //should the object be blinking
+	  bool isBlinkingWhite; //should the object flash white
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
@@ -65,7 +68,9 @@ class Drawable
 	  Drawable(Json::Value aConfig);
 	  virtual ~Drawable();
 	  virtual void animate();
-	  virtual void blink();
+	  void blink();
+	  void startBlinkingWhite(int aNumberOfFrames);
+	  void blinkWhite();
 	  void processDisplay();
 	  void loadTexture(string path);
 
@@ -75,12 +80,12 @@ class Drawable
 	  void computeOGLXValues();
 	  void computeOGLYValues();
 
-	  virtual int isEnemy() {return FALSE;}
-	  virtual int isHero() {return FALSE;}
-	  virtual int isLaser() {return FALSE;}
-	  virtual int isBonus() {return FALSE;}
+	  virtual bool isEnemy() {return false;}
+	  virtual bool isHero() {return false;}
+	  virtual bool isLaser() {return false;}
+	  virtual bool isBonus() {return false;}
 	 // virtual int hasHitBox() {return FALSE;}
-	  virtual int isText() {return FALSE;}
+	  virtual bool isText() {return false;}
 
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable* aDrawable);
@@ -125,7 +130,7 @@ class AnimatedDrawable: virtual public Drawable
 	  virtual float getPosX();
 	  virtual float getPosY();
 	  virtual int getCurrentFrame();
-	  int updateAnimationFrame();
+	  bool updateAnimationFrame();
 	  virtual void copyFrom(Drawable * aDrawable);
 	  void copyFrom(AnimatedDrawable * aDrawable);
 	  void setAnimation(string anAnimationName);

@@ -15,7 +15,7 @@ class Bonus: public AnimatedDrawable
 	  int scoreValue;
 	  int quarkType;
 	  int quantity;
-	  int isQuarkBonus;
+	  bool isQuarkBonus;
 	  float speed;
 	  float angle;
 	  AnimatedDrawable halo;
@@ -23,7 +23,7 @@ class Bonus: public AnimatedDrawable
 	  Bonus();
 	  Bonus(int x, int y, float speed, float angle, bonusType type);
 	  virtual void animate();
-	  virtual int isBonus() {return TRUE;}
+	  virtual bool isBonus() {return true;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 };
 

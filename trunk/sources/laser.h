@@ -22,8 +22,8 @@ class Shoot: public AnimatedDrawable
 	  Shoot();
 	  Shoot(int x, int y, Weapon * aWeapon);
 	  virtual void animate();
-	  virtual int isLaser() {return TRUE;}
-	  virtual int isPhoton() {return FALSE;}
+	  virtual bool isLaser() {return true;}
+	  virtual bool isPhoton() {return false;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 	  void createImpact(float x, float y);
 };
@@ -33,9 +33,8 @@ class ElectronAmmo: public Shoot
    public:
 
 	  ElectronAmmo(int x, int y, Weapon * aWeapon);
-	  virtual int isLaser() {return TRUE;}
 };
-
+/*
 class Photon: public Shoot
 {
    public:
@@ -44,11 +43,23 @@ class Photon: public Shoot
 	  Photon();
 	  Photon(int x, int y, Weapon * aWeapon);
 	  void animate();
-	  virtual int isLaser() {return TRUE;}
-	  virtual int isPhoton() {return TRUE;}
+	  virtual bool isPhoton() {return true;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 	  void setParam(int x, int y, Weapon * aWeapon);
 	  void removeEnergy(int anEnergyValue);
+};*/
+
+class HadronAmmo: public Shoot
+{
+   public:
+	  float speed;
+	  AnimatedDrawable extraPhoton;
+
+	  HadronAmmo(int x, int y, Weapon * aWeapon);
+	  void animate();
+	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void removeEnergy(int anEnergyValue);
+	  virtual bool isPhoton() {return true;}
 };
 
 class Lazer: public Shoot
@@ -59,7 +70,7 @@ class Lazer: public Shoot
 
 		Lazer();
 		Lazer(int x, int y, Weapon * aWeapon);
-		virtual int isLazer() {return TRUE;}
+		virtual bool isLazer() {return true;}
 		void animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, float yImpactPos);
 		void upgrade(int aLevel);
 };
@@ -73,8 +84,7 @@ class Bullet: public Shoot
 	  Bullet();
 	  Bullet(int x, int y, float anAngle, int speed);
 	  virtual void animate();
-	  virtual int isBullet() {return TRUE;}
-	  virtual int isLaser() {return TRUE;}
+	  virtual int isBullet() {return true;}
 	  virtual void processCollisionWith(Drawable * aDrawable);
 };
 
@@ -87,7 +97,18 @@ class CadmiumAmmo: public Shoot
 
 	  CadmiumAmmo(int x, int y, float anAngle, float aSpeed);
 	  virtual void animate();
-	  virtual int isLaser() {return TRUE;}
+	  virtual void processCollisionWith(Drawable * aDrawable);
+};
+
+class CopperAmmo: public Shoot
+{
+   public:
+	  int power;
+	  int speed;
+	  Drawable halo;
+
+	  CopperAmmo(int x, int y, float anAngle, float aSpeed);
+	  virtual void animate();
 	  virtual void processCollisionWith(Drawable * aDrawable);
 };
 

@@ -14,22 +14,22 @@ Hero::Hero()
 	posX = SCREEN_WIDTH/3 - 64;
 	posY = GAMEZONE_HEIGHT/2 - 32;
 	state = ENTER;
-	invincible = FALSE;
+	invincible = false;
 	invincibilityTime = 1500;
-	heroChangedState = TRUE;
-	canFire = FALSE;
+	heroChangedState = true;
+	canFire = false;
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
-	isFiring = FALSE;
+	isFiring = false;
 	regenMassPo = 0.1;
 	massPotential = 60;
 	radioactivePotential = 0;
-	toBlend = TRUE;
+	toBlend = true;
 	backOffSpeed = 0;
 	startTeleporting = 0;
 	startInvincibility = 0;
 	hitAngle = 0;
-	shielded = FALSE;
+	shielded = false;
 	currentWeapon = NULL;
 	shield = NULL;
 
@@ -60,15 +60,15 @@ void Hero::resetHero()
 	posX = 0;
 	posY = GAMEZONE_HEIGHT/2 - width/2;
 	state = ENTER;
-	invincible = FALSE;
+	invincible = false;
 	invincibilityTime = 1250;
-	heroChangedState = TRUE;
-	canFire = FALSE;
+	heroChangedState = true;
+	canFire = false;
 	heroMovingUpOrDown = 0;
 	topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	massPotential = 0;
 	radioactivePotential = 0;
-	isFiring = FALSE;
+	isFiring = false;
 }
 
 void Hero::animate()
@@ -76,7 +76,7 @@ void Hero::animate()
 	//If we have changed state between two calls to this function
 	if (heroChangedState)
 	{
-		dontMove = FALSE;
+		dontMove = false;
 		switch(state)
 		{
 			case STATIC:
@@ -86,37 +86,37 @@ void Hero::animate()
 				break;
 
 			case DISPAR:
-				dontMove = TRUE;
-				isFiring = FALSE;
+				dontMove = true;
+				isFiring = false;
 				makeInvincible(4000);
 				startEffect("dispar");
 				currentAnimation->currentFrame = 0;
 				lev->soundEngine->playSound("TeleportOff");
 				if(shielded)
-					shield->display = FALSE;
+					shield->display = false;
 				setAnimX(0);
 				setAnimY(0);
 				break;
 
 			case CURSOR:
 				opacity = 1.0;
-				display = FALSE;
+				display = false;
 				setAnimation("cursor");
 				makeInvincible(3000);
 				startTeleporting = GameTimer;
-				dontMove = TRUE;
+				dontMove = true;
 				setAnimX(0);
 				setAnimY(0);
 				break;
 
 			case APPAR:
-				display = TRUE;
+				display = true;
 				setAnimation("appar");
 				lev->soundEngine->playSound("TeleportOn");
-				dontMove = TRUE;
-				isFiring = FALSE;
+				dontMove = true;
+				isFiring = false;
 				if(shielded)
-					shield->display = TRUE;
+					shield->display = true;
 				makeInvincible(4000);
 				setAnimX(0);
 				setAnimY(0);
@@ -125,9 +125,9 @@ void Hero::animate()
 			case HIT:
 				setAnimation("hit");
 				startEffect("hit");
-				dontMove = TRUE;
+				dontMove = true;
 				backOffSpeed = 13.0;
-				isFiring = FALSE;
+				isFiring = false;
 				makeInvincible(2000);
 				setAnimX(0);
 				setAnimY(0);
@@ -135,9 +135,9 @@ void Hero::animate()
 		
 			case ENTER:
 				SDL_WarpMouse(SCREEN_WIDTH/3 - width, GAMEZONE_HEIGHT/2 - height/2);
-				dontMove = TRUE;
-				display = TRUE;
-				isBlinking = FALSE;
+				dontMove = true;
+				display = true;
+				isBlinking = false;
 				makeInvincible(1500);
 				setAnimation("enter");
 				setAnimX(0);
@@ -147,11 +147,11 @@ void Hero::animate()
 			case DEAD:
 				setAnimX(0);
 				setAnimY(0);
-				dontMove = TRUE;
+				dontMove = true;
 				makeInvincible(4000);
-				isBlinking = FALSE;
-				isFiring = FALSE;
-				display = FALSE;
+				isBlinking = false;
+				isFiring = false;
+				display = false;
 				spreadQuarks();
 				setAnimation("dead");
 				startEffect("dead");
@@ -160,18 +160,18 @@ void Hero::animate()
 			case EXITING:
 				setAnimX(0);
 				setAnimY(0);
-				dontMove = TRUE;
+				dontMove = true;
 				makeInvincible(10000);
 				//setAnimation("exiting");
-				display = TRUE;
-				isFiring = FALSE;
-				isBlinking = FALSE;
+				display = true;
+				isFiring = false;
+				isBlinking = false;
 				break;
 		
 			default:
 				break;
 		}
-		heroChangedState = FALSE;
+		heroChangedState = false;
 	}
 	else
 	{
@@ -195,7 +195,7 @@ void Hero::animate()
 					if (currentAnimation->currentFrame == 14)
 					{
 						state = CURSOR;
-						heroChangedState = TRUE;
+						heroChangedState = true;
 					}
 					break;
 
@@ -205,7 +205,7 @@ void Hero::animate()
 						posX = 20 + (rand() % (SCREEN_WIDTH - width - 20));
 						posY = 20 + (rand() % (GAMEZONE_HEIGHT - height - 20));
 						state = APPAR;
-						heroChangedState = TRUE;
+						heroChangedState = true;
 					}
 					break;
 
@@ -213,7 +213,7 @@ void Hero::animate()
 					if (currentAnimation->hasEnded)
 					{
 						state = STATIC;
-						heroChangedState = TRUE;
+						heroChangedState = true;
 						startEffect("appar");
 					}
 					break;
@@ -221,12 +221,12 @@ void Hero::animate()
 				case HIT:
 					if (hitBackoff() == 0)
 					{
-						dontMove = FALSE;
+						dontMove = false;
 					}
 					if (currentAnimation->hasEnded)
 					{
 						state = STATIC;
-						heroChangedState = TRUE;
+						heroChangedState = true;
 					}
 					break;
 
@@ -234,8 +234,8 @@ void Hero::animate()
 					if (currentAnimation->hasEnded)
 					{
 						state = STATIC;
-						heroChangedState = TRUE;
-						canFire = TRUE;
+						heroChangedState = true;
+						canFire = true;
 					}
 					break;
 
@@ -243,7 +243,7 @@ void Hero::animate()
 					if (currentAnimation->hasEnded)
 					{
 						loseLife();
-						display = TRUE;
+						display = true;
 					}
 					break;
 
@@ -306,10 +306,31 @@ void Hero::fire()
 	}
 }
 
+void Hero::stopFiring()
+{
+	if(state!=CURSOR)
+	{
+		currentWeapon->releaseFire(this);
+		isFiring = currentWeapon->isFiring;
+	}
+}
+
+void Hero::setWeapon(weaponName aWeaponName)
+{
+	//if (ownedWeapons.at(aWeaponName)->activated)
+		currentWeapon = ownedWeapons.at(aWeaponName);
+
+	if(!aWeaponName == ElectronGun && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
+	{
+		lev->soundEngine->stopSound("mitLoop");
+		lev->soundEngine->playSound("mitRelease");
+	}
+}
+
 
 void Hero::fireWeapon(weaponName aWeaponName)
 {
-	if(state != CURSOR && (ownedWeapons.at(aWeaponName)->activated))
+	if(state != CURSOR )//&& (ownedWeapons.at(aWeaponName)->activated))
 	{
 		ownedWeapons.at(aWeaponName)->fire(this);	//currentWeapon->fire(this);
 		isFiring = ownedWeapons.at(aWeaponName)->isFiring;
@@ -407,10 +428,10 @@ void Hero::loseLife()
 		posX = SCREEN_WIDTH/3 - width;
 		posY = GAMEZONE_HEIGHT/2 - height/2;
 		state = ENTER;
-		heroChangedState = TRUE;
-		display = FALSE;
+		heroChangedState = true;
+		display = false;
 		health = 10;
-		canFire = FALSE;
+		canFire = false;
 		heroMovingUpOrDown = 0;
 		topFlag = leftFlag = bottomFlag = rightFlag = dontMove = 0;
 	}
@@ -441,7 +462,7 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 			}
 			else
 			{
-				shielded = FALSE;
+				shielded = false;
 				delete shield;
 			}
 		}
@@ -470,7 +491,7 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 				makeInvincible(400);
 				if(shield->energy <= 0)
 				{
-					shielded = FALSE;
+					shielded = false;
 					delete shield;
 				}
 				else
@@ -512,7 +533,7 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 					delete shield;
 
 				shield = new Shield(posX, posY);
-				shielded = TRUE;
+				shielded = true;
 				break;
 
 			default:
@@ -560,36 +581,23 @@ void Hero::makeInvincible(int aTime)
 {
 	invincibilityTime = aTime;
 	startInvincibility = GameTimer;
-	invincible = TRUE;
+	invincible = true;
 }
 
 void Hero::checkInvicibility()
 {
 	if (startInvincibility + invincibilityTime < GameTimer)
 	{
-		invincible = FALSE;
-		display = TRUE;
+		invincible = false;
+		display = true;
 	}
 }
 
 void Hero::setState(int aState)
 {
 	state = aState;
-	heroChangedState = TRUE;
+	heroChangedState = true;
 }
-
-void Hero::setWeapon(weaponName aWeaponName)
-{
-	if (ownedWeapons.at(aWeaponName)->activated)
-		currentWeapon = ownedWeapons.at(aWeaponName);
-
-	if(!aWeaponName == ElectronGun && lev->soundEngine->sounds.at("mitLoop")->isPlaying)
-	{
-		lev->soundEngine->stopSound("mitLoop");
-		lev->soundEngine->playSound("mitRelease");
-	}
-}
-
 
 void Hero::teleport()
 {
@@ -601,19 +609,19 @@ void Hero::teleport()
 	}
 }
 
-int Hero::endTeleport()
+bool Hero::endTeleport()
 {
 	unsigned int endTeleportTime = startTeleporting + 1000;
 	if (endTeleportTime < GameTimer)
 	{
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 void Hero::startEffect(string anEffect)
 {
-	lev->createEffect(posX, posY, anEffect);
+	lev->createEffect(posX + width/2, posY + height/2, anEffect);
 }
 
 void Hero::spreadQuarks()

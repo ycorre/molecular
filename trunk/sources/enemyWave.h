@@ -32,17 +32,5 @@ class EnemyWave
 	    void createSiliconWave(Json::Value aConfig);
 };
 
-/*
-class GameEvent
-{
-   public:
-	float startingDate;
-	float startingPlace;
-	vector<Drawable *> instantiatingElements;
-
-	GameEvent();
-};
-*/
-
 #endif
 

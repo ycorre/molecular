@@ -43,8 +43,8 @@ class GraphicEngine
 
 	  int alphaFading;
 	  int fadingSpeed;
-	  int isFading;
-	  int shakingEffect;
+	  bool isFading;
+	  bool shakingEffect;
 	  int shakeCounter;
 	  vector<int> shakeValues;
 
