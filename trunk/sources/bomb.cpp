@@ -2,7 +2,7 @@
 
 Bomb::Bomb()
 {
-	copyFrom(lev->loadedObjects.at("bomb"));
+	copyFrom(CurrentLevel->loadedObjects.at("bomb"));
 	setAnimX(0);
 	setAnimY(0);
 	scoreValue = 500;
@@ -21,7 +21,7 @@ Bomb::Bomb()
 
 Bomb::Bomb(int x, int y, int aSpeed, float anAngle)
 {
-	copyFrom(lev->loadedObjects.at("bomb"));
+	copyFrom(CurrentLevel->loadedObjects.at("bomb"));
 	posX = x;
 	posY = y;
 	setAnimX(0);
@@ -50,7 +50,7 @@ void Bomb::animate()
 	posX = posX + vx;
 	posY = posY + vy;
 
-	if(!lev->isOnScreen(this))
+	if(!CurrentLevel->isOnScreen(this))
 		toRemove = true;
 }
 
@@ -60,23 +60,23 @@ void Bomb::fire()
 	checkFire();
 	if (canFire)
 	{
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 0, 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 45* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 90* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 135* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 180* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 225* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 270* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 315* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 0, 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 45* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 90* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 135* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 180* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 225* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 270* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 315* (PI / 180.0), 3));
 
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 22.5 * (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 67.5 * (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 112.5* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 157.5* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 202.5* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 247.5* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 292.5* (PI / 180.0), 3));
-		lev->activeElements.push_back(new Bullet(posX + 14, posY + 16, 337.5* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 22.5 * (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 67.5 * (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 112.5* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 157.5* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 202.5* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 247.5* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 292.5* (PI / 180.0), 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 14, posY + 16, 337.5* (PI / 180.0), 3));
 
 		canFire = false;
 	}

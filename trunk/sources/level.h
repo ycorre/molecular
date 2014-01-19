@@ -57,6 +57,7 @@ class Level
 	map<int, vector<EnemyWave *> > enemyWaves;
 	list<EnemyWave *> activeWaves;
 	map<string, Json::Value> particleEffectConf;
+	int activeBlockingWave;
 
 	map<string, Json::Value> configurations;
 
@@ -76,8 +77,10 @@ class Level
 	void createBonus(int x, int y, bonusType type);
 	void createBonus(int x, int y, float aSpeed, float anAngle, bonusType type);
 	void startWave(int aNumber);
+	void magnetBonus(Drawable * aBonus);
 	virtual bool checkCollision(Drawable * anEnemy);
 	virtual bool checkEnemyCollision(Drawable * anElement);
+	virtual void checkEnemyCollision(list<Enemy *> enemies);
 	virtual void cleanLevel();
 	virtual void endLevel();
 	virtual void finishLevel();

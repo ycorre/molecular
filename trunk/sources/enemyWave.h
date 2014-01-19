@@ -20,6 +20,7 @@ class EnemyWave
 		int startingDate;
 		int scoreBonus;
 		bool active;
+		bool blocking;
 		list<Enemy *> enemies;
 		vector<bonusType> possibleBonus;
 

@@ -81,8 +81,8 @@ void Menu::loadSelectedLevel()
 {
 	string tmp = "Level";
 	int levelNumber = 0;
-	float stepY = 0;
-	float stepX = 200;
+	float stepY = 86;
+	float stepX = 286;
 
 	for(levelNumber = 0; levelNumber < 9; levelNumber++)
 	{
@@ -97,7 +97,7 @@ void Menu::loadSelectedLevel()
 
 		if(levelNumber % 3 == 0)
 		{
-			stepX = 300;
+			stepX = 386;
 			stepY = stepY + 200;
 		}
 		aLevelPic.posX = stepX;
@@ -109,15 +109,15 @@ void Menu::loadSelectedLevel()
 		levelSelectElements.push_back(aLevelPic);
 
 		AnimatedDrawable levelHighlight = loadedAnimMenuElements.at("levelHighlight");
-		levelHighlight.posX = stepX - 10;
-		levelHighlight.posY = stepY - 10;
+		levelHighlight.posX = stepX;
+		levelHighlight.posY = stepY;
 		levelHighlight.virtualDepth = 51;
 
 		levelSelectHalo.push_back(levelHighlight);
 
 		Drawable levelLocked = loadedMenuElements.at("levelLock");
-		levelLocked.posX = stepX - 2;
-		levelLocked.posY = stepY - 2;
+		levelLocked.posX = stepX;
+		levelLocked.posY = stepY;
 		levelLocked.virtualDepth = 48;
 
 		levelLocks.push_back(levelLocked);
@@ -351,6 +351,8 @@ void Menu::loadMenuElements(string path)
 	for (index = 0; index < drawable.size(); ++index)
 	{
 		Drawable tmp = Drawable(drawable[index]);
+		tmp.posY = tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		loadedMenuElements.insert(make_pair(tmp.name, tmp));
 	}
 
@@ -358,6 +360,8 @@ void Menu::loadMenuElements(string path)
 	for (index = 0; index < animDrawable.size(); ++index)
 	{
 		AnimatedDrawable tmp = AnimatedDrawable(animDrawable[index]);
+		tmp.posY = tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		loadedAnimMenuElements.insert(make_pair(tmp.name, tmp));
 	}
 
@@ -366,6 +370,8 @@ void Menu::loadMenuElements(string path)
 	for (index = 0; index < optionDrawable.size(); ++index)
 	{
 		Drawable tmp = Drawable(optionDrawable[index]);
+		tmp.posY = tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		loadedMenuElements.insert(make_pair(tmp.name, tmp));
 	}
 
@@ -374,6 +380,8 @@ void Menu::loadMenuElements(string path)
 	for (index = 0; index < levelDrawable.size(); ++index)
 	{
 		Drawable tmp = Drawable(levelDrawable[index]);
+		tmp.posY = tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		loadedMenuElements.insert(make_pair(tmp.name, tmp));
 	}
 
@@ -381,6 +389,8 @@ void Menu::loadMenuElements(string path)
 	for (index = 0; index < lsAnimDrawable.size(); ++index)
 	{
 		AnimatedDrawable tmp = AnimatedDrawable(lsAnimDrawable[index]);
+		tmp.posY = tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		loadedAnimMenuElements.insert(make_pair(tmp.name, tmp));
 	}
 

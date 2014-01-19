@@ -6,10 +6,10 @@
  */
 #include "physicEngine.h"
 
-//Check if a collision between two objects
-bool Pe::collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable)
+//Check if there is a collision between two objects
+bool Pe::collisionDetection(Drawable * aDrawable, Drawable * anotherDrawable)
 {
-	if (boundingBox(aDrawable, anotherDrawable) && isOnScreen(aDrawable) && isOnScreen(anotherDrawable))
+	if (isOnScreen(aDrawable) && isOnScreen(anotherDrawable) && boundingBox(aDrawable, anotherDrawable))
 	{
 		if(pixelPerfect(aDrawable, anotherDrawable))
 			return true;
@@ -18,7 +18,7 @@ bool Pe::collisionDetection(Drawable *aDrawable, Drawable *anotherDrawable)
 }
 
 //Compute first if the two object boxes overlap
-bool Pe::boundingBox(Drawable *aDrawable, Drawable *anotherDrawable)
+bool Pe::boundingBox(Drawable * aDrawable, Drawable * anotherDrawable)
 {
 	if (aDrawable->getXBoundary() + aDrawable->getWidthBoundary() < anotherDrawable->getXBoundary())
 		{return false;}
@@ -33,7 +33,7 @@ bool Pe::boundingBox(Drawable *aDrawable, Drawable *anotherDrawable)
 }
 
 //Check if the two objects have at least one overlapping pixel
-bool Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
+bool Pe::pixelPerfect(Drawable * aDrawable, Drawable * anotherDrawable)
 {
 	pair<int, int> startingCoordinatesI, startingCoordinatesJ;
 	int overX, overY, x, y;
@@ -44,17 +44,17 @@ bool Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 	startingCoordinatesJ = getStartOffsetForOverlapRectangle(anotherDrawable);
 
 	if (startingCoordinatesI.second < 0 || startingCoordinatesJ.second < 0)
-		cout<< "Error (pixelPerfect): second i: " << startingCoordinatesI.second << ",  j: " << startingCoordinatesJ.second << endl;
+		cerr<< "Error (pixelPerfect): second i: " << startingCoordinatesI.second << ", j: " << startingCoordinatesJ.second << endl;
 
 	if (startingCoordinatesI.first < 0 || startingCoordinatesJ.first < 0)
-		cout<< "Error (pixelPerfect): first i: " << startingCoordinatesI.first << ",  j: " << startingCoordinatesJ.first << endl;
+		cerr<< "Error (pixelPerfect): first i: " << startingCoordinatesI.first << ", j: " << startingCoordinatesJ.first << endl;
 
 	overX = overRight - overLeft;
 	overY = overBottom - overTop;
 	if (overY < 0)
 	{
 		overY = overY * -1;
-		cout<< "Error (pixelPerfect): overY is negative " << endl;
+		cerr << "Error (pixelPerfect): overY is negative " << endl;
 	}
 
 	x = 0;
@@ -77,9 +77,9 @@ bool Pe::pixelPerfect(Drawable *aDrawable, Drawable *anotherDrawable)
 				yImpactPos = startingCoordinatesI.second + y;
 				return true;
 			}
-			y = y + 1;
+			y++;
 		}
-		x = x + 1;
+		x++;
 		y = 0;
 	}
 	SDL_UnlockSurface(aDrawable->getTexture());
@@ -144,30 +144,27 @@ void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 	aHero->topFlag = true;
 	aHero->bottomFlag = true;
 
-	if(aHero->posX <= 0)
+	if(aHero->posX <= aHero->width/2)
 		{aHero->leftFlag = false;}
-	if(aHero->posY <= 0)
+	if(aHero->posY <= aHero->height/2)
 		{aHero->topFlag = false;}
-	if(aHero->posX + aHero->width >= aPoint.first)
+	if(aHero->posX + aHero->width/2 >= aPoint.first)
 		{aHero->rightFlag = false;}
-	if(aHero->posY + aHero->height >= aPoint.second)
+	if(aHero->posY + aHero->height/2 >= aPoint.second)
 		{aHero->bottomFlag = false;}
 }
 
 //make sure that an item is on screen
 bool Pe::isOnScreen(Drawable *aDrawable)
 {
-/*	if (aDrawable->posX + aDrawable->width < 0 ||
-		aDrawable->posY + aDrawable->height < 0 ||
-		aDrawable->posX > SCREEN_WIDTH - aDrawable->width ||
-		aDrawable->posY > GAMEZONE_HEIGHT)*/
-	if (aDrawable->posX + aDrawable->width < 0 ||
-		aDrawable->posY + aDrawable->height < 0 ||
-		aDrawable->posX > SCREEN_WIDTH ||
-		aDrawable->posY > GAMEZONE_HEIGHT)
+	if (aDrawable->posX + aDrawable->width/2 < 0 ||
+		aDrawable->posY + aDrawable->height/2 < 0 ||
+		aDrawable->posX - aDrawable->width/2 > SCREEN_WIDTH ||
+		aDrawable->posY - aDrawable->height/2 > GAMEZONE_HEIGHT)
 	{
 		return false;
 	}
+
 	return true;
 }
 

@@ -164,7 +164,7 @@ void SoundEngine::loadSoundFrom(Json::Value aConfig)
 	addSound(aSound);
 }
 
-//Call when a channel has finished playing a sound
+//Called when a channel has finished playing a sound
 void channelDone(int channel)
 {
 	aSe->finishedPlaying(channel);

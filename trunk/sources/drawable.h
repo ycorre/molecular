@@ -26,8 +26,8 @@ class Drawable
 	  float animY;
 
 	public:
-	  int width;
-	  int height;
+	  float width;
+	  float height;
 	  float posX;
 	  float posY;
 	  float posZ; //Depth
@@ -50,14 +50,14 @@ class Drawable
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
-	  int posXCorrection, posYCorrection;
+	  float posXCorrection, posYCorrection;
 	  int toBlend;
 	  map<string, int> confParameters;
 	  SDL_Surface * collision;
+	  bool clampTexture;
 
 	  //static since the graphic engine is the same for all the objects
 	  static GraphicEngine * ge;
-	  static Level * lev;
 
 	  SDL_Surface * texture;
 
@@ -89,10 +89,10 @@ class Drawable
 
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable* aDrawable);
-	  virtual int getXBoundary();
-	  virtual int getYBoundary();
-	  virtual int getWidthBoundary();
-	  virtual int getHeightBoundary();
+	  virtual float getXBoundary();
+	  virtual float getYBoundary();
+	  virtual float getWidthBoundary();
+	  virtual float getHeightBoundary();
 	  virtual float getAnimX();
 	  virtual void setAnimX(float aValue);
 	  virtual float getAnimY();
@@ -127,8 +127,6 @@ class AnimatedDrawable: virtual public Drawable
 	  virtual void clean();
 	  virtual float getWidth();
 	  virtual float getHeight();
-	  virtual float getPosX();
-	  virtual float getPosY();
 	  virtual int getCurrentFrame();
 	  bool updateAnimationFrame();
 	  virtual void copyFrom(Drawable * aDrawable);

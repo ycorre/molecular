@@ -14,6 +14,7 @@ Level::Level()
 	fading = false;
 	ending = false;
 	cameraSpeed = 1;
+	activeBlockingWave = 0;
 
 	ge = NULL;
 	pe = NULL;
@@ -31,14 +32,20 @@ void Level::loadLevel(Hero * anHero)
 void Level::loadBackGround()
 {
 	bkg_near = *loadedObjects.at("bkgNear");
+	bkg_near.posX = SCREEN_WIDTH/2;
+	bkg_near.posY = SCREEN_HEIGHT/2;
 	bkg_near.width = SCREEN_WIDTH;
 	bkg_near.height = SCREEN_HEIGHT;
 
 	bkg_mid = *loadedObjects.at("bkgMid");
+	bkg_mid.posX = SCREEN_WIDTH/2;
+	bkg_mid.posY = SCREEN_HEIGHT/2;
 	bkg_mid.width = SCREEN_WIDTH;
 	bkg_mid.height = SCREEN_HEIGHT;
 
 	bkg_distant = *loadedObjects.at("bkgDistant");
+	bkg_distant.posX = SCREEN_WIDTH/2;
+	bkg_distant.posY = SCREEN_HEIGHT/2;
 	bkg_distant.width = SCREEN_WIDTH;
 	bkg_distant.height = SCREEN_HEIGHT;
 }
@@ -100,6 +107,14 @@ void Level::checkEvent()
 	}*/
 }
 
+void Level::checkEnemyCollision(list<Enemy *> enemies)
+{
+	for(list<Enemy *>::iterator anEnemy = enemies.begin(); anEnemy != enemies.end(); ++anEnemy)
+	{
+		checkEnemyCollision(*anEnemy);
+	}
+}
+
 bool Level::checkEnemyCollision(Drawable * anElement)
 {
 	if(pe->collisionDetection(hero, anElement))
@@ -146,12 +161,31 @@ bool Level::checkCollision(Drawable * anElement)
 	return false;
 }
 
+//If the hero is close to a bonus then it is drawn toward it
+void Level::magnetBonus(Drawable * aBonus)
+{
+	float xDist = aBonus->posX - hero->posX;
+	float yDist = aBonus->posY - hero->posY;
+	float distance = sqrt(xDist * xDist + yDist * yDist);
+
+	if(distance < 150)
+	{
+		Bonus * aRealBonus = dynamic_cast<Bonus*>(aBonus);
+		aRealBonus->drawnToHero();
+	}
+	else
+	{
+		Bonus * aRealBonus = dynamic_cast<Bonus*>(aBonus);
+		aRealBonus->drawn = false;
+	}
+}
+
 void Level::createExplosion(int x, int y)
 {
 	//activeElements.push_back(new Explosion(x, y));
 	createEffect(x, y, "explosionA");
 	createParticleEffect(x, y, "explosion");
-    ge->shakingEffect = true;
+    ge->startShaking(8, false);
 }
 
 void Level::createParticleEffect(int x, int y, string aName)

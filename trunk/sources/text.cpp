@@ -58,17 +58,10 @@ void Text::write(string aText)
 	width = getTexture()->w;
 	height = getTexture()->h;
 
-#if USE_OPENGL
-	if(getOpenGLTexture() == 0)
-	{
-		ge->createOGLTexture(getTexture(), &oglTexture);
-	}
-	else
-	{
+	if(getOpenGLTexture() != 0)
 		glDeleteTextures(1, &oglTexture);
-		ge->createOGLTexture(getTexture(), &oglTexture);
-	}
-#endif
+
+	ge->createOGLTexture(getTexture(), &oglTexture, false);
 }
 
 //Used when changes are made on the text elements
@@ -76,10 +69,10 @@ void Text::write(string aText)
 void Text::update()
 {
 	texture =  TTF_RenderUTF8_Blended(font, content.c_str(), color);
-#if USE_OPENGL
+
 	glDeleteTextures(1, &oglTexture);
-	ge->createOGLTexture(getTexture(), &oglTexture);
-#endif
+	ge->createOGLTexture(getTexture(), &oglTexture, false);
+
 }
 
 void Text::setColor(SDL_Color aColor)

@@ -87,7 +87,8 @@ void HUD::loadHUDElements(string path)
 	for (index = 0; index < drawable.size(); ++index)
 	{
 		Drawable tmp = Drawable(drawable[index]);
-		tmp.posY = GAMEZONE_HEIGHT + tmp.posY;
+		tmp.posY = GAMEZONE_HEIGHT + tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		hudElements.insert(make_pair(tmp.name, tmp));
 	}
 
@@ -95,7 +96,8 @@ void HUD::loadHUDElements(string path)
 	for (index = 0; index < animDrawable.size(); ++index)
 	{
 		AnimatedDrawable tmp = AnimatedDrawable(animDrawable[index]);
-		tmp.posY = GAMEZONE_HEIGHT + tmp.posY;
+		tmp.posY = GAMEZONE_HEIGHT + tmp.posY + tmp.height/2;
+		tmp.posX = tmp.posX + tmp.width/2;
 		hudAnimatedElements.insert(make_pair(tmp.name, tmp));
 	}
 }
@@ -206,15 +208,15 @@ void HUD::displayWeapons(Hero * hero)
 	switch(hero->currentWeapon->powerLevel)
 	{
 		case WEAPON_STANDARD:
-			brightDot.posY = 50 + GAMEZONE_HEIGHT;
+			brightDot.posY = 60 + GAMEZONE_HEIGHT;
 			break;
 
 		case WEAPON_SUPERIOR:
-			brightDot.posY = 38 + GAMEZONE_HEIGHT;
+			brightDot.posY = 48 + GAMEZONE_HEIGHT;
 			break;
 
 		case WEAPON_FURIOUS:
-			brightDot.posY = 26 + GAMEZONE_HEIGHT;
+			brightDot.posY = 36 + GAMEZONE_HEIGHT;
 			break;
 
 		default:

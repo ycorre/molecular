@@ -19,20 +19,20 @@ Effect::Effect()
 Effect::Effect(int x, int y, string aName)
 {
 	name = aName;
-	width = lev->loadedEffects.at(aName)->width;
-	height = lev->loadedEffects.at(aName)->height;
-	isMoving = lev->loadedEffects.at(aName)->isMoving;
+	width = CurrentLevel->loadedEffects.at(aName)->width;
+	height = CurrentLevel->loadedEffects.at(aName)->height;
+	isMoving = CurrentLevel->loadedEffects.at(aName)->isMoving;
 	movingSpeed = 0.1;
 	numberOfLoops = 0;
 	followsAnObject = false;
 
-	for (map<string, AnimatedDrawable *>::iterator aLayer = lev->loadedEffects.at(aName)->effectLayers.begin(); aLayer != lev->loadedEffects.at(aName)->effectLayers.end(); ++aLayer)
+	for (map<string, AnimatedDrawable *>::iterator aLayer = CurrentLevel->loadedEffects.at(aName)->effectLayers.begin(); aLayer != CurrentLevel->loadedEffects.at(aName)->effectLayers.end(); ++aLayer)
 	{
 		AnimatedDrawable * anAnimatedDrawable = new AnimatedDrawable();
 		anAnimatedDrawable->copyFrom((*aLayer).second);
 
-		anAnimatedDrawable->posX = x - width/2;
-		anAnimatedDrawable->posY = y - height/2;
+		anAnimatedDrawable->posX = x;
+		anAnimatedDrawable->posY = y;
 
 		anAnimatedDrawable->display = true;
 		effectLayers.insert(make_pair(anAnimatedDrawable->name, anAnimatedDrawable));
@@ -57,8 +57,8 @@ Effect::Effect(Json::Value aConfig)
 	for (index = 0; index < layers.size(); ++index)
 	{
 		AnimatedDrawable * tmp = new AnimatedDrawable(layers[index]);
-		tmp->posXCorrection = width / 2 - tmp->width / 2;
-		tmp->posYCorrection = height / 2 - tmp->height / 2;
+		tmp->posXCorrection = 1;//tmp->width / 2 - width / 2;
+		tmp->posYCorrection = 1;//tmp->height / 2 - height / 2;
 
 		effectLayers.insert(make_pair(tmp->name, tmp));
 	}
@@ -129,7 +129,10 @@ TextEffect::TextEffect(int x, int y, string aText)
 	aNewAnim->texture = texture;
 	aNewAnim->oglTexture = oglTexture;
 	aNewAnim->numberOfFrames = 36;
-	aNewAnim->configOpacity("0,1,24,1,36,0");
+
+	float initArray[6] = {0,1,24,1,36,0};
+	vector<float> opacityValue(&initArray[0], &initArray[0]+6);
+	aNewAnim->configOpacity(opacityValue);
 	animations.insert(make_pair(name, aNewAnim));
 	currentAnimation = aNewAnim;
 

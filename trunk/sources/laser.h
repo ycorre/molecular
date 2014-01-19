@@ -72,6 +72,7 @@ class Lazer: public Shoot
 		Lazer(int x, int y, Weapon * aWeapon);
 		virtual bool isLazer() {return true;}
 		void animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, float yImpactPos);
+		virtual void processCollisionWith(Drawable * aDrawable);
 		void upgrade(int aLevel);
 };
 
