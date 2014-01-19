@@ -45,7 +45,8 @@ class GraphicEngine
 	  int fadingSpeed;
 	  bool isFading;
 	  bool shakingEffect;
-	  int shakeCounter;
+	  bool shakeALot;
+	  unsigned int shakeCounter;
 	  vector<int> shakeValues;
 
 	  GraphicEngine();
@@ -58,11 +59,12 @@ class GraphicEngine
 	  void initColors();
 	  void fadeIn();
 	  void mergeImages(vector <Drawable*> drawables , Drawable * destination);
-	  SDL_Surface * loadTexture(string path);
-	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex);
+	  SDL_Surface * loadTexture(string path, bool clamp);
+	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex, bool clamp);
 	  void startFadingOut(int aFadingSpeed);
 	  void freeTextures();
-	  void shakeCamera(int sense);
+	  void startShaking(int aLength, bool aLot);
+	  void shakeCamera(bool sense);
 
 	private:
 	  void fadeOut();

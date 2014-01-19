@@ -2,8 +2,8 @@
 	"mainMenu" : {
 		"drawable" : [
 			{"name" : "bkgTitle", "width" : 1200, "height" : 800, "dataPath": "res/interface/BkgTitre.png", "blend" : 1},
-			{"name" : "bubble1", "width" : 1200, "height" : 800, "dataPath": "res/interface/Bulles01.png", "blend" : 1},
-			{"name" : "bubble2", "width" : 1200, "height" : 800, "dataPath": "res/interface/Bulles02.png", "blend" : 1},
+			{"name" : "bubble1", "width" : 1200, "height" : 800, "dataPath": "res/interface/Bulles01.png", "blend" : 1, "clampTexture" : false},
+			{"name" : "bubble2", "width" : 1200, "height" : 800, "dataPath": "res/interface/Bulles02.png", "blend" : 1, "clampTexture" : false},
 			{"name" : "title", "width" : 926, "height" : 152, "posX" : 137, "posY" : 100, "dataPath": "res/interface/Molecular2.png"},
 			{"name" : "logo", "width" : 1200, "height" : 800, "dataPath": "res/interface/groupe.png"}
 		],
@@ -43,7 +43,7 @@
 	"levelSelect" : {
 		"drawable" : [
 			{"name" : "bkgLevel" , "width" : 1200, "height" : 800, "dataPath": "res/interface/BkgLevel.png"},
-			{"name" : "levelTitle" , "width" : 892, "height" : 60,  "posX" : 154, "posY": 100, "dataPath": "res/interface/TitreLevel.png"},
+			{"name" : "levelTitle" , "width" : 892, "height" : 60,  "posX" : 154, "posY": 100, "dataPath": "res/interface/TitreLevel.png", "virtualDepth" : 50},
 			{"name" : "levelLock" , "width" : 176, "height" : 176, "dataPath": "res/interface/levLocked.png"}
 		],
 		
@@ -59,10 +59,10 @@
 	},
 	
 	"sounds" : [
-		{"name" : "fractal" , "loop" : 0, "volume" : 100, "dataPath": "sound/FractalZeptoReal.wav"},
-		{"name" : "validated" , "loop" : 0, "volume" : 100, "dataPath": "sound/Valide.wav"},
-		{"name" : "buzz" , "loop" : 0, "volume" : 100, "dataPath": "sound/Buzz.wav"},
-		{"name" : "selected" , "loop" : 0, "volume" : 100, "dataPath": "sound/Vuit.wav"}
+		{"name" : "fractal" , "loop" : 0, "volume" : 100, "dataPath": "sound/FractalZeptokatal.ogg"},
+		{"name" : "validated" , "loop" : 0, "volume" : 100, "dataPath": "sound/Valide.ogg"},
+		{"name" : "buzz" , "loop" : 0, "volume" : 100, "dataPath": "sound/Buzz.ogg"},
+		{"name" : "selected" , "loop" : 0, "volume" : 100, "dataPath": "sound/Clic.ogg"}
 	],
 	
 	"music" : [

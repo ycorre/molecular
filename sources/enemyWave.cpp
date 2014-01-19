@@ -5,12 +5,14 @@ EnemyWave::EnemyWave()
 	startingDate = 0;
 	scoreBonus = 0;
 	active = false;
+	blocking = false;
 }
 
 EnemyWave::EnemyWave(Json::Value aConfig)
 {
 	unsigned int j;
 	startingDate = aConfig.get("startingDate", 0).asInt();
+	blocking = aConfig.get("blocking", false).asBool();
 	scoreBonus = aConfig.get("scoreBonus", 0).asInt();
 
 	const Json::Value bonusReleased = aConfig["possibleBonus"];
@@ -95,6 +97,7 @@ EnemyFactory * EnemyFactory::instance()
     aFactory.enemyTypes["Iron"] = IRON;
     aFactory.enemyTypes["Silicon"] = SILICON;
     aFactory.enemyTypes["Copper"] = COPPER;
+    aFactory.enemyTypes["Pyroxene"] = PYROXENE;
 
     return &aFactory;
 }
@@ -119,6 +122,10 @@ Enemy * EnemyFactory::createEnemy(Json::Value anEnemyConf)
 
 		case COPPER:
 			return new Copper(anEnemyConf);
+			break;
+
+		case PYROXENE:
+			return new PyroxeneField(anEnemyConf);
 			break;
 
 		default:

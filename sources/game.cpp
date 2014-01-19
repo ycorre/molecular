@@ -317,7 +317,6 @@ void Game::newGame()
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
-	Drawable::lev = CurrentLevel;
 	hero = new Hero();
     GameTimer = 0;
     Score = 0;
@@ -349,7 +348,6 @@ void Game::launchLevel(string aLevelName)
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
-	Drawable::lev = CurrentLevel;
 	hero = new Hero();
 	GameTimer = 0;
 	Score = 0;
@@ -382,8 +380,6 @@ void Game::launchNextLevel()
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
-	Drawable::lev = CurrentLevel;
-
 	CurrentLevel->loadLevel(hero);
 	gameState = GAME_INGAME;
 }

@@ -6,7 +6,6 @@
 #include "drawable.h"
 
 GraphicEngine * Drawable::ge;
-Level * Drawable::lev;
 
 Drawable::Drawable()
 {
@@ -40,6 +39,7 @@ Drawable::Drawable()
 	oglTexture = 0;
 	collision = NULL;
 	virtualDepth = 100;
+	clampTexture = true;
 }
 
 Drawable::Drawable(Json::Value aConfig)
@@ -70,11 +70,13 @@ Drawable::Drawable(Json::Value aConfig)
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
 	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
+	clampTexture = aConfig.get("clampTexture", true).asBool();
 	loadTexture(aConfig.get("dataPath", "").asString());
+
 
 	string collisionPath = aConfig.get("collision", "").asString();
 	if (!collisionPath.empty())
-		collision = ge->loadTexture(collisionPath);
+		collision = ge->loadTexture(collisionPath, false);
 }
 
 Drawable::~Drawable()
@@ -117,7 +119,7 @@ void Drawable::processDisplay()
 
 void Drawable::loadTexture(string path)
 {
-	texture = ge->loadTexture(path);
+	texture = ge->loadTexture(path, clampTexture);
 
 	oglTexture = ge->openGLTextures.at(texture);
 	setAnimX(animX);
@@ -178,7 +180,7 @@ void Drawable::setAnimX(float animXValue)
 void Drawable::computeOGLXValues()
 {
 	ogl_Xorigin = animX/(float)getTexture()->w;
-	ogl_Xcorner = ogl_Xorigin + (float)getWidth()/(float)getTexture()->w;
+	ogl_Xcorner = ogl_Xorigin + getWidth()/(float)getTexture()->w;
 }
 
 float Drawable::getAnimY()
@@ -199,7 +201,7 @@ void Drawable::setAnimY(float animYValue)
 void Drawable::computeOGLYValues()
 {
 	ogl_Yorigin = animY/(float)getTexture()->h;
-	ogl_Ycorner = ogl_Yorigin + (float)getHeight()/(float)getTexture()->h;
+	ogl_Ycorner = ogl_Yorigin + getHeight()/(float)getTexture()->h;
 }
 
 void Drawable::copyFrom(Drawable * aDrawable)
@@ -215,24 +217,28 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	toBlend = aDrawable->toBlend;
 	collision = aDrawable->collision;
 	virtualDepth = aDrawable->virtualDepth;
+	rotX = aDrawable->rotX;
+	rotY = aDrawable->rotY;
+	rotZ = aDrawable->rotZ;
+	rotationAngle = aDrawable->rotationAngle;
 }
 
-int Drawable::getXBoundary()
+float Drawable::getXBoundary()
 {
-	return posX;
+	return posX - getWidthBoundary()/2;
 }
 
-int Drawable::getYBoundary()
+float Drawable::getYBoundary()
 {
-	return posY;
+	return posY - getHeightBoundary()/2;
 }
 
-int Drawable::getWidthBoundary()
+float Drawable::getWidthBoundary()
 {
 	return width * scaleX;
 }
 
-int Drawable::getHeightBoundary()
+float Drawable::getHeightBoundary()
 {
 	return height * scaleY;
 }
@@ -290,7 +296,6 @@ AnimatedDrawable::AnimatedDrawable()
 	currentAnimation = NULL;
 }
 
-
 AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 {
 	name = aConfig.get("name", "drawableDefaut").asString();
@@ -318,6 +323,7 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
 	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
+	clampTexture = aConfig.get("clampTexture", true).asBool();
 	currentAnimation = NULL;
 
 	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
@@ -349,7 +355,7 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	collision = NULL;
 	string collisionPath = aConfig.get("collision", "").asString();
 	if (!collisionPath.empty())
-		collision = ge->loadTexture(collisionPath);
+		collision = ge->loadTexture(collisionPath, false);
 
 	lastTimeUpdated = 0;
 }
@@ -377,16 +383,6 @@ float AnimatedDrawable::getHeight()
 int AnimatedDrawable::getCurrentFrame()
 {
 	return currentAnimation->currentFrame;
-}
-
-float AnimatedDrawable::getPosX()
-{
-	return posX + (posXCorrection * scaleX);
-}
-
-float AnimatedDrawable::getPosY()
-{
-	return posY + (posYCorrection * scaleY);
 }
 
 //Change the animation to display
@@ -451,4 +447,14 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	posYCorrection = aDrawable->posYCorrection;
 	collision = aDrawable->collision;
 	virtualDepth = aDrawable->virtualDepth;
+	rotX = aDrawable->rotX;
+	rotY = aDrawable->rotY;
+	rotZ = aDrawable->rotZ;
+	rotationAngle = aDrawable->rotationAngle;
+
+	//Randomaize rotation angle
+	if(rotationAngle == -1)
+	{
+		rotationAngle = rand() % 360;
+	}
 }

@@ -13,12 +13,26 @@ GraphicEngine::GraphicEngine()
 	screen = NULL;
 	isFading = false;
 	shakingEffect = false;
+	shakeALot = false;
 	shakeCounter = 0;
 }
 
 void GraphicEngine::init()
 {
 	initColors();
+
+	shakeValues.push_back(10);
+	shakeValues.push_back(-10);
+	shakeValues.push_back(10);
+	shakeValues.push_back(-10);
+	shakeValues.push_back(8);
+	shakeValues.push_back(-8);
+	shakeValues.push_back(8);
+	shakeValues.push_back(-8);
+	shakeValues.push_back(6);
+	shakeValues.push_back(-6);
+	shakeValues.push_back(6);
+	shakeValues.push_back(-6);
 	shakeValues.push_back(4);
 	shakeValues.push_back(-4);
 	shakeValues.push_back(4);
@@ -30,7 +44,7 @@ void GraphicEngine::init()
 }
 
 //Load a texture as an SDL_Surface
-SDL_Surface * GraphicEngine::loadTexture(string path)
+SDL_Surface * GraphicEngine::loadTexture(string path, bool clamp)
 {
 
 	//Check if the texture is already loaded
@@ -47,7 +61,7 @@ SDL_Surface * GraphicEngine::loadTexture(string path)
 		SDL_FreeSurface(tmp);
 
 		GLuint oglTex;
-		createOGLTexture(aSurface, &oglTex);
+		createOGLTexture(aSurface, &oglTex, clamp);
 		openGLTextures.insert(make_pair(aSurface, oglTex));
 
 		//Save texture for later reuse
@@ -71,7 +85,7 @@ void GraphicEngine::drawFrame()
 	//Shift the camera in one direction
 	if(shakingEffect)
 	{
-		shakeCamera(0);
+		shakeCamera(false);
 	}
 
 	if(!toDisplay.empty())
@@ -110,10 +124,11 @@ void GraphicEngine::drawFrame()
 	//Put the camera back in place to create the illusion of shaking
 	if(shakingEffect)
 	{
-		shakeCamera(1);
-		if(shakeCounter == 8)
+		shakeCamera(true);
+		if(shakeCounter == shakeValues.size())
 		{
 			shakingEffect = false;
+			shakeALot = false;
 			shakeCounter = 0;
 		}
 	}
@@ -179,16 +194,16 @@ int GraphicEngine::draw(Drawable * sprite)
 		//Texture coordinates to display
 		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
 		//Coordinates of the quadrilateral
-		glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
+		glVertex3f(((sprite->getPosX() - sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() - sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
 
 		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-		glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2), 0.);
+		glVertex3f((sprite->getPosX() + sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() - sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
 
 		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-		glVertex3f((sprite->getPosX() + sprite->getWidth())/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+		glVertex3f((sprite->getPosX() + sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
 
 		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-		glVertex3f((sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()))/(SCREEN_HEIGHT/2), 0.);
+		glVertex3f(((sprite->getPosX() - sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
 	glEnd();
 
 	//Discard the new context
@@ -272,16 +287,53 @@ void GraphicEngine::displayFrame()
 	SDL_GL_SwapBuffers();
 }
 
-//Shake the camera
-void GraphicEngine::shakeCamera(int aSense)
+//Start a shaking camera effect
+void GraphicEngine::startShaking(int aLength, bool aLot)
 {
+	shakeCounter = max(0, (int)(shakeValues.size() - aLength));
+	shakeALot = aLot;
+	shakingEffect = true;
+}
+
+//Shake the camera
+void GraphicEngine::shakeCamera(bool aSense)
+{
+	static bool yMove;
+	static bool xMove;
+
 	if(!aSense)
 	{
-		glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+		if(shakeALot)
+		{
+			xMove = rand() % 2;
+			if(xMove)
+			{
+				glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+				yMove = rand() % 2;
+			}
+			else
+			{
+				yMove = true;
+			}
+
+			if(yMove)
+				glTranslatef(0.0, shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0);
+		}
+		else
+		{
+			glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+			xMove = true;
+			yMove = false;
+		}
 	}
 	else
 	{
-		glTranslatef(-shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+		if(xMove)
+			glTranslatef(-shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+
+		if(yMove)
+			glTranslatef(0.0, -shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0);
+
 		shakeCounter++;
 	}
 }
@@ -375,15 +427,19 @@ void GraphicEngine::fadeIn()
 	}
 }
 
-void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex)
+void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex, bool clamp)
 {
 	glGenTextures(1, oglTex);
 	glBindTexture(GL_TEXTURE_2D, *oglTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, 4 , aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	if(clamp)
+	{
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	}
 }
 
 //Free all the loaded textures

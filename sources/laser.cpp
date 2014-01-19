@@ -23,7 +23,7 @@ Shoot::Shoot(int x, int y, Weapon * aWeapon)
 {
 	power = 50;
 	firingWeapon = aWeapon;
-	copyFrom(lev->loadedObjects.at("electron"));
+	copyFrom(CurrentLevel->loadedObjects.at("electron"));
 
 	posX = x;
 	posY = y;
@@ -51,7 +51,7 @@ void Shoot::animate()
 		posY = posY + vy;
 	}
 
-	if(!lev->isOnScreen(this))
+	if(!CurrentLevel->isOnScreen(this))
 	{
 		display = false;
 		toRemove = true;
@@ -61,7 +61,7 @@ void Shoot::animate()
 void Shoot::processCollisionWith(Drawable * aDrawable)
 {
 	//CurrentLevel->createParticleEffect("electronImpact", posX + 77, posY + 16);
-	CurrentLevel->createParticleEffect(posX + 60, posY + 16, "electronSpark");
+	CurrentLevel->createParticleEffect(posX + getWidthBoundary()/2 - 13, posY, "electronSpark");
 
 	display = false;
 
@@ -82,7 +82,7 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 {
 	firingWeapon = aWeapon;
 	power = firingWeapon->power;
-	copyFrom(lev->loadedObjects.at("electron"));
+	copyFrom(CurrentLevel->loadedObjects.at("electron"));
 
 	posX = x;
 	posY = y;
@@ -258,7 +258,7 @@ void HadronAmmo::animate()
 {
 	updateAnimationFrame();
 	posX = posX + speed;
-	CurrentLevel->createParticleEffect(posX + width/2, posY + height/2, "hadronTrail");
+	CurrentLevel->createParticleEffect(posX, posY, "hadronTrail");
 
 	if(!extraPhoton.name.empty())
 	{
@@ -304,14 +304,14 @@ Lazer::Lazer()
 	power = 1;
 	firingWeapon = NULL;
 
-	copyFrom(lev->loadedObjects.at("j_bA_Sustain"));
+	copyFrom(CurrentLevel->loadedObjects.at("j_bA_Sustain"));
 
-	lightning.copyFrom(lev->loadedObjects.at("j_bA_Sustain"));
+	lightning.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Sustain"));
 	lightning.setAnimX(0);
 	lightning.setAnimY(0);
 
-	attack.copyFrom(lev->loadedObjects.at("j_bA_Attack"));
-	release.copyFrom(lev->loadedObjects.at("j_bA_Release"));
+	attack.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Attack"));
+	release.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Release"));
 
 	toBlend = true;
 	setAnimX(0);
@@ -323,39 +323,39 @@ Lazer::Lazer(int x, int y, Weapon * aWeapon)
 	power = 5;
 	firingWeapon = aWeapon;
 
-	copyFrom(lev->loadedObjects.at("j_bA_Sustain"));
+	copyFrom(CurrentLevel->loadedObjects.at("j_bA_Sustain"));
 	width = SCREEN_WIDTH;
 
-	lightning.copyFrom(lev->loadedObjects.at("jSp_bEclair"));
+	lightning.copyFrom(CurrentLevel->loadedObjects.at("jSp_bEclair"));
 	lightning.setAnimX(0);
 	lightning.setAnimY(0);
 	lightning.display = false;
 
-	burningFlames.copyFrom(lev->loadedObjects.at("jSp_bCrame"));
+	burningFlames.copyFrom(CurrentLevel->loadedObjects.at("jSp_bCrame"));
 	burningFlames.setAnimX(0);
 	burningFlames.setAnimY(0);
 
-	attack.copyFrom(lev->loadedObjects.at("j_bA_Attack"));
-	release.copyFrom(lev->loadedObjects.at("j_bA_Release"));
+	attack.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Attack"));
+	release.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Release"));
 
-	lightning.posX = x + 30;
-	lightning.posY = y + 20;
+	lightning.posX = x;
+	lightning.posY = y;
 
-	burningFlames.posX = x + 30;
-	burningFlames.posY = y + 20;
+	burningFlames.posX = x;
+	burningFlames.posY = y;
 
 	attack.posX = x + width;
-	attack.posY = y - 16;
+	attack.posY = y;
 	attack.setAnimX(0);
 	attack.setAnimY(0);
 
 	release.posX = x - 12;
-	release.posY = y - 16;
+	release.posY = y;
 	release.setAnimX(0);
 	release.setAnimY(0);
 
-	posX = x + 93;
-	posY = y - 16;
+	posX = x + 47 + width/2;
+	posY = y;
 	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
@@ -367,47 +367,47 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 	if(anHitEnemy)
 	{
 		//Shorten the lazer down to the collision point
-		width = max(1.0f, xImpactPos);
+		width = max(1.0f, xImpactPos - attack.width/2);
 
 		//Display flames
-		burningFlames.posX = posX + xImpactPos - burningFlames.width/2 - 7;
-		burningFlames.posY = y + 32 - burningFlames.height/2;
+		burningFlames.posX = x + xImpactPos - 7;
+		burningFlames.posY = y;
 		burningFlames.updateAnimationFrame();
 		burningFlames.processDisplay();
 	}
 
 	//Shorten the lightnings equally
-	lightning.currentAnimation->width = min(1200, width + 48);
+	lightning.currentAnimation->width = min(1200.0f, width + attack.width/2);
 	lightning.updateAnimationFrame();
 
-	lightning.posX = x + 30;
-	lightning.posY = y + 20;
+	lightning.posX = x + width/2;
+	lightning.posY = y;
 
 	//Update opacity
 	attack.updateAnimationFrame();
-	attack.posX = x + width + 83 - 48;
-	attack.posY = y - 16;
+	attack.posX = x + width + attack.width/2;
+	attack.posY = y;
 
 	//Update opacity
 	release.updateAnimationFrame();
 	//Reset the width
 	release.width = 95;
 	release.currentAnimation->width = release.width;
-	release.posX = x - 12;
-	release.posY = y - 16;
+	release.posX = x;
+	release.posY = y;
 
-	posX = x + 83;
-	posY = y - 16;
+	posX = x + width/2 + attack.width/4;
+	posY = y;
 
 	//If the lazer is shorten so that the width of the sustain part is zero
 	//Then we must also shorten the release part to make sure it does not overlap the attack part
-	if(attack.posX < release.posX + release.width)
+	if(attack.posX - attack.width/2 <= release.posX + release.width/2)
 	{
-		release.width = release.width - ((release.posX + release.width) - attack.posX);
+		release.width = release.width - ((release.posX + release.width/2) - (attack.posX - attack.width/2));
 		release.currentAnimation->width = release.width;
 	}
 
-	width = max(0.0f, width - 48.0f);
+	width = max(0.0f, width - 47.5f);
 	currentAnimation->width = width;
 	updateAnimationFrame();
 
@@ -417,6 +417,7 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 	release.processDisplay();
 	attack.processDisplay();
 }
+
 
 void Lazer::upgrade(int aLevel)
 {
@@ -450,4 +451,9 @@ void Lazer::upgrade(int aLevel)
 		default:
 			break;
 	}
+}
+
+void Lazer::processCollisionWith(Drawable * aDrawable)
+{
+
 }

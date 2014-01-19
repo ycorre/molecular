@@ -73,6 +73,12 @@ class Iron: public Enemy
 class Silicon: public Enemy
 {
 	public:
+		int amplitude;
+		float destY, destX;
+		float ySpeed;
+		float xSpeed;
+		bool moving;
+
 		Silicon(Json::Value aConfig);
 		virtual void animate();
 		virtual void die();
@@ -122,6 +128,23 @@ class CopperCannon: public Enemy
 		virtual void processCollisionWith(Drawable * aDrawable);
 };
 
+class Pyroxene;
+
+class PyroxeneField: public Enemy
+{
+	public:
+		int generationRate;
+		int lastGeneration;
+		int numberOfPyroxenes;
+		int generatedPyroxenes;
+		list<Enemy *> pyroxenes;
+
+		PyroxeneField();
+		PyroxeneField(Json::Value aConf);
+		bool generatePyroxene();
+		virtual void animate();
+};
+
 class Bomb: public Enemy
 {
 	public:
@@ -132,18 +155,6 @@ class Bomb: public Enemy
 		Bomb(int sX, int sY, int speed, float angle);
 		virtual void animate();
 		void setAngleAndSpeed();
-		virtual void fire();
-};
-
-class Mitraille: virtual public Bomb
-{
-	public:
-		int posRafale;
-		int rafaleRate;
-
-		Mitraille();
-		Mitraille(int x, int y);
-		virtual void checkFire();
 		virtual void fire();
 };
 

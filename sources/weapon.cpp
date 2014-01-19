@@ -113,13 +113,13 @@ void Electron::fire(Hero * aHero)
 	checkFire();
 	if (canFire)
 	{
-		shoots.push_back(new ElectronAmmo(aHero->posX - 32, aHero->posY + 16, this));
+		shoots.push_back(new ElectronAmmo(aHero->posX, aHero->posY, this));
 		canFire = false;
 	}
 
 	//Display the firing effect
-	muzzle.posX = aHero->posX - 10;
-	muzzle.posY = aHero->posY - 16;
+	muzzle.posX = aHero->posX;
+	muzzle.posY = aHero->posY;
 	muzzle.updateAnimationFrame();
 	muzzle.processDisplay();
 }
@@ -265,22 +265,23 @@ void Baryon::fire(Hero * aHero)
 
 	hitEnnemy = NULL;
 	mahLazor->width = 1200;
+	mahLazor->posX = aHero->posX  + mahLazor->width/2; //mahLazor->release.width/2
 	checkForCollision();
 
 	mahLazor->animate(aHero->posX, aHero->posY, hitEnnemy, xImpactPos, yImpactPos);
 	if(hitEnnemy)
 	{
 		hitEnnemy->processCollisionWith(mahLazor);
-		CurrentLevel->createParticleEffect(aHero->posX + xImpactPos + 77, aHero->posY + 32, "lazerSpark");
+		CurrentLevel->createParticleEffect(aHero->posX + xImpactPos, aHero->posY, "lazerSpark");
 	}
 
 	haloA.updateAnimationFrame();
-	haloA.posX = aHero->posX - 96;
-	haloA.posY = aHero->posY - 96;
+	haloA.posX = aHero->posX;
+	haloA.posY = aHero->posY;
 
 	haloB.updateAnimationFrame();
-	haloB.posX = aHero->posX - 96;
-	haloB.posY = aHero->posY - 96;
+	haloB.posX = aHero->posX;
+	haloB.posY = aHero->posY;
 
 	haloA.processDisplay();
 	haloB.processDisplay();
@@ -413,7 +414,7 @@ Plasma::Plasma()
 void Plasma::fire(Hero * aHero)
 {
 	isFiring = true;
-	shoots.push_back(new HadronAmmo(aHero->posX - 64, aHero->posY + 16, this));
+	shoots.push_back(new HadronAmmo(aHero->posX - 64, aHero->posY, this));
 }
 
 void Plasma::checkActivation(Hero * aHero)

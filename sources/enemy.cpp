@@ -30,8 +30,8 @@ Enemy::Enemy()
 Enemy::Enemy(int x, int y, int typeXW)
 {
 	name = "Enemy";
-	width = atoi(((lev->configurationElements.at("enemy")).at(0)).c_str());
-	height = atoi(((lev->configurationElements.at("enemy")).at(1)).c_str());
+	width = atoi(((CurrentLevel->configurationElements.at("enemy")).at(0)).c_str());
+	height = atoi(((CurrentLevel->configurationElements.at("enemy")).at(1)).c_str());
 	posX = x;
 	posY = y;
 	setAnimX(0);
@@ -57,7 +57,7 @@ Enemy::Enemy(int x, int y, int typeXW)
 
 Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 {
-	copyFrom(lev->loadedObjects.at("enemy"));
+	copyFrom(CurrentLevel->loadedObjects.at("enemy"));
 
 	posX = x;
 	posY = y;
@@ -128,8 +128,8 @@ void Enemy::checkPositions()
 		}
 
 		//Compute the new angle
-		float xDiff = eventPosition.at(currentPosition).first - (posX + width/2);
-		float yDiff = eventPosition.at(currentPosition).second - (posY + height/2);
+		float xDiff = eventPosition.at(currentPosition).first - posX;
+		float yDiff = eventPosition.at(currentPosition).second - posY;
 		angle = atan2(yDiff, xDiff);
 	}
 }
@@ -156,6 +156,10 @@ void Enemy::processCollisionWith(Drawable * aDrawable)
 		{
 			die();
 		}
+		else
+		{
+			startBlinkingWhite(4);
+		}
 		return;
 	}
 }
@@ -163,17 +167,17 @@ void Enemy::processCollisionWith(Drawable * aDrawable)
 void Enemy::dropBonus(int x, int y)
 {
 	int aNumber = rand() % 100;
-	if (aNumber <=  bonusProbability)
+	if (aNumber < bonusProbability)
 	{
 		bonusType aBonus = (bonusType) (rand () % BONUS_COUNT);
-		lev->createBonus(x, y, aBonus);
+		CurrentLevel->createBonus(x, y, aBonus);
 	}
 }
 
 void Enemy::die()
 {
-	lev->soundEngine->playSound("xwing_explode");
-	lev->createExplosion(posX + width/2, posY + height/2);
+	CurrentLevel->soundEngine->playSound("xwing_explode");
+	CurrentLevel->createExplosion(posX, posY);
 	dropBonus(posX, posY);
 	Score = Score + scoreValue * (type + 1);
 	toRemove = true;
@@ -184,22 +188,22 @@ void Enemy::fire()
 	checkFire();
 	if (canFire)
 	{
-		lev->soundEngine->playSound("enemyGun");
+		CurrentLevel->soundEngine->playSound("enemyGun");
 
 		//Shoot toward the hero
 		//Compute the angle
-		float xDiff = (lev->hero->posX + lev->hero->width/2) - (posX + width/2);
-		float yDiff = (lev->hero->posY + lev->hero->height/2) - (posY + height/2);
+		float xDiff = (CurrentLevel->hero->posX + CurrentLevel->hero->width/2) - (posX + width/2);
+		float yDiff = (CurrentLevel->hero->posY + CurrentLevel->hero->height/2) - (posY + height/2);
 		float angle = atan2(yDiff, xDiff);
 
-		lev->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));
+		CurrentLevel->activeElements.push_back(new Bullet(posX + 30, posY + 30, angle, 3));
 		canFire = false;
 	}
 }
 
 void Enemy::checkFire()
 {
-	if (lev->isOnScreen(this))
+	if (CurrentLevel->isOnScreen(this))
 	{
 		unsigned int nextFireTime = lastTimeFired + fireRate;
 		if (nextFireTime < GameTimer)
@@ -216,7 +220,7 @@ void Enemy::checkFire()
  */
 Cadmium::Cadmium(int x, int y, float aSpeed, vector<int> moves)
 {
-	copyFrom(lev->loadedObjects.at("eSp_Cadmium"));
+	copyFrom(CurrentLevel->loadedObjects.at("eSp_Cadmium"));
 
 	posX = x;
 	posY = y;
@@ -249,7 +253,7 @@ Cadmium::Cadmium(int x, int y, float aSpeed, vector<int> moves)
 
 Cadmium::Cadmium(Json::Value aConfig)
 {
-	copyFrom(lev->loadedObjects.at("eSp_Cadmium"));
+	copyFrom(CurrentLevel->loadedObjects.at("eSp_Cadmium"));
 
 	posX = aConfig.get("posX", 0.0).asFloat();
 	posX = posX + SCREEN_WIDTH;
@@ -290,7 +294,7 @@ Cadmium::Cadmium(Json::Value aConfig)
 
 void Cadmium::checkFire()
 {
-	if (lev->isOnScreen(this))
+	if (CurrentLevel->isOnScreen(this))
 	{
 		unsigned int nextFireTime;
 		if (posRafale == 0)
@@ -306,8 +310,8 @@ void Cadmium::checkFire()
 		{
 			//Shoot toward the hero
 			//Compute the angle
-			float xDiff = lev->hero->posX - posX;
-			float yDiff = lev->hero->posY - posY;
+			float xDiff = CurrentLevel->hero->posX - posX;
+			float yDiff = CurrentLevel->hero->posY - posY;
 			shootingAngle = atan2(yDiff, xDiff);
 		}
 
@@ -329,9 +333,9 @@ void Cadmium::fire()
 	checkFire();
 	if (canFire)
 	{
-		lev->soundEngine->playSound("enemyGun");
+		CurrentLevel->soundEngine->playSound("enemyGun");
 
-		lev->activeElements.push_back(new CadmiumAmmo(posX, posY, shootingAngle, 4));
+		CurrentLevel->activeElements.push_back(new CadmiumAmmo(posX, posY, shootingAngle, 4));
 		canFire = false;
 	}
 }
@@ -359,7 +363,7 @@ void Cadmium::animate()
  */
 Iron::Iron(Json::Value aConfig)
 {
-	copyFrom(lev->loadedObjects.at("eSp_Iron"));
+	copyFrom(CurrentLevel->loadedObjects.at("eSp_Iron"));
 	int maxX = aConfig.get("spreadWidth", 500).asInt();
 
 	posX = aConfig.get("posX", -1.0).asFloat();
@@ -369,7 +373,7 @@ Iron::Iron(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1.0).asFloat();
 	if(posY == -1)
-		posY = rand() % (GAMEZONE_HEIGHT - width);
+		posY = rand() % (GAMEZONE_HEIGHT - (int)width);
 
 	scoreValue = aConfig.get("scoreValue", 100).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 100).asInt();
@@ -427,7 +431,7 @@ void Iron::dropBonus(int x, int y)
 		float aSpeed = 5.0f + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
 		float anAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f)) * (PI/180);
 		int aBonusType = rand() % possibleBonus.size();
-		lev->createBonus(posX, posY, aSpeed, anAngle, possibleBonus.at(aBonusType));
+		CurrentLevel->createBonus(posX, posY, aSpeed, anAngle, possibleBonus.at(aBonusType));
 	}
 }
 
@@ -436,7 +440,7 @@ void Iron::dropBonus(int x, int y)
  */
 Silicon::Silicon(Json::Value aConfig)
 {
-	copyFrom(lev->loadedObjects.at("e004Sp"));
+	copyFrom(CurrentLevel->loadedObjects.at("e004Sp"));
 	int maxX = aConfig.get("spreadWidth", 500).asInt();
 
 	posX = aConfig.get("posX", -1.0).asFloat();
@@ -448,7 +452,7 @@ Silicon::Silicon(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1).asFloat();
 	if(posY == -1)
-		posY = rand() % (GAMEZONE_HEIGHT - width);
+		posY = rand() % (GAMEZONE_HEIGHT - (int)width);
 
 	scoreValue = aConfig.get("scoreValue", 10).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
@@ -463,28 +467,89 @@ Silicon::Silicon(Json::Value aConfig)
 	setAnimX(0);
 	setAnimY(0);
 
+	amplitude = 160;
+
 	canFire = false;
-	angle = 180.0 * (PI/180);
+	angle = PI;
+	destY = -1;
+	destX = -1;
+	ySpeed = xSpeed = 0;
+	moving = false;
 }
 
 void Silicon::animate()
 {
 	updateAnimationFrame();
 
-	float vx, vy;
-	vx = speed * cos(angle);
-	vy = speed * sin(angle);
+	posX = posX - speed;
 
-	posX = posX + vx;
-	posY = posY + vy;
+	if(!moving && CurrentLevel->isOnScreen(this))
+	{
+		//Should we make an expected move ?
+		int move = rand() % 800;
+		if(move <= 1)
+		{
+			moving = true;
+
+			//Which length ?
+			destY = 40.0 + rand() % amplitude;
+
+			//Vertical or horizontal move ?
+			if(rand() % 2)
+			{
+				//Up or down ?
+				if(rand() % 2)
+				{
+					destY = posY - destY;
+					ySpeed = -3;
+				}
+				else
+				{
+					destY = destY + posY;
+					ySpeed = 3;
+				}
+				xSpeed = 0;
+			}
+			else
+			{
+				destY = destY * 2.0f;
+				destX = posX - destY;
+				ySpeed = 0;
+				xSpeed = 3;
+			}
+		}
+	}
+	else
+	{
+		posY = posY + ySpeed;
+		posX = posX - xSpeed;
+
+		if(destY != -1 && std::abs((int)(posY - destY)) <= 4)
+		{
+			destY = -1;
+			moving = false;
+		}
+
+		if(destX != -1 && std::abs((int)(posX - destX)) <= speed + xSpeed + 1)
+		{
+			destX = -1;
+			moving = false;
+		}
+	}
+
+	if(posX < -width)
+	{
+		toRemove = true;
+	}
+
 }
 
 void Silicon::die()
 {
-	lev->soundEngine->playSound("xwing_explode");
-	CurrentLevel->createParticleEffect(posX + width/2, posY + height/2, "siliconExplosion");
-	CurrentLevel->createEffect(posX + width/2, posY + height/2, "explosionSilicon");
-	dropBonus(posX, posY);
+	CurrentLevel->soundEngine->playSound("xwing_explode");
+	CurrentLevel->createParticleEffect(posX, posY, "siliconExplosion");
+	CurrentLevel->createEffect(posX, posY, "explosionSilicon");
+	//dropBonus(posX, posY);
 	Score = Score + scoreValue * (type + 1);
 	toRemove = true;
 }

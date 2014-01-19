@@ -66,6 +66,8 @@ Animation::Animation(Drawable * aDrawable)
 
 Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 {
+	unsigned int i;
+
 	name = aConfig.get("name", "animDefaut").asString();
 	width = aConfig.get("width", 0).asInt();
 	//If no width was specified
@@ -95,13 +97,21 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 		loadTexture(texturePath);
 	}
 
-	string opacityConfig = aConfig.get("opacity", "").asString();
+
+	Json::Value opacityConfigValue = aConfig["opacity"];
+	vector<float> opacityConfig;
+	for(i = 0; i < opacityConfigValue.size(); i++)
+		opacityConfig.push_back(opacityConfigValue[i].asFloat());
 	if(!opacityConfig.empty())
 	{
 		configOpacity(opacityConfig);
 	}
 
-	string scalingConfig = aConfig.get("scaling", "").asString();
+
+	Json::Value scalingConfigValue = aConfig["scaling"];
+	vector<float> scalingConfig;
+	for(i = 0; i < scalingConfigValue.size(); i++)
+		scalingConfig.push_back(scalingConfigValue[i].asFloat());
 	if(!scalingConfig.empty())
 	{
 		configScaling(scalingConfig);
@@ -118,7 +128,6 @@ void Animation::incrementCurrentFrame()
 
 int Animation::nextFrame()
 {
-
 	incrementCurrentFrame();
 
 	//If we have to move inside the texture
@@ -161,26 +170,22 @@ void Animation::setFrameTo(int aNumber)
 
 void Animation::loadTexture(string path)
 {
-	texture = drawable->ge->loadTexture(path);
+	texture = drawable->ge->loadTexture(path, drawable->clampTexture);
 
-#if USE_OPENGL
 	oglTexture = drawable->ge->openGLTextures.at(texture);
 	drawable->setAnimX(drawable->getAnimX());
 	drawable->setAnimY(drawable->getAnimY());
-#endif
 }
 
-//Opacity values for an animation is given as a series of pairs of number (x, y)
+//Opacity values for an animation is given as a series of pairs of numbers (x, y)
 //*The x is the number of a key frame, where a specific value of opacity should be reached
 //*The y is the actual opacity value to be taken at frame x (value is between 0.0 and 1.0)
-//This is given in the configuration file as a string of numbers representing separated by comma
+//This is given in the configuration file as an array of numbers
 //Given the key frames, the opacity values and the number of frame in the animation
 //we compute for each frame of the animation the opacity value, by computing the value for each frame between two key frames
 //assuming that the opacity is increasing (or decreasing) in a linear way
-void Animation::configOpacity(string aConfigString)
+void Animation::configOpacity(vector<float>  opacityConfigValue)
 {
-	string aFrameNumber;
-	istringstream aConf(aConfigString);
 	unsigned int i, j;
 	map<int, float> opacityTempValues;
 	vector<int> frameIndices;
@@ -189,13 +194,11 @@ void Animation::configOpacity(string aConfigString)
 	float finishingOpacity;
 	float opacityModifyingFactor;
 
-	//Parse the configuration string to get pair of values
-	while(getline(aConf, aFrameNumber, ','))
+	//Get pair of values from the input vector
+	for(i = 0; i < opacityConfigValue.size(); i = i + 2)
 	{
-		string anOpacityValue;
-		getline(aConf, anOpacityValue, ',');
-		opacityTempValues.insert(make_pair(atoi(aFrameNumber.c_str()), atof(anOpacityValue.c_str())));
-		frameIndices.push_back(atoi(aFrameNumber.c_str()));
+		opacityTempValues.insert(make_pair(opacityConfigValue.at(i), opacityConfigValue.at(i+1)));
+		frameIndices.push_back(opacityConfigValue.at(i));
 	}
 
 	j = 0;
@@ -205,8 +208,8 @@ void Animation::configOpacity(string aConfigString)
 	currentOpacity = startingOpacity;
 	j++;
 
-	//Compute all the opacity values to be taken for each frame
-	for (i = 0; i <numberOfFrames; i++)
+	//Compute the opacity values for each frame
+	for (i = 0; i < numberOfFrames; i++)
 	{
 		opacityValues.push_back(currentOpacity);
 		if(j < frameIndices.size() - 1)
@@ -230,11 +233,9 @@ void Animation::configOpacity(string aConfigString)
 }
 
 //Works similarly to configOpacity (see above), except that scaling value can go higher than 1.0
-void Animation::configScaling(string aConfString)
+void Animation::configScaling(vector<float> scalingConfigValue)
 {
-	string aFrameNumber;
-	istringstream aConf(aConfString);
-	int i, j;
+	unsigned int i, j;
 	map<int, float> scaleTempValues;
 	vector<int> frameIndices;
 	float startingScale;
@@ -242,13 +243,11 @@ void Animation::configScaling(string aConfString)
 	float finishingScale;
 	float scaleModifyingFactor;
 
-	//Parse the configuration string to get pair of values
-	while(getline(aConf, aFrameNumber, ','))
+	//Get pair of values from the input vector
+	for(i = 0; i < scalingConfigValue.size(); i = i + 2)
 	{
-		string anOpacityValue;
-		getline(aConf, anOpacityValue, ',');
-		scaleTempValues.insert(make_pair(atoi(aFrameNumber.c_str()), atof(anOpacityValue.c_str())));
-		frameIndices.push_back(atoi(aFrameNumber.c_str()));
+		scaleTempValues.insert(make_pair(scalingConfigValue.at(i), scalingConfigValue.at(i+1)));
+		frameIndices.push_back(scalingConfigValue.at(i));
 	}
 
 	j = 0;
@@ -258,8 +257,8 @@ void Animation::configScaling(string aConfString)
 	currentScale = startingScale;
 	j++;
 
-	//Compute all the scaling values to be taken for each frame
-	for (i = 0; i <numberOfFrames; i++)
+	//Compute the scaling values for each frame
+	for (i = 0; i < numberOfFrames; i++)
 	{
 		scalingValues.push_back(currentScale);
 		if(j < frameIndices.size() - 1)

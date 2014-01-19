@@ -4,14 +4,14 @@
 
 Copper::Copper(Json::Value aConfig)
 {
-	copyFrom(lev->loadedObjects.at("e005Sp"));
+	copyFrom(CurrentLevel->loadedObjects.at("e005Sp"));
 
 	posX = aConfig.get("posX", -1.0).asFloat();
 	posX = posX + SCREEN_WIDTH;
 
 	posY = aConfig.get("posY", -1.0).asFloat();
 	if(posY == -1.0)
-		posY = 30 + rand() % (GAMEZONE_HEIGHT - width - 30);
+		posY = width/2 + rand() % (GAMEZONE_HEIGHT - (int)width/2 - 30);
 
 	scoreValue = aConfig.get("scoreValue", 1000).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
@@ -33,12 +33,12 @@ Copper::Copper(Json::Value aConfig)
 	setAnimX(0);
 	setAnimY(0);
 
-	cannons.push_back(new CopperCannon(this, 87, 51));
-	cannons.push_back(new CopperCannon(this, 33, 20));
-	cannons.push_back(new CopperCannon(this, 33, 82));
+	cannons.push_back(new CopperCannon(this, 54-87, 54-51));
+	cannons.push_back(new CopperCannon(this, 54-35, 54-20));
+	cannons.push_back(new CopperCannon(this, 54-35, 54-82));
 
-	currentAnimation->setFrameTo(15);
-	currentAnimation->currentFrame = 15;
+	currentAnimation->setFrameTo(99);
+	currentAnimation->currentFrame = 99;
 }
 
 void Copper::animate()
@@ -104,10 +104,10 @@ void Copper::animate()
 	}
 
 	//If it is here since lifetime frame, move out
-	if(currentLifeTime >= lifeTime)
+	/*if(currentLifeTime >= lifeTime)
 	{
-		lifePhase = COPPER_LEAVING;
-	}
+	//	lifePhase = COPPER_LEAVING;
+	}*/
 }
 
 void Copper::nextPhase()
@@ -123,10 +123,10 @@ void Copper::nextPhase()
 				//Pull a y coordinate as destination,
 				//we want it at least one width away from our current position
 				do{
-					yDestination =  30 + rand() % (GAMEZONE_HEIGHT - width - 30);
+					yDestination =  width/2 + rand() % (GAMEZONE_HEIGHT - (int)width/2 - 30);
 				} while(std::abs((int)(posY - yDestination)) < width);
 
-				ySpeed = (posY - yDestination) / 50.0;
+				ySpeed = (yDestination - posY) / 90.0f;
 			}
 			break;
 
@@ -170,9 +170,9 @@ void Copper::nextPhase()
 
 void Copper::move()
 {
-	posY = posY - ySpeed;
+	posY = posY + ySpeed;
 
-	if(std::abs((int)(posY - yDestination)) < std::abs((int)(ySpeed) + 1))
+	if(std::abs((int)(posY - yDestination)) <= std::abs((int)(ySpeed)) + 2)
 	{
 		yDestination = -1;
 		nextPhase();
@@ -210,11 +210,13 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 			}
 			if (life<=0)
 			{
-				lev->soundEngine->playSound("xwing_explode");
-				lev->createExplosion(posX + width/2, posY + height/2);
-				lev->createExplosion(posX, posY);
-				lev->createExplosion(posX + 2*width/3, posY + height/3);
-				lev->createExplosion(posX + width/3, posY + 2*height/3);
+				CurrentLevel->soundEngine->playSound("xwing_explode");
+				CurrentLevel->createEffect(posX, posY, "explosionCopper");
+				CurrentLevel->createExplosion(posX + width/2, posY - height/2);
+				CurrentLevel->createExplosion(posX, posY);
+				CurrentLevel->createExplosion(posX - 2*width/3, posY + height/3);
+				CurrentLevel->createExplosion(posX + width/3, posY - 2*height/3);
+				ge->startShaking(20, true);
 				Score = Score + scoreValue * (type + 1);
 				toRemove = true;
 				dropBonus(posX, posY);
@@ -232,16 +234,16 @@ void Copper::processCollisionWith(Drawable * aDrawable)
  */
 CopperCannon::CopperCannon(Copper * aCopper, float x, float y)
 {
-	copyFrom(lev->loadedObjects.at("e005CanonSp"));
+	copyFrom(CurrentLevel->loadedObjects.at("e005CanonSp"));
 
 	shootingAngle = startShootingAngle = 0;
 	copper = aCopper;
-	shiftX = copper->width/2 - width/2;
-	shiftY = copper->height/2 - height/2;
-	posX = copper->posX + x - width/2;
-	posY = copper->posY + y - height/2;
-	float xDiff = (copper->posX + copper->width/2) - (posX + width/2);
-	float yDiff = (copper->posY + copper->height/2) - (posY + height/2);
+	shiftX = 0;//copper->width/2 - width/2;
+	shiftY = 0;//copper->height/2 - height/2;
+	posX = copper->posX + x;// - width/2;
+	posY = copper->posY + y;// - height/2;
+	float xDiff = copper->posX - posX;
+	float yDiff = copper->posY - posY;
 
 	copperAngle = atan2(yDiff, xDiff);
 	posX = copper->posX + shiftX + 36 * cos(copperAngle);
@@ -285,8 +287,8 @@ void CopperCannon::animate()
 		}
 		else
 		{
-			float xDiff = (CurrentLevel->hero->posX + CurrentLevel->hero->width/2) - (posX + width/2);
-			float yDiff = (CurrentLevel->hero->posY + CurrentLevel->hero->height/2) - (posY + height/2);
+			float xDiff = CurrentLevel->hero->posX - posX;
+			float yDiff = CurrentLevel->hero->posY - posY;
 			int angle = ((int)(atan2(yDiff, xDiff) * (180/PI) + 360)) % 360;
 			currentAnimation->setFrameTo(cannonAngles.at(angle));
 		}
@@ -297,7 +299,7 @@ void CopperCannon::animate()
 
 void CopperCannon::fire()
 {
-	CurrentLevel->activeElements.push_back(new CopperAmmo(posX + width/2, posY + height/2, shootingAngle * (PI/180), 4));
+	CurrentLevel->activeElements.push_back(new CopperAmmo(posX, posY, shootingAngle * (PI/180), 4));
 }
 
 void CopperCannon::processCollisionWith(Drawable * aDrawable)
@@ -316,8 +318,8 @@ void CopperCannon::processCollisionWith(Drawable * aDrawable)
 			}
 			if (life<=0)
 			{
-				lev->soundEngine->playSound("xwing_explode");
-				lev->createExplosion(posX + width/2, posY + height/2);
+				CurrentLevel->soundEngine->playSound("xwing_explode");
+				CurrentLevel->createExplosion(posX, posY);
 				Score = Score + scoreValue * (type + 1);
 				destroyed = true;
 				activated = false;

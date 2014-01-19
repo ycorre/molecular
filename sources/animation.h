@@ -49,8 +49,8 @@ class Animation
 	  int nextFrame();
 	  void incrementCurrentFrame();
 	  void setFrameTo(int aNumber);
-	  void configOpacity(string aConf);
-	  void configScaling(string aConf);
+	  void configOpacity(vector<float> aConf);
+	  void configScaling(vector<float> aConf);
 	  void loadTexture(string path);
 };
 

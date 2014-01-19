@@ -89,7 +89,7 @@ void Level2::checkEvent()
 	if(generateBomb())
 	{
 		//activeElements.push_back(new Bomb());
-		activeElements.push_back(new Asteroid(BIG_ASTEROID));
+		activeElements.push_back(new Pyroxene(BIG_PYROXENE));
 	}
 
 	//Winning conditions
@@ -132,6 +132,11 @@ bool Level2::checkCollision(Drawable * anElement)
 	if (hero->state == DEAD)
 	{
 		return false;
+	}
+
+	if(anElement->isBonus())
+	{
+		magnetBonus(anElement);
 	}
 
 	if(pe->collisionDetection(hero, anElement))

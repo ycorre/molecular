@@ -7,9 +7,9 @@
 #include "drawable.h"
 #include "enemy.h"
 
-enum asteroidType {BIG_ASTEROID, SMALL_ASTEROID};
+enum pyroxeneType {BIG_PYROXENE, SMALL_PYROXENE};
 
-class Asteroid: public Enemy
+class Pyroxene: public Enemy
 {
 	public:
 		float angle;
@@ -18,12 +18,12 @@ class Asteroid: public Enemy
 		int bonusProbability;
 		int scoreValue;
 
-		Asteroid();
-		Asteroid(int type);
-		//used to set small fragments of asteroid
-		Asteroid(int type, int sX, int sY, int speed, float angle);
+		Pyroxene();
+		Pyroxene(int type);
+		//used to set small fragments of pyroxene
+		Pyroxene(int type, int sX, int sY, int speed, float angle);
 		void processCollisionWith(Drawable* aDrawable);
-		void createSmallerAsteroid(Asteroid * anElement);
+		void createSmallerPyroxene(Pyroxene * anElement);
 		virtual void animate();
 		virtual void fire();
 		void setAngleAndSpeed();

@@ -7,6 +7,7 @@
 Level1::Level1()
 {
 	cameraSpeed = 1;
+
 }
 
 void Level1::loadLevel(Hero * aHero)
@@ -25,6 +26,7 @@ void Level1::loadLevel(Hero * aHero)
 
 	levelState = LEVEL_PLAYING;
 	ending = fading = exiting = false;
+	activeBlockingWave = 0;
 }
 
 void Level1::drawLevel()
@@ -89,7 +91,8 @@ void Level1::checkEvent()
 		}
 	}
 
-	levelPosition++;
+	if(!activeBlockingWave)
+		levelPosition++;
 
 	//Check if we are at a point where we should instantiate a new wave
 	if(enemyWaves.find(levelPosition) != enemyWaves.end())
@@ -98,6 +101,8 @@ void Level1::checkEvent()
 		{
 			(*aWave)->launchWave();
 			activeWaves.push_back(*aWave);
+			if((*aWave)->blocking)
+				activeBlockingWave++;
 		}
 
 		enemyWaves.erase(levelPosition);
@@ -109,6 +114,9 @@ void Level1::checkEvent()
 		(*aWave)->animate();
 		if(!(*aWave)->active)
 		{
+			if((*aWave)->blocking)
+				activeBlockingWave--;
+
 			delete (*aWave);
 			activeWaves.erase(aWave--);
 		}
@@ -152,6 +160,11 @@ bool Level1::checkCollision(Drawable * anElement)
 	if (hero->state == DEAD)
 	{
 		return false;
+	}
+
+	if(anElement->isBonus())
+	{
+		magnetBonus(anElement);
 	}
 
 	if(hero->shielded)

@@ -21,6 +21,7 @@ Bonus::Bonus()
 	quarkType = -1;
 	speed = 0;
 	angle = 0;
+	drawn = false;
 }
 
 
@@ -33,100 +34,101 @@ Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
 	quarkType = -1;
 	speed = aSpeed;
 	angle = anAngle;
+	drawn = false;
 
 	switch (type)
 	{
 		case BONUS_QUARKB_A:
-			copyFrom(lev->loadedObjects.at("qSp_ba"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_ba"));
 			quantity = 1;
 			quarkType = QuarkB;
 			break;
 
 		case BONUS_QUARKB_G:
-			copyFrom(lev->loadedObjects.at("qSp_bg"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_bg"));
 			quantity = 5;
 			quarkType = QuarkB;
 			break;
 
 		case BONUS_QUARKC_A:
-			copyFrom(lev->loadedObjects.at("qSp_ca"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_ca"));
 			quantity = 1;
 			quarkType = QuarkC;
 			break;
 
 		case BONUS_QUARKC_G:
-			copyFrom(lev->loadedObjects.at("qSp_cg"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_cg"));
 			quantity = 5;
 			quarkType = QuarkC;
 			break;
 
 		case BONUS_QUARKT_A:
-			copyFrom(lev->loadedObjects.at("qSp_ta"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_ta"));
 			quantity = 1;
 			quarkType = QuarkT;
 			break;
 
 		case BONUS_QUARKT_G:
-			copyFrom(lev->loadedObjects.at("qSp_tg"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_tg"));
 			quantity = 5;
 			quarkType = QuarkT;
 			break;
 
 		case BONUS_QUARKU_A:
-			copyFrom(lev->loadedObjects.at("qSp_ua"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_ua"));
 			quantity = 1;
 			quarkType = QuarkU;
 			break;
 
 		case BONUS_QUARKU_G:
-			copyFrom(lev->loadedObjects.at("qSp_ug"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_ug"));
 			quantity = 5;
 			quarkType = QuarkU;
 			break;
 
 		case BONUS_QUARKD_A:
-			copyFrom(lev->loadedObjects.at("qSp_da"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_da"));
 			quantity = 1;
 			quarkType = QuarkD;
 			break;
 
 		case BONUS_QUARKD_G:
-			copyFrom(lev->loadedObjects.at("qSp_dg"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_dg"));
 			quantity = 5;
 			quarkType = QuarkD;
 			break;
 
 		case BONUS_QUARKS_A:
-			copyFrom(lev->loadedObjects.at("qSp_sa"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_sa"));
 			quantity = 1;
 			quarkType = QuarkS;
 			break;
 
 		case BONUS_QUARKS_G:
-			copyFrom(lev->loadedObjects.at("qSp_sg"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_sg"));
 			quantity = 5;
 			quarkType = QuarkS;
 			break;
 
 		case BONUS_SHIELD:
-			copyFrom(lev->loadedObjects.at("qSp_Capsule"));
+			copyFrom(CurrentLevel->loadedObjects.at("qSp_Capsule"));
 			isQuarkBonus = false;
 			break;
 
 		case BONUS_LIFE_SMALL:
-			copyFrom(lev->loadedObjects.at("bSp_W"));
+			copyFrom(CurrentLevel->loadedObjects.at("bSp_W"));
 			quantity = 1;
 			isQuarkBonus = false;
 			break;
 
 		case BONUS_LIFE_MEDIUM:
-			copyFrom(lev->loadedObjects.at("bSp_Z"));
+			copyFrom(CurrentLevel->loadedObjects.at("bSp_Z"));
 			quantity = 3;
 			isQuarkBonus = false;
 			break;
 
 		case BONUS_LIFE_BIG:
-			copyFrom(lev->loadedObjects.at("bSp_Y"));
+			copyFrom(CurrentLevel->loadedObjects.at("bSp_Y"));
 			quantity = 5;
 			isQuarkBonus = false;
 			break;
@@ -135,9 +137,9 @@ Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
 			break;
 	}
 
-	halo.copyFrom(lev->loadedObjects.at("qSp_Sign"));
-	halo.posX = x + (width/2 - halo.width/2);
-	halo.posY = y + (height/2 - halo.height/2);
+	halo.copyFrom(CurrentLevel->loadedObjects.at("qSp_Sign"));
+	halo.posX = x;
+	halo.posY = y;
 
 	posX = x;
 	posY = y;
@@ -150,7 +152,8 @@ void Bonus::animate()
 {
 	updateAnimationFrame();
 
-	posX = posX - 2;
+	if(!drawn)
+		posX = posX - 2;
 
 	if (speed != 0)
 	{
@@ -161,17 +164,24 @@ void Bonus::animate()
 		posX = posX + vx;
 		posY = posY + vy;
 
-		halo.posX = halo.posX + vx;
-		halo.posY = halo.posY + vy;
+		halo.posX = posX;
+		halo.posY = posY;
 
-		speed = speed * 0.92f;
+		//Make sure it does not disappear through the tob or the bottom of the screen
+		posY = max(posY, height/2);
+		posY = min(posY, (float) GAMEZONE_HEIGHT - height/2);
+
+		if(!drawn)
+			speed = speed * 0.92f;
 	}
 
-	halo.posX = halo.posX - 2;
+	if(!drawn)
+		halo.posX = halo.posX - 2;
+
 	halo.updateAnimationFrame();
 	halo.processDisplay();
 
-	if(!lev->isOnScreen(this))
+	if(!CurrentLevel->isOnScreen(this))
 	{
 		toRemove = true;
 	}
@@ -184,4 +194,15 @@ void Bonus::processCollisionWith(Drawable* aDrawable)
 		Score = Score + scoreValue;
 		toRemove = true;
 	}
+}
+
+//"My Hero! <3"
+void Bonus::drawnToHero()
+{
+	drawn = true;
+	float xDiff = CurrentLevel->hero->posX - posX;
+	float yDiff = CurrentLevel->hero->posY - posY;
+	angle = atan2(yDiff, xDiff);
+
+	speed = min(speed + 0.2f, 5.0f);
 }

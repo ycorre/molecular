@@ -23,7 +23,7 @@ Bullet::Bullet()
 Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 {
 	power = 50;
-	copyFrom(lev->loadedObjects.at("shoot"));
+	copyFrom(CurrentLevel->loadedObjects.at("shoot"));
 
 	//Conversion from degree to radian
 	angle = anAngle; //180 * (PI / 180.0);
@@ -48,7 +48,7 @@ void Bullet::animate()
 	posX = posX + vx;
 	posY = posY + vy;
 
-	if(!lev->isOnScreen(this))
+	if(!CurrentLevel->isOnScreen(this))
 	{
 		toRemove = true;
 	}
@@ -72,9 +72,9 @@ void Bullet::processCollisionWith(Drawable* aDrawable)
 CadmiumAmmo::CadmiumAmmo(int x, int y, float anAngle, float aSpeed)
 {
 	power = 50;
-	copyFrom(lev->loadedObjects.at("e_Cadmium_Shoot"));
+	copyFrom(CurrentLevel->loadedObjects.at("e_Cadmium_Shoot"));
 
-	halo.copyFrom(lev->loadedObjects.at("e_Cadmium_ShootHalo"));
+	halo.copyFrom(CurrentLevel->loadedObjects.at("e_Cadmium_ShootHalo"));
 	halo.posX = x;
 	halo.posY = y;
 	halo.setAnimX(0);
@@ -101,10 +101,10 @@ void CadmiumAmmo::animate()
 	posX = posX + vx;
 	posY = posY + vy;
 
-	halo.posX = halo.posX + vx;
-	halo.posY = halo.posY + vy;
+	halo.posX = posX;
+	halo.posY = posY;
 
-	if(!lev->isOnScreen(this))
+	if(!CurrentLevel->isOnScreen(this))
 	{
 		toRemove = true;
 		halo.toRemove = true;
@@ -131,13 +131,13 @@ void CadmiumAmmo::processCollisionWith(Drawable* aDrawable)
 CopperAmmo::CopperAmmo(int x, int y, float anAngle, float aSpeed)
 {
 	power = 50;
-	copyFrom(lev->loadedObjects.at("e005_Shoot"));
-	posX = x - width/2;
-	posY = y - height/2;
+	copyFrom(CurrentLevel->loadedObjects.at("e005_Shoot"));
+	posX = x;
+	posY = y;
 
-	halo.copyFrom(lev->loadedObjects.at("e005_Halo"));
-	halo.posX = posX - 18;
-	halo.posY = posY - 18;
+	halo.copyFrom(CurrentLevel->loadedObjects.at("e005_Halo"));
+	halo.posX = posX;
+	halo.posY = posY;
 	halo.setAnimX(0);
 	halo.setAnimY(0);
 
@@ -160,10 +160,10 @@ void CopperAmmo::animate()
 	posX = posX + vx;
 	posY = posY + vy;
 
-	halo.posX = (halo.posX + vx);
-	halo.posY = (halo.posY + vy);
+	halo.posX = posX;
+	halo.posY = posY;
 
-	if(!lev->isOnScreen(this))
+	if(!CurrentLevel->isOnScreen(this))
 	{
 		toRemove = true;
 		halo.toRemove = true;
