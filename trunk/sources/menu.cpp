@@ -16,7 +16,7 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	menuInTransition = false;
 	startingGame = false;
 	endIntro = 0;
-	introLength = 0;
+	introLength = 2500;
 	game = NULL;
 	selectedLevel = 0;
 	newHighScoreRank = 0;
@@ -51,27 +51,28 @@ void Menu::loadMenu()
 	credit.width = 640;
 	credit.height = 480;
 	credit.loadTexture("res/interface/credits2.gif");
-	credit.posX = 280;
-	credit.posY = 60;
+	credit.posX = SCREEN_WIDTH/2;
+	credit.posY = SCREEN_HEIGHT/2;
 
 	success.width = 640;
 	success.height = 480;
 	success.loadTexture("res/interface/end2.gif");
-	success.posX = 280;
-	success.posY = 60;
+	success.posX = SCREEN_WIDTH/2;
+	success.posY = SCREEN_HEIGHT/2;
 
 	gameOver.width = 640;
 	gameOver.height = 480;
 	gameOver.loadTexture("res/interface/gameover2.gif");
-	gameOver.posX = 280;
-	gameOver.posY = 60;
+	gameOver.posX = SCREEN_WIDTH/2;
+	gameOver.posY = SCREEN_HEIGHT/2;
 
  	setMainSelection(0);
 
  	loadSelectedLevel();
 	setSelectedLevel(0);
 
- 	soundEngine->playSound("fractal");
+	if(currentMenu == MENU_INTRO)
+		soundEngine->playSound("fractal");
 
  	startIntro = SDL_GetTicks();
  	endIntro = startIntro + introLength;
@@ -271,14 +272,14 @@ void Menu::transition()
 	switch(currentMenu)
 	{
 		case MENU_GAMEOVER:
-			if (checkForNewHighScore())
+			/*if (checkForNewHighScore())
 			{
 				nextMenu = MENU_NEWHIGHSCORE;
 			}
 			else
-			{
-				nextMenu =  MENU_MAIN;
-			}
+			{*/
+				nextMenu = MENU_MAIN;
+			//}
 			break;
 
 		case MENU_INTRO:

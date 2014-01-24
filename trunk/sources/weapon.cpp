@@ -118,7 +118,7 @@ void Electron::fire(Hero * aHero)
 	}
 
 	//Display the firing effect
-	muzzle.posX = aHero->posX;
+	muzzle.posX = aHero->posX + 12;
 	muzzle.posY = aHero->posY;
 	muzzle.updateAnimationFrame();
 	muzzle.processDisplay();
@@ -265,7 +265,7 @@ void Baryon::fire(Hero * aHero)
 
 	hitEnnemy = NULL;
 	mahLazor->width = 1200;
-	mahLazor->posX = aHero->posX  + mahLazor->width/2; //mahLazor->release.width/2
+	mahLazor->posX = aHero->posX + mahLazor->width/2;
 	checkForCollision();
 
 	mahLazor->animate(aHero->posX, aHero->posY, hitEnnemy, xImpactPos, yImpactPos);

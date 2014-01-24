@@ -32,14 +32,7 @@ void EnemyWave::launchWave()
 	//Instantiate the enemies of the wave
 	for (i = 0; i < enemyConfig.size(); i++)
 	{
-		if (enemyConfig[i].get("name", " ").compare("Silicon") == 0)
-		{
-			createSiliconWave(enemyConfig[i]);
-		}
-		else
-		{
-			enemies.push_back(EnemyFactory::instance()->createEnemy(enemyConfig[i]));
-		}
+		enemies.push_back(EnemyFactory::instance()->createEnemy(enemyConfig[i], this));
 	}
 
 	active = true;
@@ -76,17 +69,6 @@ void EnemyWave::animate()
 	}
 }
 
-//Create a field of silicon
-void EnemyWave::createSiliconWave(Json::Value aConfig)
-{
-	int i;
-	int generatedNumber = aConfig.get("generatedNumber", 50).asInt();
-	for(i = 0; i < generatedNumber; i++)
-	{
-		enemies.push_back(EnemyFactory::instance()->createEnemy(aConfig));
-	}
-}
-
 /*
  * EnemyFactory Functions
  */
@@ -102,7 +84,7 @@ EnemyFactory * EnemyFactory::instance()
     return &aFactory;
 }
 
-Enemy * EnemyFactory::createEnemy(Json::Value anEnemyConf)
+Enemy * EnemyFactory::createEnemy(Json::Value anEnemyConf, EnemyWave * anEnemyWave)
 {
 	EnemyType aType = enemyTypes.at(anEnemyConf.get("name", "error").asString());
 
@@ -117,7 +99,7 @@ Enemy * EnemyFactory::createEnemy(Json::Value anEnemyConf)
 			break;
 
 		case SILICON:
-			return new Silicon(anEnemyConf);
+			return new SiliconField(anEnemyConf, anEnemyWave);
 			break;
 
 		case COPPER:
@@ -125,7 +107,7 @@ Enemy * EnemyFactory::createEnemy(Json::Value anEnemyConf)
 			break;
 
 		case PYROXENE:
-			return new PyroxeneField(anEnemyConf);
+			return new PyroxeneField(anEnemyConf, anEnemyWave);
 			break;
 
 		default:

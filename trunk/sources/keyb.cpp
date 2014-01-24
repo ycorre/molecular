@@ -149,18 +149,10 @@ void Keyboard::processeMouseInGame(Hero * hero)
 }
 
 //Process in game key release
-void Keyboard::handleKeyUpHero(SDL_keysym * keysym)
+void Keyboard::handleKeyUp(SDL_keysym * keysym)
 {
     switch (keysym->sym)
 	{
-	/*	case UP_KEY:
-			hero->heroMovingUpOrDown = 0;
-			break;
-			
-		case DOWN_KEY:
-			hero->heroMovingUpOrDown = 0;
-			break;*/
-
 		case SDLK_b:
 		case MUTE_MUSIC_KEY:
 		case MUTE_ALL_KEY:

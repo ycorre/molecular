@@ -44,6 +44,7 @@ class SoundEngine
 		void muteAll();
 		void clearSounds();
 		void stopAllSounds();
+		void freeLoadedSounds();
 		void finishedPlaying(int aChannel);
 
 		int loadSound(string pathToASound, Sound * aSound);

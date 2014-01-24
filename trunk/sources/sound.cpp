@@ -19,18 +19,6 @@ Sound::Sound()
 	soundData = NULL;
 }
 
-Sound::Sound(string aName)
-{
-	name = aName;
-	playingChannel = -1;
-	isPlaying = false;
-	volume = 100;
-	looped = false;
-	numberOfLoops = 0;
-	soundLayer = 0;
-	soundData = NULL;
-}
-
 Sound::Sound(string aPath, string aName)
 {
 	name = aName;
@@ -137,7 +125,7 @@ Music::Music(Json::Value aConfig)
 	name = aConfig.get("name", "musicDefaut").asString();
 	setLoop(aConfig.get("loop", 0).asInt());
 	volume = aConfig.get("volume", 100).asInt();
-	load(aConfig.get("dataPath", " ").asString());
+	load(aConfig.get("dataPath", "").asString());
 	isPlaying = false;
 
 }

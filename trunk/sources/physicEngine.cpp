@@ -122,12 +122,7 @@ pair<int,int> Pe::getStartOffsetForOverlapRectangle(Drawable *aDrawable)
 Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 {
 	if (x < 0 || y < 0)
-		cout<<"Warning: x: " << x <<",  y: " << y << endl;
-
-/*	if(aDrawable->hasHitBox())
-	{
-		return 1;
-	}*/
+		cout<< "Warning: x: " << x <<",  y: " << y << endl;
 
 	int textureX, textureY;
 	textureX = ((int) aDrawable->getAnimX() + x) % aDrawable->getCollisionTexture()->w;
@@ -155,7 +150,7 @@ void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 }
 
 //make sure that an item is on screen
-bool Pe::isOnScreen(Drawable *aDrawable)
+bool Pe::isOnScreen(Drawable * aDrawable)
 {
 	if (aDrawable->posX + aDrawable->width/2 < 0 ||
 		aDrawable->posY + aDrawable->height/2 < 0 ||

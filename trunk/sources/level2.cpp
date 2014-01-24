@@ -75,8 +75,8 @@ void Level2::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
-				anEnemy->fire();
+				/*Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
+				anEnemy->fire();*/
 			}
 			if((*anElement)->isBonus() ||(*anElement)->isLaser())
 			{
@@ -89,7 +89,7 @@ void Level2::checkEvent()
 	if(generateBomb())
 	{
 		//activeElements.push_back(new Bomb());
-		activeElements.push_back(new Pyroxene(BIG_PYROXENE));
+		activeElements.push_back(new Rock(BIG_ROCK));
 	}
 
 	//Winning conditions

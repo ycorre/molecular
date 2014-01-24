@@ -18,9 +18,11 @@ Animation::Animation()
 	drawable = NULL;
 	texture = NULL;
 	oglTexture = 0;
+	rotationSpeed = 0;
 	hasEnded = false;
 	moveTexture = true;
 	hasAnimatedTexture = true;
+	reverse = false;
 }
 
 Animation::Animation(Animation * anAnim)
@@ -37,6 +39,8 @@ Animation::Animation(Animation * anAnim)
 	opacityValues = anAnim->opacityValues;
 	scalingValues = anAnim->scalingValues;
 	hasAnimatedTexture = anAnim->hasAnimatedTexture;
+	reverse = anAnim->reverse;
+	rotationSpeed = anAnim->rotationSpeed;
 
 	loop = anAnim->loop;
 	currentFrame = 0;
@@ -62,6 +66,8 @@ Animation::Animation(Drawable * aDrawable)
 	moveTexture = true;
 	hasAnimatedTexture = true;
 	oglTexture = aDrawable->oglTexture;
+	rotationSpeed = 0;
+	reverse = false;
 }
 
 Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
@@ -85,7 +91,9 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 
 	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
 	moveTexture = aConfig.get("moveTexture", false).asBool();
+	reverse = aConfig.get("reverse", false).asBool();
 	hasAnimatedTexture = aConfig.get("animatedTexture", true).asBool();
+	rotationSpeed = aConfig.get("rotationSpeed", 0).asFloat();
 
 	texture = NULL;
 	oglTexture = 0;
@@ -97,16 +105,14 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 		loadTexture(texturePath);
 	}
 
-
 	Json::Value opacityConfigValue = aConfig["opacity"];
 	vector<float> opacityConfig;
 	for(i = 0; i < opacityConfigValue.size(); i++)
 		opacityConfig.push_back(opacityConfigValue[i].asFloat());
 	if(!opacityConfig.empty())
 	{
-		configOpacity(opacityConfig);
+		opacityValues = computeLinearValue(opacityConfig, numberOfFrames);
 	}
-
 
 	Json::Value scalingConfigValue = aConfig["scaling"];
 	vector<float> scalingConfig;
@@ -114,7 +120,7 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 		scalingConfig.push_back(scalingConfigValue[i].asFloat());
 	if(!scalingConfig.empty())
 	{
-		configScaling(scalingConfig);
+		scalingValues = computeLinearValue(scalingConfig, numberOfFrames);
 	}
 
 	currentFrame = 0;
@@ -123,7 +129,14 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 
 void Animation::incrementCurrentFrame()
 {
-	currentFrame = (currentFrame + 1) % numberOfFrames;
+	if(reverse)
+	{
+		currentFrame = (currentFrame + numberOfFrames - 1) % numberOfFrames;
+	}
+	else
+	{
+		currentFrame = (currentFrame + 1) % numberOfFrames;
+	}
 }
 
 int Animation::nextFrame()
@@ -134,8 +147,8 @@ int Animation::nextFrame()
 	if(hasAnimatedTexture)
 	{
 		//Compute the coordinate of the texture to display
-		drawable->setAnimY((currentFrame / (drawable->texture->w/width)) * height);
-		drawable->setAnimX((currentFrame % (drawable->texture->w/width)) * width);
+		drawable->setAnimY((currentFrame / (int)(drawable->texture->w/width)) * height);
+		drawable->setAnimX((currentFrame % (drawable->texture->w/(int)width)) * width);
 	}
 
 	hasEnded = false;
@@ -154,9 +167,15 @@ int Animation::nextFrame()
 	}
 
 	//If we are at the end of the animation, set the flag
-	if (currentFrame == numberOfFrames - 1 && !loop)
+	if(currentFrame == numberOfFrames - 1 && !loop)
 	{
 		hasEnded = true;
+	}
+
+	//If we are rotating the texture
+	if(rotationSpeed != 0)
+	{
+		drawable->rotationAngle = drawable->rotationAngle + rotationSpeed;
 	}
 
 	return currentFrame;
@@ -164,8 +183,8 @@ int Animation::nextFrame()
 
 void Animation::setFrameTo(int aNumber)
 {
-	drawable->setAnimY((aNumber / (drawable->texture->w/width)) * height);
-	drawable->setAnimX((aNumber % (drawable->texture->w/width)) * width);
+	drawable->setAnimY((aNumber / (int)(drawable->texture->w/width)) * height);
+	drawable->setAnimX((aNumber % (drawable->texture->w/(int)width)) * width);
 }
 
 void Animation::loadTexture(string path)
@@ -175,108 +194,4 @@ void Animation::loadTexture(string path)
 	oglTexture = drawable->ge->openGLTextures.at(texture);
 	drawable->setAnimX(drawable->getAnimX());
 	drawable->setAnimY(drawable->getAnimY());
-}
-
-//Opacity values for an animation is given as a series of pairs of numbers (x, y)
-//*The x is the number of a key frame, where a specific value of opacity should be reached
-//*The y is the actual opacity value to be taken at frame x (value is between 0.0 and 1.0)
-//This is given in the configuration file as an array of numbers
-//Given the key frames, the opacity values and the number of frame in the animation
-//we compute for each frame of the animation the opacity value, by computing the value for each frame between two key frames
-//assuming that the opacity is increasing (or decreasing) in a linear way
-void Animation::configOpacity(vector<float>  opacityConfigValue)
-{
-	unsigned int i, j;
-	map<int, float> opacityTempValues;
-	vector<int> frameIndices;
-	float startingOpacity;
-	float currentOpacity;
-	float finishingOpacity;
-	float opacityModifyingFactor;
-
-	//Get pair of values from the input vector
-	for(i = 0; i < opacityConfigValue.size(); i = i + 2)
-	{
-		opacityTempValues.insert(make_pair(opacityConfigValue.at(i), opacityConfigValue.at(i+1)));
-		frameIndices.push_back(opacityConfigValue.at(i));
-	}
-
-	j = 0;
-	startingOpacity = opacityTempValues.at(frameIndices[j]);
-	finishingOpacity = opacityTempValues.at(frameIndices[j+1]);
-	opacityModifyingFactor = (finishingOpacity - startingOpacity) / (frameIndices[j+1] - frameIndices[j]);
-	currentOpacity = startingOpacity;
-	j++;
-
-	//Compute the opacity values for each frame
-	for (i = 0; i < numberOfFrames; i++)
-	{
-		opacityValues.push_back(currentOpacity);
-		if(j < frameIndices.size() - 1)
-		{
-			if(i == frameIndices[j])
-			{
-				startingOpacity = opacityTempValues.at(frameIndices[j]);
-				finishingOpacity = opacityTempValues.at(frameIndices[j+1]);
-				opacityModifyingFactor = (finishingOpacity - startingOpacity) / (frameIndices[j+1] - frameIndices[j]);
-				currentOpacity = startingOpacity;
-				j++;
-			}
-			currentOpacity = currentOpacity + opacityModifyingFactor;
-		}
-		else
-		{
-			if(i < frameIndices[j])
-				currentOpacity = currentOpacity + opacityModifyingFactor;
-		}
-	}
-}
-
-//Works similarly to configOpacity (see above), except that scaling value can go higher than 1.0
-void Animation::configScaling(vector<float> scalingConfigValue)
-{
-	unsigned int i, j;
-	map<int, float> scaleTempValues;
-	vector<int> frameIndices;
-	float startingScale;
-	float currentScale;
-	float finishingScale;
-	float scaleModifyingFactor;
-
-	//Get pair of values from the input vector
-	for(i = 0; i < scalingConfigValue.size(); i = i + 2)
-	{
-		scaleTempValues.insert(make_pair(scalingConfigValue.at(i), scalingConfigValue.at(i+1)));
-		frameIndices.push_back(scalingConfigValue.at(i));
-	}
-
-	j = 0;
-	startingScale = scaleTempValues.at(frameIndices[j]);
-	finishingScale = scaleTempValues.at(frameIndices[j+1]);
-	scaleModifyingFactor = (finishingScale - startingScale) / (frameIndices[j+1] - frameIndices[j]);
-	currentScale = startingScale;
-	j++;
-
-	//Compute the scaling values for each frame
-	for (i = 0; i < numberOfFrames; i++)
-	{
-		scalingValues.push_back(currentScale);
-		if(j < frameIndices.size() - 1)
-		{
-			if(i == frameIndices[j])
-			{
-				startingScale = scaleTempValues.at(frameIndices[j]);
-				finishingScale = scaleTempValues.at(frameIndices[j+1]);
-				scaleModifyingFactor = (finishingScale - startingScale) / (frameIndices[j+1] - frameIndices[j]);
-				currentScale = startingScale;
-				j++;
-			}
-			currentScale = currentScale + scaleModifyingFactor;
-		}
-		else
-		{
-			if(i < frameIndices[j])
-				currentScale = currentScale + scaleModifyingFactor;
-		}
-	}
 }

@@ -37,6 +37,7 @@ class Drawable
 	  float rotX;
 	  float rotY;
 	  float rotZ;
+	  float colorR, colorG, colorB;
 	  float rotationAngle;
 	  float brightness;
 	  float brightnessDecreasingFactor;
@@ -50,11 +51,17 @@ class Drawable
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
-	  float posXCorrection, posYCorrection;
 	  int toBlend;
 	  map<string, int> confParameters;
 	  SDL_Surface * collision;
 	  bool clampTexture;
+	  vector<pair<float, float> > currentMove;
+	  float speed;
+	  float angle;
+
+
+	  float maxScale, minScale;
+	  float maxOpacity, minOpacity;
 
 	  //static since the graphic engine is the same for all the objects
 	  static GraphicEngine * ge;
@@ -73,6 +80,7 @@ class Drawable
 	  void blinkWhite();
 	  void processDisplay();
 	  void loadTexture(string path);
+	  void randomize();
 
 	  virtual void clean();
 	  virtual void copyFrom(Drawable * aDrawable);
@@ -84,11 +92,10 @@ class Drawable
 	  virtual bool isHero() {return false;}
 	  virtual bool isLaser() {return false;}
 	  virtual bool isBonus() {return false;}
-	 // virtual int hasHitBox() {return FALSE;}
 	  virtual bool isText() {return false;}
 
 	  virtual void processCollision();
-	  virtual void processCollisionWith(Drawable* aDrawable);
+	  virtual void processCollisionWith(Drawable * aDrawable);
 	  virtual float getXBoundary();
 	  virtual float getYBoundary();
 	  virtual float getWidthBoundary();

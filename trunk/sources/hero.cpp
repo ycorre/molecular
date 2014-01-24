@@ -162,7 +162,6 @@ void Hero::animate()
 				setAnimY(0);
 				dontMove = true;
 				makeInvincible(10000);
-				//setAnimation("exiting");
 				display = true;
 				isFiring = false;
 				isBlinking = false;

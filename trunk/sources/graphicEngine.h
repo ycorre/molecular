@@ -55,6 +55,8 @@ class GraphicEngine
 	  int draw(Drawable * sprite);
 	  void drawEffect(ParticleEffect * anEffect);
 	  void drawFrame();
+	  void performRotation(Drawable * sprite);
+	  void performScaling(Drawable * sprite);
 	  int addFont(string aName, string path, int size);
 	  void initColors();
 	  void fadeIn();

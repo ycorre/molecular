@@ -6,7 +6,8 @@
 class LineEffect;
 class PointEffect;
 class Emitter;
-
+class Drawable;
+class AnimatedDrawable;
 /*
 class ParticleEffectFactory
 {
@@ -18,7 +19,6 @@ class ParticleEffectFactory
 		ParticleEffect * createEnemy(string anEnemyName);
 		ParticleEffect * createEnemy(Json::Value anEnemyConf);
 };*/
-
 
 //Particle effect can be made of several types of effect (line, point, circle, etc.)
 class ParticleEffect
@@ -52,7 +52,6 @@ class ParticleEffect
 		void instantiateEffects(Json::Value aConfig, float x, float y);
 		void instantiatePointEffects(Json::Value aConfig, float x, float y);
 		void instantiateLineEffects(Json::Value aConfig, float x, float y);
-		void setOpacityValues(float startingValue, float endingValue);
 		void setColorValues(vector<float> startingColorValue, vector<float> endingColorValue);
 };
 
@@ -81,11 +80,23 @@ class CircleEffect: public ParticleEffect
 class PointEffect: public ParticleEffect
 {
 	public:
+		float size;
+		float decelerationFactor;
 
 		PointEffect();
 		virtual void animate();
 		void createRandomPointFrom(float aPosX, float aPosY);
 		void createRandomPointFrom(float aPosX, float aPosY, float anAngleLowBound, float anAngleHighBound);
+};
+
+class TexturedParticle: public ParticleEffect
+{
+	public:
+		AnimatedDrawable * aDrawable;
+		float decelerationFactor;
+
+    	TexturedParticle();
+    	virtual void animate();
 };
 
 class Emitter

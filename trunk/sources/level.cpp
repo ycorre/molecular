@@ -182,9 +182,14 @@ void Level::magnetBonus(Drawable * aBonus)
 
 void Level::createExplosion(int x, int y)
 {
-	//activeElements.push_back(new Explosion(x, y));
-	createEffect(x, y, "explosionA");
-	createParticleEffect(x, y, "explosion");
+	if(rand() % 2)
+	{
+		createEffect(x, y, "explosionA");
+	}
+	else
+	{
+		createEffect(x, y, "explosionB");
+	}
     ge->startShaking(8, false);
 }
 
@@ -310,7 +315,6 @@ void Level::cleanLevel()
 		//activeElements.erase(anElement++);
 	}
 
-	map<SDL_Surface *, string> freedTextures;
 	for (map<string, Drawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
 	{
 		(*anElement).second->clean();
@@ -318,7 +322,7 @@ void Level::cleanLevel()
 	}
 	loadedObjects.clear();
 
-	//activeElements.clear();
+	activeElements.clear();
 	loadedEffects.clear();
 	activeEffects.clear();
 	configurationElements.clear();
@@ -330,6 +334,7 @@ void Level::cleanLevel()
 
 	soundEngine->stopMusic("hybridQuarks");
 	soundEngine->stopAllSounds();
+	soundEngine->freeLoadedSounds();
 
 	ge->freeTextures();
 }

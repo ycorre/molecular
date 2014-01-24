@@ -15,6 +15,7 @@ class Effect: public AnimatedDrawable
 		int numberOfLoops;
 		bool isMoving;
 		float movingSpeed;
+		vector<string> particleEffects;
 
 		Effect();
 		Effect(Json::Value aConfig);

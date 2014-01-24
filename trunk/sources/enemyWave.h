@@ -3,6 +3,8 @@
 
 #include "enemy.h"
 
+class EnemyWave;
+
 class EnemyFactory
 {
 	public:
@@ -11,7 +13,7 @@ class EnemyFactory
 		EnemyFactory(){};
 	    static EnemyFactory * instance();
 		Enemy * createEnemy(string anEnemyName);
-		Enemy * createEnemy(Json::Value anEnemyConf);
+		Enemy * createEnemy(Json::Value anEnemyConf, EnemyWave * anEnemyWave);
 };
 
 class EnemyWave
@@ -30,7 +32,6 @@ class EnemyWave
 		EnemyWave(Json::Value aConfig);
 		void animate();
 	    void launchWave();
-	    void createSiliconWave(Json::Value aConfig);
 };
 
 #endif

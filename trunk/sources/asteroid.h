@@ -7,9 +7,9 @@
 #include "drawable.h"
 #include "enemy.h"
 
-enum pyroxeneType {BIG_PYROXENE, SMALL_PYROXENE};
+enum rockType {BIG_ROCK, SMALL_ROCK};
 
-class Pyroxene: public Enemy
+class Rock: public Enemy
 {
 	public:
 		float angle;
@@ -18,15 +18,24 @@ class Pyroxene: public Enemy
 		int bonusProbability;
 		int scoreValue;
 
-		Pyroxene();
-		Pyroxene(int type);
-		//used to set small fragments of pyroxene
-		Pyroxene(int type, int sX, int sY, int speed, float angle);
+		Rock();
+		Rock(int type);
+		//used to set small fragments of rock
+		Rock(int type, int sX, int sY, int speed, float angle);
 		void processCollisionWith(Drawable* aDrawable);
-		void createSmallerPyroxene(Pyroxene * anElement);
+		virtual void createSmallerRock(Rock * anElement);
 		virtual void animate();
-		virtual void fire();
 		void setAngleAndSpeed();
+};
+
+class Pyroxene: public Rock
+{
+	public:
+
+		Pyroxene(int type);
+		//used to set small fragments of rock
+		Pyroxene(int type, int sX, int sY, int speed, float angle);
+		virtual void createSmallerRock(Rock * anElement);
 };
 
 

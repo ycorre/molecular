@@ -46,7 +46,6 @@ void GraphicEngine::init()
 //Load a texture as an SDL_Surface
 SDL_Surface * GraphicEngine::loadTexture(string path, bool clamp)
 {
-
 	//Check if the texture is already loaded
 	if(textures.find(path) == textures.end())
 	{
@@ -139,54 +138,36 @@ void GraphicEngine::drawFrame()
 //Draw an object on the screen
 int GraphicEngine::draw(Drawable * sprite)
 {
+
 	//If we need blending
 	if(sprite->toBlend)
-	{
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
-	}
 
-	//Set the opacity
-	glColor4f(1.0, 1.0, 1.0, sprite->opacity);
+	//Set colors and opacity
+	glColor4f(sprite->colorR, sprite->colorG, sprite->colorB, sprite->opacity);
 
 	//Load a new context in case we perform specific transformation for that object
 	glPushMatrix();
 
 	//If some scaling operations are required
 	if (sprite->scaleX != 1 || sprite->scaleY != 1)
-	{
-		float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-		float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
-
-		//Translate to 0,0 in order to perform the scaling
-		glTranslatef(zX, zY, 0.0);
-		//Scale
-		glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
-		//Translate back to the normal position
-		glTranslatef(-zX, -zY, 0.0);
-	}
+		performScaling(sprite);
 
 	//If some rotation operations are required
 	if (sprite->rotationAngle != 0)
-	{
-		float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-		float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
-
-		//Translate to 0,0 in order to perform the rotation
-		glTranslatef(zX, zY, 0.0);
-		//Rotate
-		glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
-		//Translate back to the normal position
-		glTranslatef(-zX, -zY, 0.0);
-	}
+		performRotation(sprite);
 
 	//Use the object texture
 	glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
 
 	if(sprite->isBlinkingWhite)
 	{
-	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE,GL_COMBINE);
+	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_ADD);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SRC_ALPHA, GL_MODULATE);
 		glColor3f(sprite->brightness, sprite->brightness, sprite->brightness);
+
+		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_BLEND);
 	}
 
 	//Draw a quadrilateral
@@ -210,15 +191,11 @@ int GraphicEngine::draw(Drawable * sprite)
 	glPopMatrix();
 
 	if(sprite->isBlinkingWhite)
-	{
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	}
 
 	//Deactivate blending
 	if(sprite->toBlend)
-	{
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
 
     return 1;
 }
@@ -255,7 +232,7 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	}
 	glEnd();
 
-	glPointSize(2.0);
+	glPointSize(anEffect->pointEffects.front()->size);
 
 	//Draw points
 	glBegin(GL_POINTS);
@@ -285,6 +262,34 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 void GraphicEngine::displayFrame()
 {
 	SDL_GL_SwapBuffers();
+}
+
+void GraphicEngine::performScaling(Drawable * sprite)
+{
+	float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+
+	float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
+
+	//Translate to 0,0 in order to perform the scaling
+	glTranslatef(zX, zY, 0.0);
+	//Scale
+	glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
+	//Translate back to the normal position
+	glTranslatef(-zX, -zY, 0.0);
+}
+
+
+void GraphicEngine::performRotation(Drawable * sprite)
+{
+	float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
+	float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
+
+	//Translate to 0,0 in order to perform the rotation
+	glTranslatef(zX, zY, 0.0);
+	//Rotate
+	glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
+	//Translate back to the normal position
+	glTranslatef(-zX, -zY, 0.0);
 }
 
 //Start a shaking camera effect

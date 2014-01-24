@@ -29,7 +29,7 @@ void SoundEngine::init()
 	playingSounds.resize(numberOfChannel);
 
 	//Init the layers (16 layers for now)
-	for (i= 0; i < 16; i++)
+	for (i = 0; i < 16; i++)
 	{
 		playingLayers[i] = NULL;
 	}
@@ -86,16 +86,7 @@ void SoundEngine::stopSound(Sound * aSound)
 	if((!mute) && (!soundMuted))
 	{
 		Mix_HaltChannel(aSound->playingChannel);
-
-		if (aSound->playingChannel!= -1)
-		{
-			aSound->isPlaying = false;
-		}
-		else
-		{
-			aSound->isPlaying = false;
-			cerr << "Error could not play sound" << aSound->name << endl;
-		}
+		aSound->isPlaying = false;
 	}
 }
 
@@ -275,7 +266,7 @@ void SoundEngine::fadeMusic(string aMusic, int ms)
 
 void SoundEngine::fadeMusic(int ms)
 {
-	//Check if the sound is already loaded
+	//Fade out the music in ms milliseconds
 	Mix_FadeOutMusic(ms);
 }
 
@@ -315,4 +306,21 @@ void SoundEngine::loadMusicFrom(Json::Value aConfig)
 {
 	Music * aMusic = new Music(aConfig);
 	addMusic(aMusic);
+}
+
+//Release the memory taken by sounds and music
+void SoundEngine::freeLoadedSounds()
+{
+	for(map<string, Music *>::iterator aMusic = musics.begin(); aMusic != musics.end(); aMusic++)
+	{
+		Mix_FreeMusic((*aMusic).second->musicData);
+	}
+	musics.clear();
+
+
+	for(map<string, Sound *>::iterator aSound = sounds.begin(); aSound != sounds.end(); aSound++)
+	{
+		Mix_FreeChunk((*aSound).second->soundData);
+	}
+	sounds.clear();
 }
