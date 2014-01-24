@@ -20,13 +20,15 @@ class Animation
 {
 	public:
 	  string name;
-	  int width;
-	  int height;
+	  float width;
+	  float height;
 	  float texturePosX;
 	  float texturePosY;
 	  int numberOfFrames;
 	  int currentFrame;
 	  bool loop;
+	  bool reverse;
+	  float rotationSpeed;
 	  SDL_Surface * texture;
 	  GLuint oglTexture;
 
@@ -49,8 +51,6 @@ class Animation
 	  int nextFrame();
 	  void incrementCurrentFrame();
 	  void setFrameTo(int aNumber);
-	  void configOpacity(vector<float> aConf);
-	  void configScaling(vector<float> aConf);
 	  void loadTexture(string path);
 };
 

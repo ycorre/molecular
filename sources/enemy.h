@@ -8,6 +8,7 @@
 #include "laser.h"
 
 class Cadmium;
+class EnemyWave;
 
 class Enemy: public AnimatedDrawable
 {
@@ -28,7 +29,8 @@ class Enemy: public AnimatedDrawable
 		float originY;
 		float sinusWidth;
 		float sinusHeigth;
-		float angle;
+		float angle, nextAngle;
+		float angleModifyingFactor;
 
 		vector<pair <float, float> > eventPosition;
 
@@ -56,6 +58,7 @@ class Cadmium: public Enemy
 		Cadmium(Json::Value aConfig);
 		virtual void checkFire();
 		virtual void fire();
+		virtual void die();
 		virtual void animate();
 };
 
@@ -70,6 +73,14 @@ class Iron: public Enemy
 		virtual void animate();
 };
 
+class SiliconField: public Enemy
+{
+	public:
+		EnemyWave * enemyWave;
+
+		SiliconField(Json::Value aConfig, EnemyWave * anEnemyWave);
+};
+
 class Silicon: public Enemy
 {
 	public:
@@ -79,7 +90,8 @@ class Silicon: public Enemy
 		float xSpeed;
 		bool moving;
 
-		Silicon(Json::Value aConfig);
+		//Silicon(Json::Value aConfig);
+		Silicon(Json::Value aConfig, float aPosX);
 		virtual void animate();
 		virtual void die();
 };
@@ -99,6 +111,7 @@ class Copper: public Enemy
 		int spinningAngle;
 		int spinningCounter;
 		int activeCannons;
+		vector<pair<float, float> > moves;
 
 		Copper(Json::Value aConfig);
 		virtual void animate();
@@ -118,17 +131,16 @@ class CopperCannon: public Enemy
 		bool activated;
 		bool destroyed;
 		Copper * copper;
-		float shiftX, shiftY;
 		float copperAngle;
 		vector<int> cannonAngles;
 
 		CopperCannon(Copper * aCopper, float x, float y);
 		virtual void animate();
-		virtual void fire();
+		void fire(int anAngle);
 		virtual void processCollisionWith(Drawable * aDrawable);
 };
 
-class Pyroxene;
+class Rock;
 
 class PyroxeneField: public Enemy
 {
@@ -137,10 +149,10 @@ class PyroxeneField: public Enemy
 		int lastGeneration;
 		int numberOfPyroxenes;
 		int generatedPyroxenes;
-		list<Enemy *> pyroxenes;
+		EnemyWave * enemyWave;
 
 		PyroxeneField();
-		PyroxeneField(Json::Value aConf);
+		PyroxeneField(Json::Value aConf, EnemyWave * anEnemyWave);
 		bool generatePyroxene();
 		virtual void animate();
 };

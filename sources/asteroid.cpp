@@ -7,9 +7,10 @@ PyroxeneField::PyroxeneField()
 	numberOfPyroxenes = 10;
 	generatedPyroxenes = 0;
 	display = false;
+	enemyWave = NULL;
 }
 
-PyroxeneField::PyroxeneField(Json::Value aConfig)
+PyroxeneField::PyroxeneField(Json::Value aConfig, EnemyWave * anEnemyWave)
 {
 	generationRate = aConfig.get("generationRate", 250).asInt();
 	numberOfPyroxenes = aConfig.get("numberOfPyroxenes", 25).asInt();
@@ -17,6 +18,7 @@ PyroxeneField::PyroxeneField(Json::Value aConfig)
 	generatedPyroxenes = 0;
 	lastGeneration = GameTimer;
 	display = false;
+	enemyWave = anEnemyWave;
 }
 
 
@@ -24,27 +26,11 @@ void PyroxeneField::animate()
 {
 	if(generatePyroxene())
 	{
-		pyroxenes.push_back(new Pyroxene(BIG_PYROXENE));
+		enemyWave->enemies.push_back(new Pyroxene(BIG_ROCK));
 		generatedPyroxenes++;
 	}
 
-	CurrentLevel->checkEnemyCollision(pyroxenes);
-
-	for(list<Enemy *>::iterator aPyroxene = pyroxenes.begin(); aPyroxene != pyroxenes.end();++aPyroxene)
-	{
-		if((*aPyroxene)->toRemove)
-		{
-			delete (*aPyroxene);
-			aPyroxene =	pyroxenes.erase(aPyroxene);
-		}
-		else
-		{
-			(*aPyroxene)->animate();
-			(*aPyroxene)->processDisplay();
-		}
-	}
-
-	if(generatedPyroxenes == numberOfPyroxenes && pyroxenes.empty())
+	if(generatedPyroxenes == numberOfPyroxenes && enemyWave->enemies.size() == 1)
 		toRemove = true;
 }
 
@@ -61,10 +47,9 @@ bool PyroxeneField::generatePyroxene()
 }
 
 /*
- * Pyroxene functions
+ * Rock functions
  */
-
-Pyroxene::Pyroxene()
+Rock::Rock()
 {
 	speed = 0;
 	angle = 0;
@@ -73,59 +58,61 @@ Pyroxene::Pyroxene()
 	bonusProbability = 10;
 }
 
-//Pyroxene appears randomly and have random trajectory
-//So we get two random points (four values in total) which set the depart point and the destination point of the pyroxene
-Pyroxene::Pyroxene(int asteroidType)
+//Rock appears randomly and have random trajectory
+//So we get two random points (four values in total) which set the depart point and the destination point of the rock
+Rock::Rock(int rockType)
 {
-	if (asteroidType == BIG_PYROXENE)
+	if (rockType == BIG_ROCK)
 	{
-		copyFrom(CurrentLevel->loadedObjects.at("bigPyroxene"));
+		copyFrom(CurrentLevel->loadedObjects.at("bigRock"));
 		life = 250;
 	}
-	if (asteroidType == SMALL_PYROXENE)
+	if (rockType == SMALL_ROCK)
 	{
-		copyFrom(CurrentLevel->loadedObjects.at("smallPyroxene"));
+		copyFrom(CurrentLevel->loadedObjects.at("smallRock"));
 		life = 100 ;
 	}
 	setAngleAndSpeed();
-	type = asteroidType;
+	type = rockType;
 	bonusProbability = 25;
-	scoreValue = 500 - (200 * asteroidType);
+	scoreValue = 500 - (200 * rockType);
 
-	int temp = 1 +  rand() % 4;
+	int temp = 1 +  rand() % 2;
 	stringstream tmpStream;
 	tmpStream << "type" << temp;
 	setAnimation(tmpStream.str());
+
+	currentAnimation->reverse = rand() % 2;
 
 	setAnimX(0);
 	setAnimY(0);
 }
 
-//Pyroxenes have a predefined trajectory
-//typically used for smaller pyroxenes resulting of the explosion of bigger pyroxenes
-Pyroxene::Pyroxene(int asteroidType, int sX, int sY, int aSpeed, float anAngle)
+//Rocks have a predefined trajectory
+//typically used for smaller rocks resulting of the explosion of bigger rocks
+Rock::Rock(int rockType, int sX, int sY, int aSpeed, float anAngle)
 {
-	if (asteroidType == BIG_PYROXENE)
+	if (rockType == BIG_ROCK)
 	{
-		copyFrom(CurrentLevel->loadedObjects.at("bigPyroxene"));
+		copyFrom(CurrentLevel->loadedObjects.at("bigRock"));
 		life = 250;
-
 	}
-	if (asteroidType == SMALL_PYROXENE)
+	if (rockType == SMALL_ROCK)
 	{
-		copyFrom(CurrentLevel->loadedObjects.at("smallPyroxene"));
+		copyFrom(CurrentLevel->loadedObjects.at("smallRock"));
 		life = 100;
 	}
 
-
-	type = asteroidType;
+	type = rockType;
 	bonusProbability = 25;
-	scoreValue = 500 - (200 * asteroidType);
+	scoreValue = 500 - (200 * rockType);
 
-	int temp = 1 +  rand() % 4;
+	int temp = 1 +  rand() % 2;
 	stringstream tmpStream;
 	tmpStream << "type" << temp;
 	setAnimation(tmpStream.str());
+
+	currentAnimation->reverse = rand() % 2;
 
 	setAnimX(0);
 	setAnimY(0);
@@ -135,49 +122,53 @@ Pyroxene::Pyroxene(int asteroidType, int sX, int sY, int aSpeed, float anAngle)
 	posY = sY;
 }
 
-//Randomly decide the characteristics of a pyroxene (speed and angle)
-void Pyroxene::setAngleAndSpeed()
+//Randomly decide the characteristics of a rock (speed and angle)
+void Rock::setAngleAndSpeed()
 {
 	//Set which side of the screen it will appear from
-
 	int arrivalSide = (rand() % 3);
-	int angleDegree;
+	int destPoint;
 
-	//Set the angle (in degrees)
-	//We try too sharp angle
+	//Set the angle
+	//We make sure the rocks exit through the opposite side from the one it appeared
 	if (arrivalSide == RIGHT)
 	{
 		posX = SCREEN_WIDTH + width/2;
-		posY = width/2 + rand() % (GAMEZONE_HEIGHT - (int)width/2);
+		posY = height/2 + rand() % (GAMEZONE_HEIGHT - (int)height/2);
 
-		angleDegree = (rand() % 90) + 135; // 45 and 315
+		destPoint = height/2 + rand() % (GAMEZONE_HEIGHT - (int)height/2);
+		float yDiff = destPoint - posY;
+		float xDiff = width/2 - posX;
+		angle = atan2(yDiff, xDiff);
 	}
 	if (arrivalSide == UP)
 	{
 		posY = -height/2;
 		posX =  (rand() % (SCREEN_WIDTH - 100)) + 100;
-		angleDegree = (rand() % 150) + 15; //values between 15 and 165
+
+		destPoint = (rand() % (SCREEN_WIDTH - 100)) + 100;
+
+		float xDiff = destPoint - posX;
+		float yDiff = GAMEZONE_HEIGHT + height/2 - posY;
+		angle = atan2(yDiff, xDiff);
 	}
 	if (arrivalSide == DOWN || arrivalSide == LEFT) //Actually DOWN but since we don't want anything coming from the left
 	{
-		posY = GAMEZONE_HEIGHT + width/2;
+		posY = GAMEZONE_HEIGHT + height/2;
 		posX = (rand() % (SCREEN_WIDTH - 100)) + 100;
-		angleDegree = (rand() % 150) + 195; // -165 and -15
+
+		destPoint = (rand() % (SCREEN_WIDTH - 100)) + 100;
+
+		float xDiff = destPoint - posX;
+		float yDiff = height/2 - posY;
+		angle = atan2(yDiff, xDiff);
 	}
 
-	//Convert into radians
-	angle = angleDegree * (PI / 180.0);
-
-	//Set the speed (between 1 and 3)
-	speed = (rand() % 2) + 1;
+	//Set the speed (between 2 and 4)
+	speed = (rand() % 2) + 2;
 }
 
-void Pyroxene::fire()
-{
-
-}
-
-void Pyroxene::animate()
+void Rock::animate()
 {
 	updateAnimationFrame();
 
@@ -191,21 +182,12 @@ void Pyroxene::animate()
 		toRemove = true;
 }
 
-void Pyroxene::processCollisionWith(Drawable* aDrawable)
+void Rock::processCollisionWith(Drawable* aDrawable)
 {
 	if(aDrawable->isHero())
 	{
-		if (type == BIG_PYROXENE)
-		{
-			CurrentLevel->soundEngine->playSound("xwing_explode");
-			CurrentLevel->createExplosion(posX, posY);
-		}
-		else if(type == SMALL_PYROXENE)
-		{
-			CurrentLevel->soundEngine->playSound("xwing_explode");
-			CurrentLevel->createExplosion(posX, posY);
-		}
-
+		CurrentLevel->soundEngine->playSound("xwing_explode");
+		CurrentLevel->createExplosion(posX, posY);
 		dropBonus(posX, posY);
 		toRemove = true;
 		Score = Score + scoreValue;
@@ -224,20 +206,12 @@ void Pyroxene::processCollisionWith(Drawable* aDrawable)
 		}
 		if (life<=0)
 		{
-			if (type == BIG_PYROXENE)
-			{
-				CurrentLevel->soundEngine->playSound("xwing_explode");
-				CurrentLevel->createExplosion(posX, posY);
-			}
-			else if(type == SMALL_PYROXENE)
-			{
-				CurrentLevel->soundEngine->playSound("xwing_explode");
-				CurrentLevel->createExplosion(posX, posY);
-			}
+			CurrentLevel->soundEngine->playSound("xwing_explode");
+			CurrentLevel->createExplosion(posX, posY);
 			Score = Score + scoreValue;
-			//The pyroxene is not the smallest type
-			if(type != SMALL_PYROXENE)
-				{createSmallerPyroxene(this);}
+			//The rock is not the smallest type
+			if(type != SMALL_ROCK)
+				{this->createSmallerRock(this);}
 
 			dropBonus(posX, posY);
 			toRemove = true;
@@ -247,12 +221,84 @@ void Pyroxene::processCollisionWith(Drawable* aDrawable)
 			startBlinkingWhite(4);
 		}
 	}
-	return;
 }
 
-//When a big pyroxene explodes, it creates two smaller pyroxenes that go in perpendicular directions
-void Pyroxene::createSmallerPyroxene(Pyroxene * anAsteroid)
+//When a big rock explodes, it creates two smaller rocks that go in perpendicular directions
+void Rock::createSmallerRock(Rock * aRock)
 {
-	CurrentLevel->activeElements.push_back(new Pyroxene(anAsteroid->type + 1, anAsteroid->posX, anAsteroid->posY, anAsteroid->speed + 1, anAsteroid->angle + (90.0 * (PI / 180.0))));
-	CurrentLevel->activeElements.push_back(new Pyroxene(anAsteroid->type + 1, anAsteroid->posX, anAsteroid->posY, anAsteroid->speed + 1, anAsteroid->angle - (90.0 * (PI / 180.0))));
+	CurrentLevel->activeElements.push_back(new Rock(type + 1, posX, posY, speed + 1, angle + (PI / 2)));
+	CurrentLevel->activeElements.push_back(new Rock(type + 1, posX, posY, speed + 1, angle - (PI / 2)));
 }
+
+/*
+ * Pyroxene functions
+ */
+Pyroxene::Pyroxene(int rockType)
+{
+	if (rockType == BIG_ROCK)
+	{
+		copyFrom(CurrentLevel->loadedObjects.at("bigPyroxene"));
+		life = 250;
+	}
+	if (rockType == SMALL_ROCK)
+	{
+		copyFrom(CurrentLevel->loadedObjects.at("smallPyroxene"));
+		life = 100 ;
+	}
+	setAngleAndSpeed();
+	type = rockType;
+	bonusProbability = 25;
+	scoreValue = 500 - (200 * rockType);
+
+	int temp = 1 +  rand() % 2;
+	stringstream tmpStream;
+	tmpStream << "type" << temp;
+	setAnimation(tmpStream.str());
+
+	currentAnimation->reverse = rand() % 2;
+
+	setAnimX(0);
+	setAnimY(0);
+}
+
+//Rocks have a predefined trajectory
+//typically used for smaller rocks resulting of the explosion of bigger rocks
+Pyroxene::Pyroxene(int rockType, int sX, int sY, int aSpeed, float anAngle)
+{
+	if (rockType == BIG_ROCK)
+	{
+		copyFrom(CurrentLevel->loadedObjects.at("bigPyroxene"));
+		life = 250;
+	}
+	if (rockType == SMALL_ROCK)
+	{
+		copyFrom(CurrentLevel->loadedObjects.at("smallPyroxene"));
+		life = 100;
+	}
+
+	type = rockType;
+	bonusProbability = 25;
+	scoreValue = 500 - (200 * rockType);
+
+	int temp = 1 +  rand() % 2;
+	stringstream tmpStream;
+	tmpStream << "type" << temp;
+	setAnimation(tmpStream.str());
+
+	currentAnimation->reverse = rand() % 2;
+
+	setAnimX(0);
+	setAnimY(0);
+	speed = aSpeed;
+	angle = anAngle;
+	posX = sX;
+	posY = sY;
+}
+
+//When a big rock explodes, it creates two smaller rocks that go in perpendicular directions
+void Pyroxene::createSmallerRock(Rock * aRock)
+{
+	CurrentLevel->activeElements.push_back(new Pyroxene(type + 1, posX, posY, speed + 1, angle + PI / 2));
+	CurrentLevel->activeElements.push_back(new Pyroxene(type + 1, posX, posY, speed + 1, angle - PI / 2));
+}
+

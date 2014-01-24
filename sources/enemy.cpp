@@ -22,9 +22,11 @@ Enemy::Enemy()
 	fireRate = minFireRate + (rand() % maxFireRate);
 	currentPosition = 0;
 	damage = 1000;
+	angleModifyingFactor = 0;
 
 	speed = 2;
 	angle = 180.0 * (PI/180);
+	nextAngle = angle;
 }
 
 Enemy::Enemy(int x, int y, int typeXW)
@@ -47,8 +49,10 @@ Enemy::Enemy(int x, int y, int typeXW)
 	life = 50 * (typeXW + 1);
 	speed = 2;
 	angle = 180.0 * (PI/180);
+	nextAngle = angle;
 	currentPosition = 0;
 	damage = 1000;
+	angleModifyingFactor = 0;
 
 	originY = y;
 	sinusWidth = 400;
@@ -74,8 +78,10 @@ Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 	life = 50;
 	speed = aSpeed;
 	angle = 180.0 * (PI/180);
+	nextAngle = angle;
 	currentPosition = 0;
 	damage = 1000;
+	angleModifyingFactor = 0;
 
 	originY = y;
 	sinusWidth = sinWidth;
@@ -110,12 +116,10 @@ void Enemy::animate()
 void Enemy::checkPositions()
 {
 	//Check if we are close to the next position
-//TODO take into account the Y
 
-//	if (sqrt(((posX - eventPosition.at(currentPosition).first)*(posX - eventPosition.at(currentPosition).first) +
-//			(posY - eventPosition.at(currentPosition).second)*(posY - eventPosition.at(currentPosition).second)))< speed*speed)
-
-	if(std::abs((int)(posX - eventPosition.at(currentPosition).first)) <= speed)
+	if (sqrt(((posX - eventPosition.at(currentPosition).first)*(posX - eventPosition.at(currentPosition).first) +
+			(posY - eventPosition.at(currentPosition).second)*(posY - eventPosition.at(currentPosition).second)))< speed*speed)
+//	if(std::abs((int)(posX - eventPosition.at(currentPosition).first)) <= speed)
 	{
 		//Move to the next positions
 		currentPosition++;
@@ -130,7 +134,9 @@ void Enemy::checkPositions()
 		//Compute the new angle
 		float xDiff = eventPosition.at(currentPosition).first - posX;
 		float yDiff = eventPosition.at(currentPosition).second - posY;
-		angle = atan2(yDiff, xDiff);
+		//We want curvy turns so we slowly change the angle
+		nextAngle = fmodf(atan2(yDiff, xDiff) + 2*PI, 2*PI);
+		angleModifyingFactor = (nextAngle - angle) / speed;
 	}
 }
 
@@ -288,6 +294,7 @@ Cadmium::Cadmium(Json::Value aConfig)
 	canFire = false;
 	lastTimeFired = GameTimer;
 	angle = 180.0 * (PI/180);
+	nextAngle = angle;
 	shootingAngle = 0;
 	posRafale = 0;
 }
@@ -331,7 +338,7 @@ void Cadmium::checkFire()
 void Cadmium::fire()
 {
 	checkFire();
-	if (canFire)
+	if (canFire && currentAnimation->currentFrame == 10)
 	{
 		CurrentLevel->soundEngine->playSound("enemyGun");
 
@@ -340,15 +347,26 @@ void Cadmium::fire()
 	}
 }
 
-
-//TODO The designer wants curvy movements
 //Make a movement engine that would compute all sort of trajectory (curve, line, other...)
-//and return the series of corresponding points
+//and return the series of corresponding points ?
 void Cadmium::animate()
 {
 	updateAnimationFrame();
 	checkPositions();
 	fire();
+
+	//If we are still turning
+	if (fabs(angle - nextAngle) > fabs(angleModifyingFactor))
+	{
+
+		angle = fmodf(angle + angleModifyingFactor + 2.0*PI,  2.0f*PI);
+	}
+	else
+	{
+		//Make sure we have the right angle
+		//otherwise we might miss the next checkpoint
+		angle = nextAngle;
+	}
 
 	float vx, vy;
 	vx = speed * cos(angle);
@@ -356,6 +374,15 @@ void Cadmium::animate()
 
 	posX = posX + vx;
 	posY = posY + vy;
+}
+
+void Cadmium::die()
+{
+	CurrentLevel->soundEngine->playSound("xwing_explode");
+	CurrentLevel->createEffect(posX, posY, "cadmiumExplosion");
+	dropBonus(posX, posY);
+	Score = Score + scoreValue;
+	toRemove = true;
 }
 
 /*
@@ -373,7 +400,7 @@ Iron::Iron(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1.0).asFloat();
 	if(posY == -1)
-		posY = rand() % (GAMEZONE_HEIGHT - (int)width);
+		posY = width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
 
 	scoreValue = aConfig.get("scoreValue", 100).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 100).asInt();
@@ -438,12 +465,28 @@ void Iron::dropBonus(int x, int y)
 /*
  * Silicon Functions
  */
-Silicon::Silicon(Json::Value aConfig)
+SiliconField::SiliconField(Json::Value aConfig, EnemyWave * aWave)
+{
+	enemyWave = aWave;
+	int generatedNumber = aConfig.get("generatedNumber", 50).asInt();
+	int maxX = aConfig.get("spreadWidth", 500).asInt();
+	vector<float> xPositions = getNormalDistributionNumbers(generatedNumber, 0, maxX);
+
+	for(int i = 0; i < generatedNumber; i++)
+	{
+		aWave->enemies.push_back(new Silicon(aConfig, xPositions.at(i)));
+	}
+
+	toRemove = true;
+}
+
+Silicon::Silicon(Json::Value aConfig, float aPosX)
 {
 	copyFrom(CurrentLevel->loadedObjects.at("e004Sp"));
 	int maxX = aConfig.get("spreadWidth", 500).asInt();
 
 	posX = aConfig.get("posX", -1.0).asFloat();
+	posX = aPosX;
 	//If no position X was given then pick one randomly
 	if(posX == -1.0)
 		posX = rand() % maxX;
@@ -452,13 +495,13 @@ Silicon::Silicon(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1).asFloat();
 	if(posY == -1)
-		posY = rand() % (GAMEZONE_HEIGHT - (int)width);
+		posY = width/2 +rand() % (GAMEZONE_HEIGHT - (int)width);
 
 	scoreValue = aConfig.get("scoreValue", 10).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
 	life = aConfig.get("life", 20).asInt();
 	speed = aConfig.get("speed", 2.0).asFloat();
-	speed = 1.0 +  (static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f));
+	//speed = 1.0 +  (static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f));
 
 	damage = aConfig.get("damage", 1).asInt();
 
@@ -486,37 +529,28 @@ void Silicon::animate()
 	if(!moving && CurrentLevel->isOnScreen(this))
 	{
 		//Should we make an expected move ?
-		int move = rand() % 800;
+		int move = rand() % 200;
 		if(move <= 1)
 		{
 			moving = true;
 
 			//Which length ?
-			destY = 40.0 + rand() % amplitude;
+			destY = 10 + rand() % 10; //20.0
 
-			//Vertical or horizontal move ?
+			//Up or down ?
 			if(rand() % 2)
 			{
-				//Up or down ?
-				if(rand() % 2)
-				{
-					destY = posY - destY;
-					ySpeed = -3;
-				}
-				else
-				{
-					destY = destY + posY;
-					ySpeed = 3;
-				}
-				xSpeed = 0;
+				destY = posY - destY;
+				ySpeed = -0.2;
 			}
 			else
 			{
-				destY = destY * 2.0f;
-				destX = posX - destY;
-				ySpeed = 0;
-				xSpeed = 3;
+				destY = destY + posY;
+				ySpeed = 0.2;
 			}
+
+			destX = posX - destY;
+			xSpeed = 0.2;
 		}
 	}
 	else
@@ -547,7 +581,6 @@ void Silicon::animate()
 void Silicon::die()
 {
 	CurrentLevel->soundEngine->playSound("xwing_explode");
-	CurrentLevel->createParticleEffect(posX, posY, "siliconExplosion");
 	CurrentLevel->createEffect(posX, posY, "explosionSilicon");
 	//dropBonus(posX, posY);
 	Score = Score + scoreValue * (type + 1);

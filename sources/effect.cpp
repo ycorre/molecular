@@ -38,6 +38,12 @@ Effect::Effect(int x, int y, string aName)
 		effectLayers.insert(make_pair(anAnimatedDrawable->name, anAnimatedDrawable));
 	}
 
+	//Launch particle effect
+	for (vector<string>::iterator aParticleEffectName = CurrentLevel->loadedEffects.at(aName)->particleEffects.begin(); aParticleEffectName != CurrentLevel->loadedEffects.at(aName)->particleEffects.end(); ++aParticleEffectName)
+	{
+		CurrentLevel->createParticleEffect(x, y, (*aParticleEffectName));
+	}
+
 	frameCount = 0;
 }
 
@@ -57,10 +63,14 @@ Effect::Effect(Json::Value aConfig)
 	for (index = 0; index < layers.size(); ++index)
 	{
 		AnimatedDrawable * tmp = new AnimatedDrawable(layers[index]);
-		tmp->posXCorrection = 1;//tmp->width / 2 - width / 2;
-		tmp->posYCorrection = 1;//tmp->height / 2 - height / 2;
 
 		effectLayers.insert(make_pair(tmp->name, tmp));
+	}
+
+	Json::Value pEffect = aConfig["particleEffects"];
+	for (index = 0; index < pEffect.size(); ++index)
+	{
+		particleEffects.push_back(pEffect[index].asString());
 	}
 
 	frameCount = 0;
@@ -84,6 +94,7 @@ int Effect::animateEffect()
 			{
 				isUpdated = true;
 			}
+			(*aLayer).second->animate();
 
 			if(isMoving)
 			{
@@ -130,9 +141,8 @@ TextEffect::TextEffect(int x, int y, string aText)
 	aNewAnim->oglTexture = oglTexture;
 	aNewAnim->numberOfFrames = 36;
 
-	float initArray[6] = {0,1,24,1,36,0};
-	vector<float> opacityValue(&initArray[0], &initArray[0]+6);
-	aNewAnim->configOpacity(opacityValue);
+	vector<float> opacityConfigValue = {0,1,24,1,36,0};
+	aNewAnim->opacityValues = computeLinearValue(opacityConfigValue, aNewAnim->numberOfFrames);
 	animations.insert(make_pair(name, aNewAnim));
 	currentAnimation = aNewAnim;
 

@@ -37,7 +37,6 @@ class Sound
 	    map<string, int> soundConfParameters;
 
 		Sound();
-		Sound(string aName);
 		Sound(string path, string name);
 		Sound(Json::Value aConfig);
 		virtual void load(string aPath);

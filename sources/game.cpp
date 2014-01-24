@@ -5,8 +5,6 @@
 #include "game.h"
 
 //TODO Use JSON for configuring all types of object ?
-//Handle memory release
-//Fix the music bug (repeating audio after music has been stop once (reload each time ?))
 //Change menu & level loading methods:
 //Modify the menu so that it is unloaded and reloaded each time we go back there
 //Do a load level and a launch level method and separate both
@@ -96,8 +94,8 @@ int Game::mainLoop()
 					break;
 			    
 		    	case SDL_KEYUP:
-					//Handle key presses
-					keyboard->handleKeyUpHero(&event.key.keysym);
+					//Handle key release
+					keyboard->handleKeyUp(&event.key.keysym);
 					break;
 
 				case SDL_QUIT:
@@ -118,10 +116,10 @@ int Game::mainLoop()
 	    	case GAME_LOADMENU:
 	    		delete menu;
 	    		menu = new Menu(&graphicEngine, &soundEngine);
-	    	    menu->loadMenu();
-	    	    menu->game = this;
 	    	    menu->currentMenu = MENU_MAIN;
 	    	    menu->nextMenu = MENU_MAIN;
+	    	    menu->loadMenu();
+	    	    menu->game = this;
 	    		gameState = GAME_MENU;
 	    		break;
 
@@ -146,10 +144,10 @@ int Game::mainLoop()
 					delete CurrentLevel;
 					delete menu;
 					menu = new Menu(&graphicEngine, &soundEngine);
+					menu->currentMenu = MENU_MAIN;
+					menu->nextMenu = MENU_GAMEOVER;
 					menu->loadMenu();
 					menu->game = this;
-					menu->currentMenu = MENU_MAIN;
-				    menu->nextMenu = MENU_GAMEOVER;
 					menu->menuInTransition = true;
 					gameState = GAME_MENU;
 					graphicEngine.toDisplay.clear();
@@ -184,8 +182,6 @@ int Game::initGame()
 	graphicEngine.initColors();
 	keyboard = new Keyboard();
 	keyboard->game = this;
-	physicEngine = *(new Pe());
-	soundEngine = *(new SoundEngine());
 	soundEngine.init();
 	menu = new Menu(&graphicEngine, &soundEngine);
 
@@ -201,7 +197,6 @@ int Game::initGame()
     lockedLevel.at("level2") = false;
 
     //Init the menu
-    menu->introLength = 2500;
     menu->loadMenu();
     menu->game = this;
 
@@ -215,7 +210,7 @@ int Game::initSDL()
     int videoFlags;
 
     //This holds some info about our display
-    const SDL_VideoInfo *videoInfo;
+    const SDL_VideoInfo * videoInfo;
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO) < 0)
@@ -374,8 +369,6 @@ void Game::launchNextLevel()
 		gameState = GAME_MENU;
 		return;
 	}
-
-	//CurrentLevel = levels.at(levelOrder.at(newLevel));
 
 	CurrentLevel->ge = &graphicEngine;
 	CurrentLevel->pe = &physicEngine;

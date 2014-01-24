@@ -24,8 +24,6 @@ Drawable::Drawable()
 	isBlinking = false;
 	isBlinkingWhite = false;
 	blinkingCounter = 0;
-	posXCorrection = 0;
-	posYCorrection = 0;
 	opacity = 1.0f;
 	brightness = 0.0f;
 	brightnessDecreasingFactor = 0.0f;
@@ -40,6 +38,9 @@ Drawable::Drawable()
 	collision = NULL;
 	virtualDepth = 100;
 	clampTexture = true;
+	colorR = colorG = colorB = 1.0f;
+	speed = angle = 0;
+
 }
 
 Drawable::Drawable(Json::Value aConfig)
@@ -59,18 +60,25 @@ Drawable::Drawable(Json::Value aConfig)
 	isBlinkingWhite = aConfig.get("isBlinkingWhite", false).asBool();
 	toBlend = aConfig.get("blend", false).asBool();
 	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
-	posXCorrection = aConfig.get("posXCorrection", 0).asInt();
-	posYCorrection = aConfig.get("posYCorrection", 0).asInt();
 	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
 	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
+	minScale =  aConfig.get("minScale", 1.0f).asFloat();
+	maxScale =  aConfig.get("maxScale", 1.0f).asFloat();
 	opacity = aConfig.get("opacity", 1.0f).asFloat();
+	minOpacity = aConfig.get("minOpacity", 1.0f).asFloat();
+	maxOpacity = aConfig.get("maxOpacity", 1.0f).asFloat();
 	brightness = aConfig.get("brightness", 0.0f).asFloat();
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
+	colorR = aConfig.get("colorR", 1.0f).asFloat();
+	colorG = aConfig.get("colorG", 1.0f).asFloat();
+	colorB = aConfig.get("colorB", 1.0f).asFloat();
 	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	clampTexture = aConfig.get("clampTexture", true).asBool();
+	angle =  aConfig.get("angle", 0.0f).asFloat();
+	speed =  aConfig.get("speed", 0.0f).asFloat();
 	loadTexture(aConfig.get("dataPath", "").asString());
 
 
@@ -86,7 +94,15 @@ Drawable::~Drawable()
 
 void Drawable::animate()
 {
+	if(speed != 0)
+	{
+		float vx, vy;
+		vx = speed * cos(angle);
+		vy = speed * sin(angle);
 
+		posX = posX + vx;
+		posY = posY + vy;
+	}
 }
 
 void Drawable::processCollision()
@@ -153,7 +169,6 @@ void Drawable::startBlinkingWhite(int aNumberOfFrames)
 //Used to indicate an enemy has been hit
 void Drawable::blinkWhite()
 {
-
 	brightness = brightness - brightnessDecreasingFactor;
 
 	if(brightness <= 0.0f)
@@ -220,7 +235,53 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	rotX = aDrawable->rotX;
 	rotY = aDrawable->rotY;
 	rotZ = aDrawable->rotZ;
+	colorR = aDrawable->colorR;
+	colorG = aDrawable->colorG;
+	colorB = aDrawable->colorB;
 	rotationAngle = aDrawable->rotationAngle;
+	opacity = aDrawable->opacity;
+	minOpacity = aDrawable->minOpacity;
+	maxOpacity = aDrawable->maxOpacity;
+	scaleX = aDrawable->scaleX;
+	scaleY = aDrawable->scaleY;
+	maxScale = aDrawable->maxScale;
+	minScale = aDrawable->minScale;
+	angle = aDrawable->angle;
+	speed = aDrawable->speed;
+
+	randomize();
+}
+
+//Randomize parameters with values set to be randomize
+void Drawable::randomize()
+{
+	//Randomize scaling
+	if(scaleX == -1 || scaleY == -1)
+	{
+		float valueRange = maxScale - minScale;
+		scaleX = minScale + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/valueRange));
+		//For now we want a symmetrical scaling
+		scaleY = scaleX;
+	}
+
+	//Randomize opacity
+	if(opacity == -1)
+	{
+		float valueRange = maxOpacity - minOpacity;
+		opacity = minOpacity + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/valueRange));
+	}
+
+	//Randomize rotation angle
+	if(rotationAngle == -1)
+	{
+		rotationAngle = rand() % 360;
+	}
+
+	//Randomize movement angle
+	if(angle == -1138)
+	{
+		angle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(2.0f*PI)));
+	}
 }
 
 float Drawable::getXBoundary()
@@ -312,18 +373,25 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	isBlinkingWhite = aConfig.get("isBlinkingWhite", false).asBool();
 	toBlend = aConfig.get("blend", false).asBool();
 	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
-	posXCorrection = aConfig.get("posXCorrection", 0).asInt();
-	posYCorrection = aConfig.get("posYCorrection", 0).asInt();
 	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
 	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
+	minScale =  aConfig.get("minScale", 1.0f).asFloat();
+	maxScale =  aConfig.get("maxScale", 1.0f).asFloat();
 	opacity = aConfig.get("opacity", 1.0f).asFloat();
+	minOpacity =  aConfig.get("minOpacity", 1.0f).asFloat();
+	maxOpacity =  aConfig.get("maxOpacity", 1.0f).asFloat();
 	brightness = aConfig.get("brightness", 0.0f).asFloat();
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
+	colorR = aConfig.get("colorR", 1.0f).asFloat();
+	colorG = aConfig.get("colorG", 1.0f).asFloat();
+	colorB = aConfig.get("colorB", 1.0f).asFloat();
 	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	clampTexture = aConfig.get("clampTexture", true).asBool();
+	angle = aConfig.get("angle", 0.0f).asFloat();
+	speed = aConfig.get("speed", 0.0f).asFloat();
 	currentAnimation = NULL;
 
 	animationUpdateFrequency = aConfig.get("animationUpdateFrequency", 40).asInt();
@@ -414,8 +482,6 @@ void AnimatedDrawable::setAnimation(string aName)
 	currentAnimation->currentFrame = 0;
 	texture = currentAnimation->texture;
 	oglTexture = currentAnimation->oglTexture;
-	posXCorrection = width / 2 - currentAnimation->width / 2;
-	posYCorrection = height / 2 - currentAnimation->height / 2;
 }
 
 void AnimatedDrawable::copyFrom(Drawable * aDrawable)
@@ -443,18 +509,24 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	animationUpdateFrequency = aDrawable->animationUpdateFrequency;
 	currentAnimation = aDrawable->currentAnimation;
 	setAnimation(currentAnimation->name);
-	posXCorrection = aDrawable->posXCorrection;
-	posYCorrection = aDrawable->posYCorrection;
 	collision = aDrawable->collision;
 	virtualDepth = aDrawable->virtualDepth;
 	rotX = aDrawable->rotX;
 	rotY = aDrawable->rotY;
 	rotZ = aDrawable->rotZ;
+	colorR = aDrawable->colorR;
+	colorG = aDrawable->colorG;
+	colorB = aDrawable->colorB;
+	scaleX = aDrawable->scaleX;
+	scaleY = aDrawable->scaleY;
+	maxScale = aDrawable->maxScale;
+	minScale = aDrawable->minScale;
+	opacity = aDrawable->opacity;
+	minOpacity = aDrawable->minOpacity;
+	maxOpacity = aDrawable->maxOpacity;
+	angle = aDrawable->angle;
+	speed = aDrawable->speed;
 	rotationAngle = aDrawable->rotationAngle;
 
-	//Randomaize rotation angle
-	if(rotationAngle == -1)
-	{
-		rotationAngle = rand() % 360;
-	}
+	randomize();
 }

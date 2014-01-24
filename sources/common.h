@@ -6,6 +6,7 @@
 #include "json/json/reader.h"
 #include "json/json/value.h"
 #include "types.h"
+#include "utility.h"
 //#include <minmax.h>
 
 using namespace std;

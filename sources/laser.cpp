@@ -290,7 +290,7 @@ void HadronAmmo::removeEnergy(int anEnergyValue)
 }
 
 //Override the collision function with a collision that do nothing so that
-//it does remove the photon
+//it does not remove the photon
 void HadronAmmo::processCollisionWith(Drawable * aDrawable)
 {
 
@@ -405,12 +405,13 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 	{
 		release.width = release.width - ((release.posX + release.width/2) - (attack.posX - attack.width/2));
 		release.currentAnimation->width = release.width;
+		//release.posX = release.width;
 	}
 
 	width = max(0.0f, width - 47.5f);
 	currentAnimation->width = width;
 	updateAnimationFrame();
-
+cout << "width, " << width << ", " << release.width <<", " << (getPosX() - getWidth()/2)/(SCREEN_WIDTH/(3)) << ", "<< (release.getPosX() + release.getWidth()/2)/(SCREEN_WIDTH/(3)) << endl;
 	//Display
 	processDisplay();
 	lightning.processDisplay();

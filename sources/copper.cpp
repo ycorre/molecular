@@ -1,7 +1,5 @@
 #include "enemy.h"
 
-
-
 Copper::Copper(Json::Value aConfig)
 {
 	copyFrom(CurrentLevel->loadedObjects.at("e005Sp"));
@@ -33,9 +31,9 @@ Copper::Copper(Json::Value aConfig)
 	setAnimX(0);
 	setAnimY(0);
 
-	cannons.push_back(new CopperCannon(this, 54-87, 54-51));
-	cannons.push_back(new CopperCannon(this, 54-35, 54-20));
-	cannons.push_back(new CopperCannon(this, 54-35, 54-82));
+	cannons.push_back(new CopperCannon(this, 51-87, 51-51));
+	cannons.push_back(new CopperCannon(this, 51-33, 51-20));
+	cannons.push_back(new CopperCannon(this, 51-33, 51-82));
 
 	currentAnimation->setFrameTo(99);
 	currentAnimation->currentFrame = 99;
@@ -88,7 +86,14 @@ void Copper::animate()
 			{
 				for(vector<CopperCannon *>::iterator aCanon = cannons.begin(); aCanon != cannons.end(); ++aCanon)
 				{
-					(*aCanon)->copperAngle = (*aCanon)->copperAngle - (3.6 * (PI/180));
+					if(currentAnimation->reverse)
+					{
+						(*aCanon)->copperAngle = (*aCanon)->copperAngle + (3.6 * (PI/180));
+					}
+					else
+					{
+						(*aCanon)->copperAngle = (*aCanon)->copperAngle - (3.6 * (PI/180));
+					}
 				}
 
 				spinningCounter = (spinningCounter + 1) % spinningAngle;
@@ -121,12 +126,12 @@ void Copper::nextPhase()
 			if(yDestination == -1)
 			{
 				//Pull a y coordinate as destination,
-				//we want it at least one width away from our current position
+				//we want it at least two width away from our current position
 				do{
-					yDestination =  width/2 + rand() % (GAMEZONE_HEIGHT - (int)width/2 - 30);
-				} while(std::abs((int)(posY - yDestination)) < width);
+					yDestination =  width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
+				} while(fabs(posY - yDestination) < width*2);
 
-				ySpeed = (yDestination - posY) / 90.0f;
+				moves = computeInertialLinearMove(posX, posY, posX, yDestination, 3);
 			}
 			break;
 
@@ -159,6 +164,8 @@ void Copper::nextPhase()
 			//Pull an angle between 36 and 360
 			//Given as a number of frames since 1 frame = 3.6 deg
 			spinningAngle = 10 + rand() % 90;
+			//Which direction ?
+			currentAnimation->reverse = rand() % 2;
 			spinningCounter = 0;
 			break;
 
@@ -170,9 +177,10 @@ void Copper::nextPhase()
 
 void Copper::move()
 {
-	posY = posY + ySpeed;
+	posY = moves.back().second;
+	moves.pop_back();
 
-	if(std::abs((int)(posY - yDestination)) <= std::abs((int)(ySpeed)) + 2)
+	if(moves.empty())
 	{
 		yDestination = -1;
 		nextPhase();
@@ -212,10 +220,12 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 			{
 				CurrentLevel->soundEngine->playSound("xwing_explode");
 				CurrentLevel->createEffect(posX, posY, "explosionCopper");
-				CurrentLevel->createExplosion(posX + width/2, posY - height/2);
-				CurrentLevel->createExplosion(posX, posY);
-				CurrentLevel->createExplosion(posX - 2*width/3, posY + height/3);
-				CurrentLevel->createExplosion(posX + width/3, posY - 2*height/3);
+				for(int i = 0; i < 4 ; i++)
+				{
+					float x = posX - width/2 + rand() % (int)width;
+					float y = posY - height/2 + rand() % (int)height;
+					CurrentLevel->createExplosion(x, y);
+				}
 				ge->startShaking(20, true);
 				Score = Score + scoreValue * (type + 1);
 				toRemove = true;
@@ -238,16 +248,14 @@ CopperCannon::CopperCannon(Copper * aCopper, float x, float y)
 
 	shootingAngle = startShootingAngle = 0;
 	copper = aCopper;
-	shiftX = 0;//copper->width/2 - width/2;
-	shiftY = 0;//copper->height/2 - height/2;
-	posX = copper->posX + x;// - width/2;
-	posY = copper->posY + y;// - height/2;
+	posX = copper->posX + x;
+	posY = copper->posY + y;
 	float xDiff = copper->posX - posX;
 	float yDiff = copper->posY - posY;
 
 	copperAngle = atan2(yDiff, xDiff);
-	posX = copper->posX + shiftX + 36 * cos(copperAngle);
-	posY = copper->posY + shiftY + 36 * sin(copperAngle);
+	posX = copper->posX + 36 * cos(copperAngle);
+	posY = copper->posY + 36 * sin(copperAngle);
 
 	destroyed = false;
 	life = 750;
@@ -268,8 +276,8 @@ CopperCannon::CopperCannon(Copper * aCopper, float x, float y)
 
 void CopperCannon::animate()
 {
-	posX = copper->posX + shiftX + 36 * cos(copperAngle);
-	posY = copper->posY + shiftY + 36 * sin(copperAngle);
+	posX = copper->posX + 36 * cos(copperAngle);
+	posY = copper->posY + 36 * sin(copperAngle);
 
 	if(updateAnimationFrame() && !destroyed)
 	{
@@ -279,7 +287,7 @@ void CopperCannon::animate()
 
 		if(activated)
 		{
-			fire();
+			fire(shootingAngle);
 			if(shootingAngle == startShootingAngle)
 			{
 				activated = false;
@@ -291,15 +299,18 @@ void CopperCannon::animate()
 			float yDiff = CurrentLevel->hero->posY - posY;
 			int angle = ((int)(atan2(yDiff, xDiff) * (180/PI) + 360)) % 360;
 			currentAnimation->setFrameTo(cannonAngles.at(angle));
+
+			if(rand() % 60 < 1)
+				fire(angle);
 		}
 	}
 
 	processDisplay();
 }
 
-void CopperCannon::fire()
+void CopperCannon::fire(int anAngle)
 {
-	CurrentLevel->activeElements.push_back(new CopperAmmo(posX, posY, shootingAngle * (PI/180), 4));
+	CurrentLevel->activeElements.push_back(new CopperAmmo(posX, posY, anAngle * (PI/180), 4));
 }
 
 void CopperCannon::processCollisionWith(Drawable * aDrawable)

@@ -81,8 +81,6 @@ void Level1::checkEvent()
 			if((*anElement)->isEnemy())
 			{
 				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
-				anEnemy->fire();
 			}
 			if((*anElement)->isBonus() || (*anElement)->isLaser())
 			{

@@ -23,7 +23,7 @@ class Keyboard
 		bool firing;
 
 		Keyboard();
-		void handleKeyUpHero(SDL_keysym * keysym);
+		void handleKeyUp(SDL_keysym * keysym);
 		void processKeyPress();
 		void processKeyState();
 		void processKeyInGame(Hero* hero);
