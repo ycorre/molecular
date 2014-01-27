@@ -155,7 +155,7 @@ void Enemy::processCollisionWith(Drawable * aDrawable)
 		life = max(0, life - aLaser->power);
 		if(aLaser->isPhoton())
 		{
-			HadronAmmo * aPhoton =  dynamic_cast<HadronAmmo *>(aDrawable);
+			HadronParticle * aPhoton =  dynamic_cast<HadronParticle *>(aDrawable);
 			aPhoton->removeEnergy(lifeValue - life);
 		}
 		if (life<=0)
@@ -182,7 +182,7 @@ void Enemy::dropBonus(int x, int y)
 
 void Enemy::die()
 {
-	CurrentLevel->soundEngine->playSound("xwing_explode");
+	CurrentLevel->soundEngine->playSound("Explode1", posX);
 	CurrentLevel->createExplosion(posX, posY);
 	dropBonus(posX, posY);
 	Score = Score + scoreValue * (type + 1);
@@ -297,6 +297,7 @@ Cadmium::Cadmium(Json::Value aConfig)
 	nextAngle = angle;
 	shootingAngle = 0;
 	posRafale = 0;
+	currentAnimation->currentFrame = rand() % currentAnimation->numberOfFrames;
 }
 
 void Cadmium::checkFire()
@@ -378,7 +379,8 @@ void Cadmium::animate()
 
 void Cadmium::die()
 {
-	CurrentLevel->soundEngine->playSound("xwing_explode");
+	CurrentLevel->soundEngine->playSound("Explode1", posX);
+	CurrentLevel->createExplosion(posX, posY);
 	CurrentLevel->createEffect(posX, posY, "cadmiumExplosion");
 	dropBonus(posX, posY);
 	Score = Score + scoreValue;
@@ -470,9 +472,21 @@ SiliconField::SiliconField(Json::Value aConfig, EnemyWave * aWave)
 	enemyWave = aWave;
 	int generatedNumber = aConfig.get("generatedNumber", 50).asInt();
 	int maxX = aConfig.get("spreadWidth", 500).asInt();
-	vector<float> xPositions = getNormalDistributionNumbers(generatedNumber, 0, maxX);
+	int minValue, i;
 
-	for(int i = 0; i < generatedNumber; i++)
+	vector<float> xPositions = getNormalDistributionNumbers(generatedNumber, maxX/2, maxX/4, &minValue);
+
+	//We want the closest one to be at most zero + 50
+	if (minValue < 0)
+	{
+		float correction = -minValue + 50;
+		for(i = 0; i < xPositions.size(); i++)
+		{
+			xPositions.at(i) = xPositions.at(i) + correction ;
+		}
+	}
+
+	for(i = 0; i < generatedNumber; i++)
 	{
 		aWave->enemies.push_back(new Silicon(aConfig, xPositions.at(i)));
 	}
@@ -529,28 +543,32 @@ void Silicon::animate()
 	if(!moving && CurrentLevel->isOnScreen(this))
 	{
 		//Should we make an expected move ?
-		int move = rand() % 200;
-		if(move <= 1)
+	//	int move = rand() % 200;
+		//if(move <= 1)
+		if(!moving)
 		{
 			moving = true;
 
 			//Which length ?
-			destY = 10 + rand() % 10; //20.0
+			destY = 10 + rand() % 30;
 
 			//Up or down ?
 			if(rand() % 2)
 			{
 				destY = posY - destY;
-				ySpeed = -0.2;
+				ySpeed = -0.3;
 			}
 			else
 			{
 				destY = destY + posY;
-				ySpeed = 0.2;
+				ySpeed = 0.3;
 			}
 
-			destX = posX - destY;
-			xSpeed = 0.2;
+			if(rand() % 2)
+			{
+				destX = posX - destY;
+				xSpeed = 0.2;
+			}
 		}
 	}
 	else
@@ -564,11 +582,11 @@ void Silicon::animate()
 			moving = false;
 		}
 
-		if(destX != -1 && std::abs((int)(posX - destX)) <= speed + xSpeed + 1)
+	/*	if(destX != -1 && std::abs((int)(posX - destX)) <= speed + xSpeed + 1)
 		{
 			destX = -1;
 			moving = false;
-		}
+		}*/
 	}
 
 	if(posX < -width)
@@ -580,7 +598,7 @@ void Silicon::animate()
 
 void Silicon::die()
 {
-	CurrentLevel->soundEngine->playSound("xwing_explode");
+	CurrentLevel->soundEngine->playSound("Explode1", posX);
 	CurrentLevel->createEffect(posX, posY, "explosionSilicon");
 	//dropBonus(posX, posY);
 	Score = Score + scoreValue * (type + 1);

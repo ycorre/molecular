@@ -59,14 +59,14 @@
 	},
 	
 	"sounds" : [
-		{"name" : "fractal" , "loop" : 0, "volume" : 100, "dataPath": "sound/FractalZeptokatal.ogg"},
-		{"name" : "validated" , "loop" : 0, "volume" : 100, "dataPath": "sound/Valide.ogg"},
-		{"name" : "buzz" , "loop" : 0, "volume" : 100, "dataPath": "sound/Buzz.ogg"},
-		{"name" : "selected" , "loop" : 0, "volume" : 100, "dataPath": "sound/Clic.ogg"}
+		{"name" : "fractal" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/FractalZeptokatal.ogg"},
+		{"name" : "validated" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/Valide.ogg"},
+		{"name" : "buzz" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/Buzz.ogg"},
+		{"name" : "selected" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/Clic.ogg"}
 	],
 	
 	"music" : [
-		{"name" : "musicMenu" , "loop" : -1, "volume" : 100, "dataPath": "sound/CollisionParadise.mp3"}
+		{"name" : "musicMenu" , "loop" : -1, "volume" : 50, "dataPath": "sound/OST/CollisionParadise.ogg"}
 	]
 }
 

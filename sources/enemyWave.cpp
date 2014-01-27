@@ -57,7 +57,7 @@ void EnemyWave::animate()
 			}
 
 			delete (*anEnemy);
-			anEnemy = enemies.erase(anEnemy);
+			enemies.remove(*anEnemy--);
 		}
 		else
 		{

@@ -17,6 +17,7 @@ class Shoot: public AnimatedDrawable
    public:
 	  int power;
 	  float angle;
+	  float speed;
 	  Weapon * firingWeapon;
 
 	  Shoot();
@@ -34,31 +35,29 @@ class ElectronAmmo: public Shoot
 
 	  ElectronAmmo(int x, int y, Weapon * aWeapon);
 };
-/*
-class Photon: public Shoot
-{
-   public:
-	  AnimatedDrawable trail;
-
-	  Photon();
-	  Photon(int x, int y, Weapon * aWeapon);
-	  void animate();
-	  virtual bool isPhoton() {return true;}
-	  virtual void processCollisionWith(Drawable * aDrawable);
-	  void setParam(int x, int y, Weapon * aWeapon);
-	  void removeEnergy(int anEnergyValue);
-};*/
 
 class HadronAmmo: public Shoot
 {
    public:
-	  float speed;
 	  AnimatedDrawable extraPhoton;
 
 	  HadronAmmo(int x, int y, Weapon * aWeapon);
 	  void animate();
 	  virtual void processCollisionWith(Drawable * aDrawable);
 	  void removeEnergy(int anEnergyValue);
+	  virtual bool isPhoton() {return true;}
+};
+
+
+class HadronParticle: public Shoot
+{
+   public:
+	  AnimatedDrawable star;
+
+	  HadronParticle(float x, float y, float aScale, float anAngle, int aLoad, Weapon * aWeapon);
+	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void removeEnergy(int anEnergyValue);
+	  virtual void animate();
 	  virtual bool isPhoton() {return true;}
 };
 

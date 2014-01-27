@@ -126,9 +126,9 @@ void HUD::displayHealth(int healthValue)
 	{
 		i = i - 0.25;
 	}
-	if(healthValue <= 0)
+	if(healthValue <= 0 && i > 1)
 	{
-		i = 1;
+		i--;
 	}
 
 	health.currentAnimation->setFrameTo((int)(i-1));

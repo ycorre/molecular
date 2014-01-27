@@ -13,6 +13,12 @@ using namespace std;
 class Game;
 class Level;
 
+// screen width, height, and bit depth
+#define SCREEN_WIDTH  1200
+#define SCREEN_HEIGHT 800
+#define GAMEZONE_HEIGHT 720
+#define SCREEN_BPP     32
+
 //Do we use OpenGL rendering ?
 //TODO check that the SDL one is not broken
 #define USE_OPENGL 1

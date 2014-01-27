@@ -40,12 +40,12 @@
 		{"name" : "jSp_Bouclier", "width" : 96, "height" : 96, "blend" : true, "collision" : "res/action/characters/jMask_Bouclier.png", "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/jSp_Bouclier.png"}]},	
 		{"name" : "shoot", "width" : 64, "height" : 64,  "collision" : "res/action/characters/e001_ShootMask.png", "blend" : true, "animations" : [{"numberOfFrames" : 8, "dataPath": "res/action/characters/e001_SpShoot.png"}]},
 		{"name" : "bomb", "width" : 96, "height" : 96, "collision" : "res/Bomb_Col.png", "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
-		{"name" : "eSp_Cadmium", "width" : 50, "height" : 50, "blend" : true,  "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/e001Sp.png"}]},
+		{"name" : "eSp_Cadmium", "width" : 50, "height" : 50, "blend" : true,  "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/e001Sp.png"}]},
 		{"name" : "eSp_Shard", "width" : 30, "height" : 30, "clampTexture" : false,  "blend" : true, "scaleX" : 0.66, "scaleY" : 0.66, "rotZ" : -1, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/e001Shrapnel.png"}]},
-		{"name" : "e_Cadmium_Shoot", "width" : 66, "height" : 66, "collision": "res/action/characters/e_Cadmium_ShootMask.png", "animations" : [{"dataPath": "res/action/characters/e_Cadmium_Shoot.png"}]},
-		{"name" : "eSp_Iron", "width" : 54, "height" : 54, "animations" : [{"numberOfFrames" : 75, "dataPath": "res/action/characters/e003Sp.png"}]},
+		{"name" : "e_Cadmium_Shoot", "width" : 16, "height" : 16, "collision": "res/action/characters/e001_ShootMask.png", "animations" : [{"dataPath": "res/action/characters/e001_Shoot.png"}]},
+		{"name" : "eSp_Iron", "width" : 54, "height" : 54, "blend" : true, "animations" : [{"numberOfFrames" : 75, "dataPath": "res/action/characters/e003Sp.png"}]},
 		
-		{"name" : "e004Sp", "width" : 36, "height" : 36, "blend": true,  "animations" : [{"numberOfFrames" : 160, "dataPath": "res/action/characters/e004Sp.png"}]},
+		{"name" : "e004Sp", "width" : 36, "height" : 36, "blend": true, "animations" : [{"numberOfFrames" : 160, "dataPath": "res/action/characters/e004Sp.png"}]},
 		
 		{"name" : "e005Sp", "width" : 102, "height" : 102, "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/e005Sp.png"}], "virtualDepth" : 200},
 		{"name" : "e005CanonSp", "width" : 28, "height" : 28, "animations" : [{"name" : "canon", "numberOfFrames" : 72, "dataPath": "res/action/characters/e005CanonSp.png"}, {"name" : "canoff", "numberOfFrames" : 72, "dataPath": "res/action/characters/e005CanoffSp.png"}], "virtualDepth" : 150},
@@ -67,6 +67,9 @@
 		
 		{"name" : "photon", "width" : 128, "height" : 128,  "blend" : true, "animations" : [{"numberOfFrames" : 25, "dataPath": "res/action/characters/j_pProton.png"}]},
 		{"name" : "hadron", "width" : 36, "height" : 36,  "blend" : true, "collision" : "res/action/characters/j_hMask.png", "animations" : [{"name" : "level1", "numberOfFrames" : 50, "dataPath": "res/action/characters/j_hSp_Had1.png"}, {"name" : "level2", "numberOfFrames" : 50, "dataPath": "res/action/characters/j_hSp_Had2.png"}, {"name" : "level3", "numberOfFrames" : 50, "dataPath": "res/action/characters/j_hSp_Had3.png"}, {"name" : "level4", "numberOfFrames" : 50, "dataPath": "res/action/characters/j_hSp_Had4.png"}]},
+		
+		{"name" : "hadronParticle", "width" : 256, "height" : 256, "clampTexture" : false, "blend" : true, "animations" : [{"numberOfFrames" : 1, "dataPath": "res/action/characters/j_hHadron.png"}]},
+		{"name" : "hadronStar", "width" : 256, "height" : 256, "clampTexture" : false, "blend" : true, "animations" : [{"numberOfFrames" : 13, "dataPath": "res/action/characters/j_hStar.png", "opacity" : [0,1,6,0.5,12,1]}]},
 		
 		{"name" : "j_bA_Attack", "width" : 95, "height" : 95, "blend" : true, "collision" : "res/action/characters/jMask_b_Attack.png", "animations" : [
 			{"name" : "level1", "numberOfFrames" : 12, "dataPath": "res/action/characters/j_bA_Attack.png", "opacity" : [0,0.8,6,0.5,12,0.8], "animatedTexture" : 0},
@@ -96,22 +99,35 @@
 	],
 
 	"sounds" : [
-		{"name" : "AtomHit" , "loop" : 0, "volume" : 100, "dataPath": "sound/Alarme.wav"},
-		{"name" : "UpDiamond" , "loop" : 0, "volume" : 100, "dataPath": "sound/UpDiamond.wav"},
-		{"name" : "UpHealth" , "loop" : 0, "volume" : 100, "dataPath": "sound/UpHealth.wav"},
-		{"name" : "UpHealth100" , "loop" : 0, "volume" : 100, "dataPath": "sound/UpHealth100.wav"},
-		{"name" : "TeleportOff" , "loop" : 0, "volume" : 100, "dataPath": "sound/TeleportOff.wav"},
-		{"name" : "TeleportOn" , "loop" : 0, "volume" : 100, "dataPath": "sound/TeleportOn.wav"},
-		{"name" : "mitRelease" , "loop" : 0, "volume" : 100, "dataPath": "sound/Mitraille_release.wav"},
-		{"name" : "enemyGun" , "loop" : 0, "volume" : 100, "dataPath": "sound/EnnemiGun01.wav"},
-		{"name" : "mitLoop" , "loop" : -1, "volume" : 100, "dataPath": "sound/Mitraille_loop.wav"},
-		{"name" : "mitAttack" , "loop" : 0, "volume" : 100, "dataPath": "sound/Mitraille_attack.wav"},
-		{"name" : "xwing_explode" , "loop" : 0, "volume" : 100, "dataPath": "sound/xwing_explode.wav", "soundLayer" : 1},
-		{"name" : "tie_explode" , "loop" : 0, "volume" : 100, "dataPath": "sound/tie_explode.wav", "soundLayer" : 1}		
+		{"name" : "AtomHit" , "loop" : 0, "volume" : 90, "dataPath": "sound/FX/jHit1.ogg"},
+		{"name" : "jQuarkSmall" , "loop" : 0, "volume" : 50, "dataPath": "sound/FX/jQuarkSmall.ogg", "soundLayer" : 2},
+		{"name" : "jQuarkBig" , "loop" : 0, "volume" : 50, "dataPath": "sound/FX/jQuarkBig.ogg", "soundLayer" : 2},
+		{"name" : "UpHealth" , "loop" : 0, "volume" : 50, "dataPath": "sound/FX/jLife.ogg", "soundLayer" : 2},
+		{"name" : "UpHealth100" , "loop" : 0, "volume" : 50, "dataPath": "sound/FX/sqUp1.ogg"},
+		{"name" : "TeleportOff" , "loop" : 0, "volume" : 40, "dataPath": "sound/FX/jTeleportOff.ogg"},
+		{"name" : "TeleportOn" , "loop" : 0, "volume" : 40, "dataPath": "sound/FX/jTeleportOn.ogg"},
+		{"name" : "mitRelease" , "loop" : 0, "volume" : 15, "dataPath": "sound/FX/jMitrRelease.ogg"},
+		{"name" : "mitLoop" , "loop" : -1, "volume" : 15, "dataPath": "sound/FX/jMitrLoop.ogg"},
+		{"name" : "mitAttack" , "loop" : 0, "volume" : 15, "dataPath": "sound/FX/jMitrAttack.ogg"},
+		{"name" : "enemyGun" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/EnnemiGun01.ogg"},
+		{"name" : "Explode1" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/explGen1.ogg", "soundLayer" : 1},
+		{"name" : "Explode2" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/explGen2.ogg", "soundLayer" : 1},
+		{"name" : "playerExplode" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/jExplode.ogg", "soundLayer" : 1},
+		{"name" : "explRocBig" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/explRocBig.ogg", "soundLayer" : 1},
+		{"name" : "explRocSmall" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/explRocSmall.ogg", "soundLayer" : 1},
+		{"name" : "getShield" , "loop" : 0, "volume" : 100, "dataPath": "sound/FX/jBouclier.ogg"},
+		{"name" : "eImp1" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp1.ogg"},
+		{"name" : "eImp2" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp2.ogg"},
+		{"name" : "eImp3" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp3.ogg"},
+		{"name" : "eImp4" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp4.ogg"},
+		{"name" : "eImp5" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp5.ogg"},
+		{"name" : "eImp6" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp6.ogg"},
+		{"name" : "eImp7" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp7.ogg"},
+		{"name" : "eImp8" , "loop" : 0, "volume" : 10, "dataPath": "sound/FX/eImp8.ogg"}
 	],
 
 	"music" : [
-		{"name" : "hybridQuarks" , "loop" : -1, "volume" : 100, "dataPath": "sound/HybridQuarksLow.mp3"}
+		{"name" : "hybridQuarks" , "loop" : -1, "volume" : 50, "dataPath": "sound/OST/HybridQuarks.ogg"}
 	],
 
 	"effect" : [
@@ -123,7 +139,7 @@
 		},
 		{"name" : "dead" , "width" : 64, "height" : 64, "move": 1, "particleEffects" : ["playerExplosion", "playerExplosion2"], "effectLayer": [
 			{"name" : "deadFire", "width" : 204, "height" : 204, "blend" : true, "virtualDepth" : 99, "animations" : [{"numberOfFrames" : 48, "dataPath": "res/action/characters/j_explSp_Fire.png"}]},
-			{"name" : "deadSmoke", "width" : 204, "height" : 204, "blend" : true, "virtualDepth" : 800, "animations" : [{"numberOfFrames" : 98, "dataPath": "res/action/characters/j_explSp_Smoke.png"}]},
+			{"name" : "deadSmoke", "width" : 204, "height" : 204, "virtualDepth" : 800, "animations" : [{"numberOfFrames" : 98, "dataPath": "res/action/characters/j_explSp_Smoke.png"}]},
 			{"name" : "DieHalo", "width" : 256, "height" : 256, "blend" : true, "virtualDepth" : 801, "clampTexture" : false, "animations" : [{"numberOfFrames" : 33, "dataPath": "res/action/characters/j_explBigHalo.png", "opacity" : [0,1,6,1,33,0], "scaling" : [0,1,10,3]}]},
 			{"name" : "DieHalo1", "width" : 256, "height" : 256, "blend" : true, "virtualDepth" : 98, "clampTexture" : false, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/j_explBigHalo.png", "opacity" : [0,0.2,2,1,11,0.9,27,0.4,49,0]}]},
 			{"name" : "DieHalo2", "width" : 256, "height" : 256, "blend" : true, "virtualDepth" : 811, "clampTexture" : false, "animations" : [{"numberOfFrames" : 90, "dataPath": "res/action/characters/j_explBigHalo.png", "opacity" : [0,0.2,2,1,11,0.9,27,0.6,63,0.5,90,0], "scaling" : [0,1.2,10,1.2]}]},
@@ -191,7 +207,7 @@
 		},
 		
 		{"name" : "siliconExplosion" , "effectType": [
-			{"type" : "point", "number" : 18, "lifetime" : 125, "size" : 1, "startingColor" : [255, 255, 229], "endingColor" : [0, 255, 229], "opacity" : [0, 1, 50, 1, 125, 0]}]
+			{"type" : "point", "number" : 18, "lifetime" : 125, "startingColor" : [255, 255, 229], "endingColor" : [0, 255, 229], "opacity" : [0, 1, 50, 1, 125, 0]}]
 		},
 		
 		{"name" : "cadmiumExplosion" , "effectType": [
@@ -205,30 +221,30 @@
 	
 	"enemyWaves" : [
 		{"startingDate" : 100, "possibleBonus" : [5, 6, 7, 8],  "enemies" : [
-			{"name" : "Cadmium" , "speed": 4, "posX" : 100, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]}, 
-			{"name" : "Cadmium" , "speed": 4, "posX" : 200, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 4, "posX" : 300, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 4, "posX" : 400, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 4, "posX" : 500, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 4, "posX" : 600, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]}
+			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]}, 
+			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]}
 			]}, 
 			
 		{"startingDate" : 500, "possibleBonus" :  [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 5, "posX" : 100, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 200, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 300, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 400, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 500, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 600, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]}
+			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]}
 			]}, 
 			
 		{"startingDate" : 900, "possibleBonus" :  [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 5, "posX" : 100, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 200, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 300, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 100, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 200, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 300, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]}
+			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]}
 			]},
 			
 		{"startingDate" : 1400, "possibleBonus" :  [5, 6, 7, 8, 14], "enemies" : [
@@ -251,21 +267,21 @@
 			]},
 			
 		{"startingDate" : 3700, "possibleBonus" : [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 5, "posX" : 100, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 200, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 300, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 400, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 500, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 600, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]}
+			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]}
 			]},
 			
 	   {"startingDate" : 3700, "possibleBonus" : [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 5, "posX" : 100, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 200, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 300, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 400, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 500, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 5, "posX" : 600, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]}
+			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
+			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]}
 			]},
 			
 		{"startingDate" : 4100, "blocking" : true, "possibleBonus" : [5, 6, 7, 8], "enemies" : [

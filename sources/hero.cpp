@@ -448,12 +448,12 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 				health = health - anEnemy->damage;
 				if (health<=0)
 				{
-					CurrentLevel->soundEngine->playSound("tie_explode");
+					CurrentLevel->soundEngine->playSound("playerExplode", posX);
 					setState(DEAD);
 				}
 				else
 				{
-					CurrentLevel->soundEngine->playSound("AtomHit");
+					CurrentLevel->soundEngine->playSound("AtomHit", posX);
 					setState(HIT);
 					hitAngle = PI;
 				}
@@ -474,12 +474,12 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 				health--;//= health - aShoot->power;
 				if (health<=0)
 				{
-					CurrentLevel->soundEngine->playSound("tie_explode");
+					CurrentLevel->soundEngine->playSound("playerExplode", posX);
 					setState(DEAD);
 				}
 				else
 				{
-					CurrentLevel->soundEngine->playSound("AtomHit");
+					CurrentLevel->soundEngine->playSound("AtomHit", posX);
 					setState(HIT);
 					hitAngle = aShoot->angle;
 				}
@@ -528,6 +528,8 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 
 			case BONUS_SHIELD:
 				CurrentLevel->createTextEffect(posX, posY, "Bouclier!");
+				CurrentLevel->soundEngine->playSound("getShield");
+
 				if(shielded)
 					delete shield;
 
@@ -543,7 +545,14 @@ void Hero::processCollisionWith(Drawable * aDrawable)
 		{
 			stringToDisplay <<  "Quark : +" << aBonus->quantity;
 			CurrentLevel->createTextEffect(posX, posY,  stringToDisplay.str());
-			CurrentLevel->soundEngine->playSound("UpDiamond");
+			if(aBonus->quantity == 1)
+			{
+				CurrentLevel->soundEngine->playSound("jQuarkSmall");
+			}
+			else
+			{
+				CurrentLevel->soundEngine->playSound("jQuarkBig");
+			}
 			quarkLevels.at((QuarkType)aBonus->quarkType) = min(34, quarkLevels.at((QuarkType) aBonus->quarkType) + aBonus->quantity);
 			checkQuarkLevels();
 

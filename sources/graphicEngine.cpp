@@ -20,27 +20,7 @@ GraphicEngine::GraphicEngine()
 void GraphicEngine::init()
 {
 	initColors();
-
-	shakeValues.push_back(10);
-	shakeValues.push_back(-10);
-	shakeValues.push_back(10);
-	shakeValues.push_back(-10);
-	shakeValues.push_back(8);
-	shakeValues.push_back(-8);
-	shakeValues.push_back(8);
-	shakeValues.push_back(-8);
-	shakeValues.push_back(6);
-	shakeValues.push_back(-6);
-	shakeValues.push_back(6);
-	shakeValues.push_back(-6);
-	shakeValues.push_back(4);
-	shakeValues.push_back(-4);
-	shakeValues.push_back(4);
-	shakeValues.push_back(-4);
-	shakeValues.push_back(2);
-	shakeValues.push_back(-2);
-	shakeValues.push_back(1);
-	shakeValues.push_back(-1);
+	shakeValues = {14,-14,12,-12,10,-10,8,-8,6,-6,6,-6,4,-4,4,-4,2,-2,1,-1};
 }
 
 //Load a texture as an SDL_Surface
@@ -162,12 +142,14 @@ int GraphicEngine::draw(Drawable * sprite)
 
 	if(sprite->isBlinkingWhite)
 	{
-	    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_ADD);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SRC_ALPHA, GL_MODULATE);
-		glColor3f(sprite->brightness, sprite->brightness, sprite->brightness);
 
-		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_BLEND);
+		//Add the texture with itself so that it is made brighter
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 	}
 
 	//Draw a quadrilateral
@@ -232,7 +214,8 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	}
 	glEnd();
 
-	glPointSize(anEffect->pointEffects.front()->size);
+	if(!(anEffect->pointEffects.empty()))
+			glPointSize(anEffect->pointEffects.front()->size);
 
 	//Draw points
 	glBegin(GL_POINTS);
@@ -310,16 +293,18 @@ void GraphicEngine::shakeCamera(bool aSense)
 	{
 		if(shakeALot)
 		{
-			xMove = rand() % 2;
-			if(xMove)
-			{
+			//xMove = rand() % 2;
+			xMove = true;
+			yMove = true;
+			//if(xMove)
+			//{
 				glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
-				yMove = rand() % 2;
-			}
-			else
-			{
-				yMove = true;
-			}
+			//	yMove = rand() % 2;
+		//	}
+		//	else
+			//{
+		//		yMove = true;
+		//	}
 
 			if(yMove)
 				glTranslatef(0.0, shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0);

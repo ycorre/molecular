@@ -16,12 +16,6 @@
 #include "drawable.h"
 #include "particleEffect.h"
 
-// screen width, height, and bit depth
-#define SCREEN_WIDTH  1200
-#define SCREEN_HEIGHT 800
-#define GAMEZONE_HEIGHT 720
-#define SCREEN_BPP     32
-
 class Drawable;
 class ParticleEffect;
 class LineEffect;

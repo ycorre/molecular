@@ -8,6 +8,7 @@ PyroxeneField::PyroxeneField()
 	generatedPyroxenes = 0;
 	display = false;
 	enemyWave = NULL;
+	posX = posY = -500;
 }
 
 PyroxeneField::PyroxeneField(Json::Value aConfig, EnemyWave * anEnemyWave)
@@ -19,6 +20,7 @@ PyroxeneField::PyroxeneField(Json::Value aConfig, EnemyWave * anEnemyWave)
 	lastGeneration = GameTimer;
 	display = false;
 	enemyWave = anEnemyWave;
+	posX = posY = -500;
 }
 
 
@@ -186,7 +188,14 @@ void Rock::processCollisionWith(Drawable* aDrawable)
 {
 	if(aDrawable->isHero())
 	{
-		CurrentLevel->soundEngine->playSound("xwing_explode");
+		if(type == SMALL_ROCK)
+		{
+			CurrentLevel->soundEngine->playSound("explRocSmall");
+		}
+		else
+		{
+			CurrentLevel->soundEngine->playSound("explRocBig");
+		}
 		CurrentLevel->createExplosion(posX, posY);
 		dropBonus(posX, posY);
 		toRemove = true;
@@ -201,12 +210,20 @@ void Rock::processCollisionWith(Drawable* aDrawable)
 		life = max(0, life - aLaser->power);
 		if(aLaser->isPhoton())
 		{
-			HadronAmmo * aPhoton =  dynamic_cast<HadronAmmo *>(aDrawable);
+			HadronParticle * aPhoton =  dynamic_cast<HadronParticle *>(aDrawable);
 			aPhoton->removeEnergy(lifeValue - life);
 		}
 		if (life<=0)
 		{
-			CurrentLevel->soundEngine->playSound("xwing_explode");
+			if(type == SMALL_ROCK)
+			{
+				CurrentLevel->soundEngine->playSound("explRocSmall");
+			}
+			else
+			{
+				CurrentLevel->soundEngine->playSound("explRocBig");
+			}
+
 			CurrentLevel->createExplosion(posX, posY);
 			Score = Score + scoreValue;
 			//The rock is not the smallest type

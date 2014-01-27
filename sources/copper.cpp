@@ -213,14 +213,14 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 			life = max(0, life - aLaser->power);
 			if(aLaser->isPhoton())
 			{
-				HadronAmmo * aPhoton =  dynamic_cast<HadronAmmo *>(aDrawable);
+				HadronParticle * aPhoton =  dynamic_cast<HadronParticle *>(aDrawable);
 				aPhoton->removeEnergy(lifeValue - life);
 			}
 			if (life<=0)
 			{
-				CurrentLevel->soundEngine->playSound("xwing_explode");
+				CurrentLevel->soundEngine->playSound("Explode2", posX);
 				CurrentLevel->createEffect(posX, posY, "explosionCopper");
-				for(int i = 0; i < 4 ; i++)
+				for(int i = 0; i < 4; i++)
 				{
 					float x = posX - width/2 + rand() % (int)width;
 					float y = posY - height/2 + rand() % (int)height;
@@ -324,12 +324,12 @@ void CopperCannon::processCollisionWith(Drawable * aDrawable)
 			life = max(0, life - aLaser->power);
 			if(aLaser->isPhoton())
 			{
-				HadronAmmo * aPhoton =  dynamic_cast<HadronAmmo *>(aDrawable);
+				HadronParticle * aPhoton =  dynamic_cast<HadronParticle *>(aDrawable);
 				aPhoton->removeEnergy(lifeValue - life);
 			}
 			if (life<=0)
 			{
-				CurrentLevel->soundEngine->playSound("xwing_explode");
+				CurrentLevel->soundEngine->playSound("Explode1", posX);
 				CurrentLevel->createExplosion(posX, posY);
 				Score = Score + scoreValue * (type + 1);
 				destroyed = true;
