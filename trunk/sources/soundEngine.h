@@ -51,6 +51,7 @@ class SoundEngine
 		void addSound(string pathToASound, string aSoundId);
 		void addSound(Sound * aSound);
 		void playSound(string aSound);
+		void playSound(string aSound, float posX);
 		void playSound(Sound * aSound);
 		void stopSound(string aSound);
 		void stopSound(Sound * aSound);

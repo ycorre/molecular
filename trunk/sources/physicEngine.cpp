@@ -125,8 +125,8 @@ Uint32 Pe::getPixel(int x, int y, Drawable * aDrawable)
 		cout<< "Warning: x: " << x <<",  y: " << y << endl;
 
 	int textureX, textureY;
-	textureX = ((int) aDrawable->getAnimX() + x) % aDrawable->getCollisionTexture()->w;
-	textureY = ((int) aDrawable->getAnimY() + y) % aDrawable->getCollisionTexture()->h;
+	textureX = ((int) aDrawable->getAnimX() + (int)(x/aDrawable->scaleX)) % aDrawable->getCollisionTexture()->w;
+	textureY = ((int) aDrawable->getAnimY() + (int)(y/aDrawable->scaleY)) % aDrawable->getCollisionTexture()->h;
 
 	return getpixel(aDrawable->getCollisionTexture(), textureX, textureY);
 }

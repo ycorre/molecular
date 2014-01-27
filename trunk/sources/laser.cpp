@@ -17,6 +17,7 @@ Shoot::Shoot()
 	setAnimY(0);
 	firingWeapon = NULL;
 	collision = NULL;
+	speed = 10;
 }
 
 Shoot::Shoot(int x, int y, Weapon * aWeapon)
@@ -32,6 +33,7 @@ Shoot::Shoot(int x, int y, Weapon * aWeapon)
 	rotZ = -1.0;
 	rotationAngle = -4.0f +	static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/8.0f));
 	angle = rotationAngle * (PI / 180.0);
+	speed = 10;
 	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
@@ -44,8 +46,8 @@ void Shoot::animate()
 		//Compute the next movement vector
 		//Handle by the physic engine ?
 		float vx, vy;
-		vx = 20 * cos(angle);
-		vy = 20 * sin(angle);
+		vx = speed * cos(angle);
+		vy = speed * sin(angle);
 
 		posX = posX + vx;
 		posY = posY + vy;
@@ -60,19 +62,14 @@ void Shoot::animate()
 
 void Shoot::processCollisionWith(Drawable * aDrawable)
 {
-	//CurrentLevel->createParticleEffect("electronImpact", posX + 77, posY + 16);
 	CurrentLevel->createParticleEffect(posX + getWidthBoundary()/2 - 13, posY, "electronSpark");
 
-	display = false;
+	int soundNumber = 1 + rand() % 8;
+	stringstream soundName;
+	soundName << "eImp" << soundNumber;
+	CurrentLevel->soundEngine->playSound(soundName.str());
 
-	if (aDrawable->isHero())
-	{
-		Hero * myHero = dynamic_cast<Hero*>(aDrawable);
-		if (!myHero->invincible)
-		{
-			toRemove = true;
-		}
-	}
+	toRemove = true;
 }
 
 /*
@@ -89,9 +86,9 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 	scaleX = 0.5;
 	scaleY = 0.5;
 	rotZ = -1.0;
-	rotationAngle = -4.0f +	static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/8.0f));// -4 + (rand() % 8);
+	speed = 20;
+	rotationAngle = -4.0f +	static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/8.0f));
 	angle = rotationAngle * (PI / 180.0);
-	toBlend = true;
 	setAnimX(0);
 	setAnimY(0);
 
@@ -113,100 +110,6 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 			break;
 	}
 }
-
-/*
- * Photon functions
- */
-/*
-Photon::Photon()
-{
-	power = 50;//firingWeapon->power;
-	firingWeapon = NULL;
-	copyFrom(lev->loadedObjects.at("photon"));
-	trail.copyFrom(lev->loadedObjects.at("photonTrail"));
-	trail.toBlend = TRUE;
-	trail.setAnimX(0);
-	trail.setAnimY(0);
-	toBlend = TRUE;
-	setAnimX(0);
-	setAnimY(0);
-	//setAnimation("animDefaut");
-}
-
-Photon::Photon(int x, int y, Weapon * aWeapon)
-{
-	firingWeapon = aWeapon;
-	power = firingWeapon->power;
-	copyFrom(lev->loadedObjects.at("photon"));
-	trail.copyFrom(lev->loadedObjects.at("photonTrail"));
-	trail.posX = x + 96;
-	trail.posY = y - 28;
-	trail.toBlend = TRUE;
-	trail.setAnimX(0);
-	trail.setAnimY(0);
-	posX = x + 50;
-	posY = y - 50;
-	toBlend = TRUE;
-	setAnimX(0);
-	setAnimY(0);
-}
-
-void Photon::setParam(int x, int y, Weapon * aWeapon)
-{
-	firingWeapon = aWeapon;
-	posX = x + 50;
-	posY = y - 50;
-	trail.posX = x + 96;
-	trail.posY = y - 28;
-}
-
-void Photon::animate()
-{
-	float previousWidth = trail.currentAnimation->width;
-	trail.currentAnimation->width = trail.width;
-	trail.updateAnimationFrame();
-
-	if (display)
-	{
-		posX = posX + 8.75;
-	//	updateAnimationFrame();
-		trail.currentAnimation->width = min(trail.width, (int)(posX - trail.posX + 124));
-	}
-
-	if(!display)
-	{
-		trail.currentAnimation->width = max(0.0, previousWidth - 8.5);
-		trail.posX = trail.posX + 8.5;
-	}
-
-	trail.setAnimX(trail.getAnimX());
-	trail.processDisplay();
-
-	if (trail.currentAnimation->hasEnded)
-	{
-		display = FALSE;
-		toRemove = TRUE;
-		trail.display = FALSE;
-		trail.toRemove = TRUE;
-	}
-}
-
-void Photon::processCollisionWith(Drawable * aDrawable)
-{
-
-}
-
-void Photon::removeEnergy(int anEnergyValue)
-{
-	power = power - anEnergyValue;
-
-	if(power <= 0)
-	{
-		display = FALSE;
-		toRemove = TRUE;
-	}
-}*/
-
 
 /*
  * HadronAmmo functions
@@ -292,6 +195,68 @@ void HadronAmmo::removeEnergy(int anEnergyValue)
 //Override the collision function with a collision that do nothing so that
 //it does not remove the photon
 void HadronAmmo::processCollisionWith(Drawable * aDrawable)
+{
+
+}
+
+/*
+ * Hadron Particle
+ */
+HadronParticle::HadronParticle(float x, float y, float aScale, float anAngle, int aLoad, Weapon * aWeapon)
+{
+	firingWeapon = aWeapon;
+	power = aLoad;
+	copyFrom(CurrentLevel->loadedObjects.at("hadronParticle"));
+	speed = 10.0;
+
+	angle = anAngle * (PI/180.0);
+	scaleX = scaleY = (float) power / 200.0f;
+	speed = speed + ((float) power / 33.0f);
+
+	star.copyFrom(CurrentLevel->loadedObjects.at("hadronStar"));
+	star.scaleX = star.scaleY = scaleX * 2.0f;
+	star.posX = x;
+	star.posY = y;
+
+	posX = x;
+	posY = y;
+}
+
+void HadronParticle::removeEnergy(int anEnergyValue)
+{
+	power = power - anEnergyValue;
+
+	if(power < 1.0)
+	{
+		display = false;
+		toRemove = true;
+	}
+}
+
+void HadronParticle::animate()
+{
+	float vx, vy;
+	vx = speed * cos(angle);
+	vy = speed * sin(angle);
+
+	posX = posX + vx;
+	posY = posY + vy;
+
+	star.posX = posX;
+	star.posY = posY;
+	star.updateAnimationFrame();
+	star.processDisplay();
+
+	if(!CurrentLevel->isOnScreen(this))
+	{
+		display = false;
+		toRemove = true;
+	}
+}
+
+//Override the collision function with a collision that do nothing so that
+//it does not remove the photon
+void HadronParticle::processCollisionWith(Drawable * aDrawable)
 {
 
 }
@@ -399,7 +364,7 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 	posX = x + width/2 + attack.width/4;
 	posY = y;
 
-	//If the lazer is shorten so that the width of the sustain part is zero
+	//If the lazer is shortened so that the width of the sustain part is zero
 	//Then we must also shorten the release part to make sure it does not overlap the attack part
 	if(attack.posX - attack.width/2 <= release.posX + release.width/2)
 	{
@@ -411,7 +376,7 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 	width = max(0.0f, width - 47.5f);
 	currentAnimation->width = width;
 	updateAnimationFrame();
-cout << "width, " << width << ", " << release.width <<", " << (getPosX() - getWidth()/2)/(SCREEN_WIDTH/(3)) << ", "<< (release.getPosX() + release.getWidth()/2)/(SCREEN_WIDTH/(3)) << endl;
+
 	//Display
 	processDisplay();
 	lightning.processDisplay();

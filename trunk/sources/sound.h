@@ -31,6 +31,7 @@ class Sound
 		bool looped;
 		int numberOfLoops;
 		int soundLayer;
+		float posX;
 		Mix_Chunk * soundData;
 
 		static SoundEngine * soundEngine;
@@ -42,6 +43,7 @@ class Sound
 		virtual void load(string aPath);
 		virtual void play();
 		virtual void stop();
+		void setPosition(float posX);
 		void setLoop(int nTimes);
 };
 

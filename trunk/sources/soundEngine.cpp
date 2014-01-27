@@ -8,6 +8,8 @@
 
 static SoundEngine * aSe;
 
+//int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
+
 SoundEngine::SoundEngine()
 {
 	numberOfChannel = 24;
@@ -42,6 +44,13 @@ void SoundEngine::playSound(string aSound)
 	sounds.at(aSound)->play();
 }
 
+void SoundEngine::playSound(string aSound, float posX)
+{
+	sounds.at(aSound)->setPosition(posX);
+	sounds.at(aSound)->play();
+}
+
+
 void SoundEngine::stopSound(string aSound)
 {
 	sounds.at(aSound)->stop();
@@ -71,6 +80,16 @@ void SoundEngine::playSound(Sound * aSound)
 		if (aSound->playingChannel > -1)
 		{
 			aSound->isPlaying = true;
+			//Mix_SetPanning(aSound->playingChannel, 255, 255);
+			if (aSound->posX != -1)
+			{
+				//Spatializing sound
+				//We want the sound to be shifted at most with a ratio 75%/25% (so 75% of 255 = 191)
+				//then in order not to lose volume, left + right must be equal to 255
+				int rigthVolume = (aSound->posX/(float)SCREEN_WIDTH) * 128;
+				Mix_SetPanning(aSound->playingChannel, 191 - rigthVolume, rigthVolume + 64);
+			}
+
 			playingSounds.at(aSound->playingChannel) = aSound;
 		}
 		else
@@ -86,6 +105,7 @@ void SoundEngine::stopSound(Sound * aSound)
 	if((!mute) && (!soundMuted))
 	{
 		Mix_HaltChannel(aSound->playingChannel);
+		Mix_SetPanning(aSound->playingChannel, 255, 255);
 		aSound->isPlaying = false;
 	}
 }
@@ -169,6 +189,9 @@ void SoundEngine::finishedPlaying(int aChannel)
 
 	//Free the sound layer
 	playingLayers.at(playingSounds.at(aChannel)->soundLayer) = NULL;
+
+	//Recenter the sound
+	Mix_SetPanning(aChannel, 255, 255);
 }
 
 //Set the volume for all channel
@@ -214,7 +237,8 @@ void SoundEngine::playMusic(Music * aMusic)
 
 void SoundEngine::playMusic()
 {
-	playMusic(currentMusic);
+	if(currentMusic)
+		playMusic(currentMusic);
 }
 
 void SoundEngine::stopMusic(Music * aMusic)

@@ -250,6 +250,10 @@ void Drawable::copyFrom(Drawable * aDrawable)
 	speed = aDrawable->speed;
 
 	randomize();
+
+	//Init openGL texture coordinates
+	setAnimX(0);
+	setAnimY(0);
 }
 
 //Randomize parameters with values set to be randomize
@@ -529,4 +533,8 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	rotationAngle = aDrawable->rotationAngle;
 
 	randomize();
+
+	//Init openGL texture coordinates
+	setAnimX(0);
+	setAnimY(0);
 }

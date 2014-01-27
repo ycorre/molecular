@@ -106,7 +106,7 @@ void Electron::fire(Hero * aHero)
 	//If we are in the middle of a rafale
 	if(!CurrentLevel->soundEngine->sounds.at("mitAttack")->isPlaying)
 	{
-		CurrentLevel->soundEngine->playSound("mitLoop");
+		CurrentLevel->soundEngine->playSound("mitLoop", aHero->posX);
 	}
 
 	isFiring = true;
@@ -189,8 +189,21 @@ void Hadron::fire(Hero * aHero)
 
 void Hadron::releaseFire(Hero * aHero)
 {
-	shoots.push_back(new HadronAmmo(aHero->posX, aHero->posY, this));
-	load = 10.0f;
+
+	//LOad  100 500
+	//Number  3 38
+	//Size
+	int numberOfParticles = 3 + (load / 1500) * 35;
+			//(aHero->quarkLevels.at(QuarkU) + aHero->quarkLevels.at(QuarkD)) / 2;
+	vector<float> particleAngles = getNormalDistributionNumbers(numberOfParticles, 0, 2, NULL);
+
+	int aLoad;
+	for(int i = 0; i < numberOfParticles; i++)
+	{
+		aLoad = (20 + rand() % 80);
+		shoots.push_back(new HadronParticle(aHero->posX, aHero->posY, 0.12f, particleAngles.at(i), aLoad, this));
+	}
+	load = 0.0f;
 }
 
 void Hadron::checkActivation(Hero * aHero)

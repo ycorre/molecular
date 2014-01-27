@@ -133,9 +133,13 @@ void ParticleEffect::instantiatePointEffects(Json::Value aConfig, float x, float
 	for(i = 0; i < opacity.size(); i++)
 		opacityConfigValue.push_back(opacity[i].asFloat());
 
-	if (randomized)
+	if(randomized)
 	{
 		numberOfParticle = rand() % numberOfParticle;
+		if(numberOfParticle == 0)
+		{
+			return;
+		}
 	}
 
 	for(i = 0; i < numberOfParticle; i++)

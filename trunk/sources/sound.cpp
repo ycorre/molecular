@@ -17,6 +17,7 @@ Sound::Sound()
 	numberOfLoops = 0;
 	soundLayer = 0;
 	soundData = NULL;
+	posX = -1;
 }
 
 Sound::Sound(string aPath, string aName)
@@ -30,6 +31,7 @@ Sound::Sound(string aPath, string aName)
 	looped = false;
 	soundLayer = 0;
 	numberOfLoops = 0;
+	posX = -1;
 }
 
 Sound::Sound(Json::Value aConfig)
@@ -43,6 +45,7 @@ Sound::Sound(Json::Value aConfig)
 	soundLayer = aConfig.get("soundLayer", 0).asInt();
 	load(aConfig.get("dataPath", "").asString());
 	soundEngine->setVolumeFor(this);
+	posX = -1;
 }
 
 void Sound::load(string aPath)
@@ -90,6 +93,13 @@ void Sound::setLoop(int nTimes)
 	}
 }
 
+void Sound::setPosition(float aPosX)
+{
+	posX = aPosX;
+	posX = max(0.0f, posX);
+	posX = min((float)SCREEN_WIDTH, posX);
+}
+
 /*
  * Music functions
  */
@@ -128,6 +138,7 @@ Music::Music(Json::Value aConfig)
 	load(aConfig.get("dataPath", "").asString());
 	isPlaying = false;
 
+	soundEngine->setMusicVolume(volume);
 }
 
 void Music::load(string aPath)

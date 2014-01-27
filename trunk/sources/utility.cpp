@@ -76,34 +76,26 @@ vector<pair<float, float> > computeCircularMove(float xOrigin, float yOrigin, fl
 /*
  * Random generation functions
  */
-vector<float> getNormalDistributionNumbers(int numberOfNumbers, int min, int max)
+vector<float> getNormalDistributionNumbers(int numberOfNumbers, int mean, int deviation, int * minValue)
 {
 	int i;
 	vector<float> results;
 	float tmpRes;
-	float minValue = 0;
+	if(minValue)
+		*minValue = 0;
 
 	default_random_engine generator;
+	generator.seed(time(NULL));
 	//distribution(mean, deviationFromMean)
-	normal_distribution<float> distribution((max+min)/2, (max+min)/4);
+	normal_distribution<float> distribution(mean, deviation);
 
 	for(i = 0; i <= numberOfNumbers; i++)
 	{
 		tmpRes = distribution(generator);
 		results.push_back(tmpRes);
 
-		if (minValue > tmpRes)
-			minValue = tmpRes;
-	}
-
-	//We want the closest one to be at most zero + 50
-	if (minValue < 0)
-	{
-		float correction = -minValue + 50;
-		for(i = 0; i <= numberOfNumbers; i++)
-		{
-			results.at(i) = results.at(i) + correction ;
-		}
+		if (minValue && *minValue > tmpRes)
+			*minValue = tmpRes;
 	}
 
 	return results;
