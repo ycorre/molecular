@@ -21,6 +21,7 @@ Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 	selectedLevel = 0;
 	newHighScoreRank = 0;
 	startIntro = 0;
+	selectedOption = 0;
 }
 
 void Menu::loadMenu()
@@ -38,9 +39,9 @@ void Menu::loadMenu()
 	bubble1 = loadedMenuElements.at("bubble1");
 	bubble2 = loadedMenuElements.at("bubble2");
 
-	optionButton = loadedAnimMenuElements.at("btnOption");
-	quitButton = loadedAnimMenuElements.at("btnQuit");
-	levelSelectButton = loadedAnimMenuElements.at("btnLevel");
+	optionButton = &loadedAnimMenuElements.at("btnOption");
+	quitButton = &loadedAnimMenuElements.at("btnQuit");
+	levelSelectButton = &loadedAnimMenuElements.at("btnLevel");
 
 	menuElements.push_back(levelSelectButton);
 	menuElements.push_back(quitButton);
@@ -66,6 +67,18 @@ void Menu::loadMenu()
 	gameOver.posX = SCREEN_WIDTH/2;
 	gameOver.posY = SCREEN_HEIGHT/2;
 
+	soundVolume = Text(menuColor, menuFont, 250, 500, 300, 300);
+	soundVolume.write("Sound Volume:");
+	soundVolumePercent = Text(menuColor, menuFont, 1050, 500, 300, 300);
+	soundVolumeBar = loadedMenuElements.at("soundVolumeBar");
+	optionMenuElements.push_back(&soundVolume);
+
+	musicVolume = Text(menuColor, menuFont, 250, 350, 300, 300);
+	musicVolume.write("Music Volume:");
+	musicVolumePercent = Text(menuColor, menuFont, 1050, 350, 300, 300);
+	musicVolumeBar = loadedMenuElements.at("musicVolumeBar");
+	optionMenuElements.push_back(&musicVolume);
+
  	setMainSelection(0);
 
  	loadSelectedLevel();
@@ -82,7 +95,7 @@ void Menu::loadSelectedLevel()
 {
 	string tmp = "Level";
 	int levelNumber = 0;
-	float stepY = 86;
+	float stepY = 714;
 	float stepX = 286;
 
 	for(levelNumber = 0; levelNumber < 9; levelNumber++)
@@ -99,7 +112,7 @@ void Menu::loadSelectedLevel()
 		if(levelNumber % 3 == 0)
 		{
 			stepX = 386;
-			stepY = stepY + 200;
+			stepY = stepY - 200;
 		}
 		aLevelPic.posX = stepX;
 		aLevelPic.posY = stepY;
@@ -155,6 +168,10 @@ void Menu::displayMenu()
 			displayIntro();
 			break;
 
+		case MENU_OPTIONS:
+			displayOptions();
+			break;
+
 		case MENU_HIGHSCORE:
 			displayHighScore();
 			break;
@@ -192,9 +209,9 @@ void Menu::displayMainMenu()
 
 	soundEngine->playMusic("musicMenu");
 
-	for (vector<AnimatedDrawable>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
+	for (vector<AnimatedDrawable *>::iterator anElement = menuElements.begin() ; anElement != menuElements.end(); ++anElement)
 	{
-		(*anElement).processDisplay();
+		(*anElement)->processDisplay();
 	}
 }
 
@@ -266,6 +283,37 @@ void Menu::displaySuccess()
 	success.processDisplay();
 }
 
+void Menu::displayOptions()
+{
+	bkgOption.processDisplay();
+	optionTitle.processDisplay();
+
+	soundVolume.processDisplay();
+	musicVolume.processDisplay();
+
+	stringstream soundVol;
+	soundVol << (int) (soundEngine->soundVolume) << " p";
+	soundVolumePercent.content = soundVol.str();
+	soundVolumePercent.update();
+
+	stringstream musicVol;
+	musicVol << (int) (soundEngine->musicVolume) << " p";
+	musicVolumePercent.content = musicVol.str();
+	musicVolumePercent.update();
+
+	soundVolumePercent.processDisplay();
+	musicVolumePercent.processDisplay();
+
+	soundVolumeBar.width = 6.0f * (soundEngine->soundVolume);
+	soundVolumeBar.posX = 350 + soundVolumeBar.width/2;
+	musicVolumeBar.width = 6.0f * (soundEngine->musicVolume);
+	musicVolumeBar.posX = 350 + musicVolumeBar.width/2;
+
+	soundVolumeBar.processDisplay();
+	musicVolumeBar.processDisplay();
+}
+
+
 //State the transitions between the menus
 void Menu::transition()
 {
@@ -286,11 +334,14 @@ void Menu::transition()
 			nextMenu = MENU_MAIN;
 			break;
 
+		case MENU_OPTIONS:
+			nextMenu = MENU_MAIN;
+			menuElements.at(selected)->setAnimation("hl");
+			break;
+
 		case MENU_LEVELSELECT:
-			{
-				nextMenu = MENU_MAIN;
-				menuElements.at(selected).setAnimation("hl");
-			}
+			nextMenu = MENU_MAIN;
+			menuElements.at(selected)->setAnimation("hl");
 			break;
 
 		case MENU_SUCCESS:
@@ -311,7 +362,7 @@ void Menu::transition()
 
 		case MENU_HIGHSCORE:
 			nextMenu = MENU_MAIN;
-			menuElements.at(selected).setAnimation("hl");
+			menuElements.at(selected)->setAnimation("hl");
 			break;
 
 		case MENU_NEWHIGHSCORE:
@@ -424,6 +475,10 @@ void Menu::selectionMove(int direction)
 			levelSelectionMove(direction);
 			break;
 
+		case MENU_OPTIONS:
+			optionSelectionMove(direction);
+			break;
+
 		default:
 			break;
 	}
@@ -448,9 +503,9 @@ void Menu::mainSelectionMove(int direction)
 
 void  Menu::setMainSelection(int aValue)
 {
-	menuElements.at(selected).setAnimation("off");
+	menuElements.at(selected)->setAnimation("off");
 	selected = aValue;
-	menuElements.at(selected).setAnimation("hl");
+	menuElements.at(selected)->setAnimation("hl");
 }
 
 
@@ -486,6 +541,57 @@ void Menu::setSelectedLevel(int aValue)
 	levelSelectHalo.at(selectedLevel).setAnimation("hl");
 }
 
+void Menu::optionSelectionMove(int direction)
+{
+	int tmpVol;
+	switch(direction)
+	{
+		case UP:
+			setSelectedOption((selectedOption - 1 + optionMenuElements.size()) % optionMenuElements.size());
+			break;
+
+		case DOWN:
+			setSelectedOption((selectedOption + 1) % optionMenuElements.size());
+			break;
+
+		case LEFT:
+			if(selectedOption == 1)
+			{
+				tmpVol = max(0, soundEngine->musicVolume - 1);
+				soundEngine->setMusicVolume(tmpVol);
+			}
+			else
+			{
+				tmpVol = max(0, soundEngine->soundVolume - 1);
+				soundEngine->setSoundVolume(tmpVol);
+			}
+			break;
+
+		case RIGHT:
+			if(selectedOption == 1)
+			{
+				tmpVol = min(100, soundEngine->musicVolume + 1);
+				soundEngine->setMusicVolume(tmpVol);
+			}
+			else
+			{
+				tmpVol = min(100, soundEngine->soundVolume + 1);
+				soundEngine->setSoundVolume(tmpVol);
+			}
+			break;
+
+		default:
+			break;
+	}
+}
+
+void Menu::setSelectedOption(int aValue)
+{
+	optionMenuElements.at(selectedOption)->setColor(menuColor);
+	selectedOption = aValue;
+	optionMenuElements.at(selectedOption)->setColor(ge->availableColors.at("WHITE"));
+}
+
 void Menu::select()
 {
 	switch(currentMenu)
@@ -505,36 +611,38 @@ void Menu::select()
 
 void Menu::selectMainMenu()
 {
-	menuElements.at(selected).setAnimation("on");
-	if(selected == 0)
+	menuElements.at(selected)->setAnimation("on");
+	switch(selected)
 	{
-		soundEngine->playSound("validated");
-		setSelectedLevel(selectedLevel);
-		updateLocks();
-		nextMenu = MENU_LEVELSELECT;
-		transition();
-		return;
-	}
+		case 0:
+			soundEngine->playSound("validated");
+			setSelectedLevel(selectedLevel);
+			updateLocks();
+			nextMenu = MENU_LEVELSELECT;
+			transition();
+			break;
 
-	if(selected == 1)
-	{
-		soundEngine->playSound("validated");
-		nextMenu = MENU_HIGHSCORE;
-		transition();
-		return;
-	}
+		case 1:
+			soundEngine->playSound("validated");
+			nextMenu = MENU_OPTIONS;
+			optionMenuElements.at(selectedOption)->setColor(ge->availableColors.at("WHITE"));
+			transition();
+			break;
 
-	if(selected == 2)
-	{
-		game->quitGame();
-		return;
+		case 2:
+			game->quitGame();
+			break;
+
+		default:
+			cout << "Warning: selected menu: " << selected << " does not exist" << endl;
+			break;
 	}
+	return;
 }
 
 void Menu::updateLocks()
 {
-	int i;
-    for(i = 1; i<10; i++)
+    for(int i = 1; i<10; i++)
     {
     	stringstream ss;
     	ss<< "level" << i;
@@ -762,9 +870,9 @@ void Menu::sortHighScores()
 /*
  * Utility functions
  */
-bool sortElement(AnimatedDrawable a, AnimatedDrawable b)
+bool sortElement(AnimatedDrawable * a, AnimatedDrawable * b)
 {
-	return (a.posY < b.posY);
+	return (a->posY > b->posY);
 }
 
 bool sortScores(pair<string, int>  a, pair<string, int>  b)

@@ -116,12 +116,10 @@ void Enemy::animate()
 void Enemy::checkPositions()
 {
 	//Check if we are close to the next position
-
 	if (sqrt(((posX - eventPosition.at(currentPosition).first)*(posX - eventPosition.at(currentPosition).first) +
-			(posY - eventPosition.at(currentPosition).second)*(posY - eventPosition.at(currentPosition).second)))< speed*speed)
-//	if(std::abs((int)(posX - eventPosition.at(currentPosition).first)) <= speed)
+		(posY - eventPosition.at(currentPosition).second)*(posY - eventPosition.at(currentPosition).second))) < speed*speed)
 	{
-		//Move to the next positions
+		//Move to the next position
 		currentPosition++;
 
 		//If we are at the last position given then delete the object
@@ -219,6 +217,11 @@ void Enemy::checkFire()
 			fireRate = minFireRate + (rand() % maxFireRate);
 		}
 	}
+}
+
+void Enemy::addSubpart(EnemyWave * aWave)
+{
+
 }
 
 /*
@@ -359,7 +362,6 @@ void Cadmium::animate()
 	//If we are still turning
 	if (fabs(angle - nextAngle) > fabs(angleModifyingFactor))
 	{
-
 		angle = fmodf(angle + angleModifyingFactor + 2.0*PI,  2.0f*PI);
 	}
 	else
@@ -402,7 +404,7 @@ Iron::Iron(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1.0).asFloat();
 	if(posY == -1)
-		posY = width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
+		posY = GAMEZONE_LIMIT + width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
 
 	scoreValue = aConfig.get("scoreValue", 100).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 100).asInt();
@@ -509,20 +511,17 @@ Silicon::Silicon(Json::Value aConfig, float aPosX)
 
 	posY = aConfig.get("posY", -1).asFloat();
 	if(posY == -1)
-		posY = width/2 +rand() % (GAMEZONE_HEIGHT - (int)width);
+		posY = GAMEZONE_LIMIT + width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
 
 	scoreValue = aConfig.get("scoreValue", 10).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
 	life = aConfig.get("life", 20).asInt();
-	speed = aConfig.get("speed", 2.0).asFloat();
-	//speed = 1.0 +  (static_cast <float> (rand()) / static_cast <float> (RAND_MAX/2.0f));
+	//speed = aConfig.get("speed", 2.0).asFloat();
+	speed = 1.5f +  (static_cast <float> (rand()) / static_cast <float> (RAND_MAX/1.0f));
 
 	damage = aConfig.get("damage", 1).asInt();
 
 	currentAnimation->currentFrame = rand() % currentAnimation->numberOfFrames;
-
-	setAnimX(0);
-	setAnimY(0);
 
 	amplitude = 160;
 
@@ -564,6 +563,10 @@ void Silicon::animate()
 				ySpeed = 0.3;
 			}
 
+			//Don't get out of the screen
+			if(destY <= GAMEZONE_LIMIT + width/2 || destY >= SCREEN_HEIGHT - width/2)
+				moving = false;
+
 			if(rand() % 2)
 			{
 				destX = posX - destY;
@@ -590,18 +593,14 @@ void Silicon::animate()
 	}
 
 	if(posX < -width)
-	{
 		toRemove = true;
-	}
-
 }
 
 void Silicon::die()
 {
 	CurrentLevel->soundEngine->playSound("Explode1", posX);
 	CurrentLevel->createEffect(posX, posY, "explosionSilicon");
-	//dropBonus(posX, posY);
-	Score = Score + scoreValue * (type + 1);
+	Score = Score + scoreValue;
 	toRemove = true;
 }
 

@@ -28,7 +28,7 @@ class HUD
 	map<string, Drawable> hudElements;
 	map<string, AnimatedDrawable> hudAnimatedElements;
 
-	map<int, float> quarkIndex;
+	map<QuarkType, float> quarkIndex;
 	AnimatedDrawable health, quarkB, quarkT, quarkU, quarkD, quarkC, quarkS;
 	Drawable file, brightDot;
 	AnimatedDrawable electron, hadron, baryon, plasma, weaponLoad;
@@ -37,15 +37,12 @@ class HUD
 	map<QuarkType, AnimatedDrawable *> quarks;
 	map<weaponName, AnimatedDrawable *> weapons;
 
-	HUD();
 	HUD(GraphicEngine * ge);
 	void loadHUDElements(string path);
 	void displayUI(Hero * hero);
 	void displayHealth(int life);
 	void displayLife(int nbLife);
 	void displayScore(int score);
-	//void displayMassPotential(float massPo);
-	//void displayRadioPotential(float radioPo);
 	void displayQuarkLevels(map<QuarkType, int> quarkLevels);
 	void displayWeapons(Hero * hero);
 };

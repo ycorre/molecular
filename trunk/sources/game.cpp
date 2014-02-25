@@ -5,9 +5,6 @@
 #include "game.h"
 
 //TODO Use JSON for configuring all types of object ?
-//Change menu & level loading methods:
-//Modify the menu so that it is unloaded and reloaded each time we go back there
-//Do a load level and a launch level method and separate both
 
 //Timers: useful when pausing the game and for potential timing of the player
 //Used as global variables and declared in common.h
@@ -31,8 +28,6 @@ Game::Game()
 void quit(int code)
 {
     SDL_Quit();
-
-    exit(code);
 }
 
 
@@ -64,8 +59,7 @@ void Game::quitGame()
 
 int Game::mainLoop()
 {
-	bool done = false;
-	SDL_Event event;
+	done = false;
 
     //Init the program timer
     ProgramTimer = 0;
@@ -80,83 +74,12 @@ int Game::mainLoop()
         graphicEngine.toDisplay.clear();
     	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         glLoadIdentity();
-    	//Process SDL events
-	    while (SDL_PollEvent(&event))
-		{
-		    switch(event.type)
-			{
-		    	case SDL_KEYDOWN:
-					//Handle key presses
-					if(gameState == GAME_MENU)
-					{
-						keyboard->handleKeyPressMenu(&event.key.keysym, menu);
-					}
-					break;
-			    
-		    	case SDL_KEYUP:
-					//Handle key release
-					keyboard->handleKeyUp(&event.key.keysym);
-					break;
 
-				case SDL_QUIT:
-					//Handle quit requests
-					done = true;
-					break;
+    	//Process SDL events (Inputs, etc.)
+        processEvents();
 
-				default:
-					break;
-			}
-		}
-
-	    keyboard->processKeyState();
-	    keyboard->processKeyPress();
-
-	    switch(gameState)
-	    {
-	    	case GAME_LOADMENU:
-	    		delete menu;
-	    		menu = new Menu(&graphicEngine, &soundEngine);
-	    	    menu->currentMenu = MENU_MAIN;
-	    	    menu->nextMenu = MENU_MAIN;
-	    	    menu->loadMenu();
-	    	    menu->game = this;
-	    		gameState = GAME_MENU;
-	    		break;
-
-	    	case GAME_MENU:
-	    		menu->displayMenu();
-	    		break;
-
-	    	case GAME_INGAME:
-	    		keyboard->processKeyInGame(CurrentLevel->hero);
-	    		if (gameState != GAME_INGAME)
-	    			break;
-
-	    		keyboard->processeMouseInGame(CurrentLevel->hero);
-				CurrentLevel->drawLevel();
-				if (CurrentLevel->levelState == LEVEL_WON)
-				{
-					launchNextLevel();
-				}
-				if (CurrentLevel->levelState == LEVEL_LOST)
-				{
-					CurrentLevel->cleanLevel();
-					delete CurrentLevel;
-					delete menu;
-					menu = new Menu(&graphicEngine, &soundEngine);
-					menu->currentMenu = MENU_MAIN;
-					menu->nextMenu = MENU_GAMEOVER;
-					menu->loadMenu();
-					menu->game = this;
-					menu->menuInTransition = true;
-					gameState = GAME_MENU;
-					graphicEngine.toDisplay.clear();
-				}
-				break;
-
-	    	default:
-	    		break;
-	    }
+	    //Main processing
+        mainProcessing();
 
 	    //Display the frame
 		graphicEngine.drawFrame();
@@ -166,10 +89,96 @@ int Game::mainLoop()
 		updateTimers();
 	}
     //exit
-    quit(0);
+    quitGame();
 
-    //Should never get here
     return 0;
+}
+
+void Game::processEvents()
+{
+	SDL_Event event;
+
+    while (SDL_PollEvent(&event))
+	{
+	    switch(event.type)
+		{
+	    	case SDL_KEYDOWN:
+				//Handle key presses
+				if(gameState == GAME_MENU)
+				{
+					keyboard->handleKeyPressMenu(&event.key.keysym, menu);
+				}
+				break;
+
+	    	case SDL_KEYUP:
+				//Handle key release
+				keyboard->handleKeyUp(&event.key.keysym);
+				break;
+
+			case SDL_QUIT:
+				//Handle quit requests
+				done = true;
+				break;
+
+			default:
+				break;
+		}
+	}
+
+    keyboard->processKeyState();
+    keyboard->processKeyPress();
+}
+
+void Game::mainProcessing()
+{
+    switch(gameState)
+    {
+    	case GAME_LOADMENU:
+    		loadMenu(MENU_MAIN);
+    		gameState = GAME_MENU;
+    		break;
+
+    	case GAME_MENU:
+    		menu->displayMenu();
+    		break;
+
+    	case GAME_INGAME:
+    		keyboard->processKeyInGame(CurrentLevel->hero);
+
+    		//If we are no longer in the game then stop there
+    		if (gameState != GAME_INGAME)
+    			break;
+
+    		keyboard->processeMouseInGame(CurrentLevel->hero);
+			CurrentLevel->drawLevel();
+
+			if (CurrentLevel->levelState == LEVEL_WON)
+			{
+				launchNextLevel();
+			}
+			if (CurrentLevel->levelState == LEVEL_LOST)
+			{
+				CurrentLevel->cleanLevel();
+				delete CurrentLevel;
+				loadMenu(MENU_GAMEOVER);
+				gameState = GAME_MENU;
+				graphicEngine.toDisplay.clear();
+			}
+			break;
+
+    	default:
+    		break;
+    }
+}
+
+void Game::loadMenu(MenuState aMenu)
+{
+	menu = new Menu(&graphicEngine, &soundEngine);
+	menu->currentMenu = MENU_MAIN;
+	menu->nextMenu = aMenu;
+	menu->loadMenu();
+	menu->game = this;
+	menu->menuInTransition = true;
 }
 
 //Initialization of the game
@@ -180,9 +189,14 @@ int Game::initGame()
 	graphicEngine.addFont("lCrystal_16", "res/fonts/LiquidCrystal.otf", 16);
 	graphicEngine.addFont("arial", "res/fonts/Arial.ttf", 18);
 	graphicEngine.initColors();
+    graphicEngine.setAspectRatio((float) SCREEN_WIDTH / (float) SCREEN_HEIGHT);
 	keyboard = new Keyboard();
 	keyboard->game = this;
 	soundEngine.init();
+
+    Drawable::ge = &graphicEngine;
+    Sound::soundEngine = &soundEngine;
+
 	menu = new Menu(&graphicEngine, &soundEngine);
 
     int i;
@@ -245,8 +259,8 @@ int Game::initSDL()
     if (videoInfo->blit_hw)
     	videoFlags |= SDL_HWACCEL;
 
-    // get a SDL surface from screen
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //get a SDL surface from screen
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
 
     //Verify there is a surface
@@ -266,22 +280,18 @@ int Game::initSDL()
     //Init Audio
     if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)  == -1)
 	{
-    	cout << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
+    	cerr << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
     	quit(1);
 	}
 
     //Enable repetition of keyboard events
-    SDL_EnableKeyRepeat(1, 250);//SDL_DEFAULT_REPEAT_INTERVAL);
+    SDL_EnableKeyRepeat(250, SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    //SDL_WM_GrabInput(SDL_GRAB_ON);
 
     //Hide cursor
     SDL_ShowCursor(0);
-    
-    Drawable::ge = &graphicEngine;
-    Sound::soundEngine = &soundEngine;
-    graphicEngine.aspectRatio = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
 
     initOpenGL();
 
@@ -308,9 +318,10 @@ void Game::pause()
 //Start a new game (beginning with level 1)
 void Game::newGame()
 {
-	CurrentLevel =  new Level1();
-	CurrentLevel->ge = &graphicEngine;
-	CurrentLevel->pe = &physicEngine;
+	delete menu;
+	CurrentLevel = new Level1();
+	CurrentLevel->graphicEngine = &graphicEngine;
+	CurrentLevel->physicEngine = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
 	hero = new Hero();
     GameTimer = 0;
@@ -324,6 +335,8 @@ void Game::newGame()
 //Should be used only in debug
 void Game::launchLevel(string aLevelName)
 {
+	delete menu;
+
 	int last_index = aLevelName.find_last_not_of("0123456789");
 	int aLevelIndex = atoi(aLevelName.substr(last_index + 1).c_str());
 	switch(aLevelIndex)
@@ -340,9 +353,12 @@ void Game::launchLevel(string aLevelName)
 			cerr << "Trying to load unknown level " << aLevelName << endl;
 	}
 
-	CurrentLevel->ge = &graphicEngine;
-	CurrentLevel->pe = &physicEngine;
+	CurrentLevel->graphicEngine = &graphicEngine;
+	CurrentLevel->physicEngine = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
+	if(hero)
+		delete hero;
+
 	hero = new Hero();
 	GameTimer = 0;
 	Score = 0;
@@ -370,8 +386,8 @@ void Game::launchNextLevel()
 		return;
 	}
 
-	CurrentLevel->ge = &graphicEngine;
-	CurrentLevel->pe = &physicEngine;
+	CurrentLevel->graphicEngine = &graphicEngine;
+	CurrentLevel->physicEngine = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
 	CurrentLevel->loadLevel(hero);
 	gameState = GAME_INGAME;
@@ -430,8 +446,6 @@ bool initOpenGL()
 {
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-	glEnable(GL_TEXTURE_2D);
-
 	//Initialize clear color (black and opaque)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -447,14 +461,16 @@ bool initOpenGL()
 	//Set the view
 	//90.0f since cotangent(45) = 1 which simplifies the coordinates computing on the y axis
 	//the x coordinates are to be multiply by the ratio
-	gluPerspective(90.0f, ratio, 1.0f, 100.0f);
+	gluPerspective(90.0f, ratio, 1.0f, 1000.0f);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(-0.5, -0.5 , -1);
+	glTranslatef(-0.5, -0.5 , -1000);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_TEXTURE_2D);
 
 	//Check for error
 	GLenum error = glGetError();

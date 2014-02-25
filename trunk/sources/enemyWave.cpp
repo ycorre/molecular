@@ -25,6 +25,16 @@ EnemyWave::EnemyWave(Json::Value aConfig)
 	active = false;
 }
 
+EnemyWave::~EnemyWave()
+{
+	for(list<Enemy *>::iterator anEnemy = enemies.begin(); anEnemy != enemies.end(); ++anEnemy)
+	{
+		delete (*anEnemy);
+	}
+
+	enemies.clear();
+}
+
 void EnemyWave::launchWave()
 {
 	unsigned int i;
@@ -33,6 +43,13 @@ void EnemyWave::launchWave()
 	for (i = 0; i < enemyConfig.size(); i++)
 	{
 		enemies.push_back(EnemyFactory::instance()->createEnemy(enemyConfig[i], this));
+
+		//If the enemy has sub parts (e.g. cannons in copper)
+		//then add them to the enemyWave in order to be taken into account for collision detection
+		if(enemies.back()->hasSubpart())
+		{
+			enemies.back()->addSubpart(this);
+		}
 	}
 
 	active = true;

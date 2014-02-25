@@ -30,6 +30,7 @@ class EnemyWave
 
 		EnemyWave();
 		EnemyWave(Json::Value aConfig);
+		~EnemyWave();
 		void animate();
 	    void launchWave();
 };

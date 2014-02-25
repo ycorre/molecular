@@ -61,7 +61,7 @@ Rock::Rock()
 }
 
 //Rock appears randomly and have random trajectory
-//So we get two random points (four values in total) which set the depart point and the destination point of the rock
+//So we get two random points (four values in total) which set the starting point and the destination point of the rock
 Rock::Rock(int rockType)
 {
 	if (rockType == BIG_ROCK)
@@ -136,33 +136,33 @@ void Rock::setAngleAndSpeed()
 	if (arrivalSide == RIGHT)
 	{
 		posX = SCREEN_WIDTH + width/2;
-		posY = height/2 + rand() % (GAMEZONE_HEIGHT - (int)height/2);
+		posY = GAMEZONE_LIMIT + height/2 + rand() % (GAMEZONE_HEIGHT - (int)height/2);
 
-		destPoint = height/2 + rand() % (GAMEZONE_HEIGHT - (int)height/2);
+		destPoint = GAMEZONE_LIMIT + height/2 + rand() % (GAMEZONE_HEIGHT - (int)height/2);
 		float yDiff = destPoint - posY;
 		float xDiff = width/2 - posX;
 		angle = atan2(yDiff, xDiff);
 	}
 	if (arrivalSide == UP)
 	{
-		posY = -height/2;
+		posY = SCREEN_HEIGHT + height/2;
 		posX =  (rand() % (SCREEN_WIDTH - 100)) + 100;
 
 		destPoint = (rand() % (SCREEN_WIDTH - 100)) + 100;
 
 		float xDiff = destPoint - posX;
-		float yDiff = GAMEZONE_HEIGHT + height/2 - posY;
+		float yDiff = GAMEZONE_LIMIT - height/2 - posY;
 		angle = atan2(yDiff, xDiff);
 	}
 	if (arrivalSide == DOWN || arrivalSide == LEFT) //Actually DOWN but since we don't want anything coming from the left
 	{
-		posY = GAMEZONE_HEIGHT + height/2;
+		posY = GAMEZONE_LIMIT - height/2;
 		posX = (rand() % (SCREEN_WIDTH - 100)) + 100;
 
 		destPoint = (rand() % (SCREEN_WIDTH - 100)) + 100;
 
 		float xDiff = destPoint - posX;
-		float yDiff = height/2 - posY;
+		float yDiff = SCREEN_HEIGHT + height/2 - posY;
 		angle = atan2(yDiff, xDiff);
 	}
 
@@ -190,11 +190,11 @@ void Rock::processCollisionWith(Drawable* aDrawable)
 	{
 		if(type == SMALL_ROCK)
 		{
-			CurrentLevel->soundEngine->playSound("explRocSmall");
+			CurrentLevel->soundEngine->playSound("explRocSmall", posX);
 		}
 		else
 		{
-			CurrentLevel->soundEngine->playSound("explRocBig");
+			CurrentLevel->soundEngine->playSound("explRocBig", posX);
 		}
 		CurrentLevel->createExplosion(posX, posY);
 		dropBonus(posX, posY);
@@ -217,11 +217,11 @@ void Rock::processCollisionWith(Drawable* aDrawable)
 		{
 			if(type == SMALL_ROCK)
 			{
-				CurrentLevel->soundEngine->playSound("explRocSmall");
+				CurrentLevel->soundEngine->playSound("explRocSmall", posX);
 			}
 			else
 			{
-				CurrentLevel->soundEngine->playSound("explRocBig");
+				CurrentLevel->soundEngine->playSound("explRocBig", posX);
 			}
 
 			CurrentLevel->createExplosion(posX, posY);

@@ -11,8 +11,7 @@ class Explosion: public AnimatedDrawable
 
 		Explosion();
 		Explosion(int x, int y);
-		virtual void animate();
-		virtual ~Explosion();
+		void animate();
 };
 
 #endif

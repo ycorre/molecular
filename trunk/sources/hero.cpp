@@ -41,6 +41,17 @@ Hero::Hero()
 	quarkLevels[QuarkS] = 0;
 }
 
+Hero::~Hero()
+{
+	for(map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
+	{
+		delete (*aWeapon).second;
+	}
+
+	if(shielded)
+		delete shield;
+}
+
 void Hero::setTexture(Drawable * levelHero)
 {
 	copyFrom(CurrentLevel->loadedObjects.at("atom"));
@@ -58,7 +69,7 @@ void Hero::resetHero()
 {
 	health = 10;
 	posX = SCREEN_WIDTH/3;
-	posY = GAMEZONE_HEIGHT/2;
+	posY = GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2;
 	state = ENTER;
 	invincible = false;
 	invincibilityTime = 1250;
@@ -202,7 +213,7 @@ void Hero::animate()
 					if (endTeleport())
 					{
 						posX = width/2 + 20 + (rand() % (SCREEN_WIDTH - (int)width/2 - 20));
-						posY = height/2 + 20 + (rand() % (GAMEZONE_HEIGHT - (int)height/2 - 20));
+						posY = GAMEZONE_LIMIT + height/2 + 20 + (rand() % (GAMEZONE_HEIGHT - (int)height/2 - 20));
 						state = APPAR;
 						heroChangedState = true;
 					}
@@ -252,11 +263,11 @@ void Hero::animate()
 					posX = posX + 12;
 
 					//Make the ship go toward the middle of the screen
-					if(posY > GAMEZONE_HEIGHT/2 - 3)
+					if(posY > GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2 - 3)
 					{
 						posY = posY - 4;
 					}
-					if(posY < GAMEZONE_HEIGHT/2 + 3)
+					if(posY < GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2 + 3)
 					{
 						posY = posY + 4;
 					}
@@ -358,7 +369,7 @@ void Hero::moveUp()
 {
 	if(topFlag)
 	{
-		posY = posY - 6;
+		posY = posY + 6;
 	}
 }
 
@@ -366,7 +377,7 @@ void Hero::moveDown()
 {
 	if(bottomFlag)
 	{
-		posY = posY + 6;
+		posY = posY - 6;
 	}
 }
 
@@ -401,9 +412,9 @@ void Hero::move(int x, int y)
 
 	//Make sure we stay inside the game zone
 	posX = max(posX, width/2.0f);
-	posY = max(posY, height/2);
+	posY = max(posY, GAMEZONE_LIMIT + height/2);
 	posX = min(posX, SCREEN_WIDTH - width/2);
-	posY = min(posY, GAMEZONE_HEIGHT - height/2);
+	posY = min(posY, SCREEN_HEIGHT - height/2);
 }
 
 void Hero::animateLasers()
@@ -425,7 +436,7 @@ void Hero::loseLife()
 	else
 	{
 		posX = SCREEN_WIDTH/3;
-		posY = GAMEZONE_HEIGHT/2;
+		posY = GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2;
 		state = ENTER;
 		heroChangedState = true;
 		display = false;
@@ -577,10 +588,10 @@ float Hero::hitBackoff()
 	backOffSpeed = max(0.0f, backOffSpeed - 1);
 
 	//Make sure we stay inside the game zone
-	posX = max(posX, width/2);
-	posY = max(posY, height/2);
+	posX = max(posX, width/2.0f);
+	posY = max(posY, GAMEZONE_LIMIT + height/2);
 	posX = min(posX, SCREEN_WIDTH - width/2);
-	posY = min(posY, GAMEZONE_HEIGHT - height/2);
+	posY = min(posY, SCREEN_HEIGHT - height/2);
 
 	return backOffSpeed;
 }

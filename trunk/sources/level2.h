@@ -22,16 +22,16 @@ class Level2:  public Level
 	unsigned int lastTimeBomb;
 
 	Level2();
-	virtual void loadLevel(Hero * aHero);
+	void loadLevel(Hero * aHero);
 	void loadObject();
-	virtual void drawLevel();
+	void drawLevel();
 	void checkEvent();
 	void createWave1();
 	bool checkCollision(Drawable * anEnemy);
 	bool checkEnemyCollision(Drawable * anElement);
 	bool checkBonusCollision(Drawable * anElement);
 	bool generateBomb();
-	virtual void finishLevel();
+	void finishLevel();
 };
 
 #endif

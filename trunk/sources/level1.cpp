@@ -7,18 +7,16 @@
 Level1::Level1()
 {
 	cameraSpeed = 1;
-
 }
 
 void Level1::loadLevel(Hero * aHero)
 {
-	activeElements.clear();
 	loadLevelConfiguration("conf/Level1.json");
 	loadBackGround();
 
 	soundEngine->playMusic("hybridQuarks");
 
-	hud = new HUD(ge);
+	hud = new HUD(graphicEngine);
 	cameraSpeed = 1;
 
 	hero = aHero;
@@ -36,7 +34,7 @@ void Level1::drawLevel()
 	checkEvent();
 
 	//Make sure the hero stays on screen
-	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
+	physicEngine->stayOnScreen(hero, make_pair(SCREEN_WIDTH, SCREEN_HEIGHT));
 
 	//Set the list of elements to display
 	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
@@ -130,7 +128,7 @@ void Level1::checkEvent()
 
 bool Level1::checkEnemyCollision(Drawable * anElement)
 {
-	if(pe->collisionDetection(hero, anElement))
+	if(physicEngine->collisionDetection(hero, anElement))
 	{
 		if(!(hero->invincible || hero->state == DEAD))
 		{
@@ -143,7 +141,7 @@ bool Level1::checkEnemyCollision(Drawable * anElement)
 	hero->getLasers();
 	for (list<Shoot*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
-		if((*aLaser)->display && pe->collisionDetection(*aLaser, anElement))
+		if((*aLaser)->display && physicEngine->collisionDetection(*aLaser, anElement))
 		{
 			anElement->processCollisionWith(*aLaser);
 			(*aLaser)->processCollisionWith(anElement);
@@ -167,7 +165,7 @@ bool Level1::checkCollision(Drawable * anElement)
 
 	if(hero->shielded)
 	{
-		if(pe->collisionDetection(hero->shield, anElement))
+		if(physicEngine->collisionDetection(hero->shield, anElement))
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
@@ -175,7 +173,7 @@ bool Level1::checkCollision(Drawable * anElement)
 		}
 	}
 	else {
-		if(pe->collisionDetection(hero, anElement))
+		if(physicEngine->collisionDetection(hero, anElement))
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
@@ -205,7 +203,7 @@ void Level1::finishLevel()
 		//Start fading out
 		if (hero->posX >= SCREEN_WIDTH - 300)
 		{
-			ge->startFadingOut(3);
+			graphicEngine->startFadingOut(3);
 			fading = true;
 			exiting = false;
 		}
@@ -214,7 +212,7 @@ void Level1::finishLevel()
 	//Fade out
 	if(fading)
 	{
-		if (ge->isFading == false)
+		if (graphicEngine->isFading == false)
 		{
 			fading = false;
 		}

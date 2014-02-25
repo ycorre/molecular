@@ -13,10 +13,10 @@ Level2::Level2()
 void Level2::loadLevel(Hero * aHero)
 {
 	activeElements.clear();
-	loadLevelConfiguration("conf/Level1.json");
+	loadLevelConfiguration("conf/Level2.json");
 	loadBackGround();
 
-	hud = new HUD(ge);
+	hud = new HUD(graphicEngine);
 	cameraSpeed = 1;
 	bombGenerationRate = 1500;
 	lastTimeBomb = 0;
@@ -35,7 +35,7 @@ void Level2::drawLevel()
 	moveBackGround();
 	checkEvent();
 
-	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
+	physicEngine->stayOnScreen(hero, make_pair(SCREEN_WIDTH, SCREEN_HEIGHT));
 
 	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
@@ -103,7 +103,7 @@ void Level2::checkEvent()
 
 bool Level2::checkEnemyCollision(Drawable * anElement)
 {
-	if(pe->collisionDetection(hero, anElement))
+	if(physicEngine->collisionDetection(hero, anElement))
 	{
 		if(!(hero->invincible || hero->state == DEAD))
 		{
@@ -117,7 +117,7 @@ bool Level2::checkEnemyCollision(Drawable * anElement)
 	for (list<Shoot*>::iterator aLaser = hero->shoots.begin(); aLaser != hero->shoots.end(); ++aLaser)
 	{
 		Shoot * aL = *aLaser;
-		if(aL->display && pe->collisionDetection(aL, anElement))
+		if(aL->display && physicEngine->collisionDetection(aL, anElement))
 		{
 			anElement->processCollisionWith(aL);
 			aL->processCollisionWith(anElement);
@@ -139,7 +139,7 @@ bool Level2::checkCollision(Drawable * anElement)
 		magnetBonus(anElement);
 	}
 
-	if(pe->collisionDetection(hero, anElement))
+	if(physicEngine->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
 		hero->processCollisionWith(anElement);
@@ -181,7 +181,7 @@ void Level2::finishLevel()
 		//Start fading out
 		if (hero->posX >= SCREEN_WIDTH - 300)
 		{
-			ge->startFadingOut(3);
+			graphicEngine->startFadingOut(3);
 			fading = true;
 			exiting = false;
 		}
@@ -190,7 +190,7 @@ void Level2::finishLevel()
 	//Fade out
 	if(fading)
 	{
-		if (!ge->isFading)
+		if (!graphicEngine->isFading)
 		{
 			fading = false;
 		}

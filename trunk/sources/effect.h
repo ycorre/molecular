@@ -11,7 +11,6 @@ class Effect: public AnimatedDrawable
 		bool followsAnObject;
 		int frameCount;
 		map<string, AnimatedDrawable *> effectLayers;
-		map<Drawable *, Drawable *> followedObjects;
 		int numberOfLoops;
 		bool isMoving;
 		float movingSpeed;
@@ -21,8 +20,8 @@ class Effect: public AnimatedDrawable
 		Effect(Json::Value aConfig);
 		Effect(int x, int y, string type);
 		void loadConf(string aConf);
-		virtual int animateEffect();
-		virtual ~Effect();
+		int animateEffect();
+		~Effect();
 };
 
 class TextEffect: virtual public AnimatedText
@@ -32,7 +31,7 @@ class TextEffect: virtual public AnimatedText
 		bool isMoving;
 
 		TextEffect(int x, int y, string aText);
-		virtual void animate();
+		void animate();
 };
 
 #endif

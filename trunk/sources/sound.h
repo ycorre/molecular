@@ -38,6 +38,7 @@ class Sound
 	    map<string, int> soundConfParameters;
 
 		Sound();
+		virtual ~Sound() {};
 		Sound(string path, string name);
 		Sound(Json::Value aConfig);
 		virtual void load(string aPath);
@@ -55,10 +56,10 @@ class Music: public Sound
 		Music();
 		Music(string path, string name);
 		Music(Json::Value aConfig);
-		virtual void load(string aPath);
-		virtual void play();
-		virtual void stop();
-		virtual void fadeOut(int aTime);
+		void load(string aPath);
+		void play();
+		void stop();
+		void fadeOut(int aTime);
 };
 
 #endif /* SOUND_H */
