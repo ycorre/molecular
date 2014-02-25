@@ -24,8 +24,23 @@ ParticleEffect::ParticleEffect()
 
 ParticleEffect::~ParticleEffect()
 {
-	lineEffects.clear();
+	for (list<PointEffect *>::iterator aPoint = pointEffects.begin(); aPoint != pointEffects.end(); ++aPoint)
+	{
+		delete (*aPoint);
+	}
 	pointEffects.clear();
+
+	for (list<LineEffect *>::iterator aLine = lineEffects.begin(); aLine != lineEffects.end(); ++aLine)
+	{
+		delete (*aLine);
+	}
+	lineEffects.clear();
+
+	for (list<CircleEffect *>::iterator aCircle = circleEffects.begin(); aCircle != circleEffects.end(); ++aCircle)
+	{
+		delete (*aCircle);
+	}
+	circleEffects.clear();
 }
 
 //Set color values in linear decreasing from the starting value to the finishing one
@@ -54,12 +69,10 @@ void ParticleEffect::setColorValues(vector<float> startingColorValue, vector<flo
 void ParticleEffect::animate()
 {
 	unsigned int updateTime = lastTimeUpdated + animationUpdateFrequency;
+
 	if (updateTime < ProgramTimer)
 	{
-		for (list<PointEffect *>::iterator aPoint = pointEffects.begin(); aPoint != pointEffects.end(); ++aPoint)
-		{
-			(*aPoint)->animate();
-		}
+		unsigned int i = 0, j = 0;
 
 		if(!opacityValues.empty())
 		{
@@ -71,6 +84,19 @@ void ParticleEffect::animate()
 			colorR = colorValues.at(currentFrame).at(0);
 			colorG = colorValues.at(currentFrame).at(1);
 			colorB = colorValues.at(currentFrame).at(2);
+		}
+
+		for (list<PointEffect *>::iterator aPoint = pointEffects.begin(); aPoint != pointEffects.end(); ++aPoint)
+		{
+			(*aPoint)->animate();
+			pointCoordinateValues.at(i) = ((*aPoint)->posX);
+			pointCoordinateValues.at(i + 1) = (*aPoint)->posY;
+			pointColorValues.at(j) = colorR;
+			pointColorValues.at(j + 1) = colorG;
+			pointColorValues.at(j + 2) = colorB;
+			pointColorValues.at(j + 3) = opacity;
+			i = i + 2;
+			j = j + 4;
 		}
 
 		currentFrame++;
@@ -97,12 +123,15 @@ void ParticleEffect::instantiateEffects(Json::Value aConf, float x, float y)
 				instantiateLineEffects(effectConfig[i] , x, y);
 				break;
 
+			case PARTICLE_DISC:
+				instantiatecircleEffects(effectConfig[i] , x, y);
+				break;
+
 			default:
 				cerr << "Warning: ParticleEffect::instantiateEffect unknown effect type: " << particleTypes.at(anEffectType) << endl;
 				break;
 		}
 	}
-
 }
 
 void ParticleEffect::instantiatePointEffects(Json::Value aConfig, float x, float y)
@@ -142,24 +171,6 @@ void ParticleEffect::instantiatePointEffects(Json::Value aConfig, float x, float
 		}
 	}
 
-	for(i = 0; i < numberOfParticle; i++)
-	{
-		PointEffect * aPoint = new PointEffect();
-		aPoint->createRandomPointFrom(x, y, lowBoundAngle, highBoundAngle);
-		aPoint->size = pointSize;
-		if(pointSpeed == -1)
-		{
-			aPoint->speed = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/maxSpeed));
-		}
-		else
-		{
-			aPoint->speed = pointSpeed;
-		}
-		aPoint->decelerationFactor = deceleration;
-
-		pointEffects.push_back(aPoint);
-	}
-
 	//if color is constant
 	if(endingColor.empty())
 	{
@@ -181,6 +192,31 @@ void ParticleEffect::instantiatePointEffects(Json::Value aConfig, float x, float
 	if(!opacityConfigValue.empty())
 	{
 		opacityValues = computeLinearValue(opacityConfigValue, animationLength);
+	}
+
+	for(i = 0; i < numberOfParticle; i++)
+	{
+		PointEffect * aPoint = new PointEffect();
+		aPoint->createRandomPointFrom(x, y, lowBoundAngle, highBoundAngle);
+		aPoint->size = pointSize;
+		if(pointSpeed == -1)
+		{
+			aPoint->speed = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/maxSpeed));
+		}
+		else
+		{
+			aPoint->speed = pointSpeed;
+		}
+		aPoint->decelerationFactor = deceleration;
+
+		pointCoordinateValues.push_back(aPoint->posX);
+		pointCoordinateValues.push_back(aPoint->posY);
+		pointColorValues.push_back(colorR);
+		pointColorValues.push_back(colorG);
+		pointColorValues.push_back(colorB);
+		pointColorValues.push_back(1.0f);
+
+		pointEffects.push_back(aPoint);
 	}
 
 	currentFrame = 0;
@@ -245,6 +281,54 @@ void ParticleEffect::instantiateLineEffects(Json::Value aConfig, float x, float 
 	}
 }
 
+void ParticleEffect::instantiatecircleEffects(Json::Value aConfig, float x, float y)
+{
+	unsigned int i;
+	animationLength = aConfig.get("lifetime", 0).asInt();
+	float radius = aConfig.get("radius", 0).asFloat();
+
+	Json::Value sColor = aConfig["startingColor"];
+	vector<float> startingColor;
+	for(i = 0; i < sColor.size(); i++)
+		startingColor.push_back(sColor[i].asFloat());
+
+	Json::Value eColor = aConfig["endingColor"];
+	vector<float> endingColor;
+	for(i = 0; i < eColor.size(); i++)
+		endingColor.push_back(eColor[i].asFloat());
+
+	Json::Value opacity = aConfig["opacity"];
+	vector<float> opacityConfigValue;
+	for(i = 0; i < opacity.size(); i++)
+		opacityConfigValue.push_back(opacity[i].asFloat());
+
+	CircleEffect * aCircle = new CircleEffect(x, y, radius);
+	circleEffects.push_back(aCircle);
+	currentFrame = 0;
+
+	if(endingColor.empty())
+	{
+		colorR = startingColor.at(0)/255.0;
+		colorG = startingColor.at(1)/255.0;
+		colorB = startingColor.at(2)/255.0;
+	}
+	else
+	{
+		//Normalize value on [0.0, 1.0]
+		for(i = 0; i < 3; i++)
+		{
+			startingColor.at(i) = startingColor.at(i)/255.0;
+			endingColor.at(i) = endingColor.at(i)/255.0;
+		}
+		setColorValues(startingColor, endingColor);
+	}
+
+	if(!opacityConfigValue.empty())
+	{
+		opacityValues = computeLinearValue(opacityConfigValue, animationLength);
+	}
+}
+
 LineEffect::LineEffect()
 {
 	length = 1;
@@ -259,20 +343,28 @@ void LineEffect::createRandomLineFrom(float aPosX, float aPosY)
 	posX = aPosX;
 	posY = aPosY;
 	destX = aPosX - (rand() % 70);
-	destY = aPosY + (- 35 + rand() % 70);
+	destY = aPosY + (-35 + rand() % 70);
 	lineWidth = 2.0 + ((rand() % 40)/10.0);
 }
 
 CircleEffect::CircleEffect()
 {
 	radius = 0;
-	slice = 0;
+	slices = 30;
 	center = make_pair(0,0);
+}
+
+CircleEffect::CircleEffect(float x, float y, float r)
+{
+	center = make_pair(x, y);
+	slices = 30;
+	radius = r;
 }
 
 PointEffect::PointEffect()
 {
-
+	decelerationFactor = 1.0f;
+	size = 2.0f;
 }
 
 void PointEffect::createRandomPointFrom(float aPosX, float aPosY)
@@ -310,35 +402,6 @@ void PointEffect::animate()
 	currentFrame++;
 }
 
-TexturedParticle::TexturedParticle()
-{
-	aDrawable = NULL;
-}
-
-void TexturedParticle::animate()
-{
-	float vx, vy;
-	vx = speed * cos(angle);
-	vy = speed * sin(angle);
-
-	aDrawable->rotationAngle = aDrawable->rotationAngle + 0.05;
-
-	aDrawable->posX = aDrawable->posX + vx;
-	aDrawable->posY = aDrawable->posY + vy;
-
-	speed = speed * decelerationFactor;
-
-	if(!opacityValues.empty())
-	{
-		aDrawable->opacity = opacityValues.at(currentFrame);
-	}
-
-	aDrawable->updateAnimationFrame();
-	aDrawable->processDisplay();
-
-	currentFrame++;
-}
-
 /*
  * Emitters functions
  */
@@ -359,14 +422,14 @@ pair<float, float> Emitter::getParticlePosition()
 	return make_pair(posX, posY);
 }
 
-list<pair<float, float> >  Emitter::getParticlePosition(int numberOfParticles)
+list<pair<float, float> > Emitter::getParticlePosition(int numberOfParticles)
 {
 	int i = 0;
 	list<pair<float, float> > aList;
 
 	for(i = 0; i < numberOfParticles; i++)
 	{
-		aList.push_back(getParticlePosition());
+		aList.push_back(this->getParticlePosition());
 	}
 
 	return aList;

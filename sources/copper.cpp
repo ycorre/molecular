@@ -9,7 +9,7 @@ Copper::Copper(Json::Value aConfig)
 
 	posY = aConfig.get("posY", -1.0).asFloat();
 	if(posY == -1.0)
-		posY = width/2 + rand() % (GAMEZONE_HEIGHT - (int)width/2 - 30);
+		posY = GAMEZONE_LIMIT + width/2 + rand() % (GAMEZONE_HEIGHT - (int)width/2 - 30);
 
 	scoreValue = aConfig.get("scoreValue", 1000).asInt();
 	bonusProbability = aConfig.get("bonusProbability", 0).asInt();
@@ -26,6 +26,7 @@ Copper::Copper(Json::Value aConfig)
 	ySpeed = 0;
 	spinningAngle = 0;
 	spinningCounter = 0;
+	collidable = false;
 	activeCannons = 3;
 
 	setAnimX(0);
@@ -41,14 +42,12 @@ Copper::Copper(Json::Value aConfig)
 
 void Copper::animate()
 {
-	for(vector<CopperCannon *>::iterator aCanon = cannons.begin(); aCanon != cannons.end(); ++aCanon)
-	{
-		(*aCanon)->animate();
-	}
-
 	//If we have no cannons left then we become vulnerable
 	if(!activeCannons)
+	{
 		invincible = false;
+		collidable = true;
+	}
 
 	currentLifeTime++;
 	bool stillShooting = false;
@@ -128,7 +127,7 @@ void Copper::nextPhase()
 				//Pull a y coordinate as destination,
 				//we want it at least two width away from our current position
 				do{
-					yDestination =  width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
+					yDestination = GAMEZONE_LIMIT + width/2 + rand() % (GAMEZONE_HEIGHT - (int)width);
 				} while(fabs(posY - yDestination) < width*2);
 
 				moves = computeInertialLinearMove(posX, posY, posX, yDestination, 3);
@@ -193,21 +192,7 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 	{
 		Shoot * aLaser =  dynamic_cast<Shoot*>(aDrawable);
 
-		if(invincible)
-		{
-			for(vector<CopperCannon *>::iterator aCanon = cannons.begin(); aCanon != cannons.end(); ++aCanon)
-			{
-				if(!(*aCanon)->destroyed)
-				{
-					if(aLaser->display && CurrentLevel->pe->collisionDetection(aLaser, (*aCanon)))
-					{
-						(*aCanon)->processCollisionWith(aLaser);
-						aLaser->processCollisionWith(*aCanon);
-					}
-				}
-			}
-		}
-		else
+		if(!invincible)
 		{
 			int lifeValue = life;
 			life = max(0, life - aLaser->power);
@@ -216,7 +201,7 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 				HadronParticle * aPhoton =  dynamic_cast<HadronParticle *>(aDrawable);
 				aPhoton->removeEnergy(lifeValue - life);
 			}
-			if (life<=0)
+			if(life<=0)
 			{
 				CurrentLevel->soundEngine->playSound("Explode2", posX);
 				CurrentLevel->createEffect(posX, posY, "explosionCopper");
@@ -228,6 +213,11 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 				}
 				ge->startShaking(20, true);
 				Score = Score + scoreValue * (type + 1);
+
+				for(vector<CopperCannon *>::iterator aCanon = cannons.begin(); aCanon != cannons.end(); ++aCanon)
+				{
+					(*aCanon)->toRemove = true;
+				}
 				toRemove = true;
 				dropBonus(posX, posY);
 			}
@@ -236,6 +226,14 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 				startBlinkingWhite(4);
 			}
 		}
+	}
+}
+
+void Copper::addSubpart(EnemyWave * aWave)
+{
+	for(vector<CopperCannon *>::iterator aCanon = cannons.begin(); aCanon != cannons.end(); ++aCanon)
+	{
+		aWave->enemies.push_back(*aCanon);
 	}
 }
 
@@ -255,7 +253,7 @@ CopperCannon::CopperCannon(Copper * aCopper, float x, float y)
 
 	copperAngle = atan2(yDiff, xDiff);
 	posX = copper->posX + 36 * cos(copperAngle);
-	posY = copper->posY + 36 * sin(copperAngle);
+	posY = copper->posY - 36 * sin(copperAngle);
 
 	destroyed = false;
 	life = 750;
@@ -263,13 +261,13 @@ CopperCannon::CopperCannon(Copper * aCopper, float x, float y)
 	activated = false;
 
 	int j = 35;
-	for(int i = 360; i > 0; i--)
+	for(int i = 0; i < 360; i++)
 	{
 		cannonAngles.push_back(j);
 
 		if(i % 5 == 0)
 		{
-			j = (j - 1 + 72) % 72;
+			j = (j + 1) % 72;
 		}
 	}
 }
@@ -277,7 +275,7 @@ CopperCannon::CopperCannon(Copper * aCopper, float x, float y)
 void CopperCannon::animate()
 {
 	posX = copper->posX + 36 * cos(copperAngle);
-	posY = copper->posY + 36 * sin(copperAngle);
+	posY = copper->posY - 36 * sin(copperAngle);
 
 	if(updateAnimationFrame() && !destroyed)
 	{
@@ -334,8 +332,9 @@ void CopperCannon::processCollisionWith(Drawable * aDrawable)
 				Score = Score + scoreValue * (type + 1);
 				destroyed = true;
 				activated = false;
+				collidable = false;
 				copper->activeCannons--;
-				setAnimation("canoff");
+				display = false;
 			}
 			else
 			{

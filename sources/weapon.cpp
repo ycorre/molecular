@@ -20,6 +20,15 @@ Weapon::Weapon()
 	type = ElectronGun;
 }
 
+Weapon::~Weapon()
+{
+	for (list<Shoot*>::iterator aLaser = shoots.begin(); aLaser != shoots.end(); ++aLaser)
+	{
+		delete (*aLaser);
+		shoots.erase(aLaser++);
+	}
+}
+
 void Weapon::fire(Hero * aHero)
 {
 
@@ -106,7 +115,7 @@ void Electron::fire(Hero * aHero)
 	//If we are in the middle of a rafale
 	if(!CurrentLevel->soundEngine->sounds.at("mitAttack")->isPlaying)
 	{
-		CurrentLevel->soundEngine->playSound("mitLoop", aHero->posX);
+		CurrentLevel->soundEngine->playSound("mitLoop");
 	}
 
 	isFiring = true;
@@ -189,12 +198,8 @@ void Hadron::fire(Hero * aHero)
 
 void Hadron::releaseFire(Hero * aHero)
 {
-
-	//LOad  100 500
-	//Number  3 38
-	//Size
 	int numberOfParticles = 3 + (load / 1500) * 35;
-			//(aHero->quarkLevels.at(QuarkU) + aHero->quarkLevels.at(QuarkD)) / 2;
+
 	vector<float> particleAngles = getNormalDistributionNumbers(numberOfParticles, 0, 2, NULL);
 
 	int aLoad;
@@ -267,6 +272,11 @@ Baryon::Baryon()
 	hitEnnemy = NULL;
 }
 
+Baryon::~Baryon()
+{
+	delete mahLazor;
+}
+
 //"I’M A’ FIRIN’ MAH LAZOR!!!!!"
 void Baryon::fire(Hero * aHero)
 {
@@ -306,22 +316,22 @@ void Baryon::checkForCollision()
 	{
 		for(list<Enemy *>::iterator anElement = (*aWave)->enemies.begin(); anElement != (*aWave)->enemies.end(); ++anElement)
 		{
-			if(CurrentLevel->pe->collisionDetection(mahLazor, *anElement))
+			if(CurrentLevel->physicEngine->collisionDetection(mahLazor, *anElement))
 			{
 				if (hitEnnemy)
 				{
-					if(xImpactPos > CurrentLevel->pe->xImpactPos)
+					if(xImpactPos > CurrentLevel->physicEngine->xImpactPos)
 					{
 						hitEnnemy = dynamic_cast<Enemy *>(*anElement);
-						xImpactPos = CurrentLevel->pe->xImpactPos;
-						yImpactPos = CurrentLevel->pe->yImpactPos;
+						xImpactPos = CurrentLevel->physicEngine->xImpactPos;
+						yImpactPos = CurrentLevel->physicEngine->yImpactPos;
 					}
 				}
 				else
 				{
 					hitEnnemy = dynamic_cast<Enemy *>(*anElement);
-					xImpactPos = CurrentLevel->pe->xImpactPos;
-					yImpactPos = CurrentLevel->pe->yImpactPos;
+					xImpactPos = CurrentLevel->physicEngine->xImpactPos;
+					yImpactPos = CurrentLevel->physicEngine->yImpactPos;
 				}
 			}
 		}
@@ -331,22 +341,22 @@ void Baryon::checkForCollision()
 	{
 		if((*anElement)->isEnemy())
 		{
-			if(CurrentLevel->pe->collisionDetection(mahLazor, *anElement))
+			if(CurrentLevel->physicEngine->collisionDetection(mahLazor, *anElement))
 			{
 				if (hitEnnemy)
 				{
-					if(xImpactPos > CurrentLevel->pe->xImpactPos)
+					if(xImpactPos > CurrentLevel->physicEngine->xImpactPos)
 					{
 						hitEnnemy = dynamic_cast<Enemy *>(*anElement);
-						xImpactPos = CurrentLevel->pe->xImpactPos;
-						yImpactPos = CurrentLevel->pe->yImpactPos;
+						xImpactPos = CurrentLevel->physicEngine->xImpactPos;
+						yImpactPos = CurrentLevel->physicEngine->yImpactPos;
 					}
 				}
 				else
 				{
 					hitEnnemy = dynamic_cast<Enemy *>(*anElement);
-					xImpactPos = CurrentLevel->pe->xImpactPos;
-					yImpactPos = CurrentLevel->pe->yImpactPos;
+					xImpactPos = CurrentLevel->physicEngine->xImpactPos;
+					yImpactPos = CurrentLevel->physicEngine->yImpactPos;
 				}
 			}
 		}
@@ -427,7 +437,7 @@ Plasma::Plasma()
 void Plasma::fire(Hero * aHero)
 {
 	isFiring = true;
-	shoots.push_back(new HadronAmmo(aHero->posX - 64, aHero->posY, this));
+	shoots.push_back(new HadronParticle(aHero->posX - 64, aHero->posY, 0.12f, 0, 50, this));
 }
 
 void Plasma::checkActivation(Hero * aHero)

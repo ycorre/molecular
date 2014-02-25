@@ -35,12 +35,13 @@ class Weapon
 	  bool activated;
 
 	  Weapon();
+	  virtual ~Weapon();
 	  virtual void fire(Hero * aHero);
 	  virtual void releaseFire(Hero * aHero);
 	  virtual void checkActivation(Hero * aHero);
+	  virtual void upgradeTo(int aLevel);
 	  void animateLasers();
 	  void checkFire();
-	  virtual void upgradeTo(int aLevel);
 	  void createImpact(float x, float y);
 };
 
@@ -50,8 +51,8 @@ class Electron: public Weapon
 	  AnimatedDrawable muzzle;
 
 	  Electron();
-	  virtual void fire(Hero * aHero);
-	  virtual void upgradeTo(int aLevel);
+	  void fire(Hero * aHero);
+	  void upgradeTo(int aLevel);
 };
 
 class Hadron: public Weapon
@@ -60,10 +61,10 @@ class Hadron: public Weapon
  	  float loadFactor;
 
 	  Hadron();
-	  virtual void fire(Hero * aHero);
-	  virtual void releaseFire(Hero * aHero);
-	  virtual void checkActivation(Hero * aHero);
-	  virtual void upgradeTo(int aLevel);
+	  void fire(Hero * aHero);
+	  void releaseFire(Hero * aHero);
+	  void checkActivation(Hero * aHero);
+	  void upgradeTo(int aLevel);
 };
 
 class Baryon: public Weapon
@@ -75,9 +76,10 @@ class Baryon: public Weapon
 	 float xImpactPos, yImpactPos;
 
 	 Baryon();
-	 virtual void fire(Hero * aHero);
-	 virtual void upgradeTo(int aLevel);
-	 virtual void checkActivation(Hero * aHero);
+	 ~Baryon();
+	 void fire(Hero * aHero);
+	 void upgradeTo(int aLevel);
+	 void checkActivation(Hero * aHero);
 	 void checkForCollision();
 };
 
@@ -86,8 +88,8 @@ class Plasma: public Weapon
 {
    public:
 	 Plasma();
-	 virtual void fire(Hero * aHero);
-	 virtual void checkActivation(Hero * aHero);
+	 void fire(Hero * aHero);
+	 void checkActivation(Hero * aHero);
 };
 
 #endif

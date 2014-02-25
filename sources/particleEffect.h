@@ -5,6 +5,7 @@
 
 class LineEffect;
 class PointEffect;
+class CircleEffect;
 class Emitter;
 class Drawable;
 class AnimatedDrawable;
@@ -36,22 +37,25 @@ class ParticleEffect
 		int lifeTime;
 		float speed;
 		Emitter * particleEmitter;
-		//decroissance de la vitesse
 
 		int currentFrame;
 		list<LineEffect *> lineEffects;
+		list<CircleEffect *> circleEffects;
 		list<PointEffect *> pointEffects;
+		vector<float> pointCoordinateValues;
+		vector<float> pointColorValues;
 		vector<float> opacityValues;
 		vector<vector<float> > colorValues;
 
 		map<string, particleType> particleTypes;
 
 		ParticleEffect();
-		~ParticleEffect();
+		virtual ~ParticleEffect();
 		virtual void animate();
 		void instantiateEffects(Json::Value aConfig, float x, float y);
 		void instantiatePointEffects(Json::Value aConfig, float x, float y);
 		void instantiateLineEffects(Json::Value aConfig, float x, float y);
+		void instantiatecircleEffects(Json::Value aConfig, float x, float y);
 		void setColorValues(vector<float> startingColorValue, vector<float> endingColorValue);
 };
 
@@ -71,10 +75,11 @@ class CircleEffect: public ParticleEffect
 {
 	public:
 		float radius;
-		int slice;
+		float slices;
 		pair<float, float> center;
 
 		CircleEffect();
+		CircleEffect(float x, float y, float r);
 };
 
 class PointEffect: public ParticleEffect
@@ -84,19 +89,9 @@ class PointEffect: public ParticleEffect
 		float decelerationFactor;
 
 		PointEffect();
-		virtual void animate();
+		void animate();
 		void createRandomPointFrom(float aPosX, float aPosY);
 		void createRandomPointFrom(float aPosX, float aPosY, float anAngleLowBound, float anAngleHighBound);
-};
-
-class TexturedParticle: public ParticleEffect
-{
-	public:
-		AnimatedDrawable * aDrawable;
-		float decelerationFactor;
-
-    	TexturedParticle();
-    	virtual void animate();
 };
 
 class Emitter
@@ -105,6 +100,7 @@ class Emitter
 		float posX, posY;
 
 		Emitter();
+		virtual ~Emitter() {};
 		Emitter(float x, float y);
 		virtual pair<float, float> getParticlePosition();
 		virtual list<pair<float, float> > getParticlePosition(int numberOfParticles);
@@ -116,8 +112,7 @@ class SquareEmitter: Emitter
 		float destX, destY;
 
 		SquareEmitter(float originX, float originY, float cornerX, float cornerY);
-		virtual pair<float, float> getParticlePosition();
-		//virtual list<float, float> getParticlePosition(int numberOfParticles);
+		pair<float, float> getParticlePosition();
 };
 
 
@@ -127,8 +122,7 @@ class CircleEmitter: Emitter
 		float radius;
 
 		CircleEmitter(float centerX, float centerY, float radius);
-		virtual pair<float, float> getParticlePosition();
-		//virtual list<float, float> getParticlePosition(int numberOfParticles);
+		pair<float, float> getParticlePosition();
 };
 
 #endif

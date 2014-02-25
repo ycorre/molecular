@@ -15,6 +15,15 @@ GraphicEngine::GraphicEngine()
 	shakingEffect = false;
 	shakeALot = false;
 	shakeCounter = 0;
+	xOffsetFactor = yOffsetFactor = 0;
+}
+
+void GraphicEngine::setAspectRatio(float aValue)
+{
+	aspectRatio = aValue;
+
+	xOffsetFactor = SCREEN_WIDTH/2;
+	yOffsetFactor = SCREEN_HEIGHT/2;
 }
 
 void GraphicEngine::init()
@@ -55,11 +64,10 @@ SDL_Surface * GraphicEngine::loadTexture(string path, bool clamp)
 
 void GraphicEngine::drawFrame()
 {
-
 	//Reset the view matrix
     glLoadIdentity();
     //Perform a translation so that we are starting our coordinates at point (0,0)
-	glTranslatef(-aspectRatio, -1 , -1);
+	glTranslatef(-xOffsetFactor, -yOffsetFactor, -yOffsetFactor);
 
 	//Shift the camera in one direction
 	if(shakingEffect)
@@ -118,7 +126,6 @@ void GraphicEngine::drawFrame()
 //Draw an object on the screen
 int GraphicEngine::draw(Drawable * sprite)
 {
-
 	//If we need blending
 	if(sprite->toBlend)
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
@@ -138,7 +145,15 @@ int GraphicEngine::draw(Drawable * sprite)
 		performRotation(sprite);
 
 	//Use the object texture
-	glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
+	if(sprite->textured)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
+	}
+	else
+	{
+		glDisable(GL_TEXTURE_2D);
+	}
 
 	if(sprite->isBlinkingWhite)
 	{
@@ -152,21 +167,26 @@ int GraphicEngine::draw(Drawable * sprite)
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 	}
 
-	//Draw a quadrilateral
-	glBegin(GL_QUADS);
-		//Texture coordinates to display
-		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-		//Coordinates of the quadrilateral
-		glVertex3f(((sprite->getPosX() - sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() - sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
+	float oX = sprite->getPosX() - sprite->getWidth()/2;
+	float oY = sprite->getPosY() - sprite->getHeight()/2;
+	float cX = sprite->getPosX() + sprite->getWidth()/2;
+	float cY = sprite->getPosY() + sprite->getHeight()/2;
 
-		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-		glVertex3f((sprite->getPosX() + sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() - sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
+	//Draw a quadrilateral using triangle_strip
+	glBegin(GL_TRIANGLE_FAN);
+		//Texture coordinates to display
+		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
+		//Coordinates of the quadrilateral
+		glVertex3f(oX, oY, 0.0f);
 
 		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-		glVertex3f((sprite->getPosX() + sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2)), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
+		glVertex3f(cX, oY, 0.0f);
 
-		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-		glVertex3f(((sprite->getPosX() - sprite->getWidth()/2)/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (sprite->getPosY() + sprite->getHeight()/2))/(SCREEN_HEIGHT/2), 0.);
+		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
+		glVertex3f(cX, cY, 0.0f);
+
+		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
+		glVertex3f(oX, cY, 0.0f);
 	glEnd();
 
 	//Discard the new context
@@ -206,33 +226,50 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 		glPushMatrix();
 
 		//Draw a Line
-		glVertex3f(((*aLine)->destX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->destY)/(SCREEN_HEIGHT/2), 0);
-		glVertex3f(((*aLine)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aLine)->posY)/(SCREEN_HEIGHT/2), 0);
+		glVertex3f((*aLine)->destX, (*aLine)->destY, 0);
+		glVertex3f((*aLine)->posX, (*aLine)->posY, 0);
 
 		//Discard the temporary context
 		glPopMatrix();
 	}
 	glEnd();
 
-	if(!(anEffect->pointEffects.empty()))
-			glPointSize(anEffect->pointEffects.front()->size);
-
-	//Draw points
-	glBegin(GL_POINTS);
-	//Set color values and opacity
-	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
-	for (list<PointEffect *>::iterator aPoint = anEffect->pointEffects.begin(); aPoint != anEffect->pointEffects.end(); ++aPoint)
+	//Draw circles
+	for (list<CircleEffect *>::iterator aCircle = anEffect->circleEffects.begin(); aCircle != anEffect->circleEffects.end(); ++aCircle)
 	{
-		//Create a temporary context in case we perform specific transformation for that object
-		glPushMatrix();
+		glBegin(GL_TRIANGLE_FAN);
 
-		//Draw a point
-		glVertex3f(((*aPoint)->posX/(SCREEN_WIDTH/(aspectRatio*2))), (SCREEN_HEIGHT - (*aPoint)->posY)/(SCREEN_HEIGHT/2), 0);
+		glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
 
-		//Discard the temporary context
-		glPopMatrix();
+		//Start at center
+		glVertex2f((*aCircle)->center.first, (*aCircle)->center.second);
+
+		for(float i = 0; i <= (*aCircle)->slices; i++)
+		{
+			float t = 2 * PI * i/(*aCircle)->slices;
+			glVertex2f((*aCircle)->center.first + sin(t)*(*aCircle)->radius, (*aCircle)->center.second + cos(t)*(*aCircle)->radius);
+		}
+
+		glEnd();
 	}
-	glEnd();
+
+	//Draw points using vertex and color arrays
+	if(!(anEffect->pointEffects.empty()))
+	{
+		glPointSize(anEffect->pointEffects.front()->size);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(2, GL_FLOAT, 0, &anEffect->pointCoordinateValues.at(0));
+
+		glEnableClientState(GL_COLOR_ARRAY);
+		glColorPointer(4, GL_FLOAT, 0, &anEffect->pointColorValues.at(0));
+
+		//Draw points
+		glDrawArrays(GL_POINTS, 0, anEffect->pointEffects.size());
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+	}
 
 	//Restore default blending parameters
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -249,30 +286,23 @@ void GraphicEngine::displayFrame()
 
 void GraphicEngine::performScaling(Drawable * sprite)
 {
-	float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-
-	float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
-
 	//Translate to 0,0 in order to perform the scaling
-	glTranslatef(zX, zY, 0.0);
+	glTranslatef(sprite->getPosX(), sprite->getPosY(), 0.0);
 	//Scale
 	glScalef(sprite->scaleX, sprite->scaleY, 1.0f);
 	//Translate back to the normal position
-	glTranslatef(-zX, -zY, 0.0);
+	glTranslatef(-sprite->getPosX(), -sprite->getPosY(), 0.0);
 }
 
 
 void GraphicEngine::performRotation(Drawable * sprite)
 {
-	float zX = sprite->getPosX()/(SCREEN_WIDTH/(aspectRatio*2));
-	float zY = (SCREEN_HEIGHT - sprite->getPosY())/(SCREEN_HEIGHT/2);
-
 	//Translate to 0,0 in order to perform the rotation
-	glTranslatef(zX, zY, 0.0);
+	glTranslatef(sprite->getPosX(), sprite->getPosY(), 0.0);
 	//Rotate
 	glRotatef(sprite->rotationAngle, sprite->rotX, sprite->rotY, sprite->rotZ);
 	//Translate back to the normal position
-	glTranslatef(-zX, -zY, 0.0);
+	glTranslatef(-sprite->getPosX(), -sprite->getPosY(), 0.0);
 }
 
 //Start a shaking camera effect
@@ -298,7 +328,7 @@ void GraphicEngine::shakeCamera(bool aSense)
 			yMove = true;
 			//if(xMove)
 			//{
-				glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+				glTranslatef(shakeValues.at(shakeCounter), 0.0, 0.0);
 			//	yMove = rand() % 2;
 		//	}
 		//	else
@@ -307,11 +337,11 @@ void GraphicEngine::shakeCamera(bool aSense)
 		//	}
 
 			if(yMove)
-				glTranslatef(0.0, shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0);
+				glTranslatef(0.0, shakeValues.at(shakeCounter), 0.0);
 		}
 		else
 		{
-			glTranslatef(shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+			glTranslatef(shakeValues.at(shakeCounter), 0.0, 0.0);
 			xMove = true;
 			yMove = false;
 		}
@@ -319,10 +349,10 @@ void GraphicEngine::shakeCamera(bool aSense)
 	else
 	{
 		if(xMove)
-			glTranslatef(-shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0, 0.0);
+			glTranslatef(-shakeValues.at(shakeCounter), 0.0, 0.0);
 
 		if(yMove)
-			glTranslatef(0.0, -shakeValues.at(shakeCounter)/(SCREEN_WIDTH/(aspectRatio*2)), 0.0);
+			glTranslatef(0.0, -shakeValues.at(shakeCounter), 0.0);
 
 		shakeCounter++;
 	}
@@ -333,7 +363,7 @@ int GraphicEngine::addFont(string aName, string path, int size)
 {
 	TTF_Font * font;
 	font = TTF_OpenFont(path.c_str(), size);
-	if (font == NULL)
+	if(font == NULL)
     {
         cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
         return 0;
@@ -421,7 +451,7 @@ void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex, bo
 {
 	glGenTextures(1, oglTex);
 	glBindTexture(GL_TEXTURE_2D, *oglTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4 , aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -446,6 +476,15 @@ void GraphicEngine::freeTextures()
 		SDL_FreeSurface((*aTexture).second);
 	}
 	textures.clear();
+}
+
+void GraphicEngine::deleteParticleEffect()
+{
+	for (list<ParticleEffect *>::iterator aParticleEffect = particleEffects.begin() ; aParticleEffect != particleEffects.end(); ++aParticleEffect)
+	{
+		delete (*aParticleEffect);
+	}
+	particleEffects.clear();
 }
 
 bool sortDisplayedElement(const Drawable * a, const Drawable * b)

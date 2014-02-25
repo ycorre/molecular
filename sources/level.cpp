@@ -16,8 +16,8 @@ Level::Level()
 	cameraSpeed = 1;
 	activeBlockingWave = 0;
 
-	ge = NULL;
-	pe = NULL;
+	graphicEngine = NULL;
+	physicEngine = NULL;
 	hero = NULL;
 	hud = NULL;
 	soundEngine = NULL;
@@ -64,20 +64,7 @@ void Level::moveBackGround()
 
 void Level::drawLevel()
 {
-/*	checkEvent();
 
-	pe->stayOnScreen(hero, make_pair(SCREEN_WIDTH, GAMEZONE_HEIGHT));
-
-	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
-	{
-		(*anElement)->animate();
-		if((*anElement)->display)
-		{
-			ge->toDisplay.push_back(*anElement);
-		}
-	}
-	hero->animate();
-	background.setAnimX(background.getAnimX() + cameraSpeed);*/
 }
 
 
@@ -85,26 +72,6 @@ void Level::drawLevel()
 void Level::checkEvent()
 {
 
-	/*for (vector<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
-	{
-		if((*anElement)->toRemove)
-		{
-			activeElements.erase(anElement++);
-		}
-		else
-		{
-			if((*anElement)->isEnemy())
-			{
-				checkEnemyCollision(*anElement);
-				Enemy * anEnemy = dynamic_cast<Enemy *>(*anElement);
-				anEnemy->fire();
-			}
-			if((*anElement)->isBonus() ||(*anElement)->isLaser())
-			{
-				checkCollision(*anElement);
-			}
-		}
-	}*/
 }
 
 void Level::checkEnemyCollision(list<Enemy *> enemies)
@@ -117,7 +84,7 @@ void Level::checkEnemyCollision(list<Enemy *> enemies)
 
 bool Level::checkEnemyCollision(Drawable * anElement)
 {
-	if(pe->collisionDetection(hero, anElement))
+	if(physicEngine->collisionDetection(hero, anElement))
 	{
 		anElement->processCollisionWith(hero);
 		hero->processCollisionWith(anElement);
@@ -142,7 +109,7 @@ bool Level::checkCollision(Drawable * anElement)
 {
 	if(hero->shielded)
 	{
-		if(pe->collisionDetection(hero->shield, anElement))
+		if(physicEngine->collisionDetection(hero->shield, anElement))
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
@@ -151,7 +118,7 @@ bool Level::checkCollision(Drawable * anElement)
 	}
 	else
 	{
-		if(pe->collisionDetection(hero, anElement))
+		if(physicEngine->collisionDetection(hero, anElement))
 		{
 			anElement->processCollisionWith(hero);
 			hero->processCollisionWith(anElement);
@@ -190,14 +157,14 @@ void Level::createExplosion(int x, int y)
 	{
 		createEffect(x, y, "explosionB");
 	}
-    ge->startShaking(8, false);
+    graphicEngine->startShaking(8, false);
 }
 
 void Level::createParticleEffect(int x, int y, string aName)
 {
     ParticleEffect * aParticleEffect = new ParticleEffect();
     aParticleEffect->instantiateEffects(particleEffectConf.at(aName), x, y);
-    ge->particleEffects.push_back(aParticleEffect);
+    graphicEngine->particleEffects.push_back(aParticleEffect);
 }
 
 
@@ -275,7 +242,7 @@ void Level::loadLevelConfiguration(string path)
 	{
 		EnemyWave * aWave = new EnemyWave(enemyWavesConfig[index]);
 
-		//If this the first time we encountered
+		//If this the first time we encounter the starting date
 		if(enemyWaves.find(aWave->startingDate) == enemyWaves.end())
 		{
 			enemyWaves.insert(make_pair(aWave->startingDate, vector<EnemyWave *>()));
@@ -302,24 +269,35 @@ void Level::heroLoseLife()
 
 int Level::isOnScreen(Drawable * aDrawable)
 {
-	return pe->isOnScreen(aDrawable);
+	return physicEngine->isOnScreen(aDrawable);
 }
 
 void Level::cleanLevel()
 {
 	for (list<Drawable *>::iterator anElement = activeElements.begin() ; anElement != activeElements.end(); ++anElement)
 	{
-		//(*anElement)->clean();
-		cout << (*anElement)->name << endl;
 		delete (*anElement);
-		//activeElements.erase(anElement++);
 	}
 
 	for (map<string, Drawable *>::iterator anElement = loadedObjects.begin() ; anElement != loadedObjects.end(); ++anElement)
 	{
-		(*anElement).second->clean();
 		delete (*anElement).second;
 	}
+
+	for (map<string, Effect *>::iterator anEffect = loadedEffects.begin() ; anEffect != loadedEffects.end(); ++anEffect)
+	{
+		delete (*anEffect).second;
+	}
+
+	for (map<int, vector<EnemyWave *> >::iterator aWaveCollection = enemyWaves.begin() ; aWaveCollection != enemyWaves.end(); ++aWaveCollection)
+	{
+		for (vector<EnemyWave *>::iterator aWave = (*aWaveCollection).second.begin() ; aWave != (*aWaveCollection).second.end(); ++aWave)
+		{
+			delete (*aWave);
+		}
+	}
+	delete hud;
+
 	loadedObjects.clear();
 
 	activeElements.clear();
@@ -336,7 +314,8 @@ void Level::cleanLevel()
 	soundEngine->stopAllSounds();
 	soundEngine->freeLoadedSounds();
 
-	ge->freeTextures();
+	graphicEngine->deleteParticleEffect();
+	graphicEngine->freeTextures();
 }
 
 void Level::endLevel()

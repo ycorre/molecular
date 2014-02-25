@@ -23,9 +23,9 @@ class Bonus: public AnimatedDrawable
 
 	  Bonus();
 	  Bonus(int x, int y, float speed, float angle, bonusType type);
-	  virtual void animate();
-	  virtual bool isBonus() {return true;}
-	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void animate();
+	  bool isBonus() {return true;}
+	  void processCollisionWith(Drawable * aDrawable);
 	  void drawnToHero();
 };
 

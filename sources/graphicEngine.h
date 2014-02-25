@@ -22,18 +22,20 @@ class LineEffect;
 
 class GraphicEngine
 {
+	private:
+	  float aspectRatio;
+
 	public:
 	  SDL_Surface * screen;
 	  vector<Drawable *> toDisplay;
 	  list<ParticleEffect *> particleEffects;
-
 	  map<string, TTF_Font *> availableFonts;
 	  map<string, SDL_Color> availableColors;
 
 	  map<string, SDL_Surface *> textures;
 	  map<SDL_Surface *, GLuint> openGLTextures;
 
-	  float aspectRatio;
+	  float xOffsetFactor, yOffsetFactor;
 
 	  int alphaFading;
 	  int fadingSpeed;
@@ -59,8 +61,10 @@ class GraphicEngine
 	  void createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex, bool clamp);
 	  void startFadingOut(int aFadingSpeed);
 	  void freeTextures();
+	  void deleteParticleEffect();
 	  void startShaking(int aLength, bool aLot);
 	  void shakeCamera(bool sense);
+	  void setAspectRatio(float aValue);
 
 	private:
 	  void fadeOut();

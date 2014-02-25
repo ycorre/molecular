@@ -7,8 +7,6 @@ Explosion::Explosion()
 	height = 1;
 	posX = 0;
 	posY = 0;
-	setAnimX(0);
-	setAnimY(0);
 }
 
 
@@ -26,8 +24,6 @@ Explosion::Explosion(int x, int y)
 	}
 	posX = x;
 	posY = y;
-	setAnimX(0);
-	setAnimY(0);
 
 	if(aRand)
 	{
@@ -40,13 +36,6 @@ Explosion::Explosion(int x, int y)
 
 	smoke.posX = x;
 	smoke.posY = y;
-	smoke.setAnimX(0);
-	smoke.setAnimY(0);
-}
-
-Explosion::~Explosion()
-{
-
 }
 
 void Explosion::animate()

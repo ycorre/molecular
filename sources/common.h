@@ -16,6 +16,7 @@ class Level;
 // screen width, height, and bit depth
 #define SCREEN_WIDTH  1200
 #define SCREEN_HEIGHT 800
+#define GAMEZONE_LIMIT 80
 #define GAMEZONE_HEIGHT 720
 #define SCREEN_BPP     32
 

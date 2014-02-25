@@ -42,9 +42,11 @@ class Enemy: public AnimatedDrawable
 		virtual void checkPositions();
 		virtual void processCollisionWith(Drawable* aDrawable);
 		virtual bool isEnemy() {return true;}
+		virtual bool hasSubpart() {return false;}
 		virtual void fire();
 		virtual void die();
 		virtual void checkFire();
+		virtual void addSubpart(EnemyWave * aWave);
 };
 
 class Cadmium: public Enemy
@@ -56,10 +58,10 @@ class Cadmium: public Enemy
 
 		Cadmium(int x, int y, float aSpeed, vector<int> moves);
 		Cadmium(Json::Value aConfig);
-		virtual void checkFire();
-		virtual void fire();
-		virtual void die();
-		virtual void animate();
+		void checkFire();
+		void fire();
+		void die();
+		void animate();
 };
 
 class Iron: public Enemy
@@ -69,8 +71,8 @@ class Iron: public Enemy
 		int minNextShift, maxNextShift;
 
 		Iron(Json::Value aConfig);
-		virtual void dropBonus(int x, int y);
-		virtual void animate();
+		void dropBonus(int x, int y);
+		void animate();
 };
 
 class SiliconField: public Enemy
@@ -92,8 +94,8 @@ class Silicon: public Enemy
 
 		//Silicon(Json::Value aConfig);
 		Silicon(Json::Value aConfig, float aPosX);
-		virtual void animate();
-		virtual void die();
+		void animate();
+		void die();
 };
 
 class CopperCannon;
@@ -114,10 +116,12 @@ class Copper: public Enemy
 		vector<pair<float, float> > moves;
 
 		Copper(Json::Value aConfig);
-		virtual void animate();
+		bool hasSubpart() {return true;}
+		void animate();
 		void nextPhase();
-		virtual void move();
-		virtual void processCollisionWith(Drawable * aDrawable);
+		void move();
+		void processCollisionWith(Drawable * aDrawable);
+		void addSubpart(EnemyWave * aWave);
 };
 
 //Copper phase
@@ -135,9 +139,9 @@ class CopperCannon: public Enemy
 		vector<int> cannonAngles;
 
 		CopperCannon(Copper * aCopper, float x, float y);
-		virtual void animate();
+		void animate();
 		void fire(int anAngle);
-		virtual void processCollisionWith(Drawable * aDrawable);
+		void processCollisionWith(Drawable * aDrawable);
 };
 
 class Rock;
@@ -154,7 +158,7 @@ class PyroxeneField: public Enemy
 		PyroxeneField();
 		PyroxeneField(Json::Value aConf, EnemyWave * anEnemyWave);
 		bool generatePyroxene();
-		virtual void animate();
+		void animate();
 };
 
 class Bomb: public Enemy
@@ -165,9 +169,9 @@ class Bomb: public Enemy
 
 		Bomb();
 		Bomb(int sX, int sY, int speed, float angle);
-		virtual void animate();
+		void animate();
 		void setAngleAndSpeed();
-		virtual void fire();
+		void fire();
 };
 
 #endif

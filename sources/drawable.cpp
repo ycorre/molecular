@@ -40,7 +40,12 @@ Drawable::Drawable()
 	clampTexture = true;
 	colorR = colorG = colorB = 1.0f;
 	speed = angle = 0;
-
+	maxOpacity = 1;
+	minOpacity = 1;
+	minScale = 1;
+	maxScale = 1;
+	textured = true;
+	collidable = true;
 }
 
 Drawable::Drawable(Json::Value aConfig)
@@ -71,16 +76,19 @@ Drawable::Drawable(Json::Value aConfig)
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
-	colorR = aConfig.get("colorR", 1.0f).asFloat();
-	colorG = aConfig.get("colorG", 1.0f).asFloat();
-	colorB = aConfig.get("colorB", 1.0f).asFloat();
+	colorR = aConfig.get("colorR", 255.0f).asFloat()/255.0f;
+	colorG = aConfig.get("colorG", 255.0f).asFloat()/255.0f;
+	colorB = aConfig.get("colorB", 255.0f).asFloat()/255.0f;
 	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	clampTexture = aConfig.get("clampTexture", true).asBool();
 	angle =  aConfig.get("angle", 0.0f).asFloat();
 	speed =  aConfig.get("speed", 0.0f).asFloat();
-	loadTexture(aConfig.get("dataPath", "").asString());
+	textured = aConfig.get("textured", true).asBool();
+	string dataPath = aConfig.get("dataPath", "").asString();
 
+	if(!dataPath.empty())
+		loadTexture(dataPath);
 
 	string collisionPath = aConfig.get("collision", "").asString();
 	if (!collisionPath.empty())
@@ -89,7 +97,7 @@ Drawable::Drawable(Json::Value aConfig)
 
 Drawable::~Drawable()
 {
-	cout<< name <<" deleted " << endl;
+	//cout<< name <<" deleted " << endl;
 }
 
 void Drawable::animate()
@@ -140,11 +148,6 @@ void Drawable::loadTexture(string path)
 	oglTexture = ge->openGLTextures.at(texture);
 	setAnimX(animX);
 	setAnimY(animY);
-}
-
-void Drawable::clean()
-{
-
 }
 
 void Drawable::blink()
@@ -278,7 +281,7 @@ void Drawable::randomize()
 	//Randomize rotation angle
 	if(rotationAngle == -1)
 	{
-		rotationAngle = rand() % 360;
+		rotationAngle = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/360.0f));
 	}
 
 	//Randomize movement angle
@@ -363,7 +366,7 @@ AnimatedDrawable::AnimatedDrawable()
 
 AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 {
-	name = aConfig.get("name", "drawableDefaut").asString();
+	name = aConfig.get("name", "animatedDrawableDefaut").asString();
 	width = aConfig.get("width", 1).asInt();
 	height = aConfig.get("height", 1).asInt();
 	posX = aConfig.get("posX", 0).asFloat();
@@ -388,9 +391,9 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 	rotX = aConfig.get("rotX", 0.0f).asFloat();
 	rotY = aConfig.get("rotY", 0.0f).asFloat();
 	rotZ = aConfig.get("rotZ", 0.0f).asFloat();
-	colorR = aConfig.get("colorR", 1.0f).asFloat();
-	colorG = aConfig.get("colorG", 1.0f).asFloat();
-	colorB = aConfig.get("colorB", 1.0f).asFloat();
+	colorR = aConfig.get("colorR", 255.0f).asFloat()/255.0f;
+	colorG = aConfig.get("colorG", 255.0f).asFloat()/255.0f;
+	colorB = aConfig.get("colorB", 255.0f).asFloat()/255.0f;
 	virtualDepth = aConfig.get("virtualDepth", 100).asInt();
 	rotationAngle = aConfig.get("rotationAngle", 0.0f).asFloat();
 	clampTexture = aConfig.get("clampTexture", true).asBool();
@@ -434,11 +437,13 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig)
 
 AnimatedDrawable::~AnimatedDrawable()
 {
-	cout<< "AD: " << name <<" deleted " << endl;
-}
+	//cout<< "AD: " << name <<" deleted " << endl;
 
-void AnimatedDrawable::clean()
-{
+	for (std::map<string, Animation *>::const_iterator anElement = animations.begin(); anElement != animations.end(); ++anElement)
+	{
+		delete (*anElement).second;
+	}
+
 	animations.clear();
 }
 
@@ -493,6 +498,53 @@ void AnimatedDrawable::copyFrom(Drawable * aDrawable)
 	copyFrom(dynamic_cast<AnimatedDrawable *> (aDrawable));
 }
 
+AnimatedDrawable::AnimatedDrawable(const AnimatedDrawable& aDrawable)
+{
+	name = aDrawable.name;
+	width = aDrawable.width;
+	height = aDrawable.height;
+	display = true;
+	for (std::map<string, Animation *>::const_iterator anElement = aDrawable.animations.begin(); anElement != aDrawable.animations.end(); ++anElement)
+	{
+		Animation * aNewAnim = new Animation(*(*anElement).second);
+		aNewAnim->drawable = this;
+		animations.insert(make_pair((*anElement).first, aNewAnim));
+	}
+
+	toBlend = aDrawable.toBlend;
+	texture = aDrawable.texture;
+	posX = aDrawable.posX;
+	posY = aDrawable.posY;
+	oglTexture = aDrawable.oglTexture;
+	animationUpdateFrequency = aDrawable.animationUpdateFrequency;
+	currentAnimation = aDrawable.currentAnimation;
+	setAnimation(currentAnimation->name);
+	collision = aDrawable.collision;
+	virtualDepth = aDrawable.virtualDepth;
+	rotX = aDrawable.rotX;
+	rotY = aDrawable.rotY;
+	rotZ = aDrawable.rotZ;
+	colorR = aDrawable.colorR;
+	colorG = aDrawable.colorG;
+	colorB = aDrawable.colorB;
+	scaleX = aDrawable.scaleX;
+	scaleY = aDrawable.scaleY;
+	maxScale = aDrawable.maxScale;
+	minScale = aDrawable.minScale;
+	opacity = aDrawable.opacity;
+	minOpacity = aDrawable.minOpacity;
+	maxOpacity = aDrawable.maxOpacity;
+	angle = aDrawable.angle;
+	speed = aDrawable.speed;
+	rotationAngle = aDrawable.rotationAngle;
+
+	randomize();
+
+	//Init openGL texture coordinates
+	setAnimX(0);
+	setAnimY(0);
+}
+
 void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 {
 	name = aDrawable->name;
@@ -537,4 +589,30 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable)
 	//Init openGL texture coordinates
 	setAnimX(0);
 	setAnimY(0);
+}
+
+AnimatedDrawable& AnimatedDrawable::operator=(const AnimatedDrawable& anAnimatedDrawable)
+{
+	/*name = anAnimatedDrawable.name;
+	width = anAnimatedDrawable.width;
+	height = anAnimatedDrawable.height;*/
+	for (std::map<string, Animation *>::const_iterator anElement = anAnimatedDrawable.animations.begin(); anElement != anAnimatedDrawable.animations.end(); ++anElement)
+	{
+		Animation * aNewAnim = new Animation((*anElement).second);
+		aNewAnim->drawable = this;
+		animations.insert(make_pair((*anElement).first, aNewAnim));
+	}
+
+	toBlend = anAnimatedDrawable.toBlend;
+	currentAnimation = anAnimatedDrawable.currentAnimation;
+	setAnimation(currentAnimation->name);
+	texture = anAnimatedDrawable.texture;
+	posX = anAnimatedDrawable.posX;
+	posY = anAnimatedDrawable.posY;
+	oglTexture = anAnimatedDrawable.oglTexture;
+	virtualDepth = anAnimatedDrawable.virtualDepth;
+	setAnimX(0);
+	setAnimY(0);
+
+	return *this;
 }

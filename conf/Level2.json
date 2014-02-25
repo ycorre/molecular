@@ -2,9 +2,7 @@
 	"drawable" : [
 		{"name" : "bkgDistant", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgDistant.png", "blend" : true, "virtualDepth" : 1000, "clampTexture" : false},
 		{"name" : "bkgMid", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgMid.png", "blend" : true, "virtualDepth" : 1000, "clampTexture" : false},
-		{"name" : "bkgNear", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgNear.png", "blend" : true, "virtualDepth" : 1000, "clampTexture" : false},
-		{"name" : "e_Cadmium_ShootHalo", "width" : 66, "height" : 66, "dataPath": "res/action/characters/e_Cadmium_ShootHalo.png", "opacity" : 0.6, "blend" : true, "virtualDepth" : 150},
-		{"name" : "e005_Halo", "width" : 48, "height" : 48, "dataPath": "res/action/characters/e005_Halo.png", "blend" : true, "virtualDepth" : 150}
+		{"name" : "bkgNear", "width" : 1024, "height" : 1024, "dataPath": "res/action/levels/bkgNear.png", "blend" : true, "virtualDepth" : 1000, "clampTexture" : false}
 		],
 
 	"animatedDrawable" : [
@@ -38,24 +36,10 @@
 		},
 		
 		{"name" : "jSp_Bouclier", "width" : 96, "height" : 96, "blend" : true, "collision" : "res/action/characters/jMask_Bouclier.png", "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/jSp_Bouclier.png"}]},	
-		{"name" : "shoot", "width" : 64, "height" : 64,  "collision" : "res/action/characters/e001_ShootMask.png", "blend" : true, "animations" : [{"numberOfFrames" : 8, "dataPath": "res/action/characters/e001_SpShoot.png"}]},
-		{"name" : "bomb", "width" : 96, "height" : 96, "collision" : "res/Bomb_Col.png", "animations" : [{"numberOfFrames" : 12, "dataPath": "res/bombu.png"}]},
-		{"name" : "eSp_Cadmium", "width" : 50, "height" : 50, "blend" : true,  "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/e001Sp.png"}]},
-		{"name" : "e_Cadmium_Shoot", "width" : 16, "height" : 16, "collision": "res/action/characters/e001_ShootMask.png", "animations" : [{"dataPath": "res/action/characters/e001_Shoot.png"}]},
-		{"name" : "eSp_Iron", "width" : 54, "height" : 54, "blend" : true, "animations" : [{"numberOfFrames" : 75, "dataPath": "res/action/characters/e003Sp.png"}]},
-		
-		{"name" : "e004Sp", "width" : 36, "height" : 36, "blend": true, "animations" : [{"numberOfFrames" : 160, "dataPath": "res/action/characters/e004Sp.png"}]},
-		
-		{"name" : "e005Sp", "width" : 102, "height" : 102,  "blend": true, "animations" : [{"numberOfFrames" : 100, "dataPath": "res/action/characters/e005Sp.png"}], "virtualDepth" : 200},
-		{"name" : "e005CanonSp", "width" : 28, "height" : 28, "animations" : [{"name" : "canon", "numberOfFrames" : 72, "dataPath": "res/action/characters/e005CanonSp.png"}], "virtualDepth" : 150},
-		{"name" : "e005_Shoot", "width" : 12, "height" : 12, "animations" : [{"dataPath": "res/action/characters/e005_Shoot.png"}]},
 	
 		{"name" : "bigRock", "width" : 102, "height" : 102, "animations" : [{"name" : "type1", "numberOfFrames" : 100, "dataPath": "res/action/characters/o001Sp.png"}, {"name" : "type2", "numberOfFrames" : 100, "dataPath": "res/action/characters/o002Sp.png"}]},
 		{"name" : "smallRock", "width" : 50, "height" : 50, "animations" : [{"name" : "type1", "numberOfFrames" : 60, "dataPath": "res/action/characters/o003Sp.png"}, {"name" : "type2", "numberOfFrames" : 60, "dataPath": "res/action/characters/o004Sp.png"}]},
 	
-		{"name" : "bigPyroxene", "width" : 102, "height" : 102, "animations" : [{"width" : 84, "height" : 84, "name" : "type1", "numberOfFrames" : 84, "dataPath": "res/action/characters/o005Sp.png"}, {"width" : 96, "height" : 96, "name" : "type2", "numberOfFrames" : 96, "dataPath": "res/action/characters/o006Sp.png"}]},
-		{"name" : "smallPyroxene", "width" : 50, "height" : 50, "animations" : [{"width" : 48, "height" : 42, "name" : "type1", "numberOfFrames" : 68, "dataPath": "res/action/characters/o007Sp.png"}, {"width" : 42, "height" : 48, "name" : "type2", "numberOfFrames" : 53, "dataPath": "res/action/characters/o008Sp.png"}]},
-		
 		{"name" : "electron", "width" : 153, "height" : 64, "collision" : "res/action/characters/j_eMask.png", "animations":  [{"name" : "level1", "dataPath" : "res/action/characters/j_eElectron.png"}, {"name" : "level2", "dataPath" : "res/action/characters/j_eMuon.png"}, {"name" : "level3", "dataPath" : "res/action/characters/j_eTau.png"}], "blend" : true},
 		{"name" : "muzzle", "width" : 96, "height" : 96,  "blend" : true, "animations" : [{"name" : "level1", "numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzle.png"}, {"name" : "level3", "numberOfFrames" : 20, "dataPath": "res/action/characters/j_eSpMuzzleTau.png"}]},
 		
@@ -156,20 +140,6 @@
 		{"name" : "explosionB", "particleEffects" : ["explosion"], "width" : 204, "height" : 204, "effectLayer": [
 			{"name" : "expl002Sp_Fire", "width" : 204, "height" : 204, "rotZ" : -1, "rotationAngle" : -1, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl002Sp_Fire.png"}], "blend" : true, "virtualDepth" : 99},
 			{"name" : "expl002Sp_Smoke", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 97, "dataPath": "res/action/characters/expl002Sp_Smoke.png"}], "virtualDepth" : 800}]
-		},
-		
-		{"name" : "explosionCopper", "width" : 102, "height" : 102, "effectLayer": [
-			{"name" : "hallo", "width" : 256, "height" : 256, "clampTexture" : false, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/Hallo.png", "opacity" : [1,0.2,3,1,12,0.9,28,0.4,50,0], "scaling" : [0,3,50,3]}], "blend" : true, "virtualDepth" : 99}]
-		},
-
-		{"name" : "cadmiumExplosion", "particleEffects" : ["cadmiumExplosion"], "width" : 50, "height" : 50, "effectLayer": [
-			{"name" : "eSp_Shard", "width" : 30, "height" : 30, "clampTexture" : false, "blend" : true, "scaleX" : 0.66, "scaleY" : 0.66, "rotZ" : -1, "rotationAngle" : -1, "speed" : 1, "angle" : -1138, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/e001Shrapnel.png", "rotationSpeed" : 3.5, "opacity" : [0,1,40,1,50,0]}]},
-			{"name" : "eSp_Shard1", "width" : 30, "height" : 30, "clampTexture" : false, "blend" : true, "scaleX" : 0.66, "scaleY" : 0.66, "rotZ" : -1, "rotationAngle" : -1, "speed" : 1, "angle" : -1138, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/e001Shrapnel.png", "rotationSpeed" : 3.5, "opacity" : [0,1,40,1,50,0]}]},
-			{"name" : "eSp_Shard2", "width" : 30, "height" : 30, "clampTexture" : false, "blend" : true, "scaleX" : 0.66, "scaleY" : 0.66, "rotZ" : -1, "rotationAngle" : -1, "speed" : 1, "angle" : -1138, "animations" : [{"numberOfFrames" : 50, "dataPath": "res/action/characters/e001Shrapnel.png", "rotationSpeed" : 3.5, "opacity" : [0,1,40,1,50,0]}]}]
-		},
-		
-		{"name" : "explosionSilicon", "particleEffects" : ["siliconExplosion", "siliconExplosionHalo"], "width" : 128, "height" : 128, "effectLayer": [
-			{"name" : "explOnde", "colorB": 128, "width" : 102, "height" : 102, "blend" : true, "rotZ" : -1, "rotationAngle" : -1, "scaleX" : -1, "minScale" : 1.0, "maxScale" : 1.2, "opacity" : -1, "minOpacity" : 0.2, "maxOpacity" : 0.6, "animationUpdateFrequency" : 60, "animations" : [{"numberOfFrames" : 6, "dataPath": "res/action/characters/explSp_OndeA.png"}]}]
 		}
 	],
 	
@@ -198,91 +168,9 @@
 			{"type" : "point", "number" : 40, "lifetime" : 75, "startingColor" : [255, 233, 108], "endingColor" : [223, 45, 92], "opacity" : [0, 1, 6, 0.5]}]
 		},
 		
-		{"name" : "siliconExplosion" , "effectType": [
-			{"type" : "point", "number" : 18, "lifetime" : 125, "startingColor" : [255, 255, 229], "endingColor" : [0, 255, 229], "opacity" : [0, 1, 50, 1, 125, 0]}]
-		},
-		
-		{"name" : "siliconExplosionHalo" , "effectType": [
-			{"type" : "disc", "radius" : 22, "lifetime" : 50, "startingColor" : [99, 221, 156], "opacity" : [0, 1, 50, 0]}]
-		},
-		
-		{"name" : "cadmiumExplosion" , "effectType": [
-			{"type" : "point", "number" : 30, "lifetime" : 125, "startingColor" : [250, 15, 15], "opacity" : [0, 1, 125, 0]}]
-		},
-		
 		{"name" : "hadronTrail" , "effectType": [
 			{"type" : "point", "number" : 3, "randomNumber" : true, "lifetime" : 75, "startingColor" : [255, 154, 229], "endingColor" : [53, 16, 110], "opacity" : [0, 1.5, 75, 0], "lowBoundAngle" : 0, "highBoundAngle" : 0}]
 		}
-	],
-	
-	"enemyWaves" : [
-		{"startingDate" : 100, "possibleBonus" : [5, 6, 7, 8],  "enemies" : [
-			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]}, 
-			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 150, "movement" : [950, 150, 850, 400, -250, 400]}
-			]}, 
-			
-		{"startingDate" : 500, "possibleBonus" :  [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 550, "movement" : [850, 550, 850, 350, -250, 350]}
-			]}, 
-			
-		{"startingDate" : 900, "possibleBonus" :  [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 530, "movement" : [750, 530, 1100, 260, -250, 260]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 130, "movement" : [750, 130, 1100, 400, -250, 380]}
-			]},
-			
-		{"startingDate" : 1400, "possibleBonus" :  [5, 6, 7, 8, 14], "enemies" : [
-			{"name" : "Iron" , "posX" : 100, "posY" : -1, "possibleBonus" : [5, 6, 7, 8, 14]},
-			{"name" : "Iron" , "posX" : 400, "posY" : -1, "possibleBonus" : [5, 6, 7, 8, 14]}
-			]},
-			
-		{"startingDate" : 1800, "enemies" : [
-			{"name" : "Silicon" , "generatedNumber" : 60, "spreadWidth" : 1500},
-			{"name" : "Iron" , "posX" : -1, "posY" : -1, "possibleBonus" : [5, 6, 7, 8, 14], "spreadWidth" : 1200},
-			{"name" : "Iron" , "posX" : -1, "posY" : -1, "possibleBonus" : [5, 6, 7, 8, 14], "spreadWidth" : 1200}
-			]},
-			
-		{"startingDate" : 2600, "blocking" : true, "enemies" : [
-			{"name" : "Copper" , "posX" : 10, "posY" : -1, "life" : 1000, "possibleBonus" :  [5, 6, 7, 8, 14], "lifeTime" : 5000}
-			]},
-			
-		{"startingDate" : 2700, "enemies" : [
-			{"name" : "Silicon" , "generatedNumber" : 150, "spreadWidth" : 1500}
-			]},
-			
-		{"startingDate" : 3700, "possibleBonus" : [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 150, "movement" : [750, 150, 1100, 400, -250, 400]}
-			]},
-			
-	   {"startingDate" : 3700, "possibleBonus" : [5, 6, 7, 8], "enemies" : [
-			{"name" : "Cadmium" , "speed": 3, "posX" : 100, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 200, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 300, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 400, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 500, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]},
-			{"name" : "Cadmium" , "speed": 3, "posX" : 600, "posY" : 550, "movement" : [750, 550, 1100, 200, -250, 200]}
-			]},
-			
-		{"startingDate" : 4100, "blocking" : true, "possibleBonus" : [5, 6, 7, 8], "enemies" : [
-			{"name" : "Pyroxene" , "generationRate": 1500, "numberOfPyroxenes" : 18}
-			]}
 	]
 }
 

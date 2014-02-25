@@ -33,6 +33,7 @@ class Game
 		vector<string> levelOrder;
 		map<string, bool>lockedLevel;
 		int score;
+		bool done;
 
 		//Hold the current state of the game (cf. types.h for the states)
 		GameState gameState;
@@ -42,6 +43,9 @@ class Game
 		int mainLoop();
 		int initSDL();
 		int initGame();
+		void processEvents();
+		void mainProcessing();
+		void loadMenu(MenuState aMenu);
 		void updateTimers();
 		void newGame();
 		void launchLevel(string lev);

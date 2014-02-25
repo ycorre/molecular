@@ -45,6 +45,7 @@ class Animation
 	  bool hasAnimatedTexture;
 
 	  Animation();
+	  //Animation(const Animation& anAnim);
 	  Animation(Animation * anAnim);
 	  Animation(Drawable * aDrawable);
 	  Animation(Json::Value aConf, Drawable * aDrawable);

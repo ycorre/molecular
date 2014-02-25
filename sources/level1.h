@@ -20,14 +20,12 @@ class Level1: public Level
 	int cameraSpeed;
 
 	Level1();
-	void instantiateEnemies();
-	virtual void loadLevel(Hero * aHero);
-	virtual void drawLevel();
-	virtual void checkEvent();
-	virtual bool checkCollision(Drawable * anElement);
-	virtual bool checkEnemyCollision(Drawable * anElement);
-	virtual void finishLevel();
+	void loadLevel(Hero * aHero);
+	void drawLevel();
+	void checkEvent();
+	bool checkCollision(Drawable * anElement);
+	bool checkEnemyCollision(Drawable * anElement);
+	void finishLevel();
 };
-void loadEffects();
 #endif
 

@@ -51,6 +51,7 @@ class Hero: public AnimatedDrawable
 	  float hitAngle;
 
 	  Hero();
+	  ~Hero();
 	  void setState(int aState);
 	  void setTexture(Drawable * aModel);
 	  void fire();
@@ -75,9 +76,9 @@ class Hero: public AnimatedDrawable
 	  list<Shoot *> * getLasers();
 	  void spreadQuarks();
 	  void checkQuarkLevels();
-	  virtual void animate();
-	  virtual bool isHero() {return true;}
-	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void animate();
+	  bool isHero() {return true;}
+	  void processCollisionWith(Drawable * aDrawable);
 
 	private:
 	  int heroChangedState;
@@ -85,11 +86,11 @@ class Hero: public AnimatedDrawable
 
 class Shield: public AnimatedDrawable
 {
-public:
-	float energy;
+	public:
+		float energy;
 
-	Shield();
-	Shield(float x, float y);
+		Shield();
+		Shield(float x, float y);
 };
 
 #endif

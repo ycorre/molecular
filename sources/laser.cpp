@@ -67,7 +67,7 @@ void Shoot::processCollisionWith(Drawable * aDrawable)
 	int soundNumber = 1 + rand() % 8;
 	stringstream soundName;
 	soundName << "eImp" << soundNumber;
-	CurrentLevel->soundEngine->playSound(soundName.str());
+	CurrentLevel->soundEngine->playSound(soundName.str(), posX);
 
 	toRemove = true;
 }
@@ -112,94 +112,6 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 }
 
 /*
- * HadronAmmo functions
- */
-
-HadronAmmo::HadronAmmo(int x, int y, Weapon * aWeapon)
-{
-	firingWeapon = aWeapon;
-	power = firingWeapon->load;
-	copyFrom(CurrentLevel->loadedObjects.at("hadron"));
-	setAnimation("level1");
-	speed = 15.0;
-	extraPhoton.name = "";
-
-	if(power < aWeapon->maxPower/4)
-	{
-		setAnimation("level1");
-	}
-	else if(power < aWeapon->maxPower/2)
-	{
-		setAnimation("level2");
-	}
-	else if(power < 3 *(aWeapon->maxPower/4))
-	{
-		setAnimation("level3");
-	}
-	else if(power < aWeapon->maxPower)
-	{
-		setAnimation("level4");
-	}
-	else if(power == aWeapon->maxPower)
-	{
-		setAnimation("level4");
-		extraPhoton.copyFrom(CurrentLevel->loadedObjects.at("hadron"));
-		extraPhoton.setAnimation("level1");
-		extraPhoton.toBlend = true;
-		extraPhoton.posX = x;
-		extraPhoton.posY = y;
-	}
-
-	posX = x;
-	posY = y;
-	toBlend = true;
-	setAnimX(0);
-	setAnimY(0);
-}
-
-void HadronAmmo::animate()
-{
-	updateAnimationFrame();
-	posX = posX + speed;
-	CurrentLevel->createParticleEffect(posX, posY, "hadronTrail");
-
-	if(!extraPhoton.name.empty())
-	{
-		extraPhoton.updateAnimationFrame();
-		extraPhoton.posX = posX + speed;
-	}
-
-	if (!CurrentLevel->isOnScreen(this))
-	{
-		display = false;
-		toRemove = true;
-		if(!extraPhoton.name.empty())
-		{
-			extraPhoton.display = false;
-			extraPhoton.toRemove = true;
-		}
-	}
-}
-
-void HadronAmmo::removeEnergy(int anEnergyValue)
-{
-	power = power - anEnergyValue;
-
-	if(power < 1.0)
-	{
-		display = false;
-		toRemove = true;
-	}
-}
-
-//Override the collision function with a collision that do nothing so that
-//it does not remove the photon
-void HadronAmmo::processCollisionWith(Drawable * aDrawable)
-{
-
-}
-
-/*
  * Hadron Particle
  */
 HadronParticle::HadronParticle(float x, float y, float aScale, float anAngle, int aLoad, Weapon * aWeapon)
@@ -211,7 +123,7 @@ HadronParticle::HadronParticle(float x, float y, float aScale, float anAngle, in
 
 	angle = anAngle * (PI/180.0);
 	scaleX = scaleY = (float) power / 200.0f;
-	speed = speed + ((float) power / 33.0f);
+	speed = speed + (float) power / 33.0f;
 
 	star.copyFrom(CurrentLevel->loadedObjects.at("hadronStar"));
 	star.scaleX = star.scaleY = scaleX * 2.0f;
@@ -292,13 +204,9 @@ Lazer::Lazer(int x, int y, Weapon * aWeapon)
 	width = SCREEN_WIDTH;
 
 	lightning.copyFrom(CurrentLevel->loadedObjects.at("jSp_bEclair"));
-	lightning.setAnimX(0);
-	lightning.setAnimY(0);
 	lightning.display = false;
 
 	burningFlames.copyFrom(CurrentLevel->loadedObjects.at("jSp_bCrame"));
-	burningFlames.setAnimX(0);
-	burningFlames.setAnimY(0);
 
 	attack.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Attack"));
 	release.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Release"));
@@ -311,19 +219,13 @@ Lazer::Lazer(int x, int y, Weapon * aWeapon)
 
 	attack.posX = x + width;
 	attack.posY = y;
-	attack.setAnimX(0);
-	attack.setAnimY(0);
 
 	release.posX = x - 12;
 	release.posY = y;
-	release.setAnimX(0);
-	release.setAnimY(0);
 
 	posX = x + 47 + width/2;
 	posY = y;
 	toBlend = true;
-	setAnimX(0);
-	setAnimY(0);
 }
 
 void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, float yImpactPos)
@@ -368,9 +270,10 @@ void Lazer::animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, floa
 	//Then we must also shorten the release part to make sure it does not overlap the attack part
 	if(attack.posX - attack.width/2 <= release.posX + release.width/2)
 	{
-		release.width = release.width - ((release.posX + release.width/2) - (attack.posX - attack.width/2));
+		float widthDiff = ((release.posX + release.width/2) - (attack.posX - attack.width/2));
+		release.width = release.width - widthDiff;
 		release.currentAnimation->width = release.width;
-		//release.posX = release.width;
+		release.posX = release.posX - widthDiff/2;
 	}
 
 	width = max(0.0f, width - 47.5f);

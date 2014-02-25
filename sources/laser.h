@@ -1,5 +1,5 @@
 /*
- * Contains herodescription
+ * Contains stuff...
  */
  
 #ifndef LASER_H
@@ -32,22 +32,8 @@ class Shoot: public AnimatedDrawable
 class ElectronAmmo: public Shoot
 {
    public:
-
 	  ElectronAmmo(int x, int y, Weapon * aWeapon);
 };
-
-class HadronAmmo: public Shoot
-{
-   public:
-	  AnimatedDrawable extraPhoton;
-
-	  HadronAmmo(int x, int y, Weapon * aWeapon);
-	  void animate();
-	  virtual void processCollisionWith(Drawable * aDrawable);
-	  void removeEnergy(int anEnergyValue);
-	  virtual bool isPhoton() {return true;}
-};
-
 
 class HadronParticle: public Shoot
 {
@@ -55,10 +41,10 @@ class HadronParticle: public Shoot
 	  AnimatedDrawable star;
 
 	  HadronParticle(float x, float y, float aScale, float anAngle, int aLoad, Weapon * aWeapon);
-	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void processCollisionWith(Drawable * aDrawable);
 	  void removeEnergy(int anEnergyValue);
-	  virtual void animate();
-	  virtual bool isPhoton() {return true;}
+	  void animate();
+	  bool isPhoton() {return true;}
 };
 
 class Lazer: public Shoot
@@ -69,9 +55,9 @@ class Lazer: public Shoot
 
 		Lazer();
 		Lazer(int x, int y, Weapon * aWeapon);
-		virtual bool isLazer() {return true;}
+		bool isLazer() {return true;}
 		void animate(float x, float y, Enemy * anHitEnemy, float xImpactPos, float yImpactPos);
-		virtual void processCollisionWith(Drawable * aDrawable);
+		void processCollisionWith(Drawable * aDrawable);
 		void upgrade(int aLevel);
 };
 
@@ -96,8 +82,8 @@ class CadmiumAmmo: public Shoot
 	  Drawable halo;
 
 	  CadmiumAmmo(int x, int y, float anAngle, float aSpeed);
-	  virtual void animate();
-	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void animate();
+	  void processCollisionWith(Drawable * aDrawable);
 };
 
 class CopperAmmo: public Shoot
@@ -108,8 +94,8 @@ class CopperAmmo: public Shoot
 	  Drawable halo;
 
 	  CopperAmmo(int x, int y, float anAngle, float aSpeed);
-	  virtual void animate();
-	  virtual void processCollisionWith(Drawable * aDrawable);
+	  void animate();
+	  void processCollisionWith(Drawable * aDrawable);
 };
 
 #endif

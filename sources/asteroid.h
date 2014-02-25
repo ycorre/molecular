@@ -31,11 +31,10 @@ class Rock: public Enemy
 class Pyroxene: public Rock
 {
 	public:
-
 		Pyroxene(int type);
 		//used to set small fragments of rock
 		Pyroxene(int type, int sX, int sY, int speed, float angle);
-		virtual void createSmallerRock(Rock * anElement);
+		void createSmallerRock(Rock * anElement);
 };
 
 

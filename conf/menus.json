@@ -4,26 +4,26 @@
 			{"name" : "bkgTitle", "width" : 1200, "height" : 800, "dataPath": "res/interface/BkgTitre.png", "blend" : 1},
 			{"name" : "bubble1", "width" : 1200, "height" : 800, "dataPath": "res/interface/Bulles01.png", "blend" : 1, "clampTexture" : false},
 			{"name" : "bubble2", "width" : 1200, "height" : 800, "dataPath": "res/interface/Bulles02.png", "blend" : 1, "clampTexture" : false},
-			{"name" : "title", "width" : 926, "height" : 152, "posX" : 137, "posY" : 100, "dataPath": "res/interface/Molecular2.png"},
+			{"name" : "title", "width" : 926, "height" : 152, "posX" : 137, "posY" : 550, "dataPath": "res/interface/Molecular2.png"},
 			{"name" : "logo", "width" : 1200, "height" : 800, "dataPath": "res/interface/groupe.png"}
 		],
 	
 		"animatedDrawable" : [
-			{"name" : "btnLevel", "width" : 384, "height" : 64, "posX" : 427, "posY": 300,
+			{"name" : "btnLevel", "width" : 384, "height" : 64, "posX" : 427, "posY": 400,
 				"animations": [
 				{"name" : "off",  "dataPath": "res/interface/btnLevel_off.png"},
 				{"name" : "on",  "dataPath": "res/interface/btnLevel_on.png"},
 				{"name" : "hl",  "dataPath": "res/interface/btnLevel_hl.png"}
 				]
 			},
-			{"name" : "btnOption", "width" : 384, "height" : 64, "posX" : 427, "posY": 450,
+			{"name" : "btnOption", "width" : 384, "height" : 64, "posX" : 427, "posY": 250,
 				"animations": [
 				{"name" : "off",  "dataPath": "res/interface/btnOptions_off.png"},
 				{"name" : "on",  "dataPath": "res/interface/btnOptions_on.png"},
 				{"name" : "hl",  "dataPath": "res/interface/btnOptions_hl.png"}
 				]
 			},
-			{"name" : "btnQuit", "width" : 384, "height" : 64, "posX" : 427, "posY": 600,
+			{"name" : "btnQuit", "width" : 384, "height" : 64, "posX" : 427, "posY": 100,
 				"animations": [
 				{"name" : "off",  "dataPath": "res/interface/btnQuitter_off.png"},
 				{"name" : "on",  "dataPath": "res/interface/btnQuitter_on.png"},
@@ -35,15 +35,17 @@
 
 	"options"  : {
 		"drawable" : [
-			{"name" : "optionTitle", "width" : 1110, "height" : 70,  "posX" : 45, "posY": 100, "dataPath": "res/interface/TitreOptions.png"},
-			{"name" : "bkgOption", "width" : 1200, "height" : 800, "dataPath": "res/interface/BkgOptions.png"}
+			{"name" : "optionTitle", "width" : 1110, "height" : 70,  "posX" : 45, "posY": 600, "dataPath": "res/interface/TitreOptions.png"},
+			{"name" : "bkgOption", "width" : 1200, "height" : 800, "dataPath": "res/interface/BkgOptions.png"},
+			{"name" : "soundVolumeBar", "width" : 600, "height" : 40, "posX" : 350, "posY" : 500, "colorR" : 29, "colorG" : 210, "colorB" : 199, "textured" : false},
+			{"name" : "musicVolumeBar", "width" : 600, "height" : 40, "posX" : 350, "posY" : 350, "colorR" : 29, "colorG" : 210, "colorB" : 199, "textured" : false}
 		]
 	},
 	
 	"levelSelect" : {
 		"drawable" : [
 			{"name" : "bkgLevel" , "width" : 1200, "height" : 800, "dataPath": "res/interface/BkgLevel.png"},
-			{"name" : "levelTitle" , "width" : 892, "height" : 60,  "posX" : 154, "posY": 100, "dataPath": "res/interface/TitreLevel.png", "virtualDepth" : 50},
+			{"name" : "levelTitle" , "width" : 892, "height" : 60,  "posX" : 154, "posY": 650, "dataPath": "res/interface/TitreLevel.png", "virtualDepth" : 50},
 			{"name" : "levelLock" , "width" : 176, "height" : 176, "dataPath": "res/interface/levLocked.png"}
 		],
 		

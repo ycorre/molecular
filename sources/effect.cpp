@@ -78,7 +78,11 @@ Effect::Effect(Json::Value aConfig)
 
 Effect::~Effect()
 {
-
+	for (map<string, AnimatedDrawable *>::iterator aLayer = effectLayers.begin(); aLayer != effectLayers.end(); ++aLayer)
+	{
+		delete (*aLayer).second;
+	}
+	effectLayers.clear();
 }
 
 int Effect::animateEffect()
@@ -153,11 +157,12 @@ TextEffect::TextEffect(int x, int y, string aText)
 	frameCount = 0;
 }
 
+
 void TextEffect::animate()
 {
 	if(updateAnimationFrame())
 	{
-		posY--;
+		posY++;
 	}
 
 	if(isMoving)

@@ -34,12 +34,12 @@ class LevelFactory
 class Level
 {
 	public:
-	GraphicEngine * ge;
-	Pe * pe;
+	GraphicEngine * graphicEngine;
+	Pe * physicEngine;
 	Hero * hero;
 	HUD * hud;
 	SoundEngine * soundEngine;
-	list<Drawable*> activeElements;
+	list<Drawable *> activeElements;
 	map<string, vector<string> > configurationElements;
 	map<string, Effect *> loadedEffects;
 	list<Effect *> activeEffects;
@@ -62,6 +62,7 @@ class Level
 	map<string, Json::Value> configurations;
 
 	Level();
+	virtual ~Level() {};
 	Level * launchLevel(string aLevel);
 	virtual void loadLevel(Hero * anHero);
 	void loadLevelConfiguration(string path);

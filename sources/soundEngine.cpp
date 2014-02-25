@@ -8,8 +8,6 @@
 
 static SoundEngine * aSe;
 
-//int Mix_SetPanning(int channel, Uint8 left, Uint8 right)
-
 SoundEngine::SoundEngine()
 {
 	numberOfChannel = 24;
@@ -22,16 +20,16 @@ void SoundEngine::init()
 {
 	int i;
 
-    //Allocate more channels than the default parameter (8)
-    Mix_AllocateChannels(numberOfChannel);
-    Mix_Init(MIX_INIT_MP3);
-    Mix_Init(MIX_INIT_OGG|MIX_INIT_MOD);
+	//Allocate more channels than the default parameter (8)
+	Mix_AllocateChannels(numberOfChannel);
+	Mix_Init(MIX_INIT_MP3);
+	Mix_Init(MIX_INIT_OGG|MIX_INIT_MOD);
 
 	Mix_ChannelFinished(channelDone);
 	playingSounds.resize(numberOfChannel);
 
-	//Init the layers (16 layers for now)
-	for (i = 0; i < 16; i++)
+	//Init the layers (32 layers for now)
+	for (i = 0; i < 32; i++)
 	{
 		playingLayers[i] = NULL;
 	}
@@ -80,7 +78,7 @@ void SoundEngine::playSound(Sound * aSound)
 		if (aSound->playingChannel > -1)
 		{
 			aSound->isPlaying = true;
-			//Mix_SetPanning(aSound->playingChannel, 255, 255);
+
 			if (aSound->posX != -1)
 			{
 				//Spatializing sound
@@ -116,7 +114,6 @@ void SoundEngine::addSound(string pathToASound, string aSoundId)
 	if(sounds.find(aSoundId) == sounds.end())
 	{
 		Sound * aSound = new Sound(pathToASound, aSoundId);
-
 		sounds.insert(make_pair(aSoundId, aSound));
 	}
 	else
@@ -135,6 +132,7 @@ void SoundEngine::addSound(Sound * aSound)
 	else
 	{
 		Mix_FreeChunk(aSound->soundData);
+		delete aSound;
 		cerr << "SoundEngine Error: The sound " << aSound->name << " has already been loaded " << endl;
 	}
 }
@@ -197,9 +195,10 @@ void SoundEngine::finishedPlaying(int aChannel)
 //Set the volume for all channel
 void SoundEngine::setSoundVolume(int aSoundVolume)
 {
+	soundVolume = aSoundVolume;
+
 	//Sound volume goes up to 128 but we use value up to 100
-	soundVolume = (int)(aSoundVolume * 1.28);
-	Mix_Volume(-1, soundVolume);
+	Mix_Volume(-1, soundVolume * 1.28);
 }
 
 
@@ -230,7 +229,7 @@ void SoundEngine::playMusic(Music * aMusic)
 		}
 		else
 		{
-			cerr << "Error could not play music" << aMusic->name << endl;
+			cerr << "Error: Could not play music: " << aMusic->name << endl;
 		}
 	}
 }
@@ -260,12 +259,11 @@ void SoundEngine::addMusic(string pathToASound, string aMusicId)
 	if(musics.find(aMusicId) == musics.end())
 	{
 		Music * aMusic = new Music(pathToASound, aMusicId);
-
 		musics.insert(make_pair(aMusicId, aMusic));
 	}
 	else
 	{
-		cerr << "SoundEngine Error: The sound " << aMusicId << " has already been loaded " << endl;
+		cout << "SoundEngine Error: The sound " << aMusicId << " has already been loaded " << endl;
 	}
 }
 
@@ -279,7 +277,8 @@ void SoundEngine::addMusic(Music * aMusic)
 	else
 	{
 		Mix_FreeChunk(aMusic->soundData);
-		cerr << "SoundEngine Error: The music " << aMusic->name << " has already been loaded " << endl;
+		delete aMusic;
+		cout << "SoundEngine Error: The music " << aMusic->name << " has already been loaded " << endl;
 	}
 }
 
@@ -306,7 +305,7 @@ int SoundEngine::loadMusic(string pathToASound, Music * aMusic)
 
 	if(aMusic->musicData == NULL)
 	{
-		cerr << "SoundEngine Error: Could not load " << pathToASound << endl;
+		cerr << "SoundEngine Error: Could not load music " << pathToASound << endl;
 		return 0;
 	}
 
@@ -315,8 +314,8 @@ int SoundEngine::loadMusic(string pathToASound, Music * aMusic)
 
 void SoundEngine::setMusicVolume(int aMusicVolume)
 {
-	musicVolume = (int)(aMusicVolume * 1.28);
-	Mix_VolumeMusic(musicVolume);
+	musicVolume = aMusicVolume;
+	Mix_VolumeMusic(musicVolume * 1.28);
 }
 
 void SoundEngine::muteAll()
@@ -338,13 +337,14 @@ void SoundEngine::freeLoadedSounds()
 	for(map<string, Music *>::iterator aMusic = musics.begin(); aMusic != musics.end(); aMusic++)
 	{
 		Mix_FreeMusic((*aMusic).second->musicData);
+		delete (*aMusic).second;
 	}
 	musics.clear();
-
 
 	for(map<string, Sound *>::iterator aSound = sounds.begin(); aSound != sounds.end(); aSound++)
 	{
 		Mix_FreeChunk((*aSound).second->soundData);
+		delete (*aSound).second;
 	}
 	sounds.clear();
 }

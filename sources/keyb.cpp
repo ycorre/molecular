@@ -126,7 +126,7 @@ void Keyboard::processeMouseInGame(Hero * hero)
 
 	if (!hero->dontMove)
 	{
-		hero->move(x, y);
+		hero->move(x, -y);
 
 		if(buttonMask & SDL_BUTTON(1))
 		{
@@ -218,8 +218,8 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 
 	//If we are displaying one screen, then any touch take us to the next menu
 	if(menu->currentMenu == MENU_SUCCESS || menu->currentMenu == MENU_CREDIT ||
-			menu->currentMenu == MENU_GAMEOVER || menu->currentMenu == MENU_HIGHSCORE ||
-			menu->currentMenu == MENU_INTRO || (menu->currentMenu == MENU_LEVELSELECT && keysym->sym == SDLK_ESCAPE))
+		menu->currentMenu == MENU_GAMEOVER || menu->currentMenu == MENU_HIGHSCORE || menu->currentMenu == MENU_INTRO ||
+		((menu->currentMenu == MENU_OPTIONS || menu->currentMenu == MENU_LEVELSELECT) && keysym->sym == SDLK_ESCAPE))
 	{
 		menu->transition();
 		return;
@@ -228,7 +228,7 @@ void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
 	switch (keysym->sym)
 	{
 		case SDLK_ESCAPE:
-			quit(0);
+			game->done = true;
 			break;
 
 		case SDLK_UP:

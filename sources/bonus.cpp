@@ -168,8 +168,8 @@ void Bonus::animate()
 		halo.posY = posY;
 
 		//Make sure it does not disappear through the tob or the bottom of the screen
-		posY = max(posY, height/2);
-		posY = min(posY, (float) GAMEZONE_HEIGHT - height/2);
+		posY = max(posY, GAMEZONE_LIMIT + height/2);
+		posY = min(posY, (float) SCREEN_HEIGHT - height/2);
 
 		if(!drawn)
 			speed = speed * 0.92f;
@@ -204,5 +204,5 @@ void Bonus::drawnToHero()
 	float yDiff = CurrentLevel->hero->posY - posY;
 	angle = atan2(yDiff, xDiff);
 
-	speed = min(speed + 0.2f, 5.0f);
+	speed = min(speed + 0.4f, 10.0f);
 }

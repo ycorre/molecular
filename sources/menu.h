@@ -22,40 +22,44 @@ class Game;
 class Menu
 {
 	public:
-		Drawable bkgTitle, bkgOption, bkgLevel, highScoreBg;
 		GraphicEngine * ge;
 		Game * game;
 		SoundEngine * soundEngine;
+		TTF_Font * menuFont;
+		SDL_Color menuColor;
+		MenuState currentMenu, nextMenu;
+		bool startingGame;
+		bool menuInTransition;
+
+		Drawable bkgTitle, bkgOption, bkgLevel, highScoreBg;
 		Drawable logo;
 		Drawable credit, gameOver, success;
 		Drawable title, bubble1, bubble2;
 		Drawable optionTitle, levelTitle;
-		bool startingGame;
+		Drawable soundVolumeBar, musicVolumeBar;
+		Text soundVolume, musicVolume, soundVolumePercent, musicVolumePercent;
 
-		AnimatedDrawable optionButton, quitButton, levelSelectButton;
+		AnimatedDrawable * optionButton, * quitButton, * levelSelectButton;
 
 		int introLength;
-		int selected, selectedLevel;
 		Uint32 startIntro, endIntro;
-		vector<AnimatedDrawable> menuElements;
+
+		int selected, selectedLevel, selectedOption;
+		vector<AnimatedDrawable *> menuElements;
 		list<Drawable> levelSelectElements;
 		vector<AnimatedDrawable> levelSelectHalo;
 		vector<Drawable> levelLocks;
-		TTF_Font * menuFont;
-		SDL_Color menuColor;
-		string newName;
-		int newHighScoreRank;
-		bool menuInTransition;
+		vector<Text*> optionMenuElements;
 
 		map<string, Drawable> loadedMenuElements;
 		map<string, AnimatedDrawable> loadedAnimMenuElements;
-
 		map<string, vector<string> > configurationElements;
 
+		string newName;
+		int newHighScoreRank;
 		pair<string, unsigned int> ahighScores[5];
 		vector<pair<string, unsigned int> > highScores;
 		list<Text *> highScoreElements;
-		MenuState currentMenu, nextMenu;
 
 		Menu(GraphicEngine * aGe, SoundEngine * aSe);
 		void loadMenu();
@@ -65,6 +69,7 @@ class Menu
 		void updateLocks();
 
 		void displayMenu();
+		void displayOptions();
 		void displayLevelSelection();
 		void displayIntro();
 		void displayMainMenu();
@@ -87,14 +92,16 @@ class Menu
 		void selectionMove(int direction);
 		void mainSelectionMove(int direction);
 		void levelSelectionMove(int direction);
+		void optionSelectionMove(int direction);
 		void setSelectedLevel(int aValue);
 		void setMainSelection(int aValue);
+		void setSelectedOption(int aValue);
 		void select();
 		void selectMainMenu();
 		void selectLevel();
 };
 
-bool sortElement(AnimatedDrawable a, AnimatedDrawable b);
+bool sortElement(AnimatedDrawable * a, AnimatedDrawable * b);
 bool sortScores(pair<string, int>  a, pair<string, int>  b);
 
 #endif

@@ -20,6 +20,9 @@ bool Pe::collisionDetection(Drawable * aDrawable, Drawable * anotherDrawable)
 //Compute first if the two object boxes overlap
 bool Pe::boundingBox(Drawable * aDrawable, Drawable * anotherDrawable)
 {
+	if(!aDrawable->collidable || !anotherDrawable->collidable)
+		{return false;}
+
 	if (aDrawable->getXBoundary() + aDrawable->getWidthBoundary() < anotherDrawable->getXBoundary())
 		{return false;}
 	if (aDrawable->getXBoundary() > anotherDrawable->getXBoundary() + anotherDrawable->getWidthBoundary())
@@ -141,21 +144,21 @@ void Pe::stayOnScreen(Hero * aHero, pair<int, int> aPoint)
 
 	if(aHero->posX <= aHero->width/2)
 		{aHero->leftFlag = false;}
-	if(aHero->posY <= aHero->height/2)
-		{aHero->topFlag = false;}
+	if(aHero->posY <= GAMEZONE_LIMIT + aHero->height/2)
+		{aHero->bottomFlag = false;}
 	if(aHero->posX + aHero->width/2 >= aPoint.first)
 		{aHero->rightFlag = false;}
 	if(aHero->posY + aHero->height/2 >= aPoint.second)
-		{aHero->bottomFlag = false;}
+		{aHero->topFlag = false;}
 }
 
 //make sure that an item is on screen
 bool Pe::isOnScreen(Drawable * aDrawable)
 {
 	if (aDrawable->posX + aDrawable->width/2 < 0 ||
-		aDrawable->posY + aDrawable->height/2 < 0 ||
+		aDrawable->posY + aDrawable->height/2 < GAMEZONE_LIMIT ||
 		aDrawable->posX - aDrawable->width/2 > SCREEN_WIDTH ||
-		aDrawable->posY - aDrawable->height/2 > GAMEZONE_HEIGHT)
+		aDrawable->posY - aDrawable->height/2 > SCREEN_HEIGHT)
 	{
 		return false;
 	}

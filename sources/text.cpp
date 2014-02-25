@@ -62,17 +62,32 @@ void Text::write(string aText)
 		glDeleteTextures(1, &oglTexture);
 
 	ge->createOGLTexture(getTexture(), &oglTexture, false);
+
+	setAnimX(0);
+	setAnimY(0);
 }
 
 //Used when changes are made on the text elements
 //(e.g. the color of the text)
 void Text::update()
 {
+	SDL_FreeSurface(getTexture());
+	texture = NULL;
 	texture =  TTF_RenderUTF8_Blended(font, content.c_str(), color);
+	if (getTexture() == NULL)
+	{
+		cerr << "TTF_RenderUTF8_Blended() Failed: " << TTF_GetError() << endl;
+	}
+
+	width = getTexture()->w;
+	height = getTexture()->h;
 
 	glDeleteTextures(1, &oglTexture);
+	oglTexture = 0;
 	ge->createOGLTexture(getTexture(), &oglTexture, false);
 
+	setAnimX(0);
+	setAnimY(0);
 }
 
 void Text::setColor(SDL_Color aColor)

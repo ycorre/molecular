@@ -42,8 +42,6 @@ class Drawable
 	  float brightness;
 	  float brightnessDecreasingFactor;
 	  int virtualDepth;
-	  map<int, float> scalingEffect;
-	  map<int, float> opacityEffect;
 	  bool display; //should the object be displayed
 	  bool toRemove; //should the object be destroyed
 	  bool isBlinking; //should the object be blinking
@@ -51,10 +49,12 @@ class Drawable
 	  unsigned int blinkingCounter; //Keep track of the blinking frames
 	  string name;
 	  float ogl_Xorigin, ogl_Yorigin, ogl_Xcorner, ogl_Ycorner;
-	  int toBlend;
+	  bool toBlend;
 	  map<string, int> confParameters;
 	  SDL_Surface * collision;
 	  bool clampTexture;
+	  bool textured;
+	  bool collidable;
 	  vector<pair<float, float> > currentMove;
 	  float speed;
 	  float angle;
@@ -82,7 +82,6 @@ class Drawable
 	  void loadTexture(string path);
 	  void randomize();
 
-	  virtual void clean();
 	  virtual void copyFrom(Drawable * aDrawable);
 
 	  void computeOGLXValues();
@@ -96,23 +95,23 @@ class Drawable
 
 	  virtual void processCollision();
 	  virtual void processCollisionWith(Drawable * aDrawable);
-	  virtual float getXBoundary();
-	  virtual float getYBoundary();
-	  virtual float getWidthBoundary();
-	  virtual float getHeightBoundary();
-	  virtual float getAnimX();
-	  virtual void setAnimX(float aValue);
-	  virtual float getAnimY();
-	  virtual float getPosX();
-	  virtual float getPosY();
-	  virtual void setAnimY(float aValue);
-	  virtual void setWidth(int aValue);
+	  float getXBoundary();
+	  float getYBoundary();
+	  float getWidthBoundary();
+	  float getHeightBoundary();
+	  float getAnimX();
+	  void setAnimX(float aValue);
+	  float getAnimY();
+	  float getPosX();
+	  float getPosY();
+	  void setAnimY(float aValue);
+	  void setWidth(int aValue);
 	  virtual float getWidth();
 	  virtual float getHeight();
 
-	  virtual SDL_Surface * getTexture();
-	  virtual GLuint getOpenGLTexture();
-	  virtual SDL_Surface * getCollisionTexture();
+	  SDL_Surface * getTexture();
+	  GLuint getOpenGLTexture();
+	  SDL_Surface * getCollisionTexture();
 };
 
 class AnimatedDrawable: virtual public Drawable
@@ -127,16 +126,19 @@ class AnimatedDrawable: virtual public Drawable
 	  //last timestamp where the animation was updated; useful to control the animation speed
 	  int lastTimeUpdated;
 
+
+
 	  AnimatedDrawable();
 	  AnimatedDrawable(Json::Value aConfig);
+	  AnimatedDrawable(const AnimatedDrawable& aDrawable);
+	  AnimatedDrawable& operator=(const AnimatedDrawable& anAnimatedDrawable);
 	  virtual ~AnimatedDrawable();
 	  void setAnimationsPointer();
-	  virtual void clean();
-	  virtual float getWidth();
-	  virtual float getHeight();
-	  virtual int getCurrentFrame();
+	  float getWidth();
+	  float getHeight();
+	  int getCurrentFrame();
 	  bool updateAnimationFrame();
-	  virtual void copyFrom(Drawable * aDrawable);
+	  void copyFrom(Drawable * aDrawable);
 	  void copyFrom(AnimatedDrawable * aDrawable);
 	  void setAnimation(string anAnimationName);
 };
