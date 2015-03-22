@@ -2,7 +2,7 @@
  * Contains the menu function
  */
 
-#include "menu.h"
+#include "include/menu.h"
 
 Menu::Menu(GraphicEngine * aGe, SoundEngine * aSe)
 {

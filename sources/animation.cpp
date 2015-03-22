@@ -2,7 +2,7 @@
  * Animation
  */
 
-#include "animation.h"
+#include "include/animation.h"
 
 Animation::Animation()
 {
@@ -129,12 +129,9 @@ Animation::Animation(Json::Value aConfig, Drawable * aDrawable)
 
 void Animation::incrementCurrentFrame()
 {
-	if(reverse)
-	{
+	if (reverse) {
 		currentFrame = (currentFrame + numberOfFrames - 1) % numberOfFrames;
-	}
-	else
-	{
+	} else {
 		currentFrame = (currentFrame + 1) % numberOfFrames;
 	}
 }
@@ -189,9 +186,9 @@ void Animation::setFrameTo(int aNumber)
 
 void Animation::loadTexture(string path)
 {
-	texture = drawable->ge->loadTexture(path, drawable->clampTexture);
+	texture = drawable->graphicEngine->loadTexture(path, drawable->clampTexture);
 
-	oglTexture = drawable->ge->openGLTextures.at(texture);
+	oglTexture = drawable->graphicEngine->openGLTextures.at(texture);
 	drawable->setAnimX(drawable->getAnimX());
 	drawable->setAnimY(drawable->getAnimY());
 }

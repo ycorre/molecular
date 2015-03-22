@@ -1,4 +1,4 @@
-#include "asteroid.h"
+#include "include/asteroid.h"
 
 PyroxeneField::PyroxeneField()
 {

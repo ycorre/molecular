@@ -1,4 +1,4 @@
-#include "enemy.h"
+#include "include/enemy.h"
 
 Copper::Copper(Json::Value aConfig)
 {
@@ -211,7 +211,7 @@ void Copper::processCollisionWith(Drawable * aDrawable)
 					float y = posY - height/2 + rand() % (int)height;
 					CurrentLevel->createExplosion(x, y);
 				}
-				ge->startShaking(20, true);
+				graphicEngine->startShaking(20, true);
 				Score = Score + scoreValue * (type + 1);
 
 				for(vector<CopperCannon *>::iterator aCanon = cannons.begin(); aCanon != cannons.end(); ++aCanon)

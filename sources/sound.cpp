@@ -4,7 +4,7 @@
  *  Created on: 18 mai 2013
  *      Author: youenn
  */
-#include "sound.h"
+#include "include/sound.h"
 
 SoundEngine * Sound::soundEngine;
 

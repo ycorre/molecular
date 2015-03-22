@@ -2,7 +2,7 @@
  * Contains bullet functions
  */
 
-#include "laser.h"
+#include "include/laser.h"
 
 //35x18
 Bullet::Bullet()

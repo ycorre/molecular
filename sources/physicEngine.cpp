@@ -4,7 +4,7 @@
  *  Created on: 18 mai 2013
  *      Author: youenn
  */
-#include "physicEngine.h"
+#include "include/physicEngine.h"
 
 //Check if there is a collision between two objects
 bool Pe::collisionDetection(Drawable * aDrawable, Drawable * anotherDrawable)

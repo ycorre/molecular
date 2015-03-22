@@ -2,7 +2,7 @@
  * Contains the menu function
  */
 
-#include "hud.h"
+#include "include/hud.h"
 
 HUD::HUD(GraphicEngine * aGraphicEngine)
 {

@@ -2,7 +2,7 @@
  * Contains laser functions
  */
 
-#include "laser.h"
+#include "include/laser.h"
 
 //80x34
 Shoot::Shoot()

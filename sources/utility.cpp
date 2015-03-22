@@ -4,7 +4,7 @@
  *  Created on: 24 janv. 2014
  *      Author: youenn
  */
-#include "utility.h"
+#include "include/utility.h"
 
 /*
  * Movement computation functions

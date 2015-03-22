@@ -2,7 +2,7 @@
  * Handle the text elements in SDL
  */
 
-#include "text.h"
+#include "include/text.h"
 
 Text::Text()
 {
@@ -61,7 +61,7 @@ void Text::write(string aText)
 	if(getOpenGLTexture() != 0)
 		glDeleteTextures(1, &oglTexture);
 
-	ge->createOGLTexture(getTexture(), &oglTexture, false);
+	graphicEngine->createOGLTexture(getTexture(), &oglTexture, false);
 
 	setAnimX(0);
 	setAnimY(0);
@@ -84,7 +84,7 @@ void Text::update()
 
 	glDeleteTextures(1, &oglTexture);
 	oglTexture = 0;
-	ge->createOGLTexture(getTexture(), &oglTexture, false);
+	graphicEngine->createOGLTexture(getTexture(), &oglTexture, false);
 
 	setAnimX(0);
 	setAnimY(0);

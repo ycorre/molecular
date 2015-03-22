@@ -1,4 +1,4 @@
-#include "enemy.h"
+#include "include/enemy.h"
 
 Bomb::Bomb()
 {
@@ -87,7 +87,7 @@ void Bomb::setAngleAndSpeed()
 {
 	//Set which side of the screen it will appear from
 	int arrivalSide = (rand() % 3);
-	int angleDegree;
+	int angleDegree = 45;
 
 	//Set the angle (in degrees)
 	//We try too sharp angle

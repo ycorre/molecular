@@ -1,4 +1,4 @@
-#include "effect.h"
+#include "include/effect.h"
 
 Effect::Effect()
 {
@@ -129,8 +129,8 @@ int Effect::animateEffect()
  */
 TextEffect::TextEffect(int x, int y, string aText)
 {
-	color = ge->availableColors.at("WHITE");
-	font = ge->availableFonts.at("lCrystal_16");
+	color = graphicEngine->availableColors.at("WHITE");
+	font = graphicEngine->availableFonts.at("lCrystal_16");
 
 	name = aText;
 	width = 300;

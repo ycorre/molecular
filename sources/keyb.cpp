@@ -3,7 +3,7 @@
  * Contains handling functions for keyboard events
  */
  
-#include "keyb.h"
+#include "include/keyb.h"
 
 Keyboard::Keyboard()
 {

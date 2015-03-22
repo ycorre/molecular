@@ -2,7 +2,7 @@
  * Contains bonus functions
  */
 
-#include "bonus.h"
+#include "include/bonus.h"
 
 
 Bonus::Bonus()

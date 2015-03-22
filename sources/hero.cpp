@@ -2,7 +2,7 @@
  * Contains herodescription
  */
 
-#include "hero.h"
+#include "include/hero.h"
 
 Hero::Hero()
 {

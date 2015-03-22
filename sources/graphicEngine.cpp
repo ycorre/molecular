@@ -2,11 +2,10 @@
  * Graphic Engine
  * Contains graphic-related functions (loading texture, drawing, etc.)
  */
- 
-#include "graphicEngine.h"
 
-GraphicEngine::GraphicEngine()
-{
+#include "include/graphicEngine.h"
+
+GraphicEngine::GraphicEngine() {
 	alphaFading = 0;
 	aspectRatio = 1.0;
 	fadingSpeed = 1.0;
@@ -18,26 +17,22 @@ GraphicEngine::GraphicEngine()
 	xOffsetFactor = yOffsetFactor = 0;
 }
 
-void GraphicEngine::setAspectRatio(float aValue)
-{
+void GraphicEngine::setAspectRatio(float aValue) {
 	aspectRatio = aValue;
 
-	xOffsetFactor = SCREEN_WIDTH/2;
-	yOffsetFactor = SCREEN_HEIGHT/2;
+	xOffsetFactor = SCREEN_WIDTH / 2;
+	yOffsetFactor = SCREEN_HEIGHT / 2;
 }
 
-void GraphicEngine::init()
-{
+void GraphicEngine::init() {
 	initColors();
 	shakeValues = {14,-14,12,-12,10,-10,8,-8,6,-6,6,-6,4,-4,4,-4,2,-2,1,-1};
 }
 
 //Load a texture as an SDL_Surface
-SDL_Surface * GraphicEngine::loadTexture(string path, bool clamp)
-{
+SDL_Surface * GraphicEngine::loadTexture(string path, bool clamp) {
 	//Check if the texture is already loaded
-	if(textures.find(path) == textures.end())
-	{
+	if (textures.find(path) == textures.end()) {
 		SDL_Surface * aSurface;
 		SDL_Surface * tmp = IMG_Load(path.c_str());
 		if (tmp == NULL) {
@@ -55,65 +50,55 @@ SDL_Surface * GraphicEngine::loadTexture(string path, bool clamp)
 		//Save texture for later reuse
 		textures.insert(make_pair(path, aSurface));
 		return aSurface;
-	}
-	else
-	{
+	} else {
 		return textures.at(path);
 	}
 }
 
-void GraphicEngine::drawFrame()
-{
+void GraphicEngine::drawFrame() {
 	//Reset the view matrix
-    glLoadIdentity();
-    //Perform a translation so that we are starting our coordinates at point (0,0)
+	glLoadIdentity();
+	//Perform a translation so that we are starting our coordinates at point (0,0)
 	glTranslatef(-xOffsetFactor, -yOffsetFactor, -yOffsetFactor);
 
 	//Shift the camera in one direction
-	if(shakingEffect)
-	{
+	if (shakingEffect) {
 		shakeCamera(false);
 	}
 
-	if(!toDisplay.empty())
-	{
+	if (!toDisplay.empty()) {
 		//Sort toDisplay so that elements are displayed from back to front
 		sort(toDisplay.begin(), toDisplay.end(), sortDisplayedElement);
 
-		for (vector<Drawable *>::iterator aDrawable = toDisplay.begin() ; aDrawable != toDisplay.end(); ++aDrawable)
-		{
+		for (vector<Drawable *>::iterator aDrawable = toDisplay.begin();
+				aDrawable != toDisplay.end(); ++aDrawable) {
 			draw(*aDrawable);
 		}
-	}
-	else
-	{
-		cout<<"Warning: GraphicEngine (drawFrame): The set of elements to display is empty\n";
+	} else {
+		cout
+				<< "Warning: GraphicEngine (drawFrame): The set of elements to display is empty\n";
 	}
 
-	for (list<ParticleEffect *>::iterator anEffect = particleEffects.begin() ; anEffect != particleEffects.end(); anEffect++)
-	{
+	for (list<ParticleEffect *>::iterator anEffect = particleEffects.begin();
+			anEffect != particleEffects.end(); anEffect++) {
 		drawEffect(*anEffect);
 		(*anEffect)->animate();
 
-		if((*anEffect)->currentFrame >= (*anEffect)->animationLength - 1)
-		{
+		if ((*anEffect)->currentFrame >= (*anEffect)->animationLength - 1) {
 			delete (*anEffect);
 			particleEffects.remove(*anEffect--);
 		}
 	}
 
 	//Check for effects to perform
-	if(isFading)
-	{
+	if (isFading) {
 		fadeOut();
 	}
 
 	//Put the camera back in place to create the illusion of shaking
-	if(shakingEffect)
-	{
+	if (shakingEffect) {
 		shakeCamera(true);
-		if(shakeCounter == shakeValues.size())
-		{
+		if (shakeCounter == shakeValues.size()) {
 			shakingEffect = false;
 			shakeALot = false;
 			shakeCounter = 0;
@@ -124,10 +109,9 @@ void GraphicEngine::drawFrame()
 }
 
 //Draw an object on the screen
-int GraphicEngine::draw(Drawable * sprite)
-{
+int GraphicEngine::draw(Drawable * sprite) {
 	//If we need blending
-	if(sprite->toBlend)
+	if (sprite->toBlend)
 		glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
 
 	//Set colors and opacity
@@ -145,19 +129,15 @@ int GraphicEngine::draw(Drawable * sprite)
 		performRotation(sprite);
 
 	//Use the object texture
-	if(sprite->textured)
-	{
+	if (sprite->textured) {
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, sprite->getOpenGLTexture());
-	}
-	else
-	{
+	} else {
 		glDisable(GL_TEXTURE_2D);
 	}
 
-	if(sprite->isBlinkingWhite)
-	{
-	    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+	if (sprite->isBlinkingWhite) {
+		glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_ADD);
 
 		//Add the texture with itself so that it is made brighter
@@ -167,44 +147,43 @@ int GraphicEngine::draw(Drawable * sprite)
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 	}
 
-	float oX = sprite->getPosX() - sprite->getWidth()/2;
-	float oY = sprite->getPosY() - sprite->getHeight()/2;
-	float cX = sprite->getPosX() + sprite->getWidth()/2;
-	float cY = sprite->getPosY() + sprite->getHeight()/2;
+	float oX = sprite->getPosX() - sprite->getWidth() / 2;
+	float oY = sprite->getPosY() - sprite->getHeight() / 2;
+	float cX = sprite->getPosX() + sprite->getWidth() / 2;
+	float cY = sprite->getPosY() + sprite->getHeight() / 2;
 
 	//Draw a quadrilateral using triangle_strip
 	glBegin(GL_TRIANGLE_FAN);
-		//Texture coordinates to display
-		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
-		//Coordinates of the quadrilateral
-		glVertex3f(oX, oY, 0.0f);
+	//Texture coordinates to display
+	glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Ycorner);
+	//Coordinates of the quadrilateral
+	glVertex3f(oX, oY, 0.0f);
 
-		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
-		glVertex3f(cX, oY, 0.0f);
+	glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Ycorner);
+	glVertex3f(cX, oY, 0.0f);
 
-		glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
-		glVertex3f(cX, cY, 0.0f);
+	glTexCoord2f(sprite->ogl_Xcorner, sprite->ogl_Yorigin);
+	glVertex3f(cX, cY, 0.0f);
 
-		glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
-		glVertex3f(oX, cY, 0.0f);
+	glTexCoord2f(sprite->ogl_Xorigin, sprite->ogl_Yorigin);
+	glVertex3f(oX, cY, 0.0f);
 	glEnd();
 
 	//Discard the new context
 	glPopMatrix();
 
-	if(sprite->isBlinkingWhite)
+	if (sprite->isBlinkingWhite)
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	//Deactivate blending
-	if(sprite->toBlend)
+	if (sprite->toBlend)
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    return 1;
+	return 1;
 }
 
 //Draw particle effects
-void GraphicEngine::drawEffect(ParticleEffect * anEffect)
-{
+void GraphicEngine::drawEffect(ParticleEffect * anEffect) {
 	glDisable(GL_TEXTURE_2D);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA);
@@ -215,10 +194,11 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	//Draw Lines
 	glBegin(GL_LINES);
 	//Set color values and opacity
-	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
+	glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB,
+			anEffect->opacity);
 
-	for (list<LineEffect *>::iterator aLine = anEffect->lineEffects.begin(); aLine != anEffect->lineEffects.end(); ++aLine)
-	{
+	for (list<LineEffect *>::iterator aLine = anEffect->lineEffects.begin();
+			aLine != anEffect->lineEffects.end(); ++aLine) {
 		//Set the width for the lines
 		glLineWidth((*aLine)->lineWidth);
 
@@ -235,27 +215,28 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	glEnd();
 
 	//Draw circles
-	for (list<CircleEffect *>::iterator aCircle = anEffect->circleEffects.begin(); aCircle != anEffect->circleEffects.end(); ++aCircle)
-	{
+	for (list<CircleEffect *>::iterator aCircle =
+			anEffect->circleEffects.begin();
+			aCircle != anEffect->circleEffects.end(); ++aCircle) {
 		glBegin(GL_TRIANGLE_FAN);
 
-		glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB, anEffect->opacity);
+		glColor4f(anEffect->colorR, anEffect->colorG, anEffect->colorB,
+				anEffect->opacity);
 
 		//Start at center
 		glVertex2f((*aCircle)->center.first, (*aCircle)->center.second);
 
-		for(float i = 0; i <= (*aCircle)->slices; i++)
-		{
-			float t = 2 * PI * i/(*aCircle)->slices;
-			glVertex2f((*aCircle)->center.first + sin(t)*(*aCircle)->radius, (*aCircle)->center.second + cos(t)*(*aCircle)->radius);
+		for (float i = 0; i <= (*aCircle)->slices; i++) {
+			float t = 2 * PI * i / (*aCircle)->slices;
+			glVertex2f((*aCircle)->center.first + sin(t) * (*aCircle)->radius,
+					(*aCircle)->center.second + cos(t) * (*aCircle)->radius);
 		}
 
 		glEnd();
 	}
 
 	//Draw points using vertex and color arrays
-	if(!(anEffect->pointEffects.empty()))
-	{
+	if (!(anEffect->pointEffects.empty())) {
 		glPointSize(anEffect->pointEffects.front()->size);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
@@ -279,13 +260,11 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect)
 	anEffect->currentFrame++;
 }
 
-void GraphicEngine::displayFrame()
-{
+void GraphicEngine::displayFrame() {
 	SDL_GL_SwapBuffers();
 }
 
-void GraphicEngine::performScaling(Drawable * sprite)
-{
+void GraphicEngine::performScaling(Drawable * sprite) {
 	//Translate to 0,0 in order to perform the scaling
 	glTranslatef(sprite->getPosX(), sprite->getPosY(), 0.0);
 	//Scale
@@ -294,9 +273,7 @@ void GraphicEngine::performScaling(Drawable * sprite)
 	glTranslatef(-sprite->getPosX(), -sprite->getPosY(), 0.0);
 }
 
-
-void GraphicEngine::performRotation(Drawable * sprite)
-{
+void GraphicEngine::performRotation(Drawable * sprite) {
 	//Translate to 0,0 in order to perform the rotation
 	glTranslatef(sprite->getPosX(), sprite->getPosY(), 0.0);
 	//Rotate
@@ -306,52 +283,44 @@ void GraphicEngine::performRotation(Drawable * sprite)
 }
 
 //Start a shaking camera effect
-void GraphicEngine::startShaking(int aLength, bool aLot)
-{
-	shakeCounter = max(0, (int)(shakeValues.size() - aLength));
+void GraphicEngine::startShaking(int aLength, bool aLot) {
+	shakeCounter = max(0, (int) (shakeValues.size() - aLength));
 	shakeALot = aLot;
 	shakingEffect = true;
 }
 
 //Shake the camera
-void GraphicEngine::shakeCamera(bool aSense)
-{
+void GraphicEngine::shakeCamera(bool aSense) {
 	static bool yMove;
 	static bool xMove;
 
-	if(!aSense)
-	{
-		if(shakeALot)
-		{
+	if (!aSense) {
+		if (shakeALot) {
 			//xMove = rand() % 2;
 			xMove = true;
 			yMove = true;
 			//if(xMove)
 			//{
-				glTranslatef(shakeValues.at(shakeCounter), 0.0, 0.0);
+			glTranslatef(shakeValues.at(shakeCounter), 0.0, 0.0);
 			//	yMove = rand() % 2;
-		//	}
-		//	else
+			//	}
+			//	else
 			//{
-		//		yMove = true;
-		//	}
+			//		yMove = true;
+			//	}
 
-			if(yMove)
+			if (yMove)
 				glTranslatef(0.0, shakeValues.at(shakeCounter), 0.0);
-		}
-		else
-		{
+		} else {
 			glTranslatef(shakeValues.at(shakeCounter), 0.0, 0.0);
 			xMove = true;
 			yMove = false;
 		}
-	}
-	else
-	{
-		if(xMove)
+	} else {
+		if (xMove)
 			glTranslatef(-shakeValues.at(shakeCounter), 0.0, 0.0);
 
-		if(yMove)
+		if (yMove)
 			glTranslatef(0.0, -shakeValues.at(shakeCounter), 0.0);
 
 		shakeCounter++;
@@ -359,24 +328,21 @@ void GraphicEngine::shakeCamera(bool aSense)
 }
 
 //Load a font and store it in available fonts
-int GraphicEngine::addFont(string aName, string path, int size)
-{
+int GraphicEngine::addFont(string aName, string path, int size) {
 	TTF_Font * font;
 	font = TTF_OpenFont(path.c_str(), size);
-	if(font == NULL)
-    {
-        cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
-        return 0;
-    }
+	if (font == NULL) {
+		cerr << "TTF_OpenFont() Failed: " << TTF_GetError() << endl;
+		return 0;
+	}
 	availableFonts.insert(make_pair(aName, font));
 	return 1;
 }
 
-void GraphicEngine::initColors()
-{
-	SDL_Color white = {255, 255, 255};
-	SDL_Color red = {255, 0, 0};
-	SDL_Color blue = {29, 210, 199};
+void GraphicEngine::initColors() {
+	SDL_Color white = { 255, 255, 255 };
+	SDL_Color red = { 255, 0, 0 };
+	SDL_Color blue = { 29, 210, 199 };
 
 	availableColors.insert(make_pair("WHITE", white));
 	availableColors.insert(make_pair("RED", red));
@@ -384,16 +350,14 @@ void GraphicEngine::initColors()
 }
 
 //Initialize fading out
-void GraphicEngine::startFadingOut(int aFadingSpeed)
-{
+void GraphicEngine::startFadingOut(int aFadingSpeed) {
 	fadingSpeed = aFadingSpeed;
 	isFading = true;
 	alphaFading = 0;
 }
 
 //Perform a fade out effect
-void GraphicEngine::fadeOut()
-{
+void GraphicEngine::fadeOut() {
 	alphaFading = min(255, alphaFading + fadingSpeed);
 
 	float alphaGL = (float) alphaFading / 255.0;
@@ -401,26 +365,22 @@ void GraphicEngine::fadeOut()
 	glColor4f(0.0f, 0.0f, 0.0f, alphaGL);
 
 	glBegin(GL_QUADS);
-		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(SCREEN_WIDTH, 0.0f, 0.0f);
-		glVertex3f(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
-		glVertex3f(0.0f, SCREEN_HEIGHT, 0.0f);
+	glVertex3f(0.0f, 0.0f, 0.0f);
+	glVertex3f(SCREEN_WIDTH, 0.0f, 0.0f);
+	glVertex3f(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+	glVertex3f(0.0f, SCREEN_HEIGHT, 0.0f);
 	glEnd();
 
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 	glEnable(GL_TEXTURE_2D);
 
-
-	if(alphaFading == 255)
-	{
+	if (alphaFading == 255) {
 		isFading = false;
 	}
 }
 
-void GraphicEngine::fadeIn()
-{
-	if(!isFading)
-	{
+void GraphicEngine::fadeIn() {
+	if (!isFading) {
 		isFading = true;
 		alphaFading = 255;
 	}
@@ -432,63 +392,61 @@ void GraphicEngine::fadeIn()
 	glColor4f(1., 1., 1., alphaGL);
 
 	glBegin(GL_QUADS);
-		glVertex2f(0.0f, 0.0f);
-		glVertex2f(SCREEN_WIDTH, 0.0f);
-		glVertex2f(SCREEN_WIDTH, SCREEN_HEIGHT);
-		glVertex2f(0.0f, SCREEN_HEIGHT);
+	glVertex2f(0.0f, 0.0f);
+	glVertex2f(SCREEN_WIDTH, 0.0f);
+	glVertex2f(SCREEN_WIDTH, SCREEN_HEIGHT);
+	glVertex2f(0.0f, SCREEN_HEIGHT);
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0, 1.0, 1.0, 1.0);
 
-	if(alphaFading <= 0)
-	{
+	if (alphaFading <= 0) {
 		isFading = false;
 	}
 }
 
-void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex, bool clamp)
-{
+void GraphicEngine::createOGLTexture(SDL_Surface * aSurface, GLuint * oglTex,
+		bool clamp) {
 	glGenTextures(1, oglTex);
 	glBindTexture(GL_TEXTURE_2D, *oglTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, aSurface->w, aSurface->h, 0, GL_BGRA, GL_UNSIGNED_BYTE, aSurface->pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, aSurface->w, aSurface->h, 0, GL_BGRA,
+			GL_UNSIGNED_BYTE, aSurface->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	if(clamp)
-	{
+	if (clamp) {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	}
 }
 
 //Free all the loaded textures
-void GraphicEngine::freeTextures()
-{
-	for (map<SDL_Surface *, GLuint>::iterator anOGLTexture = openGLTextures.begin() ; anOGLTexture != openGLTextures.end(); ++anOGLTexture)
-	{
+void GraphicEngine::freeTextures() {
+	for (map<SDL_Surface *, GLuint>::iterator anOGLTexture =
+			openGLTextures.begin(); anOGLTexture != openGLTextures.end();
+			++anOGLTexture) {
 		glDeleteTextures(1, &((*anOGLTexture).second));
 	}
 	openGLTextures.clear();
 
-	for (map<string, SDL_Surface *>::iterator aTexture = textures.begin() ; aTexture != textures.end(); ++aTexture)
-	{
+	for (map<string, SDL_Surface *>::iterator aTexture = textures.begin();
+			aTexture != textures.end(); ++aTexture) {
 		SDL_FreeSurface((*aTexture).second);
 	}
 	textures.clear();
 }
 
-void GraphicEngine::deleteParticleEffect()
-{
-	for (list<ParticleEffect *>::iterator aParticleEffect = particleEffects.begin() ; aParticleEffect != particleEffects.end(); ++aParticleEffect)
-	{
+void GraphicEngine::deleteParticleEffect() {
+	for (list<ParticleEffect *>::iterator aParticleEffect =
+			particleEffects.begin(); aParticleEffect != particleEffects.end();
+			++aParticleEffect) {
 		delete (*aParticleEffect);
 	}
 	particleEffects.clear();
 }
 
-bool sortDisplayedElement(const Drawable * a, const Drawable * b)
-{
+bool sortDisplayedElement(const Drawable * a, const Drawable * b) {
 	return (a->virtualDepth > b->virtualDepth);
 }
 

@@ -2,7 +2,7 @@
  * Main class of the game
  */
 
-#include "game.h"
+#include "include/game.h"
 
 //TODO Use JSON for configuring all types of object ?
 
@@ -187,14 +187,13 @@ int Game::initGame()
 	graphicEngine.init();
 	graphicEngine.addFont("lCrystal", "res/fonts/LiquidCrystal.otf", 18);
 	graphicEngine.addFont("lCrystal_16", "res/fonts/LiquidCrystal.otf", 16);
-	graphicEngine.addFont("arial", "res/fonts/Arial.ttf", 18);
 	graphicEngine.initColors();
     graphicEngine.setAspectRatio((float) SCREEN_WIDTH / (float) SCREEN_HEIGHT);
 	keyboard = new Keyboard();
 	keyboard->game = this;
 	soundEngine.init();
 
-    Drawable::ge = &graphicEngine;
+    Drawable::graphicEngine = &graphicEngine;
     Sound::soundEngine = &soundEngine;
 
 	menu = new Menu(&graphicEngine, &soundEngine);
