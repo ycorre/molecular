@@ -5,6 +5,8 @@ The game controls are the keyboard and the mouse: the mouse is used to move arou
 
 ###Explanation of the HUD
 
+![Molecular Screenshot](http://ycorre.github.io/molecular/images/screenshots/molecular_legend.png)
+
   1. Health bar
   2. Quarks bars. Quarks are the bonuses given by the enemies once destroyed. Quarks are used to activate weapons and their determine power. There are six different kinds of quarks: u, d, c, s, t, b (for up, down, charm, strange, top \& bottom).
   3. These are the activated weapons:
@@ -20,6 +22,6 @@ The game controls are the keyboard and the mouse: the mouse is used to move arou
 
 ##License
 
-The *Molecular* source code is under [CC0 Public Domain](https://creativecommons.org/publicdomain/zero/1.0/), except for the JSON parser library (JsonCpp)[https://github.com/open-source-parsers/jsoncpp] which is under a dual Public Domain/MIT License.
+The *Molecular* source code is under [CC0 Public Domain](https://creativecommons.org/publicdomain/zero/1.0/), except for the JSON parser library [JsonCpp](https://github.com/open-source-parsers/jsoncpp) which is under a dual Public Domain/MIT License.
 
-The *Molecular* artworks (graphics, sounds and music - everything in the /res and /sound folders and their subfolders) is under [CC BY-NC 4.0](http://creativecommons.org/licenses/by-nc/4.0/) and is the property of [Dimitrix](https://www.youtube.com/user/dimitrix9bit/videos).
+The *Molecular* artworks (graphics, sounds and music - everything in the /res and /sound folders and their subfolders) are under [CC BY-NC 4.0](http://creativecommons.org/licenses/by-nc/4.0/) and are the property of [Dimitrix](https://www.youtube.com/user/dimitrix9bit/videos).
