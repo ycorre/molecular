@@ -5,8 +5,8 @@
 #ifndef KEYB_H
 #define KEYB_H
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include "graphicEngine.h"
 #include "game.h"
 #include "hero.h"

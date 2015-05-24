@@ -1,17 +1,17 @@
 *Molecular* is a small *R-Type* like game coded in C++.
 
 ##How to play
-The game controls are the keyboard and the mouse: the mouse is used to move around and to shoot (left button), keyboard is use to move in the menus (arrows to move and space to validate) and, during the game, to change weapon (the keys are c, v and b). Escape is used to go back to the menu from the game and to quit the game if pressed from the main menu.
+The game controls are the keyboard and the mouse: the mouse is used to move around and to shoot (left button), keyboard is used to move in the menus (arrows to move and space to validate) and, during the game, to change weapon (the keys are c, v and b). Escape is used to go back to the menu from the game and to quit the game if pressed from the main menu.
 
 ###Explanation of the HUD
 
 ![Molecular Screenshot](http://ycorre.github.io/molecular/images/screenshots/molecular_legend.png)
 
   1. Health bar
-  2. Quarks bars. Quarks are the bonuses given by the enemies once destroyed. Quarks are used to activate weapons and their determine power. There are six different kinds of quarks: u, d, c, s, t, b (for up, down, charm, strange, top \& bottom).
+  2. Quarks bars. Quarks are the bonuses given by the enemies once destroyed. Quarks are used to activate weapons and determine their power. There are six different kinds of quarks: u, d, c, s, t, b (for up, down, charm, strange, top \& bottom).
   3. These are the activated weapons:
    1. the electrons (c), the basic weapon,
-   2. the hadron (v) which can to be loaded for more power (hold the mouse left-button down); the load level can be monitored with the VU meter,
+   2. the hadron (v) which can be loaded for more power (hold the mouse left-button down); the load level can be monitored with the VU meter,
    3. the baryon (b) which is a laser beam,
    4. and the plasma which is yet to be implemented.
   4. Power level indicator for electrons and baryon.

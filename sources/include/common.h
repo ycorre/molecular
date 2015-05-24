@@ -1,13 +1,12 @@
 #ifndef COMMON_H
 #define COMMON_H
-#include <SDL.h>
-#include <SDL_mixer.h>
-#include <SDL_opengl.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
+#include <SDL/SDL_opengl.h>
 #include "../json/json/reader.h"
 #include "../json/json/value.h"
 #include "types.h"
 #include "utility.h"
-//#include <minmax.h>
 
 using namespace std;
 class Game;

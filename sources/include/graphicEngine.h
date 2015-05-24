@@ -10,8 +10,8 @@
 #include <list>
 #include <map>
 #include <algorithm>
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <math.h>
 #include "drawable.h"
 #include "particleEffect.h"

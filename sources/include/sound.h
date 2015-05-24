@@ -13,9 +13,9 @@
 #include <utility>
 #include <map>
 #include <sstream>
-#include <SDL.h>
-#include <SDL_audio.h>
-#include <SDL_mixer.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_audio.h>
+#include <SDL/SDL_mixer.h>
 #include "common.h"
 #include "soundEngine.h"
 

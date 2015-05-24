@@ -1,0 +1,14 @@
+*.o
+*.so
+*.a
+*~
+*.swp
+*.d
+Debug
+*.so.*
+*.a.*
+/Windows/
+*.obj
+*.lib
+*.dll
+*~
