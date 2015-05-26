@@ -287,8 +287,8 @@ int Game::initSDL()
     SDL_EnableKeyRepeat(250, SDL_DEFAULT_REPEAT_INTERVAL);
 
     //Keep the mouse inside the game window
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
-
+    SDL_WM_GrabInput(SDL_GRAB_ON);
+    
     //Hide cursor
     SDL_ShowCursor(0);
 
