@@ -1,12 +1,9 @@
 /*
- * Contains keyboard handling function
+ * Contains keyboard handling functions
  */
-
 #ifndef KEYB_H
 #define KEYB_H
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
 #include "graphicEngine.h"
 #include "game.h"
 #include "hero.h"
@@ -17,37 +14,37 @@ class Menu;
 class Keyboard
 {
 	public:
-		Uint8 * keyStates;
 		Game * game;
 		bool p_pressed;
 		bool firing;
 
 		Keyboard();
-		void handleKeyUp(SDL_keysym * keysym);
+		void handleKeyUp(int key);
 		void processKeyPress();
 		void processKeyState();
+		void processKeyState(GLFWwindow* window, int key, int scancode, int action, int mods);
 		void processKeyInGame(Hero* hero);
-		void handleKeyPressMenu(SDL_keysym *keysym, Menu * menu);
+		void handleKeyPressMenu(int keys, Menu * menu);
 		void processeMouseInGame(Hero * hero);
 };
 
 //Definition of the keymap
-#define UP_KEY SDLK_UP
-#define DOWN_KEY SDLK_DOWN
-#define LEFT_KEY SDLK_LEFT
-#define RIGHT_KEY SDLK_RIGHT
+#define UP_KEY GLFW_KEY_UP
+#define DOWN_KEY GLFW_KEY_DOWN
+#define LEFT_KEY GLFW_KEY_LEFT
+#define RIGHT_KEY GLFW_KEY_RIGHT
 
-#define ELECTRON_KEY SDLK_c
-#define PHOTON_KEY SDLK_v
-#define BARYON_KEY SDLK_b
-#define PLASMA_KEY SDLK_n
+#define ELECTRON_KEY GLFW_KEY_C
+#define PHOTON_KEY GLFW_KEY_V
+#define BARYON_KEY GLFW_KEY_B
+#define PLASMA_KEY GLFW_KEY_N
 
-#define TELEPORT_KEY SDLK_SPACE
-#define PAUSE_KEY SDLK_p
+#define TELEPORT_KEY GLFW_KEY_SPACE
+#define PAUSE_KEY GLFW_KEY_P
 
-#define MUTE_MUSIC_KEY SDLK_o
-#define MUTE_SOUND_KEY SDLK_i
-#define MUTE_ALL_KEY SDLK_m
+#define MUTE_MUSIC_KEY GLFW_KEY_O
+#define MUTE_SOUND_KEY GLFW_KEY_I
+#define MUTE_ALL_KEY GLFW_KEY_M
 
 void quit(int returnCode);
 

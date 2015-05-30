@@ -149,12 +149,12 @@
 		},
 		
 		{"name" : "explosionA", "particleEffects" : ["explosion"], "width" : 204, "height" : 204, "effectLayer": [
-			{"name" : "expl001Sp_Fire", "width" : 204, "height" : 204, "rotZ" : -1, "rotationAngle" : -1, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl001Sp_Fire.png"}], "blend" : true, "virtualDepth" : 99},
+			{"name" : "expl001Sp_Fire", "width" : 204, "height" : 204, "rotZ" : -1, "horizontalMirror" : -1, "rotationAngle" : -1, "rotationValues" : [0, 90, 180, 270], "verticalMirror" : -1, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl001Sp_Fire.png"}], "blend" : true, "virtualDepth" : 99},
 			{"name" : "expl001Sp_Smoke", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 97, "dataPath": "res/action/characters/expl001Sp_Smoke.png"}], "virtualDepth" : 800}]
 		},
 		
 		{"name" : "explosionB", "particleEffects" : ["explosion"], "width" : 204, "height" : 204, "effectLayer": [
-			{"name" : "expl002Sp_Fire", "width" : 204, "height" : 204, "rotZ" : -1, "rotationAngle" : -1, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl002Sp_Fire.png"}], "blend" : true, "virtualDepth" : 99},
+			{"name" : "expl002Sp_Fire", "width" : 204, "height" : 204, "rotZ" : -1, "rotationAngle" : -1, "rotationValues" : [0, 90, 180, 270], "horizontalMirror" : -1, "verticalMirror" : -1, "animations" : [{"numberOfFrames" : 39, "dataPath": "res/action/characters/expl002Sp_Fire.png"}], "blend" : true, "virtualDepth" : 99},
 			{"name" : "expl002Sp_Smoke", "width" : 204, "height" : 204, "animations" : [{"numberOfFrames" : 97, "dataPath": "res/action/characters/expl002Sp_Smoke.png"}], "virtualDepth" : 800}]
 		},
 		

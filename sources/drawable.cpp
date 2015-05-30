@@ -45,6 +45,8 @@ Drawable::Drawable() {
 	maxScale = 1.0f;
 	textured = true;
 	collidable = true;
+	useComplexMoves = false;
+	horizontalMirror = verticalMirror = false;
 }
 
 Drawable::Drawable(Json::Value aConfig) {
@@ -62,6 +64,8 @@ Drawable::Drawable(Json::Value aConfig) {
 	isBlinking = aConfig.get("isBlinking", false).asBool();
 	isBlinkingWhite = aConfig.get("isBlinkingWhite", false).asBool();
 	toBlend = aConfig.get("blend", false).asBool();
+	horizontalMirror = aConfig.get("horizontalMirror", false).asInt();
+	verticalMirror = aConfig.get("verticalMirror", false).asInt();
 	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
 	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
 	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
@@ -83,6 +87,10 @@ Drawable::Drawable(Json::Value aConfig) {
 	angle = aConfig.get("angle", 0.0f).asFloat();
 	speed = aConfig.get("speed", 0.0f).asFloat();
 	textured = aConfig.get("textured", true).asBool();
+	const Json::Value rotVal = aConfig["rotationValues"];
+	for(unsigned int i = 0; i < rotVal.size(); i++)
+		rotationValues.push_back(rotVal[i].asFloat());
+
 	string dataPath = aConfig.get("dataPath", "").asString();
 
 	if (!dataPath.empty())
@@ -178,6 +186,12 @@ void Drawable::setAnimX(float animXValue) {
 void Drawable::computeOGLXValues() {
 	ogl_Xorigin = animX / (float) getTexture()->w;
 	ogl_Xcorner = ogl_Xorigin + getWidth() / (float) getTexture()->w;
+
+	if (horizontalMirror) {
+		float tmp = ogl_Xcorner;
+		ogl_Xcorner = ogl_Xorigin;
+		ogl_Xorigin = tmp;
+	}
 }
 
 float Drawable::getAnimY() {
@@ -195,6 +209,12 @@ void Drawable::setAnimY(float animYValue) {
 void Drawable::computeOGLYValues() {
 	ogl_Yorigin = animY / (float) getTexture()->h;
 	ogl_Ycorner = ogl_Yorigin + getHeight() / (float) getTexture()->h;
+
+	if (verticalMirror) {
+		float tmp = ogl_Ycorner;
+		ogl_Ycorner = ogl_Yorigin;
+		ogl_Yorigin = tmp;
+	}
 }
 
 void Drawable::copyFrom(Drawable * aDrawable) {
@@ -263,6 +283,16 @@ void Drawable::randomize() {
 	if (angle == -1138) {
 		angle = static_cast<float>(rand())
 				/ (static_cast<float>(RAND_MAX / (2.0f * PI)));
+	}
+
+	//Randomize vertical mirroring
+	if (verticalMirror == -1) {
+		verticalMirror = rand() / 2;
+	}
+
+	//Randomize vertical mirroring
+	if (horizontalMirror == -1) {
+		horizontalMirror = rand() / 2;
 	}
 }
 
@@ -340,6 +370,8 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig) {
 	isBlinking = aConfig.get("isBlinking", false).asBool();
 	isBlinkingWhite = aConfig.get("isBlinkingWhite", false).asBool();
 	toBlend = aConfig.get("blend", false).asBool();
+	horizontalMirror = aConfig.get("horzontalMirror", false).asInt();
+	verticalMirror = aConfig.get("verticalMirror", false).asInt();
 	blinkingCounter = aConfig.get("blinkingCounter", 0).asInt();
 	scaleX = aConfig.get("scaleX", 1.0f).asFloat();
 	scaleY = aConfig.get("scaleY", 1.0f).asFloat();
@@ -361,6 +393,9 @@ AnimatedDrawable::AnimatedDrawable(Json::Value aConfig) {
 	angle = aConfig.get("angle", 0.0f).asFloat();
 	speed = aConfig.get("speed", 0.0f).asFloat();
 	currentAnimation = NULL;
+	const Json::Value rotVal = aConfig["rotationValues"];
+	for (unsigned int i = 0; i < rotVal.size(); i++)
+		rotationValues.push_back(rotVal[i].asFloat());
 
 	animationUpdateFrequency =
 			aConfig.get("animationUpdateFrequency", 40).asInt();
@@ -428,13 +463,6 @@ bool AnimatedDrawable::updateAnimationFrame() {
 		return true;
 	}
 	return false;
-}
-
-void AnimatedDrawable::setAnimationsPointer() {
-	for (std::map<string, Animation *>::const_iterator anElement =
-			animations.begin(); anElement != animations.end(); ++anElement) {
-		(*anElement).second->drawable = this;
-	}
 }
 
 void AnimatedDrawable::setAnimation(string aName) {
@@ -533,6 +561,9 @@ void AnimatedDrawable::copyFrom(AnimatedDrawable * aDrawable) {
 	angle = aDrawable->angle;
 	speed = aDrawable->speed;
 	rotationAngle = aDrawable->rotationAngle;
+	horizontalMirror = aDrawable->horizontalMirror;
+	verticalMirror = aDrawable->verticalMirror;
+	rotationValues = aDrawable->rotationValues;
 
 	randomize();
 

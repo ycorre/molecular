@@ -13,8 +13,6 @@ Bonus::Bonus()
 	height = texture->h;
 	posX = 0;
 	posY = 0;
-	setAnimX(0);
-	setAnimY(0);
 	scoreValue = 200;
 	isQuarkBonus = false;
 	quantity = 0;
@@ -25,8 +23,7 @@ Bonus::Bonus()
 }
 
 
-Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
-{
+Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType) {
 	type = bType;
 	name = "bonus " + type;
 	isQuarkBonus = true;
@@ -143,8 +140,6 @@ Bonus::Bonus(int x, int y, float aSpeed, float anAngle, bonusType bType)
 
 	posX = x;
 	posY = y;
-	setAnimX(0);
-	setAnimY(0);
 	scoreValue = 200;
 }
 

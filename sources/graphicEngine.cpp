@@ -25,6 +25,7 @@ void GraphicEngine::setAspectRatio(float aValue) {
 }
 
 void GraphicEngine::init() {
+	initOpenGL();
 	initColors();
 	shakeValues = {14,-14,12,-12,10,-10,8,-8,6,-6,6,-6,4,-4,4,-4,2,-2,1,-1};
 }
@@ -261,7 +262,7 @@ void GraphicEngine::drawEffect(ParticleEffect * anEffect) {
 }
 
 void GraphicEngine::displayFrame() {
-	SDL_GL_SwapBuffers();
+	glfwSwapBuffers(Window);
 }
 
 void GraphicEngine::performScaling(Drawable * sprite) {
@@ -450,3 +451,80 @@ bool sortDisplayedElement(const Drawable * a, const Drawable * b) {
 	return (a->virtualDepth > b->virtualDepth);
 }
 
+bool initOpenGL()
+{
+	// Initialise GLFW
+	if (!glfwInit()) {
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		return -1;
+	}
+
+	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2); // We want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+
+	// Open a window and create its OpenGL context
+	Window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Molecular", NULL, NULL);
+	if (Window == NULL) {
+		fprintf(stderr,
+				"Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+		glfwTerminate();
+		return -1;
+	}
+
+	glfwMakeContextCurrent(Window); // Initialize GLEW
+	glewExperimental = true; // Needed in core profile
+	if (glewInit() != GLEW_OK) {
+		fprintf(stderr, "Failed to initialize GLEW\n");
+		return -1;
+	}
+
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+	//Initialize clear color (black and opaque)
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	//glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	float ratio = (GLfloat) SCREEN_WIDTH / (GLfloat) SCREEN_HEIGHT;
+
+	//Set the view
+	//90.0f since cotangent(45) = 1 which simplifies the coordinates computing on the y axis
+	//the x coordinates are to be multiply by the ratio
+	gluPerspective(90.0f, ratio, 1.0f, 1000.0f);
+	glm::mat4 Projection = glm::perspective(90.0f, ratio, 1.0f, 1000.0f);
+
+	// Camera matrix
+	glm::mat4 View = glm::lookAt(glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
+	glm::vec3(0, 0, 0), // and looks at the origin
+	glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+			);
+
+	// Model matrix : an identity matrix (model will be at the origin)
+	glm::mat4 Model = glm::mat4(1.0f);
+	// Our ModelViewProjection : multiplication of our 3 matrices
+	glm::mat4 MVP = Projection * View * Model; // Remember, matrix multiplication is the other way around
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(-0.5, -0.5, -1000);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_TEXTURE_2D);
+
+	//Check for error
+	GLenum error = glGetError();
+	if (error != GL_NO_ERROR) {
+		cerr << "Error initializing OpenGL! " << gluErrorString(error) << endl;
+		return false;
+	}
+
+	return true;
+}

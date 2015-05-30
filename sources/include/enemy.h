@@ -35,7 +35,6 @@ class Enemy: public AnimatedDrawable
 		vector<pair <float, float> > eventPosition;
 
 		Enemy();
-		Enemy(int x, int y, int type);
 		Enemy(int x, int y, float sinWidth, float sinHeigth, float speed);
 		virtual void dropBonus(int x, int y);
 		virtual void animate();

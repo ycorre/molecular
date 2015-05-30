@@ -16,8 +16,6 @@ Bullet::Bullet()
 	posX = 0;
 	posY = 0;
 	toBlend = true;
-	setAnimX(0);
-	setAnimY(0);
 }
 
 Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
@@ -31,9 +29,6 @@ Bullet::Bullet(int x, int y, float anAngle, int aSpeed)
 	posX = x;
 	posY = y;
 	toBlend = true;
-	setAnimX(0);
-	setAnimY(0);
-	//setAnimation("animDefaut");
 }
 
 void Bullet::animate()
@@ -77,17 +72,12 @@ CadmiumAmmo::CadmiumAmmo(int x, int y, float anAngle, float aSpeed)
 	halo.copyFrom(CurrentLevel->loadedObjects.at("e_Cadmium_ShootHalo"));
 	halo.posX = x;
 	halo.posY = y;
-	halo.setAnimX(0);
-	halo.setAnimY(0);
 
 	//Conversion from degree to radian
 	angle = anAngle; //180 * (PI / 180.0);
 	speed = aSpeed;
 	posX = x;
 	posY = y;
-
-	setAnimX(0);
-	setAnimY(0);
 }
 
 void CadmiumAmmo::animate()
@@ -138,15 +128,10 @@ CopperAmmo::CopperAmmo(int x, int y, float anAngle, float aSpeed)
 	halo.copyFrom(CurrentLevel->loadedObjects.at("e005_Halo"));
 	halo.posX = posX;
 	halo.posY = posY;
-	halo.setAnimX(0);
-	halo.setAnimY(0);
 
 	//Conversion from degree to radian
 	angle = anAngle; //180 * (PI / 180.0);
 	speed = aSpeed;
-
-	setAnimX(0);
-	setAnimY(0);
 }
 
 void CopperAmmo::animate()

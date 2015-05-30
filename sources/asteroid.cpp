@@ -85,9 +85,6 @@ Rock::Rock(int rockType)
 	setAnimation(tmpStream.str());
 
 	currentAnimation->reverse = rand() % 2;
-
-	setAnimX(0);
-	setAnimY(0);
 }
 
 //Rocks have a predefined trajectory
@@ -116,8 +113,6 @@ Rock::Rock(int rockType, int sX, int sY, int aSpeed, float anAngle)
 
 	currentAnimation->reverse = rand() % 2;
 
-	setAnimX(0);
-	setAnimY(0);
 	speed = aSpeed;
 	angle = anAngle;
 	posX = sX;
@@ -273,22 +268,16 @@ Pyroxene::Pyroxene(int rockType)
 	setAnimation(tmpStream.str());
 
 	currentAnimation->reverse = rand() % 2;
-
-	setAnimX(0);
-	setAnimY(0);
 }
 
 //Rocks have a predefined trajectory
 //typically used for smaller rocks resulting of the explosion of bigger rocks
-Pyroxene::Pyroxene(int rockType, int sX, int sY, int aSpeed, float anAngle)
-{
-	if (rockType == BIG_ROCK)
-	{
+Pyroxene::Pyroxene(int rockType, int sX, int sY, int aSpeed, float anAngle) {
+	if (rockType == BIG_ROCK) {
 		copyFrom(CurrentLevel->loadedObjects.at("bigPyroxene"));
 		life = 250;
 	}
-	if (rockType == SMALL_ROCK)
-	{
+	if (rockType == SMALL_ROCK) {
 		copyFrom(CurrentLevel->loadedObjects.at("smallPyroxene"));
 		life = 100;
 	}
@@ -304,8 +293,6 @@ Pyroxene::Pyroxene(int rockType, int sX, int sY, int aSpeed, float anAngle)
 
 	currentAnimation->reverse = rand() % 2;
 
-	setAnimX(0);
-	setAnimY(0);
 	speed = aSpeed;
 	angle = anAngle;
 	posX = sX;
@@ -313,9 +300,10 @@ Pyroxene::Pyroxene(int rockType, int sX, int sY, int aSpeed, float anAngle)
 }
 
 //When a big rock explodes, it creates two smaller rocks that go in perpendicular directions
-void Pyroxene::createSmallerRock(Rock * aRock)
-{
-	CurrentLevel->activeElements.push_back(new Pyroxene(type + 1, posX, posY, speed + 1, angle + PI / 2));
-	CurrentLevel->activeElements.push_back(new Pyroxene(type + 1, posX, posY, speed + 1, angle - PI / 2));
+void Pyroxene::createSmallerRock(Rock * aRock) {
+	CurrentLevel->activeElements.push_back(
+			new Pyroxene(type + 1, posX, posY, speed + 1, angle + PI / 2));
+	CurrentLevel->activeElements.push_back(
+			new Pyroxene(type + 1, posX, posY, speed + 1, angle - PI / 2));
 }
 

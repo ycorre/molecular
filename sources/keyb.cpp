@@ -2,141 +2,136 @@
  * Keyboard
  * Contains handling functions for keyboard events
  */
- 
+
 #include "include/keyb.h"
 
-Keyboard::Keyboard()
-{
+Keyboard::Keyboard() {
 	p_pressed = false;
 	firing = false;
-	keyStates = NULL;
 	game = NULL;
 }
 
-//Update the key states
-void Keyboard::processKeyState()
-{
-	keyStates = SDL_GetKeyState(NULL);
+void Keyboard::processKeyState(GLFWwindow* window, int key, int scancode,
+		int action, int mods) {
+	switch (action) {
+	case GLFW_PRESS:
+		//Handle key presses
+		if (CurrentGame->gameState == GAME_MENU) {
+			handleKeyPressMenu(key, CurrentGame->menu);
+		}
+		break;
+
+	case GLFW_RELEASE:
+		//Handle key release
+		handleKeyUp(key);
+		break;
+
+	default:
+		break;
+	}
+
+	processKeyPress();
 }
 
-
-void Keyboard::processKeyPress()
-{
-	if(keyStates[PAUSE_KEY])
-	{
-		if (!p_pressed)
-		{
+void Keyboard::processKeyPress() {
+	if (glfwGetKey(Window, PAUSE_KEY) == GLFW_PRESS) {
+		if (!p_pressed) {
 			game->pause();
 			p_pressed = true;
 		}
 	}
 
-	if(keyStates[MUTE_MUSIC_KEY])
-	{
-		if (!p_pressed)
-		{
+	if (glfwGetKey(Window, MUTE_MUSIC_KEY) == GLFW_PRESS) {
+		if (!p_pressed) {
 			game->stopMusic();
 			p_pressed = true;
 		}
 	}
 
-	if(keyStates[MUTE_ALL_KEY])
-	{
-		if (!p_pressed)
-		{
+	if (glfwGetKey(Window, MUTE_ALL_KEY) == GLFW_PRESS) {
+		if (!p_pressed) {
 			game->muteAll();
 			p_pressed = true;
 		}
 	}
-    return;
+	return;
 }
 
-//Process in game keyboard events
-void Keyboard::processKeyInGame(Hero * hero)
-{
-	if(keyStates[SDLK_ESCAPE])
-	{
+/**
+ * Process in game keyboard events
+ */
+void Keyboard::processKeyInGame(Hero * hero) {
+	if (glfwGetKey(Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		CurrentLevel->cleanLevel();
 		game->gameState = GAME_LOADMENU;
 	}
 
 	//Cheat for those who find the game too hard
-	if(keyStates[SDLK_KP_PLUS]||keyStates[SDLK_PLUS])
+	if (glfwGetKey(Window, GLFW_KEY_KP_ADD) == GLFW_PRESS
+			|| glfwGetKey(Window, GLFW_KEY_KP_ADD) == GLFW_PRESS)
 		hero->nbLife++;
 
-	if (!hero->dontMove)
-	{
-		if(keyStates[UP_KEY])
+	if (!hero->dontMove) {
+		if (glfwGetKey(Window, UP_KEY) == GLFW_PRESS)
 			hero->moveUp();
 
-		if(keyStates[DOWN_KEY])
+		if (glfwGetKey(Window, DOWN_KEY) == GLFW_PRESS)
 			hero->moveDown();
 
-		if(keyStates[RIGHT_KEY])
+		if (glfwGetKey(Window, RIGHT_KEY) == GLFW_PRESS)
 			hero->moveRight();
 
-		if(keyStates[LEFT_KEY])
+		if (glfwGetKey(Window, LEFT_KEY) == GLFW_PRESS)
 			hero->moveLeft();
 
-		if(keyStates[TELEPORT_KEY])
+		if (glfwGetKey(Window, TELEPORT_KEY) == GLFW_PRESS)
 			hero->teleport();
 
-		if(keyStates[SDLK_KP1])
+		if (glfwGetKey(Window, GLFW_KEY_KP_1) == GLFW_PRESS)
 			hero->upgradeWeaponTo(0);
 
-		if(keyStates[SDLK_KP2])
+		if (glfwGetKey(Window, GLFW_KEY_KP_2) == GLFW_PRESS)
 			hero->upgradeWeaponTo(1);
 
-		if(keyStates[SDLK_KP3])
+		if (glfwGetKey(Window, GLFW_KEY_KP_3) == GLFW_PRESS)
 			hero->upgradeWeaponTo(2);
 
-		if(keyStates[PHOTON_KEY])
-		{
+		if (glfwGetKey(Window, PHOTON_KEY) == GLFW_PRESS) {
 			hero->setWeapon(HadronGun);
 			hero->fireWeapon(HadronGun);
 		}
 
-		if(keyStates[ELECTRON_KEY])
-		{
+		if (glfwGetKey(Window, ELECTRON_KEY) == GLFW_PRESS) {
 			hero->setWeapon(ElectronGun);
 			hero->fireWeapon(ElectronGun);
 		}
 
-		if(keyStates[BARYON_KEY])
-		{
+		if (glfwGetKey(Window, BARYON_KEY) == GLFW_PRESS) {
 			hero->setWeapon(BaryonGun);
 			hero->fireWeapon(BaryonGun);
 		}
 
-		if(keyStates[PLASMA_KEY])
-		{
+		if (glfwGetKey(Window, PLASMA_KEY) == GLFW_PRESS) {
 			hero->setWeapon(PlasmaGun);
 			hero->fireWeapon(PlasmaGun);
 		}
 	}
 
-    return;
+	return;
 }
 
+void Keyboard::processeMouseInGame(Hero * hero) {
+	double xpos, ypos;
+	glfwGetCursorPos(Window, &xpos, &ypos);
 
-void Keyboard::processeMouseInGame(Hero * hero)
-{
-	int x, y, buttonMask;
-	buttonMask = SDL_GetRelativeMouseState(&x, &y);
+	if (!hero->dontMove) {
+		hero->move(xpos, -ypos);
 
-	if (!hero->dontMove)
-	{
-		hero->move(x, -y);
-
-		if(buttonMask & SDL_BUTTON(1))
-		{
+		if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 			hero->fire();
 			firing = true;
-		}
-		else if (!keyStates[ELECTRON_KEY])
-		{
-			if(firing)
-			{
+		} else if (!glfwGetKey(Window, ELECTRON_KEY) == GLFW_PRESS) {
+			if (firing) {
 				firing = false;
 				hero->stopFiring();
 			}
@@ -145,118 +140,110 @@ void Keyboard::processeMouseInGame(Hero * hero)
 		}
 	}
 
-    return;
+	// Reset to 0 in order to have relative offset
+	glfwSetCursorPos(Window, 0.0, 0.0);
+	return;
 }
 
-//Process in game key release
-void Keyboard::handleKeyUp(SDL_keysym * keysym)
-{
-    switch (keysym->sym)
-	{
-		case SDLK_b:
-		case MUTE_MUSIC_KEY:
-		case MUTE_ALL_KEY:
-		case PAUSE_KEY:
-			p_pressed = false;
-			break;
+/**
+ * Process in game key release
+ */
+void Keyboard::handleKeyUp(int keysym) {
+	switch (keysym) {
+	case GLFW_KEY_B:
+	case MUTE_MUSIC_KEY:
+	case MUTE_ALL_KEY:
+	case PAUSE_KEY:
+		p_pressed = false;
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
-    return;
+	return;
 }
 
-//Process in menu keyboard events
-void Keyboard::handleKeyPressMenu(SDL_keysym *keysym, Menu * menu)
-{
+/**
+ * Process in menu keyboard events
+ */
+void Keyboard::handleKeyPressMenu(int key, Menu * menu) {
 	//If we are currently in transition from one menu to another: ignore all inputs
-	if(menu->menuInTransition)
-	{
+	if (menu->menuInTransition) {
 		return;
 	}
 
 	//If we are entering a new name for the high score
-	if(menu->currentMenu == MENU_NEWHIGHSCORE)
-	{
+	if (menu->currentMenu == MENU_NEWHIGHSCORE) {
 		int validChar = false;
 
-		if(keysym->unicode == (Uint16)' ')
-		{
+		if (key == GLFW_KEY_SPACE) {
 			validChar = true;
 		}
 		//input is a number
-		else if((keysym->unicode >= (Uint16)'0') && (keysym->unicode <= (Uint16)'9'))
-		{
+		else if ((key >= GLFW_KEY_0) && (key <= GLFW_KEY_9)) {
 			validChar = true;
 		}
 		//input is a uppercase letter
-		else if((keysym->unicode >= (Uint16)'A') && (keysym->unicode <= (Uint16)'Z'))
-		{
-			validChar = true;
-		}
-		//input is a lowercase letter
-		else if((keysym->unicode >= (Uint16)'a') && (keysym->unicode <= (Uint16)'z'))
-		{
+		else if ((key >= GLFW_KEY_A) && (key <= GLFW_KEY_Z)) {
 			validChar = true;
 		}
 
 		if (validChar)
-			menu->addChar((char)keysym->unicode);
+			menu->addChar((char) key);
 
-		if((keysym->sym == SDLK_BACKSPACE))
-		{
-		 	menu->eraseChar();
+		if ((key == GLFW_KEY_BACKSPACE)) {
+			menu->eraseChar();
 		}
 
-		if((keysym->sym == SDLK_RETURN))
-		{
-		 	menu->finishEnteringName();
+		if ((key == GLFW_KEY_ENTER)) {
+			menu->finishEnteringName();
 		}
 
 		return;
 	}
 
 	//If we are displaying one screen, then any touch take us to the next menu
-	if(menu->currentMenu == MENU_SUCCESS || menu->currentMenu == MENU_CREDIT ||
-		menu->currentMenu == MENU_GAMEOVER || menu->currentMenu == MENU_HIGHSCORE || menu->currentMenu == MENU_INTRO ||
-		((menu->currentMenu == MENU_OPTIONS || menu->currentMenu == MENU_LEVELSELECT) && keysym->sym == SDLK_ESCAPE))
-	{
+	if (menu->currentMenu == MENU_SUCCESS || menu->currentMenu == MENU_CREDIT
+			|| menu->currentMenu == MENU_GAMEOVER
+			|| menu->currentMenu == MENU_HIGHSCORE
+			|| menu->currentMenu == MENU_INTRO
+			|| ((menu->currentMenu == MENU_OPTIONS
+					|| menu->currentMenu == MENU_LEVELSELECT)
+					&& key == GLFW_KEY_ESCAPE)) {
 		menu->transition();
 		return;
 	}
 
-	switch (keysym->sym)
-	{
-		case SDLK_ESCAPE:
-			game->done = true;
-			break;
+	switch (key) {
+	case GLFW_KEY_ESCAPE:
+		game->done = true;
+		break;
 
-		case SDLK_UP:
-			menu->selectionMove(UP);
-			break;
+	case GLFW_KEY_UP:
+		menu->selectionMove(UP);
+		break;
 
-		case SDLK_DOWN:
-			menu->selectionMove(DOWN);
-			break;
+	case GLFW_KEY_DOWN:
+		menu->selectionMove(DOWN);
+		break;
 
-		case SDLK_RIGHT:
-			menu->selectionMove(RIGHT);
-			break;
+	case GLFW_KEY_RIGHT:
+		menu->selectionMove(RIGHT);
+		break;
 
-		case SDLK_LEFT:
-			menu->selectionMove(LEFT);
-			break;
+	case GLFW_KEY_LEFT:
+		menu->selectionMove(LEFT);
+		break;
 
-		case SDLK_SPACE:
-		case SDLK_RETURN:
-		case SDLK_KP_ENTER:
-			menu->select();
-			break;
+	case GLFW_KEY_SPACE:
+	case GLFW_KEY_ENTER:
+	case GLFW_KEY_KP_ENTER:
+		menu->select();
+		break;
 
-		default:
-			break;
+	default:
+		break;
 	}
 
-    return;
+	return;
 }
-

@@ -55,9 +55,13 @@ class Drawable
 	  bool clampTexture;
 	  bool textured;
 	  bool collidable;
+	  bool useComplexMoves;
+	  int horizontalMirror, verticalMirror;
+	  vector<int> rotationValues;
 	  vector<pair<float, float> > currentMove;
 	  float speed;
 	  float angle;
+	//map <string, Move *> movements;
 
 
 	  float maxScale, minScale;
@@ -126,14 +130,11 @@ class AnimatedDrawable: virtual public Drawable
 	  //last timestamp where the animation was updated; useful to control the animation speed
 	  int lastTimeUpdated;
 
-
-
 	  AnimatedDrawable();
 	  AnimatedDrawable(Json::Value aConfig);
 	  AnimatedDrawable(const AnimatedDrawable& aDrawable);
 	  AnimatedDrawable& operator=(const AnimatedDrawable& anAnimatedDrawable);
 	  virtual ~AnimatedDrawable();
-	  void setAnimationsPointer();
 	  float getWidth();
 	  float getHeight();
 	  int getCurrentFrame();

@@ -12,8 +12,6 @@ Effect::Effect()
 	followsAnObject = false;
 	frameCount = 0;
 	isMoving = false;
-	setAnimX(0);
-	setAnimY(0);
 }
 
 Effect::Effect(int x, int y, string aName)

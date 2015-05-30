@@ -29,9 +29,6 @@ Copper::Copper(Json::Value aConfig)
 	collidable = false;
 	activeCannons = 3;
 
-	setAnimX(0);
-	setAnimY(0);
-
 	cannons.push_back(new CopperCannon(this, 51-87, 51-51));
 	cannons.push_back(new CopperCannon(this, 51-33, 51-20));
 	cannons.push_back(new CopperCannon(this, 51-33, 51-82));

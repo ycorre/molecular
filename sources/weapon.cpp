@@ -100,8 +100,6 @@ Electron::Electron()
 	activated = true;
 
 	muzzle.copyFrom(CurrentLevel->loadedObjects.at("muzzle"));
-	muzzle.setAnimX(0);
-	muzzle.setAnimY(0);
 }
 
 void Electron::fire(Hero * aHero)
@@ -260,13 +258,9 @@ Baryon::Baryon()
 	yImpactPos = 0;
 
 	haloA.copyFrom(CurrentLevel->loadedObjects.at("j_bHaloA"));
-	haloA.setAnimX(0);
-	haloA.setAnimY(0);
 	haloA.opacity = 0.6;
 
 	haloB.copyFrom(CurrentLevel->loadedObjects.at("j_bHaloB"));
-	haloB.setAnimX(0);
-	haloB.setAnimY(0);
 	haloB.display = false;
 
 	hitEnnemy = NULL;

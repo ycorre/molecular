@@ -10,9 +10,14 @@
 #include <list>
 #include <map>
 #include <algorithm>
+
+// Include GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <math.h>
+
 #include "drawable.h"
 #include "particleEffect.h"
 
@@ -70,6 +75,7 @@ class GraphicEngine
 	  void fadeOut();
 };
 
+bool initOpenGL();
 bool sortDisplayedElement(const Drawable * a, const Drawable * b);
 
 #endif

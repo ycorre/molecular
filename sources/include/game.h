@@ -58,7 +58,6 @@ class Game
 };
 
 void controlFPS();
-bool initOpenGL();
 
 #endif
 

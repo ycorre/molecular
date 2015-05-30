@@ -13,8 +13,6 @@ Shoot::Shoot()
 	posY = 0;
 	toBlend = true;
 	angle = 0.0f;
-	setAnimX(0);
-	setAnimY(0);
 	firingWeapon = NULL;
 	collision = NULL;
 	speed = 10;
@@ -35,8 +33,6 @@ Shoot::Shoot(int x, int y, Weapon * aWeapon)
 	angle = rotationAngle * (PI / 180.0);
 	speed = 10;
 	toBlend = true;
-	setAnimX(0);
-	setAnimY(0);
 }
 
 void Shoot::animate()
@@ -89,8 +85,6 @@ ElectronAmmo::ElectronAmmo(int x, int y, Weapon * aWeapon)
 	speed = 20;
 	rotationAngle = -4.0f +	static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/8.0f));
 	angle = rotationAngle * (PI / 180.0);
-	setAnimX(0);
-	setAnimY(0);
 
 	switch(firingWeapon->powerLevel)
 	{
@@ -184,15 +178,11 @@ Lazer::Lazer()
 	copyFrom(CurrentLevel->loadedObjects.at("j_bA_Sustain"));
 
 	lightning.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Sustain"));
-	lightning.setAnimX(0);
-	lightning.setAnimY(0);
 
 	attack.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Attack"));
 	release.copyFrom(CurrentLevel->loadedObjects.at("j_bA_Release"));
 
 	toBlend = true;
-	setAnimX(0);
-	setAnimY(0);
 }
 
 Lazer::Lazer(int x, int y, Weapon * aWeapon)

@@ -2,7 +2,14 @@
 #define COMMON_H
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
-#include <SDL/SDL_opengl.h>
+#define GLM_FORCE_RADIANS
+#include <GL/glew.h>
+
+#include <GLFW/glfw3.h>
+
+// Include GLM
+#include <glm/glm.hpp>
+
 #include "../json/json/reader.h"
 #include "../json/json/value.h"
 #include "types.h"
@@ -36,6 +43,7 @@ class Level;
 extern Uint32 ProgramTimer;
 extern Uint32 GameTimer;
 extern Uint32 Score;
+extern GLFWwindow * Window;
 extern Level * CurrentLevel;
 extern Game * CurrentGame;
 

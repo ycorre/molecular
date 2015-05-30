@@ -15,19 +15,19 @@ Uint32 NextLoop, Interval, FPS = 60;
 Uint32 Score = 0;
 
 //Global variables
+GLFWwindow * Window;
 Level * CurrentLevel;
 Game * CurrentGame;
 
-Game::Game()
-{
+Game::Game() {
 	initSDL();
 	initGame();
 }
 
 // Function to release/destroy the resources and go back to the desktop
-void quit(int code)
-{
-    SDL_Quit();
+void quit(int code) {
+	glfwTerminate();
+	SDL_Quit();
 }
 
 
@@ -94,39 +94,8 @@ int Game::mainLoop()
     return 0;
 }
 
-void Game::processEvents()
-{
-	SDL_Event event;
-
-    while (SDL_PollEvent(&event))
-	{
-	    switch(event.type)
-		{
-	    	case SDL_KEYDOWN:
-				//Handle key presses
-				if(gameState == GAME_MENU)
-				{
-					keyboard->handleKeyPressMenu(&event.key.keysym, menu);
-				}
-				break;
-
-	    	case SDL_KEYUP:
-				//Handle key release
-				keyboard->handleKeyUp(&event.key.keysym);
-				break;
-
-			case SDL_QUIT:
-				//Handle quit requests
-				done = true;
-				break;
-
-			default:
-				break;
-		}
-	}
-
-    keyboard->processKeyState();
-    keyboard->processKeyPress();
+void Game::processEvents() {
+	glfwPollEvents();
 }
 
 void Game::mainProcessing()
@@ -181,6 +150,10 @@ void Game::loadMenu(MenuState aMenu)
 	menu->menuInTransition = true;
 }
 
+void keyCallback(GLFWwindow * window, int key, int scancode, int action, int mods) {
+	CurrentGame->keyboard->processKeyState(window, key, scancode, action, mods);
+}
+
 //Initialization of the game
 int Game::initGame()
 {
@@ -193,18 +166,22 @@ int Game::initGame()
 	keyboard->game = this;
 	soundEngine.init();
 
+	glfwSetKeyCallback(Window, keyCallback);
+    //Hide cursor
+    glfwSetInputMode(Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
     Drawable::graphicEngine = &graphicEngine;
     Sound::soundEngine = &soundEngine;
 
 	menu = new Menu(&graphicEngine, &soundEngine);
 
-    int i;
-    for(i = 1; i<10; i++)
-    {
-    	stringstream ss;
-    	ss << "level" << i;
-    	lockedLevel.insert(make_pair(ss.str(), true));
-    }
+	int i;
+	for (i = 1; i < 10; i++) {
+		stringstream ss;
+		ss << "level" << i;
+		lockedLevel.insert(make_pair(ss.str(), true));
+	}
 
     lockedLevel.at("level1") = false;
     lockedLevel.at("level2") = false;
@@ -244,7 +221,7 @@ int Game::initSDL()
     //The flags to pass to SDL_SetVideoMode
     videoFlags = SDL_DOUBLEBUF; 	   // Enable double buffering
     videoFlags |= SDL_OPENGL;       // Store the palette in hardware
-    videoFlags |= SDL_GL_DOUBLEBUFFER; /* Enable double buffering */
+    videoFlags |= SDL_GL_DOUBLEBUFFER; // Enable double buffering
     videoFlags |= SDL_HWPALETTE;
 
 
@@ -260,55 +237,37 @@ int Game::initSDL()
 
     //get a SDL surface from screen
     //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    graphicEngine.screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, videoFlags);
+    graphicEngine.screen = SDL_SetVideoMode(10, 10, SCREEN_BPP, videoFlags);
 
-    //Verify there is a surface
-    if (!graphicEngine.screen)
-	{
-	    cerr <<  "Video mode set failed: << " << SDL_GetError() << endl;
-	    quit(1);
-	}
-    
-    //Init font usage
-    if (TTF_Init() != 0)
-    {
-    	cerr << "TTF_Init() Failed: " << TTF_GetError() << endl;
-    	quit(1);
-    }
-    
-    //Init Audio
-    if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)  == -1)
-	{
-    	cerr << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
-    	quit(1);
+	//Verify there is a surface
+	if (!graphicEngine.screen) {
+		cerr << "Video mode set failed: << " << SDL_GetError() << endl;
+		quit(1);
 	}
 
-    //Enable repetition of keyboard events
-    SDL_EnableKeyRepeat(250, SDL_DEFAULT_REPEAT_INTERVAL);
+	//Init font usage
+	if (TTF_Init() != 0) {
+		cerr << "TTF_Init() Failed: " << TTF_GetError() << endl;
+		quit(1);
+	}
 
-    //Keep the mouse inside the game window
-    SDL_WM_GrabInput(SDL_GRAB_ON);
-    
-    //Hide cursor
-    SDL_ShowCursor(0);
-
-    initOpenGL();
+	//Init Audio
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) == -1) {
+		cerr << "Warning: Audio_Init() Failed: " << SDL_GetError() << endl;
+		quit(1);
+	}
 
     return 0;
 }
 
-void Game::pause()
-{
+void Game::pause() {
 	//If we are not in pause
-	if (gameState != GAME_PAUSE)
-	{
+	if (gameState != GAME_PAUSE) {
 		//Then save current game state
 		previousGameState = gameState;
 		//and pause
 		gameState = GAME_PAUSE;
-	}
-	else
-	{
+	} else {
 		//else revert to previous game state
 		gameState = previousGameState;
 	}
@@ -371,15 +330,13 @@ void Game::launchNextLevel()
 {
 	unsigned int newLevel = 0;
 
-	for(newLevel = 0; newLevel < levelOrder.size(); newLevel ++)
-	{
+	for (newLevel = 0; newLevel < levelOrder.size(); newLevel++) {
 		if (CurrentLevel->name == levelOrder.at(newLevel))
 			break;
 	}
 
-	if (newLevel >= 1)//levelOrder.size())
-	{
-		cout<<"Game won!!!!!!!!!!!\n";
+	if (newLevel >= 1) {   //levelOrder.size())
+		cout << "Game won!!!!!!!!!!!\n";
 		menu->currentMenu = MENU_SUCCESS;
 		gameState = GAME_MENU;
 		return;
@@ -392,35 +349,26 @@ void Game::launchNextLevel()
 	gameState = GAME_INGAME;
 }
 
-void Game::stopMusic()
-{
-	if(!soundEngine.musicMuted)
-	{
+void Game::stopMusic() {
+	if (!soundEngine.musicMuted) {
 		soundEngine.muteMusic();
-	}
-	else
-	{
+	} else {
 		soundEngine.musicMuted = false;
 		soundEngine.playMusic();
 	}
 }
 
-void Game::muteAll()
-{
-	if(!soundEngine.mute)
-	{
+void Game::muteAll() {
+	if (!soundEngine.mute) {
 		soundEngine.muteAll();
-	}
-	else
-	{
+	} else {
 		soundEngine.mute = false;
 		soundEngine.playMusic();
 	}
 }
 
 //Update Timers
-void Game::updateTimers()
-{
+void Game::updateTimers() {
 	ProgramTimer = ProgramTimer + Interval;
 
 	if (gameState == GAME_INGAME)
@@ -431,53 +379,11 @@ void Game::updateTimers()
 
 //Control game speed
 //If necessary, wait the required time until the next loop
-void controlFPS()
-{
-	if(NextLoop > SDL_GetTicks())
+void controlFPS() {
+	if (NextLoop > SDL_GetTicks())
 		SDL_Delay(NextLoop - SDL_GetTicks());
 
-	NextLoop = SDL_GetTicks() + Interval ;
+	NextLoop = SDL_GetTicks() + Interval;
 
 	return;
-}
-
-bool initOpenGL()
-{
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	//Initialize clear color (black and opaque)
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-	//glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	float ratio = (GLfloat)SCREEN_WIDTH/(GLfloat)SCREEN_HEIGHT;
-
-	//Set the view
-	//90.0f since cotangent(45) = 1 which simplifies the coordinates computing on the y axis
-	//the x coordinates are to be multiply by the ratio
-	gluPerspective(90.0f, ratio, 1.0f, 1000.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(-0.5, -0.5 , -1000);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_TEXTURE_2D);
-
-	//Check for error
-	GLenum error = glGetError();
-	if(error != GL_NO_ERROR)
-	{
-		cerr << "Error initializing OpenGL! " << gluErrorString(error) << endl;
-		return false;
-	}
-
-	return true;
 }

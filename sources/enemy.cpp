@@ -5,8 +5,6 @@ Enemy::Enemy()
 	name = "Enemy";
 	posX = 0;
 	posY = 0;
-	setAnimX(0);
-	setAnimY(0);
 	scoreValue = 0;
 	type = 0;
 	bonusProbability = 90;
@@ -29,44 +27,12 @@ Enemy::Enemy()
 	nextAngle = angle;
 }
 
-Enemy::Enemy(int x, int y, int typeXW)
-{
-	name = "Enemy";
-	width = atoi(((CurrentLevel->configurationElements.at("enemy")).at(0)).c_str());
-	height = atoi(((CurrentLevel->configurationElements.at("enemy")).at(1)).c_str());
-	posX = x;
-	posY = y;
-	setAnimX(0);
-	setAnimY(typeXW * height);
-	type = typeXW;
-	scoreValue = 200;
-	bonusProbability = 50;
-	canFire = false;
-	minFireRate = 2000;
-	maxFireRate = 1000;
-	fireRate = minFireRate + (rand() % maxFireRate);
-	lastTimeFired = 0;
-	life = 50 * (typeXW + 1);
-	speed = 2;
-	angle = 180.0 * (PI/180);
-	nextAngle = angle;
-	currentPosition = 0;
-	damage = 1000;
-	angleModifyingFactor = 0;
-
-	originY = y;
-	sinusWidth = 400;
-	sinusHeigth = 80;
-}
-
 Enemy::Enemy(int x, int y, float sinWidth, float sinHeigth, float aSpeed)
 {
 	copyFrom(CurrentLevel->loadedObjects.at("enemy"));
 
 	posX = x;
 	posY = y;
-	setAnimX(0);
-	setAnimY(0);
 	type = 0;
 	scoreValue = 200;
 	bonusProbability = 50;
@@ -227,39 +193,6 @@ void Enemy::addSubpart(EnemyWave * aWave)
 /*
  * Cadmium functions
  */
-Cadmium::Cadmium(int x, int y, float aSpeed, vector<int> moves)
-{
-	copyFrom(CurrentLevel->loadedObjects.at("eSp_Cadmium"));
-
-	posX = x;
-	posY = y;
-	setAnimX(0);
-	setAnimY(0);
-	scoreValue = 200;
-	bonusProbability = 80;
-	canFire = false;
-	fireRate = 450;
-	lastTimeFired = 0;
-	life = 50;
-	speed = aSpeed;
-	originY = y;
-	angle = 180.0 * (PI/180);
-	shootingAngle = 0;
-	//currentPosition = 0;
-
-	if(!moves.empty())
-	{
-		unsigned int i;
-		for(i=0; i<moves.size(); i = i + 2)
-		{
-			eventPosition.push_back(make_pair(moves.at(i), moves.at(i+1)));
-		}
-	}
-
-	posRafale = 0;
-	rafaleRate = 4000;
-}
-
 Cadmium::Cadmium(Json::Value aConfig)
 {
 	copyFrom(CurrentLevel->loadedObjects.at("eSp_Cadmium"));
@@ -273,9 +206,6 @@ Cadmium::Cadmium(Json::Value aConfig)
 	life = aConfig.get("life", 50).asInt();
 	speed = aConfig.get("speed", 4.0).asFloat();
 	rafaleRate = aConfig.get("rafaleRate", 4000).asInt();
-
-	setAnimX(0);
-	setAnimY(0);
 
 	unsigned int i;
 	const Json::Value movements = aConfig["movement"];
@@ -417,13 +347,9 @@ Iron::Iron(Json::Value aConfig)
 	nextDirectionShift = minNextShift + rand() % maxNextShift;
 
 	const Json::Value bonusReleased = aConfig["possibleBonus"];
-	for (unsigned int j = 0; j < bonusReleased.size(); j++)
-	{
-		possibleBonus.push_back((bonusType)(bonusReleased[j].asInt()));
+	for (unsigned int j = 0; j < bonusReleased.size(); j++) {
+		possibleBonus.push_back((bonusType) (bonusReleased[j].asInt()));
 	}
-
-	setAnimX(0);
-	setAnimY(0);
 
 	canFire = false;
 	angle = 180.0 * (PI/180);

@@ -13,8 +13,6 @@ HUD::HUD(GraphicEngine * aGraphicEngine)
 	backGround = hudElements.at("hud_bkg");
 	backGround.width = SCREEN_WIDTH;
 	backGround.height = SCREEN_HEIGHT - GAMEZONE_HEIGHT;
-	backGround.setAnimX(0);
-	backGround.setAnimY(0);
 
 	health.copyFrom(&(hudAnimatedElements.at("abeSpVie")));
 	quarkB.copyFrom(&(hudAnimatedElements.at("abeSpQB")));

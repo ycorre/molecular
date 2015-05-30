@@ -12,7 +12,7 @@ Hero::Hero()
 	maxLife = 6;
 	nbLife = 3;
 	posX = SCREEN_WIDTH/3;
-	posY = GAMEZONE_HEIGHT/2;
+	posY = GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2;
 	state = ENTER;
 	invincible = false;
 	invincibilityTime = 1500;
@@ -56,7 +56,7 @@ void Hero::setTexture(Drawable * levelHero)
 {
 	copyFrom(CurrentLevel->loadedObjects.at("atom"));
 	posX = SCREEN_WIDTH/3;
-	posY = GAMEZONE_HEIGHT/2;
+	posY =  GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2;
 	ownedWeapons.insert(make_pair(ElectronGun, new Electron()));
 	ownedWeapons.insert(make_pair(HadronGun, new Hadron()));
 	ownedWeapons.insert(make_pair(BaryonGun, new Baryon()));
@@ -105,8 +105,6 @@ void Hero::animate()
 				CurrentLevel->soundEngine->playSound("TeleportOff");
 				if(shielded)
 					shield->display = false;
-				setAnimX(0);
-				setAnimY(0);
 				break;
 
 			case CURSOR:
@@ -116,8 +114,6 @@ void Hero::animate()
 				makeInvincible(3000);
 				startTeleporting = GameTimer;
 				dontMove = true;
-				setAnimX(0);
-				setAnimY(0);
 				break;
 
 			case APPAR:
@@ -129,8 +125,6 @@ void Hero::animate()
 				if(shielded)
 					shield->display = true;
 				makeInvincible(4000);
-				setAnimX(0);
-				setAnimY(0);
 				break;
 
 			case HIT:
@@ -140,8 +134,6 @@ void Hero::animate()
 				backOffSpeed = 13.0;
 				isFiring = false;
 				makeInvincible(2000);
-				setAnimX(0);
-				setAnimY(0);
 				break;
 		
 			case ENTER:
@@ -151,13 +143,9 @@ void Hero::animate()
 				isBlinking = false;
 				makeInvincible(1500);
 				setAnimation("enter");
-				setAnimX(0);
-				setAnimY(0);
 				break;
 
 			case DEAD:
-				setAnimX(0);
-				setAnimY(0);
 				dontMove = true;
 				makeInvincible(4000);
 				isBlinking = false;
@@ -169,8 +157,6 @@ void Hero::animate()
 				break;
 
 			case EXITING:
-				setAnimX(0);
-				setAnimY(0);
 				dontMove = true;
 				makeInvincible(10000);
 				display = true;
@@ -337,62 +323,50 @@ void Hero::setWeapon(weaponName aWeaponName)
 	}
 }
 
-
-void Hero::fireWeapon(weaponName aWeaponName)
-{
-	if(state != CURSOR )//&& (ownedWeapons.at(aWeaponName)->activated))
-	{
+void Hero::fireWeapon(weaponName aWeaponName) {
+	if (state != CURSOR) //&& (ownedWeapons.at(aWeaponName)->activated))
+			{
 		ownedWeapons.at(aWeaponName)->fire(this);	//currentWeapon->fire(this);
 		isFiring = ownedWeapons.at(aWeaponName)->isFiring;
 	}
 }
 
-void Hero::upgradeWeaponTo(int aLevel)
-{
+void Hero::upgradeWeaponTo(int aLevel) {
 	currentWeapon->upgradeTo(aLevel);
 }
 
-list<Shoot *> * Hero::getLasers()
-{
+list<Shoot *> * Hero::getLasers() {
 	shoots.clear();
 	//Get all the currently active ammunitions from all the weapons
-	for(map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
-	{
-		shoots.insert(shoots.begin(), (*aWeapon).second->shoots.begin(), (*aWeapon).second->shoots.end());
+	for (map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin();
+			aWeapon != ownedWeapons.end(); ++aWeapon) {
+		shoots.insert(shoots.begin(), (*aWeapon).second->shoots.begin(),
+				(*aWeapon).second->shoots.end());
 	}
 
 	return &shoots;
 }
 
-
-void Hero::moveUp()
-{
-	if(topFlag)
-	{
+void Hero::moveUp() {
+	if (topFlag) {
 		posY = posY + 6;
 	}
 }
 
-void Hero::moveDown()
-{
-	if(bottomFlag)
-	{
+void Hero::moveDown() {
+	if (bottomFlag) {
 		posY = posY - 6;
 	}
 }
 
-void Hero::moveLeft()
-{
-	if(leftFlag)
-	{
+void Hero::moveLeft() {
+	if (leftFlag) {
 		posX = posX - 6;
 	}
 }
 
-void Hero::moveRight()
-{
-	if(rightFlag)
-	{
+void Hero::moveRight() {
+	if (rightFlag) {
 		posX = posX + 6;
 	}
 }
@@ -417,26 +391,21 @@ void Hero::move(int x, int y)
 	posY = min(posY, SCREEN_HEIGHT - height/2);
 }
 
-void Hero::animateLasers()
-{
-	for(map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin(); aWeapon != ownedWeapons.end(); ++aWeapon)
-	{
+void Hero::animateLasers() {
+	for (map<weaponName, Weapon *>::iterator aWeapon = ownedWeapons.begin();
+			aWeapon != ownedWeapons.end(); ++aWeapon) {
 		(*aWeapon).second->animateLasers();
 	}
 }
 
-void Hero::loseLife()
-{
-	nbLife --;
-	if (nbLife < 0)
-	{
-		cout<<"GAME OVER!!!\n";
+void Hero::loseLife() {
+	nbLife--;
+	if (nbLife < 0) {
+		cout << "GAME OVER!!!\n";
 		CurrentLevel->levelState = LEVEL_LOST;
-	}
-	else
-	{
-		posX = SCREEN_WIDTH/3;
-		posY = GAMEZONE_LIMIT + GAMEZONE_HEIGHT/2;
+	} else {
+		posX = SCREEN_WIDTH / 3;
+		posY = GAMEZONE_LIMIT + GAMEZONE_HEIGHT / 2;
 		state = ENTER;
 		heroChangedState = true;
 		display = false;
@@ -447,124 +416,98 @@ void Hero::loseLife()
 	}
 }
 
-void Hero::processCollisionWith(Drawable * aDrawable)
-{
-	if(!invincible)
-	{
-		if(aDrawable->isEnemy())
-		{
-			if (!shielded)
-			{
+void Hero::processCollisionWith(Drawable * aDrawable) {
+	if (!invincible) {
+		if (aDrawable->isEnemy()) {
+			if (!shielded) {
 				Enemy * anEnemy = dynamic_cast<Enemy *>(aDrawable);
 				health = health - anEnemy->damage;
-				if (health<=0)
-				{
+				if (health <= 0) {
 					CurrentLevel->soundEngine->playSound("playerExplode", posX);
 					setState(DEAD);
-				}
-				else
-				{
+				} else {
 					CurrentLevel->soundEngine->playSound("AtomHit", posX);
 					setState(HIT);
 					hitAngle = PI;
 				}
 				return;
-			}
-			else
-			{
+			} else {
 				shielded = false;
 				delete shield;
 			}
 		}
 
-		if (aDrawable->isLaser())
-		{
+		if (aDrawable->isLaser()) {
 			Shoot * aShoot = dynamic_cast<Shoot*>(aDrawable);
-			if (!shielded)
-			{
-				health--;//= health - aShoot->power;
-				if (health<=0)
-				{
+			if (!shielded) {
+				health--;	//= health - aShoot->power;
+				if (health <= 0) {
 					CurrentLevel->soundEngine->playSound("playerExplode", posX);
 					setState(DEAD);
-				}
-				else
-				{
+				} else {
 					CurrentLevel->soundEngine->playSound("AtomHit", posX);
 					setState(HIT);
 					hitAngle = aShoot->angle;
 				}
-			}
-			else
-			{
+			} else {
 				shield->energy--;
 				makeInvincible(400);
-				if(shield->energy <= 0)
-				{
+				if (shield->energy <= 0) {
 					shielded = false;
 					delete shield;
-				}
-				else
-				{
-					shield->opacity = 1.0f / (3.0f/shield->energy);
+				} else {
+					shield->opacity = 1.0f / (3.0f / shield->energy);
 				}
 			}
 			return;
 		}
 	}
 
-	if (aDrawable->isBonus())
-	{
+	if (aDrawable->isBonus()) {
 		Bonus * aBonus = dynamic_cast<Bonus*>(aDrawable);
 		stringstream stringToDisplay;
-		switch(aBonus->type)
-		{
-			case BONUS_LIFE_BIG:
-			case BONUS_LIFE_SMALL:
-			case BONUS_LIFE_MEDIUM:
-				stringToDisplay << "Sante : +" << aBonus->quantity;
-				CurrentLevel->createTextEffect(posX, posY, stringToDisplay.str());
+		switch (aBonus->type) {
+		case BONUS_LIFE_BIG:
+		case BONUS_LIFE_SMALL:
+		case BONUS_LIFE_MEDIUM:
+			stringToDisplay << "Sante : +" << aBonus->quantity;
+			CurrentLevel->createTextEffect(posX, posY, stringToDisplay.str());
 
-				health = min(maxHealth, health + aBonus->quantity);
+			health = min(maxHealth, health + aBonus->quantity);
 
-				if (health >= maxHealth)
-				{
-					CurrentLevel->soundEngine->playSound("UpHealth100");
-				}
-				else
-				{
-					CurrentLevel->soundEngine->playSound("UpHealth");
-				}
-				break;
+			if (health >= maxHealth) {
+				CurrentLevel->soundEngine->playSound("UpHealth100");
+			} else {
+				CurrentLevel->soundEngine->playSound("UpHealth");
+			}
+			break;
 
-			case BONUS_SHIELD:
-				CurrentLevel->createTextEffect(posX, posY, "Bouclier!");
-				CurrentLevel->soundEngine->playSound("getShield");
+		case BONUS_SHIELD:
+			CurrentLevel->createTextEffect(posX, posY, "Bouclier!");
+			CurrentLevel->soundEngine->playSound("getShield");
 
-				if(shielded)
-					delete shield;
+			if (shielded)
+				delete shield;
 
-				shield = new Shield(posX, posY);
-				shielded = true;
-				break;
+			shield = new Shield(posX, posY);
+			shielded = true;
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 
-		if (aBonus->isQuarkBonus)
-		{
-			stringToDisplay <<  "Quark : +" << aBonus->quantity;
-			CurrentLevel->createTextEffect(posX, posY,  stringToDisplay.str());
-			if(aBonus->quantity == 1)
-			{
+		if (aBonus->isQuarkBonus) {
+			stringToDisplay << "Quark : +" << aBonus->quantity;
+			CurrentLevel->createTextEffect(posX, posY, stringToDisplay.str());
+			if (aBonus->quantity == 1) {
 				CurrentLevel->soundEngine->playSound("jQuarkSmall");
-			}
-			else
-			{
+			} else {
 				CurrentLevel->soundEngine->playSound("jQuarkBig");
 			}
-			quarkLevels.at((QuarkType)aBonus->quarkType) = min(34, quarkLevels.at((QuarkType) aBonus->quarkType) + aBonus->quantity);
+			quarkLevels.at((QuarkType) aBonus->quarkType) = min(34,
+					quarkLevels.at((QuarkType) aBonus->quarkType)
+							+ aBonus->quantity);
 			checkQuarkLevels();
 
 			//radioactivePotential = min(64.0f, radioactivePotential + 32);
@@ -702,6 +645,4 @@ Shield::Shield(float x, float y)
 	copyFrom(CurrentLevel->loadedObjects.at("jSp_Bouclier"));
 	posX = x;
 	posY = y;
-	setAnimX(0);
-	setAnimY(0);
 }
