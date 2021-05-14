@@ -11,19 +11,22 @@ Class {
 }
 
 { #category : #'resource access' }
-MolResourceLocator >> molecularConfiguration [
-	"Return the Molecular game json configuration"
+MolResourceLocator >> molecularConfigurationDirectory [
+	"Return the Molecular game json configuration directory"
+		^self molecularResourceFileReferenceFor: 'conf'
 ]
 
 { #category : #repository }
 MolResourceLocator >> molecularIceRepository [
 
-	molecularIceRepository := IceRepository repositories
-		                 detect: [ :d | 
-			                 d location notNil and: [ 
-				                 d origin owner = 'ycorre' and: [ 
-					                 d origin projectName = 'molecular' ] ] ]
-		                 ifNone: [ MolResourceRepositoryNotFound signal ]
+	^ molecularIceRepository ifNil: [ 
+		  molecularIceRepository := IceRepository repositories
+			                            detect: [ :d | 
+				                            d location notNil and: [ 
+					                            d origin owner = 'ycorre' and: [ 
+						                            d origin projectName = 'molecular' ] ] ]
+			                            ifNone: [ 
+			                            MolResourceRepositoryNotFound signal ] ]
 ]
 
 { #category : #repository }
@@ -35,5 +38,5 @@ MolResourceLocator >> molecularResourceFileReferenceFor: aDataPath [
 { #category : #repository }
 MolResourceLocator >> molecularResourcePathFor: aDataPath [
 
-
+	^ self molecularIceRepository location absolutePath / aDataPath
 ]
