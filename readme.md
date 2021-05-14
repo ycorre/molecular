@@ -1,9 +1,10 @@
 *Molecular* is a small *R-Type* like game coded in C++.
 
-##How to play
+## How to play
+
 The game controls are the keyboard and the mouse: the mouse is used to move around and to shoot (left button), keyboard is used to move in the menus (arrows to move and space to validate) and, during the game, to change weapon (the keys are c, v and b). Escape is used to go back to the menu from the game and to quit the game if pressed from the main menu.
 
-###Explanation of the HUD
+### Explanation of the HUD
 
 ![Molecular Screenshot](http://ycorre.github.io/molecular/images/screenshots/molecular_legend.png)
 
@@ -20,8 +21,8 @@ The game controls are the keyboard and the mouse: the mouse is used to move arou
   7. Remaining lives
   8. A bonus (Type-U quark)
 
-##License
+## License
 
-The *Molecular* source code is under [CC0 Public Domain](https://creativecommons.org/publicdomain/zero/1.0/), except for the JSON parser library [JsonCpp](https://github.com/open-source-parsers/jsoncpp) which is under a dual Public Domain/MIT License.
+The *Molecular* C++ source code is under [CC0 Public Domain](https://creativecommons.org/publicdomain/zero/1.0/), except for the JSON parser library [JsonCpp](https://github.com/open-source-parsers/jsoncpp) which is under a dual Public Domain/MIT License. The Pharo source code is under [MIT license](https://opensource.org/licenses/MIT).
 
 The *Molecular* artworks (graphics, sounds and music - everything in the /res and /sound folders and their subfolders) are under [CC BY-NC 4.0](http://creativecommons.org/licenses/by-nc/4.0/) and are the property of [Dimitrix](https://www.youtube.com/user/dimitrix9bit/videos).
