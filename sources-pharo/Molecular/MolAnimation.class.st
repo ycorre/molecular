@@ -26,8 +26,10 @@ Class {
 		'numberOfFrames',
 		'frames',
 		'currentFrame',
-		'maxWidth',
-		'maxHeight'
+		'form',
+		'dataPath',
+		'opacity',
+		'animatedTexture'
 	],
 	#category : #'Molecular-model'
 }
@@ -45,9 +47,21 @@ MolAnimation class >> exampleAnimation [
 		  '{"name" : "example", "width" : 64, "height" : 64, "maxWidth" : 320, "maxHeight" : 320, "numberOfFrames" : 10}'
 ]
 
+{ #category : #accessing }
+MolAnimation >> animatedTexture [
+
+	^ animatedTexture
+]
+
+{ #category : #accessing }
+MolAnimation >> animatedTexture: anObject [
+
+	animatedTexture := anObject
+]
+
 { #category : #building }
 MolAnimation >> build [
-
+	form := self buildFormFromDataPath: dataPath.
 	self buildFrames.
 	^ self
 ]
@@ -59,13 +73,17 @@ MolAnimation >> buildFrames [
 	frames := OrderedCollection new.
 	i := 0.
 	j := 0.
+	(width = form width and: [ height = form height ]) ifTrue: [ 
+		currentFrame := (i @ j extent: width @ height) asMolSpriteFrame.
+		currentFrame nextLink: currentFrame.
+		^ self ].
 	numberOfFrames timesRepeat: [ 
 		frames add: (i @ j extent: width @ height) asMolSpriteFrame.
 		i := i + width.
-		i = maxWidth ifTrue: [ 
+		i = form width ifTrue: [ 
 			i := 0.
 			j := j + height ].
-		j = maxHeight ifTrue: [ 
+		j = form height ifTrue: [ 
 			i := 0.
 			j := 0 ] ].
 	currentFrame := frames last.
@@ -76,6 +94,18 @@ MolAnimation >> buildFrames [
 MolAnimation >> currentFrame [
 
 	^ currentFrame
+]
+
+{ #category : #accessing }
+MolAnimation >> dataPath [
+
+	^ dataPath
+]
+
+{ #category : #accessing }
+MolAnimation >> dataPath: anObject [
+
+	dataPath := anObject
 ]
 
 { #category : #accessing }
@@ -100,18 +130,6 @@ MolAnimation >> height: anObject [
 MolAnimation >> initialize [
 	super initialize.
 	name := self class defaultName
-]
-
-{ #category : #accessing }
-MolAnimation >> maxHeight: anObject [
-
-	maxHeight := anObject
-]
-
-{ #category : #accessing }
-MolAnimation >> maxWidth: anObject [
-
-	maxWidth := anObject
 ]
 
 { #category : #accessing }
@@ -142,6 +160,26 @@ MolAnimation >> numberOfFrames [
 MolAnimation >> numberOfFrames: anObject [
 
 	numberOfFrames := anObject
+]
+
+{ #category : #accessing }
+MolAnimation >> opacity [
+
+	^ opacity
+]
+
+{ #category : #accessing }
+MolAnimation >> opacity: anObject [
+
+	opacity := anObject
+]
+
+{ #category : #printing }
+MolAnimation >> printOn: aStream [
+
+	aStream << 'Molecular animation:'.
+	aStream space.
+	aStream << self name
 ]
 
 { #category : #accessing }
