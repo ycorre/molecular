@@ -11,6 +11,18 @@ Class {
 }
 
 { #category : #'resource access' }
+MolResourceLocator >> configurationFileNamed: aString [
+	^self molecularConfigurationDirectory / aString
+]
+
+{ #category : #'resource access' }
+MolResourceLocator >> jsonConfigurationNamed: aString [
+
+	^ STONJSON fromString:
+		  (self configurationFileNamed: aString) contents
+]
+
+{ #category : #'resource access' }
 MolResourceLocator >> molecularConfigurationDirectory [
 	"Return the Molecular game json configuration directory"
 		^self molecularResourceFileReferenceFor: 'conf'
