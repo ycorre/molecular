@@ -16,7 +16,8 @@ Class {
 		'clampTexture',
 		'virtualDepth',
 		'blend',
-		'opacity'
+		'opacity',
+		'sldTexture'
 	],
 	#category : #'Molecular-model'
 }
@@ -117,6 +118,22 @@ MolSprite >> opacity [
 MolSprite >> opacity: anObject [
 
 	opacity := anObject
+]
+
+{ #category : #rendering }
+MolSprite >> renderOn: aRenderer atPosition: aSDLRectangle [
+]
+
+{ #category : #accessing }
+MolSprite >> sldTexture [
+
+	^ sldTexture
+]
+
+{ #category : #accessing }
+MolSprite >> sldTexture: anObject [
+
+	sldTexture := anObject
 ]
 
 { #category : #accessing }

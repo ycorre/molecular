@@ -42,6 +42,12 @@ MolAnimatedSprite >> build [
 	^ self
 ]
 
+{ #category : #textures }
+MolAnimatedSprite >> buildTextureWith: aRenderer [
+
+	animations do: [ :a | aRenderer initializeTextureFor: a ]
+]
+
 { #category : #accessing }
 MolAnimatedSprite >> collision [
 
@@ -66,4 +72,12 @@ MolAnimatedSprite >> defaultAnimation [
 { #category : #frames }
 MolAnimatedSprite >> nextSpriteFrame [
 	^currentAnimation nextFrame
+]
+
+{ #category : #rendering }
+MolAnimatedSprite >> renderOn: aRenderer atPosition: aSDLRectangle [
+
+	aRenderer
+		renderAnimationFrame: currentAnimation
+		atPosition: aSDLRectangle
 ]

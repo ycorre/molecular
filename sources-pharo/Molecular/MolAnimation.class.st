@@ -29,7 +29,8 @@ Class {
 		'form',
 		'dataPath',
 		'opacity',
-		'animatedTexture'
+		'animatedTexture',
+		'sdlTexture'
 	],
 	#category : #'Molecular-model'
 }
@@ -69,16 +70,18 @@ MolAnimation >> build [
 { #category : #building }
 MolAnimation >> buildFrames [
 
-	| i j |
+	| i j frame |
 	frames := OrderedCollection new.
 	i := 0.
 	j := 0.
 	(width = form width and: [ height = form height ]) ifTrue: [ 
-		currentFrame := (i @ j extent: width @ height) asMolSpriteFrame.
-		currentFrame nextLink: currentFrame.
-		^ self ].
+		numberOfFrames := 1 ].
 	numberOfFrames timesRepeat: [ 
-		frames add: (i @ j extent: width @ height) asMolSpriteFrame.
+		| newFrame |
+		newFrame := (i @ j extent: width @ height) asMolSpriteFrame.
+		frame ifNotNil: [ frame nextLink: newFrame ].
+		frame := newFrame.
+		frames add: frame.
 		i := i + width.
 		i = form width ifTrue: [ 
 			i := 0.
@@ -93,7 +96,7 @@ MolAnimation >> buildFrames [
 { #category : #animation }
 MolAnimation >> currentFrame [
 
-	^ currentFrame
+	^ currentFrame ifNil: [ currentFrame := frames first ]
 ]
 
 { #category : #accessing }
@@ -106,6 +109,12 @@ MolAnimation >> dataPath [
 MolAnimation >> dataPath: anObject [
 
 	dataPath := anObject
+]
+
+{ #category : #accessing }
+MolAnimation >> form [
+
+	^ form
 ]
 
 { #category : #accessing }
@@ -147,7 +156,7 @@ MolAnimation >> name: anObject [
 { #category : #animation }
 MolAnimation >> nextFrame [
 
-	^ currentFrame nextLink
+	^ currentFrame := self currentFrame nextLink
 ]
 
 { #category : #accessing }
@@ -180,6 +189,18 @@ MolAnimation >> printOn: aStream [
 	aStream << 'Molecular animation:'.
 	aStream space.
 	aStream << self name
+]
+
+{ #category : #accessing }
+MolAnimation >> sdlTexture [
+
+	^ sdlTexture
+]
+
+{ #category : #accessing }
+MolAnimation >> sdlTexture: anObject [
+
+	sdlTexture := anObject
 ]
 
 { #category : #accessing }
