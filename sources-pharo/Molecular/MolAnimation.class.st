@@ -47,6 +47,7 @@ MolAnimation class >> exampleAnimation [
 
 { #category : #building }
 MolAnimation >> build [
+
 	self buildFrames.
 	^ self
 ]

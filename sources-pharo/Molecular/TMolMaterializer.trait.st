@@ -17,7 +17,7 @@ TMolMaterializer classSide >> readFromString: aString [
 
 { #category : #building }
 TMolMaterializer >> build [
-
+	
 	^ self
 ]
 
@@ -25,6 +25,15 @@ TMolMaterializer >> build [
 TMolMaterializer >> readFromDictionnary: aDictionnary [
 
 	aDictionnary keysAndValuesDo: [ :selector :value | 
+		(self class hasInstVarNamed: selector) ifFalse: [ 
+			self class addInstVarNamed: selector.
+			(RBCreateAccessorsForVariableRefactoring
+				 variable: selector
+				 class: self class
+				 classVariable: false)
+				defineGetterMethod;
+				defineSetterMethod;
+				execute ].
 		self perform: selector asSymbol asMutator with: value ].
 	self build.
 	^ self
