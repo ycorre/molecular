@@ -36,9 +36,7 @@ MolSprite >> blend: anObject [
 { #category : #building }
 MolSprite >> build [
 
-	form := ImageReadWriter formFromFileNamed:
-		        (MolResourceLocator new molecularResourceFileReferenceFor:
-			         dataPath).
+	form := self buildFormFromDataPath: dataPath.
 	spriteFrame := ((0 @ 0) extent: (form width) @ (form height))
 		               asMolSpriteFrame.
 	^ self

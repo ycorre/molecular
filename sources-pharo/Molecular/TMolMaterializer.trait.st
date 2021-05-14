@@ -21,11 +21,20 @@ TMolMaterializer >> build [
 	^ self
 ]
 
+{ #category : #building }
+TMolMaterializer >> buildFormFromDataPath: dataPath [
+
+	^ ImageReadWriter formFromFileNamed:
+		  (MolResourceLocator new molecularResourceFileReferenceFor:
+			   dataPath)
+]
+
 { #category : #reading }
 TMolMaterializer >> readFromDictionnary: aDictionnary [
 
 	aDictionnary keysAndValuesDo: [ :selector :value | 
-		(self class hasInstVarNamed: selector) ifFalse: [ 
+		(self class withAllSuperclasses anySatisfy: [ :c | 
+			 c hasInstVarNamed: selector ]) ifFalse: [ 
 			self class addInstVarNamed: selector.
 			(RBCreateAccessorsForVariableRefactoring
 				 variable: selector
