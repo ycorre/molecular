@@ -23,7 +23,7 @@ The game controls are the keyboard and the mouse: the mouse is used to move arou
   7. Remaining lives
   8. A bonus (Type-U quark)
 
-## Loading the Pharo version
+## Loading the Pharo development version
 
 Follow the instructions [here](https://pharo.org) to install and run a Pharo 9 image.
 Then execute this code in a Pharo Playground:
