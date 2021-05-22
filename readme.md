@@ -1,9 +1,11 @@
 [![Pharo-CI](https://github.com/ycorre/molecular/actions/workflows/molecular-pharo.yml/badge.svg)](https://github.com/ycorre/molecular/actions/workflows/molecular-pharo.yml)
 
+```Smalltalk
 Metacello new
     baseline: 'Molecular';
     repository: 'github://ycorre/molecular/sources-pharo';
     load.
+  ```
 
 **Molecular** is a small *R-Type* like game coded in C++ and in [Pharo](https://pharo.org).
 
