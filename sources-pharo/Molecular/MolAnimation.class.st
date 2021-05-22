@@ -3,12 +3,9 @@ I model a spritesheet animation.
 
 
 	currentFrame:		<MolSpriteFrame> the frame to be display from the spritesheet.
-	frames:				<OrderedCollection>
+	frames:				<OrderedCollection>	
 	height:				<SmallInteger>			The individual height of each frame
-	maxHeight:			<SmallInteger>			The individual height of each frame
-	maxWidth:				<SmallInteger>			The individual height of each frame
-	name:					<ByteString>				The individual height of each frame
-	numberOfFrames:		<SmallInteger>			The individual height of each frame
+	numberOfFrames:		<SmallInteger>			The total number of frames
 	width:					<SmallInteger>			The individual width of each frame
 
 
@@ -16,23 +13,13 @@ I model a spritesheet animation.
 "
 Class {
 	#name : #MolAnimation,
-	#superclass : #Object,
-	#traits : 'TMolMaterializer',
-	#classTraits : 'TMolMaterializer classTrait',
+	#superclass : #MolStaticAnimation,
 	#instVars : [
 		'name',
 		'width',
 		'height',
 		'numberOfFrames',
-		'frames',
-		'currentFrame',
-		'form',
-		'dataPath',
-		'opacity',
-		'animatedTexture',
-		'sdlTexture',
-		'maxHeight',
-		'maxWidth'
+		'frames'
 	],
 	#category : #'Molecular-model'
 }
@@ -50,33 +37,14 @@ MolAnimation class >> exampleAnimation [
 		  '{"name" : "example", "width" : 64, "height" : 64, "maxWidth" : 320, "maxHeight" : 320, "numberOfFrames" : 10}'
 ]
 
-{ #category : #accessing }
-MolAnimation >> animatedTexture [
-
-	^ animatedTexture
-]
-
-{ #category : #accessing }
-MolAnimation >> animatedTexture: anObject [
-
-	animatedTexture := anObject
-]
-
 { #category : #building }
-MolAnimation >> build [
-	form := self buildFormFromDataPath: dataPath.
-	self buildFrames.
-	^ self
-]
-
-{ #category : #building }
-MolAnimation >> buildFrames [
+MolAnimation >> buildFramesInBounds: aRectangle [ 
 
 	| i j frame |
 	frames := OrderedCollection new.
 	i := 0.
 	j := 0.
-	(width = form width and: [ height = form height ]) ifTrue: [ 
+	(width = aRectangle width and: [ height = aRectangle height ]) ifTrue: [ 
 		numberOfFrames := 1 ].
 	numberOfFrames timesRepeat: [ 
 		| newFrame |
@@ -85,10 +53,10 @@ MolAnimation >> buildFrames [
 		frame := newFrame.
 		frames add: frame.
 		i := i + width.
-		i = form width ifTrue: [ 
+		i = aRectangle width ifTrue: [ 
 			i := 0.
 			j := j + height ].
-		j = form height ifTrue: [ 
+		j = aRectangle height ifTrue: [ 
 			i := 0.
 			j := 0 ] ].
 	currentFrame := frames last.
@@ -99,24 +67,6 @@ MolAnimation >> buildFrames [
 MolAnimation >> currentFrame [
 
 	^ currentFrame ifNil: [ currentFrame := frames first ]
-]
-
-{ #category : #accessing }
-MolAnimation >> dataPath [
-
-	^ dataPath
-]
-
-{ #category : #accessing }
-MolAnimation >> dataPath: anObject [
-
-	dataPath := anObject
-]
-
-{ #category : #accessing }
-MolAnimation >> form [
-
-	^ form
 ]
 
 { #category : #accessing }
@@ -138,33 +88,10 @@ MolAnimation >> height: anObject [
 ]
 
 { #category : #initialization }
-MolAnimation >> initialize [
+MolAnimation >> initialize [ 
 	super initialize.
-	name := self class defaultName
-]
-
-{ #category : #accessing }
-MolAnimation >> maxHeight [
-
-	^ maxHeight
-]
-
-{ #category : #accessing }
-MolAnimation >> maxHeight: anObject [
-
-	maxHeight := anObject
-]
-
-{ #category : #accessing }
-MolAnimation >> maxWidth [
-
-	^ maxWidth
-]
-
-{ #category : #accessing }
-MolAnimation >> maxWidth: anObject [
-
-	maxWidth := anObject
+	name := self class defaultName.
+	frames := OrderedCollection new
 ]
 
 { #category : #accessing }
@@ -195,38 +122,6 @@ MolAnimation >> numberOfFrames [
 MolAnimation >> numberOfFrames: anObject [
 
 	numberOfFrames := anObject
-]
-
-{ #category : #accessing }
-MolAnimation >> opacity [
-
-	^ opacity
-]
-
-{ #category : #accessing }
-MolAnimation >> opacity: anObject [
-
-	opacity := anObject
-]
-
-{ #category : #printing }
-MolAnimation >> printOn: aStream [
-
-	aStream << 'Molecular animation:'.
-	aStream space.
-	aStream << self name
-]
-
-{ #category : #accessing }
-MolAnimation >> sdlTexture [
-
-	^ sdlTexture
-]
-
-{ #category : #accessing }
-MolAnimation >> sdlTexture: anObject [
-
-	sdlTexture := anObject
 ]
 
 { #category : #accessing }

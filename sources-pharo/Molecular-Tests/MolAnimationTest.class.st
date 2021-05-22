@@ -82,5 +82,41 @@ MolAnimationTest >> testBuildFrames [
 
 { #category : #tests }
 MolAnimationTest >> testDefaultName [
-	self assert: MolAnimation new name equals: MolAnimation defaultName
+	self assert: MolAnimation new name equals: MolAnimation defaultName.
+	self assert: MolStaticAnimation new name equals: MolStaticAnimation defaultName
+]
+
+{ #category : #tests }
+MolAnimationTest >> testName [
+
+	self should: [ MolStaticAnimation new name: 'test' ] raise: MessageNotUnderstood.
+	self assert: (MolStaticAnimation new name) equals: MolStaticAnimation defaultName.
+	self assert: (MolAnimation new name: 'test'; name) equals: 'test'
+]
+
+{ #category : #tests }
+MolAnimationTest >> testPrintOn [
+
+	| staticAnimation str |
+	staticAnimation := MolStaticAnimation new.
+	str := WriteStream on: String new.
+	staticAnimation printOn: str.
+	self assert: str contents equals: 'Molecular animation: static'.
+	
+	animation := MolAnimation new.
+	str := WriteStream on: String new.
+	animation name: 'test'.
+	animation printOn: str.
+	self assert: str contents equals: 'Molecular animation: test'
+	
+	
+]
+
+{ #category : #tests }
+MolAnimationTest >> testStaticAnimationNextFrame [
+	|staticAnimation|	
+	staticAnimation := MolStaticAnimation new.
+	staticAnimation currentFrame: Object new.
+	self assert: staticAnimation nextFrame identicalTo: staticAnimation currentFrame.
+	self assert: staticAnimation nextFrame identicalTo: staticAnimation currentFrame
 ]
