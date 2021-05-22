@@ -1,3 +1,5 @@
+[![CI](https://github.com/ycorre/molecular/actions/workflows/molecular-pharo.yml/badge.svg)](https://github.com/ycorre/molecular/actions/workflows/molecular-pharo.yml)
+
 *Molecular* is a small *R-Type* like game coded in C++.
 
 ## How to play
