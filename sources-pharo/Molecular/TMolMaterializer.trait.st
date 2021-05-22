@@ -24,9 +24,15 @@ TMolMaterializer >> build [
 { #category : #building }
 TMolMaterializer >> buildFormFromDataPath: dataPath [
 
-	^ ImageReadWriter formFromFileNamed:
-		  (MolResourceLocator new molecularResourceFileReferenceFor:
-			   dataPath)
+	| form |
+	form := ImageReadWriter formFromFileNamed:
+		        (MolResourceLocator new molecularResourceFileReferenceFor:
+			         dataPath).
+	form mapColor: Color black to: Color transparent.
+	^ form collectColors: [ :c | 
+		  c = Color black
+			  ifTrue: [ c alpha: 0 ]
+			  ifFalse: [ c ] ]
 ]
 
 { #category : #reading }

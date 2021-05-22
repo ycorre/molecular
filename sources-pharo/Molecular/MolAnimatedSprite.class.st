@@ -45,7 +45,7 @@ MolAnimatedSprite >> build [
 { #category : #textures }
 MolAnimatedSprite >> buildTextureWith: aRenderer [
 
-	animations do: [ :a | aRenderer initializeTextureFor: a ]
+	animations do: [ :a | aRenderer initializeTextureFor: a blend: self blend ]
 ]
 
 { #category : #accessing }

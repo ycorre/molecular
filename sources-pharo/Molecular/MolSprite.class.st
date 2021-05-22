@@ -25,7 +25,7 @@ Class {
 { #category : #accessing }
 MolSprite >> blend [
 
-	^ blend
+	^ blend ifNil:[false]
 ]
 
 { #category : #accessing }
