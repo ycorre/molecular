@@ -17,7 +17,7 @@ MolResourceLocatorTest >> setUp [
 MolResourceLocatorTest >> testMolecularConfigurationDirectory [
 
 	| dir |
-	self skipOnPharoCITestingEnvironment.
+	self skip.
 	dir := locator molecularConfigurationDirectory.
 	self assert: dir exists.
 	self assert: dir isDirectory
@@ -26,7 +26,7 @@ MolResourceLocatorTest >> testMolecularConfigurationDirectory [
 { #category : #tests }
 MolResourceLocatorTest >> testMolecularResourceFileReferenceFor [
 	|resourceFileReference|
-	self skipOnPharoCITestingEnvironment.
+	self skip.
 	resourceFileReference := locator molecularResourceFileReferenceFor: 'res/action/general/abeBkg.png'.
 	self assert: resourceFileReference exists.
 	self assert: resourceFileReference basename equals: 'abeBkg.png'
