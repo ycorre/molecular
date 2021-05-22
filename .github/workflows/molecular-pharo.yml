@@ -1,4 +1,4 @@
-name: CI
+name: Pharo-CI
 
 on: [push, pull_request]    
 
