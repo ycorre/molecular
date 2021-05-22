@@ -1,12 +1,5 @@
 [![Pharo-CI](https://github.com/ycorre/molecular/actions/workflows/molecular-pharo.yml/badge.svg)](https://github.com/ycorre/molecular/actions/workflows/molecular-pharo.yml)
 
-```Smalltalk
-Metacello new
-    baseline: 'Molecular';
-    repository: 'github://ycorre/molecular/sources-pharo';
-    load.
-  ```
-
 **Molecular** is a small *R-Type* like game coded in C++ and in [Pharo](https://pharo.org).
 
 ## How to play
@@ -29,6 +22,18 @@ The game controls are the keyboard and the mouse: the mouse is used to move arou
   6. The score
   7. Remaining lives
   8. A bonus (Type-U quark)
+
+## Loading the Pharo version
+
+Follow the instructions [here](https://pharo.org) to install and run a Pharo 9 image.
+Then execute this code in a Pharo Playground:
+
+```Smalltalk
+Metacello new
+    baseline: 'Molecular';
+    repository: 'github://ycorre/molecular/sources-pharo';
+    load.
+  ```
 
 ## License
 
