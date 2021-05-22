@@ -23,14 +23,6 @@ MolResourceLocatorTest >> testMolecularConfigurationDirectory [
 ]
 
 { #category : #tests }
-MolResourceLocatorTest >> testMolecularIceRepository [
-	|repository|
-	repository := locator molecularIceRepository.
-	self assert: repository origin owner equals: 'ycorre'.
-	self assert: repository origin projectName equals: 'molecular'
-]
-
-{ #category : #tests }
 MolResourceLocatorTest >> testMolecularResourceFileReferenceFor [
 	|resourceFileReference|
 	resourceFileReference := locator molecularResourceFileReferenceFor: 'res/action/general/abeBkg.png'.
@@ -48,5 +40,5 @@ MolResourceLocatorTest >> testMolecularResourcePathFor [
 	self
 		assert: resourcePath
 		equals:
-		molecularRepository location absolutePath / 'res/action/general/abeBkg.png'
+		molecularRepository / 'res/action/general/abeBkg.png'
 ]

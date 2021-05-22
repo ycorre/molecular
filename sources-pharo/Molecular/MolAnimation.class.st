@@ -30,7 +30,9 @@ Class {
 		'dataPath',
 		'opacity',
 		'animatedTexture',
-		'sdlTexture'
+		'sdlTexture',
+		'maxHeight',
+		'maxWidth'
 	],
 	#category : #'Molecular-model'
 }
@@ -139,6 +141,30 @@ MolAnimation >> height: anObject [
 MolAnimation >> initialize [
 	super initialize.
 	name := self class defaultName
+]
+
+{ #category : #accessing }
+MolAnimation >> maxHeight [
+
+	^ maxHeight
+]
+
+{ #category : #accessing }
+MolAnimation >> maxHeight: anObject [
+
+	maxHeight := anObject
+]
+
+{ #category : #accessing }
+MolAnimation >> maxWidth [
+
+	^ maxWidth
+]
+
+{ #category : #accessing }
+MolAnimation >> maxWidth: anObject [
+
+	maxWidth := anObject
 ]
 
 { #category : #accessing }

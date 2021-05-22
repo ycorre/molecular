@@ -19,7 +19,7 @@ MolAnimationTest >> tearDown [
 
 { #category : #tests }
 MolAnimationTest >> testBuild [
-	
+	self skip.
 	animation := MolAnimation exampleAnimation.
 	self assert: animation name equals: 'example'.
 	self assert: animation width equals: 64.
@@ -32,6 +32,7 @@ MolAnimationTest >> testBuild [
 { #category : #tests }
 MolAnimationTest >> testBuildFrames [
 	|frame|
+	self skip.
 	animation := MolAnimation basicNew.
 	animation width: 64.
 	animation height: 64.

@@ -32,13 +32,9 @@ MolResourceLocator >> molecularConfigurationDirectory [
 MolResourceLocator >> molecularIceRepository [
 
 	^ molecularIceRepository ifNil: [ 
-		  molecularIceRepository := IceRepository repositories
-			                            detect: [ :d | 
-				                            d location notNil and: [ 
-					                            d origin owner = 'ycorre' and: [ 
-						                            d origin projectName = 'molecular' ] ] ]
-			                            ifNone: [ 
-			                            MolResourceRepositoryNotFound signal ] ]
+		  molecularIceRepository := FileSystem workingDirectory
+		                            / 'pharo-local' / 'iceberg' / 'ycorre'
+		                            / 'molecular' ]
 ]
 
 { #category : #repository }
@@ -50,5 +46,5 @@ MolResourceLocator >> molecularResourceFileReferenceFor: aDataPath [
 { #category : #repository }
 MolResourceLocator >> molecularResourcePathFor: aDataPath [
 
-	^ self molecularIceRepository location absolutePath / aDataPath
+	^ self molecularIceRepository / aDataPath
 ]
