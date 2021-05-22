@@ -10,6 +10,9 @@ Class {
 		'SDL2Constants',
 		'SDL2Types'
 	],
+	#classInstVars : [
+		'form'
+	],
 	#category : #'Molecular-rendering'
 }
 
@@ -44,14 +47,15 @@ MolSDLRenderer >> initialize [
 	registeredTextures := OrderedCollection new.
 	SDL2 initVideo.
 	self initializeSDLWindow.
-	self initializeSDLRenderer 
+	self initializeSDLRenderer.
+	SDL2 initImage: 1
 ]
 
 { #category : #initialization }
 MolSDLRenderer >> initializeSDLRenderer [
 
 	sdlRenderer := sdlWindow createAcceleratedRenderer.
-	sdlRenderer drawBlendMode: SDL_BLENDMODE_BLEND
+	"sdlRenderer drawBlendMode: SDL_BLENDMODE_BLEND"
 ]
 
 { #category : #initialization }
@@ -69,13 +73,31 @@ MolSDLRenderer >> initializeSDLWindow [
 { #category : #textures }
 MolSDLRenderer >> initializeTextureFor: aMolAnimation [
 
-	| texture |
-	texture := self
+	| filePath surface texture |
+	"texture := self
 		           sdlTextureFromForm: aMolAnimation form
 		           width: aMolAnimation form width
 		           height: aMolAnimation form height.
-	texture blendMode: SDL_BLENDMODE_ADD.
+	texture blendMode: SDL_BLENDMODE_BLEND."
+	filePath := (MolResourceLocator new molecularResourceFileReferenceFor: aMolAnimation dataPath) pathString.
+	surface := SDL2 imageLoadFromPath: filePath.
+	surface setColorKeyFlag: 1 key: 0.
 	
+	texture := sdlRenderer createTextureFromSurface: surface .
+	texture blendMode: SDL_BLENDMODE_BLEND.
+	aMolAnimation sdlTexture: texture.
+	registeredTextures add: texture
+]
+
+{ #category : #textures }
+MolSDLRenderer >> initializeTextureFor: aMolAnimation blend: blend [
+
+	| filePath surface texture |	
+	filePath := (MolResourceLocator new molecularResourceFileReferenceFor: aMolAnimation dataPath) pathString.
+	surface := SDL2 imageLoadFromPath: filePath.
+	
+	texture := sdlRenderer createTextureFromSurface: surface .
+	texture blendMode: (blend ifTrue:[SDL_BLENDMODE_ADD] ifFalse:[SDL_BLENDMODE_BLEND]).
 	aMolAnimation sdlTexture: texture.
 	registeredTextures add: texture
 ]
@@ -123,7 +145,7 @@ MolSDLRenderer >> sdlRenderer [
 MolSDLRenderer >> sdlTextureFromForm2: form width: w height: h [
 
 	| surface form2 texture |
-	form2 := 	form unhibernate; asFormOfDepth: 32.
+	form2 := 	form" unhibernate; asFormOfDepth: 32".
 	surface := SDL2 createRGBSurfaceFromPixels: form2 bits
 			width: form2 width height: form2 height
 			depth: 32 pitch: form2 width *4
@@ -133,7 +155,8 @@ MolSDLRenderer >> sdlTextureFromForm2: form width: w height: h [
 			amask: 16rff000000.
 	
 	surface setColorKeyFlag: 1 key: 0.
-	texture := SDL2 createTextureFromSurface: surface withRenderer: sdlRenderer.
+
+	texture := SDL2 createTextureFromSurface: sdlRenderer  withRenderer: surface .
 	
 	^ texture
 ]
