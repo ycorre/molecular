@@ -50,6 +50,5 @@ TMolMaterializer >> readFromDictionnary: aDictionnary [
 				defineSetterMethod;
 				execute ].
 		self perform: selector asSymbol asMutator with: value ].
-	self build.
 	^ self
 ]
