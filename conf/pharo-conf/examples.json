@@ -1,0 +1,5 @@
+{
+	"animation" : [
+		{"name" : "example", "width" : 64, "height" : 64, "numberOfFrames" : 10}]
+}
+
