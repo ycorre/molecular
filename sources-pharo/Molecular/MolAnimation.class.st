@@ -23,7 +23,7 @@ Class {
 		'numberOfFrames',
 		'frames'
 	],
-	#category : #'Molecular-model'
+	#category : #'Molecular-model - 2D graphics'
 }
 
 { #category : #default }

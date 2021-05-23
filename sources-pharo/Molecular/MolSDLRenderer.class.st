@@ -13,7 +13,7 @@ Class {
 	#classInstVars : [
 		'form'
 	],
-	#category : #'Molecular-rendering'
+	#category : #'Molecular-model - sdl'
 }
 
 { #category : #textures }
