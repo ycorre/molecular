@@ -15,6 +15,11 @@ MolStaticAnimation class >> defaultName [
 	^'static'
 ]
 
+{ #category : #building }
+MolStaticAnimation >> buildFramesInBounds: aRectangle [ 
+	currentFrame := aRectangle asMolSpriteFrame 
+]
+
 { #category : #accessing }
 MolStaticAnimation >> currentFrame [
 

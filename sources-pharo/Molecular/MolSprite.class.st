@@ -122,6 +122,13 @@ MolSprite >> sldTexture: anObject [
 	sldTexture := anObject
 ]
 
+{ #category : #updating }
+MolSprite >> updateAnimation: anAnimation [
+
+	anAnimation buildFramesInBounds: (0 @ 0 extent: width @ height).
+	self animation: anAnimation
+]
+
 { #category : #accessing }
 MolSprite >> width [
 
