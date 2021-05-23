@@ -17,6 +17,13 @@ Class {
 	#category : #'Molecular-model'
 }
 
+{ #category : #examples }
+MolSprite class >> exampleSprite [
+<script>
+	^ self readFromString:
+		  '{"name" : "example", "width" : 128, "height" : 128, "animation" : "example", "dataPath" : "path"}'
+]
+
 { #category : #accessing }
 MolSprite >> animation [
 

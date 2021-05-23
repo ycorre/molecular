@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'animation'
 	],
-	#category : #'Molecular-Tests'
+	#category : #'Molecular-Tests-tests'
 }
 
 { #category : #running }

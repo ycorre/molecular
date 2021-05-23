@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'locator'
 	],
-	#category : #'Molecular-Tests'
+	#category : #'Molecular-Tests-tests'
 }
 
 { #category : #running }
