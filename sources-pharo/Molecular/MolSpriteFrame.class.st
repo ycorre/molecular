@@ -10,7 +10,7 @@ Class {
 	#instVars : [
 		'sdlBounds'
 	],
-	#category : #'Molecular-model'
+	#category : #'Molecular-model - 2D graphics'
 }
 
 { #category : #accessing }

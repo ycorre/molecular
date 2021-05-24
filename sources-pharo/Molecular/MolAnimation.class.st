@@ -14,6 +14,8 @@ I model a spritesheet animation.
 Class {
 	#name : #MolAnimation,
 	#superclass : #MolStaticAnimation,
+	#traits : 'TMolMaterializer',
+	#classTraits : 'TMolMaterializer classTrait',
 	#instVars : [
 		'name',
 		'width',
@@ -21,7 +23,7 @@ Class {
 		'numberOfFrames',
 		'frames'
 	],
-	#category : #'Molecular-model'
+	#category : #'Molecular-model - 2D graphics'
 }
 
 { #category : #default }
@@ -34,7 +36,7 @@ MolAnimation class >> exampleAnimation [
 
 	<script>
 	^ self readFromString:
-		  '{"name" : "example", "width" : 64, "height" : 64, "maxWidth" : 320, "maxHeight" : 320, "numberOfFrames" : 10}'
+		  '{"name" : "example", "width" : 64, "height" : 64, "numberOfFrames" : 10}'
 ]
 
 { #category : #building }

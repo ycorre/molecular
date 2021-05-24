@@ -7,12 +7,17 @@ Class {
 	#instVars : [
 		'currentFrame'
 	],
-	#category : #'Molecular-model'
+	#category : #'Molecular-model - 2D graphics'
 }
 
 { #category : #accessing }
 MolStaticAnimation class >> defaultName [
 	^'static'
+]
+
+{ #category : #building }
+MolStaticAnimation >> buildFramesInBounds: aRectangle [ 
+	currentFrame := aRectangle asMolSpriteFrame 
 ]
 
 { #category : #accessing }

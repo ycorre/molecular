@@ -15,26 +15,6 @@ TMolMaterializer classSide >> readFromString: aString [
 	^self new readFromDictionnary: objectDictionary
 ]
 
-{ #category : #building }
-TMolMaterializer >> build [
-	
-	^ self
-]
-
-{ #category : #building }
-TMolMaterializer >> buildFormFromDataPath: dataPath [
-
-	| form |
-	form := ImageReadWriter formFromFileNamed:
-		        (MolResourceLocator new molecularResourceFileReferenceFor:
-			         dataPath).
-	form mapColor: Color black to: Color transparent.
-	^ form collectColors: [ :c | 
-		  c = Color black
-			  ifTrue: [ c alpha: 0 ]
-			  ifFalse: [ c ] ]
-]
-
 { #category : #reading }
 TMolMaterializer >> readFromDictionnary: aDictionnary [
 
@@ -50,6 +30,5 @@ TMolMaterializer >> readFromDictionnary: aDictionnary [
 				defineSetterMethod;
 				execute ].
 		self perform: selector asSymbol asMutator with: value ].
-	self build.
 	^ self
 ]

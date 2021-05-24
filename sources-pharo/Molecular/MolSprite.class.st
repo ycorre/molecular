@@ -11,48 +11,53 @@ Class {
 		'height',
 		'name',
 		'dataPath',
-		'form',
-		'spriteFrame',
-		'clampTexture',
-		'virtualDepth',
-		'blend',
-		'opacity',
+		'animation',
 		'sldTexture'
 	],
-	#category : #'Molecular-model'
+	#category : #'Molecular-model - 2D graphics'
 }
 
-{ #category : #accessing }
-MolSprite >> blend [
-
-	^ blend ifNil:[false]
+{ #category : #examples }
+MolSprite class >> exampleSprite [
+<script>
+	^ self readFromString:
+		  '{"name" : "example", "width" : 128, "height" : 128, "animation" : "example", "dataPath" : "path"}'
 ]
 
 { #category : #accessing }
-MolSprite >> blend: anObject [
+MolSprite >> animation [
 
-	blend := anObject
+	^ animation
+]
+
+{ #category : #accessing }
+MolSprite >> animation: aMolAnimationOrString [
+	self flag: 'When the sprite is built, the string should be replaced by the correct animation'.
+	animation := aMolAnimationOrString
 ]
 
 { #category : #building }
 MolSprite >> build [
 
-	form := self buildFormFromDataPath: dataPath.
-	spriteFrame := ((0 @ 0) extent: (form width) @ (form height))
-		               asMolSpriteFrame.
+	| animations animationsDictionaries currentAnimation|
+	self deprecated: 'Sprites do not care anymore about their animations. They have one, that decides what to do.'.
+	animationsDictionaries := animations.
+	animationsDictionaries do: [ :d | 
+		d at: 'width' ifAbsentPut: [ self width ].
+		d at: 'height' ifAbsentPut: [ self height ] ].
+	animations := Dictionary new.
+	animationsDictionaries do: [ :d | 
+	
+		animation := MolAnimation new readFromDictionnary: d.
+		animations at: animation name put: animation ].
+	currentAnimation := self defaultAnimation.
 	^ self
 ]
 
-{ #category : #accessing }
-MolSprite >> clampTexture [
+{ #category : #textures }
+MolSprite >> buildTextureWith: aRenderer [
 
-	^ clampTexture
-]
-
-{ #category : #accessing }
-MolSprite >> clampTexture: anObject [
-
-	clampTexture := anObject
+	animations do: [ :a | aRenderer initializeTextureFor: a blend: self blend ]
 ]
 
 { #category : #accessing }
@@ -65,18 +70,6 @@ MolSprite >> dataPath [
 MolSprite >> dataPath: anObject [
 
 	dataPath := anObject
-]
-
-{ #category : #accessing }
-MolSprite >> form [
-
-	^ form
-]
-
-{ #category : #accessing }
-MolSprite >> form: anObject [
-
-	form := anObject
 ]
 
 { #category : #accessing }
@@ -105,23 +98,16 @@ MolSprite >> name: anObject [
 
 { #category : #frames }
 MolSprite >> nextSpriteFrame [
-	^spriteFrame 
-]
 
-{ #category : #accessing }
-MolSprite >> opacity [
-
-	^ opacity
-]
-
-{ #category : #accessing }
-MolSprite >> opacity: anObject [
-
-	opacity := anObject
+	^ animation nextFrame
 ]
 
 { #category : #rendering }
 MolSprite >> renderOn: aRenderer atPosition: aSDLRectangle [
+	self flag: 'wont work anymore'.
+	aRenderer
+		renderAnimationFrame: animation
+		atPosition: aSDLRectangle
 ]
 
 { #category : #accessing }
@@ -136,22 +122,11 @@ MolSprite >> sldTexture: anObject [
 	sldTexture := anObject
 ]
 
-{ #category : #accessing }
-MolSprite >> spriteFrame [
+{ #category : #updating }
+MolSprite >> updateAnimation: anAnimation [
 
-	^ spriteFrame
-]
-
-{ #category : #accessing }
-MolSprite >> virtualDepth [
-
-	^ virtualDepth
-]
-
-{ #category : #accessing }
-MolSprite >> virtualDepth: anObject [
-
-	virtualDepth := anObject
+	anAnimation buildFramesInBounds: (0 @ 0 extent: width @ height).
+	self animation: anAnimation
 ]
 
 { #category : #accessing }
