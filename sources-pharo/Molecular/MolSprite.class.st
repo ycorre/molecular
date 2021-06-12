@@ -4,12 +4,11 @@ I model a 2D sprite.
 Class {
 	#name : #MolSprite,
 	#superclass : #Object,
-	#traits : 'TMolMaterializer',
-	#classTraits : 'TMolMaterializer classTrait',
+	#traits : 'TMolMaterializer + TMolNamedEntity',
+	#classTraits : 'TMolMaterializer classTrait + TMolNamedEntity classTrait',
 	#instVars : [
 		'width',
 		'height',
-		'name',
 		'dataPath',
 		'animation',
 		'sldTexture'
@@ -82,18 +81,6 @@ MolSprite >> height [
 MolSprite >> height: anObject [
 
 	height := anObject
-]
-
-{ #category : #accessing }
-MolSprite >> name [
-
-	^ name
-]
-
-{ #category : #accessing }
-MolSprite >> name: anObject [
-
-	name := anObject
 ]
 
 { #category : #frames }

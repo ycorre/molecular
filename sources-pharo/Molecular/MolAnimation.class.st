@@ -14,10 +14,9 @@ I model a spritesheet animation.
 Class {
 	#name : #MolAnimation,
 	#superclass : #MolStaticAnimation,
-	#traits : 'TMolMaterializer',
-	#classTraits : 'TMolMaterializer classTrait',
+	#traits : 'TMolMaterializer + TMolNamedEntity',
+	#classTraits : 'TMolMaterializer classTrait + TMolNamedEntity classTrait',
 	#instVars : [
-		'name',
 		'width',
 		'height',
 		'numberOfFrames',
@@ -94,18 +93,6 @@ MolAnimation >> initialize [
 	super initialize.
 	name := self class defaultName.
 	frames := OrderedCollection new
-]
-
-{ #category : #accessing }
-MolAnimation >> name [
-
-	^ name
-]
-
-{ #category : #accessing }
-MolAnimation >> name: anObject [
-
-	name := anObject
 ]
 
 { #category : #animation }
