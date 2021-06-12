@@ -14,3 +14,51 @@ Class {
 	],
 	#category : #'Molecular-model - 2D graphics'
 }
+
+{ #category : #accessing }
+MolGraphicEntity >> displaySprite [
+
+	^ displaySprite
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> displaySprite: anObject [
+
+	displaySprite := anObject
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> glowSprite [
+
+	^ glowSprite
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> glowSprite: anObject [
+
+	glowSprite := anObject
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> position [
+
+	^ position
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> position: anObject [
+
+	position := anObject
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> spritesConfigurations [
+
+	^ spritesConfigurations
+]
+
+{ #category : #accessing }
+MolGraphicEntity >> spritesConfigurations: anObject [
+
+	spritesConfigurations := anObject
+]
