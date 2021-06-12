@@ -15,6 +15,11 @@ Class {
 	#category : #'Molecular-model - 2D graphics'
 }
 
+{ #category : #'sprites - configuration' }
+MolGraphicEntity >> addSpriteConfiguration: aSpriteConfiguration [
+	self spritesConfigurations at: aSpriteConfiguration name put: aSpriteConfiguration 
+]
+
 { #category : #accessing }
 MolGraphicEntity >> displaySprite [
 
@@ -51,10 +56,21 @@ MolGraphicEntity >> position: anObject [
 	position := anObject
 ]
 
+{ #category : #'sprites - configuration' }
+MolGraphicEntity >> setSpriteConfigurationNamed: aString [
+
+	| configuration |
+	configuration := self spritesConfigurations at: aString.
+	displaySprite := configuration sprite.
+	displaySprite animation: configuration animation.
+	glowSprite := configuration glowSprite.
+	glowSprite animation: configuration animation
+]
+
 { #category : #accessing }
 MolGraphicEntity >> spritesConfigurations [
 
-	^ spritesConfigurations
+	^ spritesConfigurations ifNil:[spritesConfigurations := Dictionary new]
 ]
 
 { #category : #accessing }
