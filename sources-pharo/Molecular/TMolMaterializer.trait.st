@@ -19,9 +19,10 @@ TMolMaterializer classSide >> readFromString: aString [
 
 { #category : 'reading' }
 TMolMaterializer >> readFromDictionnary: aDictionnary [
+"	self halt."
 
 	aDictionnary keysAndValuesDo: [ :selector :value | 
-		(self class withAllSuperclasses anySatisfy: [ :c | 
+		"(self class withAllSuperclasses anySatisfy: [ :c | 
 			 c hasInstVarNamed: selector ]) ifFalse: [ 
 			self class addInstVarNamed: selector.
 			(RBCreateAccessorsForVariableRefactoring
@@ -30,7 +31,7 @@ TMolMaterializer >> readFromDictionnary: aDictionnary [
 				 classVariable: false)
 				defineGetterMethod;
 				defineSetterMethod;
-				execute ].
+				execute ]."
 		self perform: selector asSymbol asMutator with: value ].
 	^ self
 ]

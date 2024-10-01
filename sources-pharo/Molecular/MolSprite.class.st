@@ -11,7 +11,11 @@ Class {
 		'height',
 		'dataPath',
 		'animation',
-		'sldTexture'
+		'sldTexture',
+		'animations',
+		'virtualDepth',
+		'blend',
+		'collision'
 	],
 	#category : 'Molecular-model - 2D graphics',
 	#package : 'Molecular',
@@ -37,6 +41,17 @@ MolSprite >> animation: aMolAnimationOrString [
 	animation := aMolAnimationOrString
 ]
 
+{ #category : 'as yet unclassified' }
+MolSprite >> animations: aCollection [ 
+	self  readFromDictionnary: aCollection first
+]
+
+{ #category : 'as yet unclassified' }
+MolSprite >> blend: aBoolean [ 
+
+	blend:= aBoolean 
+]
+
 { #category : 'building' }
 MolSprite >> build [
 
@@ -59,6 +74,17 @@ MolSprite >> build [
 MolSprite >> buildTextureWith: aRenderer [
 
 	animations do: [ :a | aRenderer initializeTextureFor: a blend: self blend ]
+]
+
+{ #category : 'as yet unclassified' }
+MolSprite >> clampTexture: aBoolean [ 
+	| clampTexture |
+	clampTexture:=aBoolean 
+]
+
+{ #category : 'as yet unclassified' }
+MolSprite >> collision: aString [ 
+	collision := aString 
 ]
 
 { #category : 'accessing' }
@@ -116,6 +142,11 @@ MolSprite >> updateAnimation: anAnimation [
 
 	anAnimation buildFramesInBounds: (0 @ 0 extent: width @ height).
 	self animation: anAnimation
+]
+
+{ #category : 'as yet unclassified' }
+MolSprite >> virtualDepth: anInteger [ 
+	virtualDepth := anInteger
 ]
 
 { #category : 'accessing' }
