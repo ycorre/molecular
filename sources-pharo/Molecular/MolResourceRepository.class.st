@@ -4,7 +4,9 @@ I store Molecular game resources in my internal data structures and provide a gl
 
 "
 Class {
-	#name : #MolResourceRepository,
-	#superclass : #Object,
-	#category : #'Molecular-core'
+	#name : 'MolResourceRepository',
+	#superclass : 'Object',
+	#category : 'Molecular-core',
+	#package : 'Molecular',
+	#tag : 'core'
 }

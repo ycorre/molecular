@@ -1,6 +1,6 @@
 Class {
-	#name : #MolSDLRenderer,
-	#superclass : #Object,
+	#name : 'MolSDLRenderer',
+	#superclass : 'Object',
 	#instVars : [
 		'registeredTextures',
 		'sdlWindow',
@@ -13,28 +13,30 @@ Class {
 	#classInstVars : [
 		'form'
 	],
-	#category : #'Molecular-model - sdl'
+	#category : 'Molecular-model - sdl',
+	#package : 'Molecular',
+	#tag : 'model - sdl'
 }
 
-{ #category : #textures }
+{ #category : 'textures' }
 MolSDLRenderer >> buildTextureFor: aMolAnimatedSprite [
 
 	aMolAnimatedSprite buildTextureWith: self
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSDLRenderer >> clear [ 
 	sdlRenderer clear
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 MolSDLRenderer >> drawBlackBackground [
 
 	sdlRenderer drawColorR: 0 g: 0 b: 0 a: 0.
 
 ]
 
-{ #category : #'freeing resources' }
+{ #category : 'freeing resources' }
 MolSDLRenderer >> freeSDLResources [
 
 	registeredTextures do: [ :texture | texture destroy ].
@@ -42,7 +44,7 @@ MolSDLRenderer >> freeSDLResources [
 	sdlWindow destroy
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 MolSDLRenderer >> initialize [
 	registeredTextures := OrderedCollection new.
 	SDL2 initVideo.
@@ -51,14 +53,14 @@ MolSDLRenderer >> initialize [
 	SDL2 initImage: 1
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 MolSDLRenderer >> initializeSDLRenderer [
 
 	sdlRenderer := sdlWindow createAcceleratedRenderer.
 	"sdlRenderer drawBlendMode: SDL_BLENDMODE_BLEND"
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 MolSDLRenderer >> initializeSDLWindow [
 
 	sdlWindow := SDL2
@@ -70,7 +72,7 @@ MolSDLRenderer >> initializeSDLWindow [
 		          flags: SDL_WINDOW_SHOWN
 ]
 
-{ #category : #textures }
+{ #category : 'textures' }
 MolSDLRenderer >> initializeTextureFor: aMolAnimation [
 
 	| filePath surface texture |
@@ -89,7 +91,7 @@ MolSDLRenderer >> initializeTextureFor: aMolAnimation [
 	registeredTextures add: texture
 ]
 
-{ #category : #textures }
+{ #category : 'textures' }
 MolSDLRenderer >> initializeTextureFor: aMolAnimation blend: blend [
 
 	| filePath surface texture |	
@@ -102,13 +104,13 @@ MolSDLRenderer >> initializeTextureFor: aMolAnimation blend: blend [
 	registeredTextures add: texture
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSDLRenderer >> present [
 	"sdlRenderer drawColorR: 0 g: 0  b: 0  a: 0. "
 	sdlRenderer present
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSDLRenderer >> renderAnimationFrame: aMolAnimation atPosition: aSDLRectangle [
 
 	self
@@ -117,31 +119,31 @@ MolSDLRenderer >> renderAnimationFrame: aMolAnimation atPosition: aSDLRectangle 
 		atPosition: aSDLRectangle
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSDLRenderer >> renderSprite: aSprite [
 
 	aSprite renderOn: self
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSDLRenderer >> renderSprite: aSprite atPosition: aSDLRectangle [
 
 	aSprite renderOn: self atPosition: aSDLRectangle
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSDLRenderer >> renderTexture: texture frame: frame atPosition: aSDLRectangle [
 
 	sdlRenderer copy: texture srcRect: frame dstRect: aSDLRectangle
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSDLRenderer >> sdlRenderer [
 
 	^ sdlRenderer
 ]
 
-{ #category : #textures }
+{ #category : 'textures' }
 MolSDLRenderer >> sdlTextureFromForm2: form width: w height: h [
 
 	| surface form2 texture |
@@ -161,7 +163,7 @@ MolSDLRenderer >> sdlTextureFromForm2: form width: w height: h [
 	^ texture
 ]
 
-{ #category : #textures }
+{ #category : 'textures' }
 MolSDLRenderer >> sdlTextureFromForm: form width: w height: h [
 
 	| texture |

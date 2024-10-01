@@ -1,6 +1,6 @@
-Extension { #name : #SDL2 }
+Extension { #name : 'SDL2' }
 
-{ #category : #'*Molecular' }
+{ #category : '*Molecular' }
 SDL2 class >> imageLoadFromPath: file [
 
 	^ self

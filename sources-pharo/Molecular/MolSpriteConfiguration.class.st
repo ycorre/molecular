@@ -7,8 +7,8 @@ I represent a configuration of sprites meant to be displayed together with a com
 The display sprites is meant to be displayed first, and the glow sprite on top.
 "
 Class {
-	#name : #MolSpriteConfiguration,
-	#superclass : #Object,
+	#name : 'MolSpriteConfiguration',
+	#superclass : 'Object',
 	#traits : 'TMolNamedEntity',
 	#classTraits : 'TMolNamedEntity classTrait',
 	#instVars : [
@@ -16,40 +16,42 @@ Class {
 		'glowSprite',
 		'animation'
 	],
-	#category : #'Molecular-model - 2D graphics'
+	#category : 'Molecular-model - 2D graphics',
+	#package : 'Molecular',
+	#tag : 'model - 2D graphics'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSpriteConfiguration >> animation [
 
 	^ animation
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSpriteConfiguration >> animation: anObject [
 
 	animation := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSpriteConfiguration >> glowSprite [
 
 	^ glowSprite
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSpriteConfiguration >> glowSprite: anObject [
 
 	glowSprite := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSpriteConfiguration >> sprite [
 
 	^ sprite
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSpriteConfiguration >> sprite: anObject [
 
 	sprite := anObject

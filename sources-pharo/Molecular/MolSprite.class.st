@@ -2,8 +2,8 @@
 I model a 2D sprite.
 "
 Class {
-	#name : #MolSprite,
-	#superclass : #Object,
+	#name : 'MolSprite',
+	#superclass : 'Object',
 	#traits : 'TMolMaterializer + TMolNamedEntity',
 	#classTraits : 'TMolMaterializer classTrait + TMolNamedEntity classTrait',
 	#instVars : [
@@ -13,29 +13,31 @@ Class {
 		'animation',
 		'sldTexture'
 	],
-	#category : #'Molecular-model - 2D graphics'
+	#category : 'Molecular-model - 2D graphics',
+	#package : 'Molecular',
+	#tag : 'model - 2D graphics'
 }
 
-{ #category : #examples }
+{ #category : 'examples' }
 MolSprite class >> exampleSprite [
 <script>
 	^ self readFromString:
 		  '{"name" : "example", "width" : 128, "height" : 128, "animation" : "example", "dataPath" : "path"}'
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> animation [
 
 	^ animation
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> animation: aMolAnimationOrString [
 	self flag: 'When the sprite is built, the string should be replaced by the correct animation'.
 	animation := aMolAnimationOrString
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 MolSprite >> build [
 
 	| animations animationsDictionaries currentAnimation|
@@ -53,43 +55,43 @@ MolSprite >> build [
 	^ self
 ]
 
-{ #category : #textures }
+{ #category : 'textures' }
 MolSprite >> buildTextureWith: aRenderer [
 
 	animations do: [ :a | aRenderer initializeTextureFor: a blend: self blend ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> dataPath [
 
 	^ dataPath
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> dataPath: anObject [
 
 	dataPath := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> height [
 
 	^ height
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> height: anObject [
 
 	height := anObject
 ]
 
-{ #category : #frames }
+{ #category : 'frames' }
 MolSprite >> nextSpriteFrame [
 
 	^ animation nextFrame
 ]
 
-{ #category : #rendering }
+{ #category : 'rendering' }
 MolSprite >> renderOn: aRenderer atPosition: aSDLRectangle [
 	self flag: 'wont work anymore'.
 	aRenderer
@@ -97,32 +99,32 @@ MolSprite >> renderOn: aRenderer atPosition: aSDLRectangle [
 		atPosition: aSDLRectangle
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> sldTexture [
 
 	^ sldTexture
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> sldTexture: anObject [
 
 	sldTexture := anObject
 ]
 
-{ #category : #updating }
+{ #category : 'updating' }
 MolSprite >> updateAnimation: anAnimation [
 
 	anAnimation buildFramesInBounds: (0 @ 0 extent: width @ height).
 	self animation: anAnimation
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> width [
 
 	^ width
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolSprite >> width: anObject [
 
 	width := anObject

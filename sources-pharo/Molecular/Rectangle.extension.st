@@ -1,6 +1,6 @@
-Extension { #name : #Rectangle }
+Extension { #name : 'Rectangle' }
 
-{ #category : #'*Molecular' }
+{ #category : '*Molecular' }
 Rectangle >> asMolSpriteFrame [
 	^MolSpriteFrame value: self
 ]

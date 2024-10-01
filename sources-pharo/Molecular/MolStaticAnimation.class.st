@@ -2,49 +2,51 @@
 I am a static animation always returning the same sprite frame.
 "
 Class {
-	#name : #MolStaticAnimation,
-	#superclass : #Object,
+	#name : 'MolStaticAnimation',
+	#superclass : 'Object',
 	#instVars : [
 		'currentFrame'
 	],
-	#category : #'Molecular-model - 2D graphics'
+	#category : 'Molecular-model - 2D graphics',
+	#package : 'Molecular',
+	#tag : 'model - 2D graphics'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolStaticAnimation class >> defaultName [
 	^'static'
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 MolStaticAnimation >> buildFramesInBounds: aRectangle [ 
 	currentFrame := aRectangle asMolSpriteFrame 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolStaticAnimation >> currentFrame [
 
 	^ currentFrame
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolStaticAnimation >> currentFrame: anObject [
 
 	^ currentFrame := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolStaticAnimation >> name [
 
 	^ self class defaultName
 ]
 
-{ #category : #animation }
+{ #category : 'animation' }
 MolStaticAnimation >> nextFrame [
 
 	^ currentFrame
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 MolStaticAnimation >> printOn: aStream [
 
 	aStream << 'Molecular animation:'.

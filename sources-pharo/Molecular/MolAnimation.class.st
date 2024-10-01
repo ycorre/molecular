@@ -12,8 +12,8 @@ I model a spritesheet animation.
 
 "
 Class {
-	#name : #MolAnimation,
-	#superclass : #MolStaticAnimation,
+	#name : 'MolAnimation',
+	#superclass : 'MolStaticAnimation',
 	#traits : 'TMolMaterializer + TMolNamedEntity',
 	#classTraits : 'TMolMaterializer classTrait + TMolNamedEntity classTrait',
 	#instVars : [
@@ -22,15 +22,17 @@ Class {
 		'numberOfFrames',
 		'frames'
 	],
-	#category : #'Molecular-model - 2D graphics'
+	#category : 'Molecular-model - 2D graphics',
+	#package : 'Molecular',
+	#tag : 'model - 2D graphics'
 }
 
-{ #category : #default }
+{ #category : 'default' }
 MolAnimation class >> defaultName [
 	^'default'
 ]
 
-{ #category : #examples }
+{ #category : 'examples' }
 MolAnimation class >> exampleAnimation [
 
 	<script>
@@ -38,7 +40,7 @@ MolAnimation class >> exampleAnimation [
 		  '{"name" : "example", "width" : 64, "height" : 64, "numberOfFrames" : 10}'
 ]
 
-{ #category : #building }
+{ #category : 'building' }
 MolAnimation >> buildFramesInBounds: aRectangle [ 
 
 	| i j frame |
@@ -64,62 +66,62 @@ MolAnimation >> buildFramesInBounds: aRectangle [
 	currentFrame nextLink: frames first
 ]
 
-{ #category : #animation }
+{ #category : 'animation' }
 MolAnimation >> currentFrame [
 
 	^ currentFrame ifNil: [ currentFrame := frames first ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> frames [
 
 	^ frames
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> height [
 
 	^ height
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> height: anObject [
 
 	height := anObject
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 MolAnimation >> initialize [ 
 	super initialize.
 	name := self class defaultName.
 	frames := OrderedCollection new
 ]
 
-{ #category : #animation }
+{ #category : 'animation' }
 MolAnimation >> nextFrame [
 
 	^ currentFrame := self currentFrame nextLink
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> numberOfFrames [
 
 	^ numberOfFrames
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> numberOfFrames: anObject [
 
 	numberOfFrames := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> width [
 
 	^ width
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolAnimation >> width: anObject [
 
 	width := anObject

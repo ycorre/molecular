@@ -1,6 +1,6 @@
-Extension { #name : #'SDL_Renderer' }
+Extension { #name : 'SDL_Renderer' }
 
-{ #category : #'*Molecular' }
+{ #category : '*Molecular' }
 SDL_Renderer >> createTextureFromSurface:surface [
 
 	^ self ffiCall: #( SDL_Texture SDL_CreateTextureFromSurface

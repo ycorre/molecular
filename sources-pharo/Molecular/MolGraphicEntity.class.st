@@ -2,8 +2,8 @@
 I represent a graphic entity displayable on a graphics medium.
 "
 Class {
-	#name : #MolGraphicEntity,
-	#superclass : #Object,
+	#name : 'MolGraphicEntity',
+	#superclass : 'Object',
 	#traits : 'TMolMaterializer + TMolNamedEntity',
 	#classTraits : 'TMolMaterializer classTrait + TMolNamedEntity classTrait',
 	#instVars : [
@@ -12,51 +12,53 @@ Class {
 		'displaySprite',
 		'glowSprite'
 	],
-	#category : #'Molecular-model - 2D graphics'
+	#category : 'Molecular-model - 2D graphics',
+	#package : 'Molecular',
+	#tag : 'model - 2D graphics'
 }
 
-{ #category : #'sprites - configuration' }
+{ #category : 'sprites - configuration' }
 MolGraphicEntity >> addSpriteConfiguration: aSpriteConfiguration [
 	self spritesConfigurations at: aSpriteConfiguration name put: aSpriteConfiguration 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> displaySprite [
 
 	^ displaySprite
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> displaySprite: anObject [
 
 	displaySprite := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> glowSprite [
 
 	^ glowSprite
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> glowSprite: anObject [
 
 	glowSprite := anObject
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> position [
 
 	^ position
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> position: anObject [
 
 	position := anObject
 ]
 
-{ #category : #'sprites - configuration' }
+{ #category : 'sprites - configuration' }
 MolGraphicEntity >> setSpriteConfigurationNamed: aString [
 
 	| configuration |
@@ -67,13 +69,13 @@ MolGraphicEntity >> setSpriteConfigurationNamed: aString [
 	glowSprite animation: configuration animation
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> spritesConfigurations [
 
 	^ spritesConfigurations ifNil:[spritesConfigurations := Dictionary new]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 MolGraphicEntity >> spritesConfigurations: anObject [
 
 	spritesConfigurations := anObject

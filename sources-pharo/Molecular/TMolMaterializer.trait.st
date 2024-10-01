@@ -4,18 +4,20 @@ I therefore should be used by all molecular objects that needs to be read from j
 
 "
 Trait {
-	#name : #TMolMaterializer,
-	#category : #'Molecular-core'
+	#name : 'TMolMaterializer',
+	#category : 'Molecular-core',
+	#package : 'Molecular',
+	#tag : 'core'
 }
 
-{ #category : #reading }
+{ #category : 'reading' }
 TMolMaterializer classSide >> readFromString: aString [
 	|objectDictionary|
 	objectDictionary := STONJSON fromString: aString.
 	^self new readFromDictionnary: objectDictionary
 ]
 
-{ #category : #reading }
+{ #category : 'reading' }
 TMolMaterializer >> readFromDictionnary: aDictionnary [
 
 	aDictionnary keysAndValuesDo: [ :selector :value | 

@@ -2,20 +2,22 @@
 I provide simple naming to Molecular entities.
 "
 Trait {
-	#name : #TMolNamedEntity,
+	#name : 'TMolNamedEntity',
 	#instVars : [
 		'name'
 	],
-	#category : #'Molecular-core'
+	#category : 'Molecular-core',
+	#package : 'Molecular',
+	#tag : 'core'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 TMolNamedEntity >> name [
 
 	^ name
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 TMolNamedEntity >> name: anObject [
 
 	name := anObject
