@@ -453,6 +453,8 @@ bool sortDisplayedElement(const Drawable * a, const Drawable * b) {
 
 bool initOpenGL()
 {
+        glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+        
 	// Initialise GLFW
 	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize GLFW\n");

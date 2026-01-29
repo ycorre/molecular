@@ -27,7 +27,7 @@ class Game
 		Keyboard * keyboard;
 		Level * aLevel;
 		Menu * menu;
-		Hero * hero;
+		Hero * hero = nullptr;
 		//List of levels
 		//map<string, Level*> levels;
 		vector<string> levelOrder;
