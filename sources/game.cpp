@@ -355,8 +355,8 @@ void Game::launchLevel(string aLevelName)
 	CurrentLevel->graphicEngine = &graphicEngine;
 	CurrentLevel->physicEngine = &physicEngine;
 	CurrentLevel->soundEngine = &soundEngine;
-	if(hero)
-		delete hero;
+	if(hero != nullptr)
+	  delete hero;
 
 	hero = new Hero();
 	GameTimer = 0;
